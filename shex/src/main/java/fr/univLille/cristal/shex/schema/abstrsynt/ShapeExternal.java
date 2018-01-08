@@ -15,18 +15,15 @@ limitations under the License.
 
 */
 
+
 package fr.univLille.cristal.shex.schema.abstrsynt;
+
 
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * 11 oct. 2017
  */
-public abstract class AbstractTripleExpression implements TripleExpression {
-
-	private final ASElementAttributes attributes = new ASElementAttributes();
-	public final ASElementAttributes getAttributes() {
-		return attributes;
-	}
+public abstract class ShapeExternal extends ShapeExpr {
 
 }

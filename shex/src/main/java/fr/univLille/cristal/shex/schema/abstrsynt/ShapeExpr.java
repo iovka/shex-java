@@ -19,32 +19,27 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import java.util.List;
-
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
-import fr.univLille.cristal.shex.util.CollectionToString;
 
 /**
  * 
  * @author Iovka Boneva
- * @author Antonin Durey
- *
+ * 10 oct. 2017
  */
-public class ShapeAndExpression extends AbstractNaryShapeExpression{
-
-
-	public ShapeAndExpression(List<ShapeExpression> subExpressions) {
-		super(subExpressions);
+public abstract class ShapeExpr extends AbstractASTElement {
+	
+	protected ShapeExprLabel id = null;
+	
+	public void setId(ShapeExprLabel id) {
+		if (this.id != null)
+			throw new IllegalStateException("ID can be set only once");
+		this.id = id;
 	}
 	
-	@Override
-	public String toString() {
-		return CollectionToString.collectionToString(getSubExpressions(), " AND ", "(", ")");
-	}
-
-	@Override
-	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
-		visitor.visitShapeAnd(this, arguments);
+	public ShapeExprLabel getId () {
+		return this.id;
 	}
 	
+	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
 }

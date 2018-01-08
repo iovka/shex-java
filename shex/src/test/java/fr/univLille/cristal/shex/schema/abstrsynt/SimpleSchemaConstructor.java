@@ -19,29 +19,26 @@ limitations under the License.
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.abstrsynt.EachOfTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAndExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeDefinition;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpression;
-import fr.univLille.cristal.shex.schema.ShapeLabel;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNotExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOrExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
-import fr.univLille.cristal.shex.schema.abstrsynt.SomeOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.util.Interval;
@@ -52,40 +49,39 @@ import fr.univLille.cristal.shex.util.Interval;
  * 10 oct. 2017
  */
 public class SimpleSchemaConstructor {
-	public static ShapeLabel slAll = newShapeLabel("SL_ALL"); 
-	public static ShapeLabel slInt = newShapeLabel("SL_INT");
-	public static ShapeLabel slString = newShapeLabel("SL_STRING");
+	public static ShapeExprLabel slAll = newShapeLabel("SL_ALL"); 
+	public static ShapeExprLabel slInt = newShapeLabel("SL_INT");
+	public static ShapeExprLabel slString = newShapeLabel("SL_STRING");
 	public final static String PREFIX = "http://a.ex#";
 
-	private Map<ShapeLabel, ShapeDefinition> rulesMap = new LinkedHashMap<>();
+	private ShexSchema schema = new ShexSchema();
 	
-	public void clearRuleMaps () {
-		rulesMap.clear();
+	public ShexSchema getSchema () {
+		schema.finalize();
+		return this.schema;
 	}
 	
-	public void addRule(String label, ShapeExpression vexpr) {
-		rulesMap.put(newShapeLabel(label), new ShapeDefinition(vexpr));
+	
+	public void addRule(String label, ShapeExpr vexpr) {
+		schema.put(newShapeLabel(label), vexpr);
 	}
 	
 	public void addSlallRule () {
-		if (! rulesMap.containsKey(slAll))
-			rulesMap.put(slAll, new ShapeDefinition(new NodeConstraint(SetOfNodes.AllNodes)));
+		if (! schema.containsKey(slAll))
+			schema.put(slAll, new NodeConstraint(SetOfNodes.AllNodes));
 	}
 	public void addSlintRule () {
-		if (! rulesMap.containsKey(slInt))
-			rulesMap.put(slInt, new ShapeDefinition(new NodeConstraint(new DatatypeSetOfNodes(XMLSchema.INT))));
+		if (! schema.containsKey(slInt))
+			schema.put(slInt, new NodeConstraint(new DatatypeSetOfNodes(XMLSchema.INT)));
 	}
 	public void addSlstringRule () {
-		if (! rulesMap.containsKey(slString))
-			rulesMap.put(slString, new ShapeDefinition(new NodeConstraint(new DatatypeSetOfNodes(XMLSchema.STRING))));
+		if (! schema.containsKey(slString))
+			schema.put(slString, new NodeConstraint(new DatatypeSetOfNodes(XMLSchema.STRING)));
 	}
-	
-	public Map<ShapeLabel, ShapeDefinition> getRulesMap() {
-		return rulesMap;
-	}
+
 	
 	// Parses a possibly repeated triple expression
-	public static TripleExpression tc (String s) {
+	public static NonRefTripleExpr tc (String s) {
 		if (s.contains("#"))
 			return reptc(s);
 		else
@@ -99,13 +95,13 @@ public class SimpleSchemaConstructor {
 		s[1] = s[1].trim();
 		
 		TCProperty prop;
-		ShapeRef ref;
+		ShapeExprRef ref;
 		
 		switch(s[1]) {
-		case "."   : ref = new ShapeRef(slAll); break;
-		case "int" : ref = new ShapeRef(slInt); break;
-		case "string": ref = new ShapeRef(slString); break;
-		default    : ref = new ShapeRef(newShapeLabel(s[1]));  
+		case "."   : ref = new ShapeExprRef(slAll); break;
+		case "int" : ref = new ShapeExprRef(slInt); break;
+		case "string": ref = new ShapeExprRef(slString); break;
+		default    : ref = new ShapeExprRef(newShapeLabel(s[1]));  
 		}
 		
 		String propString = s[0];
@@ -136,59 +132,59 @@ public class SimpleSchemaConstructor {
 		return new RepeatedTripleExpression(tc, new Interval(min, max));
 	}
 
-	public static SomeOfTripleExpression someof (Object... arg) {
+	public static OneOf someof (Object... arg) {
 		if (arg.length == 1 && arg[0] instanceof String)
 			return someofParse((String) arg[0]);
 		else
-			return new SomeOfTripleExpression(getTeExpressions(arg));
+			return new OneOf(getTeExpressions(arg));
 	}
 	
-	public static EachOfTripleExpression eachof (Object... arg) {
+	public static EachOf eachof (Object... arg) {
 		if (arg.length == 1 && arg[0] instanceof String)
 			return eachofParse((String) arg[0]);
 		else
-			return new EachOfTripleExpression(getTeExpressions(arg));
+			return new EachOf(getTeExpressions(arg));
 	}
 
-	private static List<TripleExpression> getTeExpressions (Object... arg) {
-		List<TripleExpression> list = new ArrayList<>();
+	private static List<NonRefTripleExpr> getTeExpressions (Object... arg) {
+		List<NonRefTripleExpr> list = new ArrayList<>();
 		for (Object a : arg) {
-			asrt((a instanceof TripleExpression), "Not a triple expression " + a.toString());
-			list.add((TripleExpression)a);
+			asrt((a instanceof NonRefTripleExpr), "Not a triple expression " + a.toString());
+			list.add((NonRefTripleExpr)a);
 		}
 		return list;
 	}
 	
 	// Parses a some-of expression which sub-expressions are all triple constraints with possible cardinalities
-	private static SomeOfTripleExpression someofParse(String s) {
-		return new SomeOfTripleExpression(nary(s.split("\\|")));
+	private static OneOf someofParse(String s) {
+		return new OneOf(nary(s.split("\\|")));
 	}
 	
 	// Parses a each-of expression which sub-expressions are all triple constraints with possible cardinalities
-	private static EachOfTripleExpression eachofParse(String s) {
-		return new EachOfTripleExpression(nary(s.split(";")));
+	private static EachOf eachofParse(String s) {
+		return new EachOf(nary(s.split(";")));
 	}
 	
-	private static List<TripleExpression> nary(String[] x) {
-		List<TripleExpression> l = new ArrayList<>();
+	private static List<NonRefTripleExpr> nary(String[] x) {
+		List<NonRefTripleExpr> l = new ArrayList<>();
 		for (String y: x) {
 			l.add(tc(y));
 		}
 		return l;
 	}
 
-	public static ShapeExpression se (Object o) {
-		if (o instanceof TripleExpression)
-			return new NeighbourhoodConstraint((TripleExpression)o);
-		else if (o instanceof ShapeExpression)
-			return (ShapeExpression) o;
+	public static ShapeExpr se (Object o) {
+		if (o instanceof NonRefTripleExpr)
+			return new Shape((NonRefTripleExpr)o);
+		else if (o instanceof ShapeExpr)
+			return (ShapeExpr) o;
 		else 
 			throw new UnsupportedOperationException("unknown expr type " + o.getClass());
 	}
 	
 	
-	private static List<ShapeExpression> getSeExpressions (Object ... exprs) {
-		ArrayList<ShapeExpression> subExpr = new ArrayList<>();
+	private static List<ShapeExpr> getSeExpressions (Object ... exprs) {
+		ArrayList<ShapeExpr> subExpr = new ArrayList<>();
 		for (Object o : exprs) {
 			subExpr.add(se(o));
 		}
@@ -196,16 +192,16 @@ public class SimpleSchemaConstructor {
 	}
 	
 	
-	public static ShapeNotExpression not (Object o) {
-		return new ShapeNotExpression(se(o));
+	public static ShapeNot not (Object o) {
+		return new ShapeNot(se(o));
 	}
 
-	public static ShapeAndExpression shapeAnd (Object ... exprs) {
-		return new ShapeAndExpression(getSeExpressions(exprs));
+	public static ShapeAnd shapeAnd (Object ... exprs) {
+		return new ShapeAnd(getSeExpressions(exprs));
 	}
 	
-	public static ShapeOrExpression shapeOr (Object ... exprs) {
-		return new ShapeOrExpression(getSeExpressions(exprs));
+	public static ShapeOr shapeOr (Object ... exprs) {
+		return new ShapeOr(getSeExpressions(exprs));
 	}
 
 	
@@ -213,8 +209,8 @@ public class SimpleSchemaConstructor {
 		if (!b) throw new RuntimeException(message);
 	}
 
-	private static ShapeLabel newShapeLabel (String label){
-		return new ShapeLabel(label);
+	public static ShapeExprLabel newShapeLabel (String label){
+		return new ShapeExprLabel(SimpleValueFactory.getInstance().createIRI(PREFIX + label));
 	}
 	
 }

@@ -26,8 +26,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.schema.ShapeLabel;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 
@@ -40,57 +40,55 @@ public class TestAcyclicShapeRefs {
 
 	@Test
 	public void testNoCycles() {
-		ShapeRef ref1 = new ShapeRef(new ShapeLabel("SL1"));
-		ShapeRef ref2 = new ShapeRef(new ShapeLabel("SL2"));
-		ShapeRef ref3 = new ShapeRef(new ShapeLabel("SL3"));
+		ShapeExprRef ref1 = new ShapeExprRef(newShapeLabel("SL1"));
+		ShapeExprRef ref2 = new ShapeExprRef(newShapeLabel("SL2"));
+		ShapeExprRef ref3 = new ShapeExprRef(newShapeLabel("SL3"));
 		
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
 		constr.addRule("SL0", ref1);
 		constr.addRule("SL1", shapeAnd(ref2, ref3));
 		
 		@SuppressWarnings("rawtypes")
-		List cycles = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(constr.getRulesMap());
+		List cycles = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(constr.getSchema());
 		assertTrue(cycles.isEmpty());
 	}
 	
 	@Test
 	public void testCycles() {
-		ShapeRef ref1 = new ShapeRef(new ShapeLabel("SL1"));
-		ShapeRef ref2 = new ShapeRef(new ShapeLabel("SL2"));
-		ShapeRef ref3 = new ShapeRef(new ShapeLabel("SL3"));
+		ShapeExprRef ref1 = new ShapeExprRef(newShapeLabel("SL1"));
+		ShapeExprRef ref2 = new ShapeExprRef(newShapeLabel("SL2"));
+		ShapeExprRef ref3 = new ShapeExprRef(newShapeLabel("SL3"));
 		
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
 		constr.addRule("SL0", ref1);
 		constr.addRule("SL1", shapeAnd(ref2, ref3));
 		constr.addRule("SL2", shapeOr(ref1, ref3));
 		constr.addRule("SL3", ref1);
 		
-		List<List<ShapeLabel>> cycles = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(constr.getRulesMap());
+		List<List<ShapeExprLabel>> cycles = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(constr.getSchema());
 		assertEquals(3, cycles.size());
 		
-		Set<Set<ShapeLabel>> cycleSets = new HashSet<>();
-		for (List<ShapeLabel> c : cycles)
+		Set<Set<ShapeExprLabel>> cycleSets = new HashSet<>();
+		for (List<ShapeExprLabel> c : cycles)
 			cycleSets.add(new HashSet<>(c));
 		
-		Set<Set<ShapeLabel>> expectedCycleSets = new HashSet<>();
-		Set<ShapeLabel> s1 = new HashSet<>();
-		s1.add(new ShapeLabel("SL1"));
-		s1.add(new ShapeLabel("SL2"));
+		Set<Set<ShapeExprLabel>> expectedCycleSets = new HashSet<>();
+		Set<ShapeExprLabel> s1 = new HashSet<>();
+		s1.add(newShapeLabel("SL1"));
+		s1.add(newShapeLabel("SL2"));
 		expectedCycleSets.add(s1);
 		
-		Set<ShapeLabel> s2 = new HashSet<>();
-		s2.add(new ShapeLabel("SL1"));
-		s2.add(new ShapeLabel("SL3"));
+		Set<ShapeExprLabel> s2 = new HashSet<>();
+		s2.add(newShapeLabel("SL1"));
+		s2.add(newShapeLabel("SL3"));
 		expectedCycleSets.add(s2);
 		
-		Set<ShapeLabel> s3 = new HashSet<>();
-		s3.add(new ShapeLabel("SL1"));
-		s3.add(new ShapeLabel("SL2"));
-		s3.add(new ShapeLabel("SL3"));
+		Set<ShapeExprLabel> s3 = new HashSet<>();
+		s3.add(newShapeLabel("SL1"));
+		s3.add(newShapeLabel("SL2"));
+		s3.add(newShapeLabel("SL3"));
 		expectedCycleSets.add(s3);
 		
 		assertEquals(expectedCycleSets, cycleSets);

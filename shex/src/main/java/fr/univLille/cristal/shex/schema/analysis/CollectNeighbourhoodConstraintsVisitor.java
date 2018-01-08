@@ -21,26 +21,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class CollectNeighbourhoodConstraintsVisitor extends ShapeExpressionVisitor<List<NeighbourhoodConstraint>> {
+public class CollectNeighbourhoodConstraintsVisitor extends ShapeExpressionVisitor<List<Shape>> {
 
-	List<NeighbourhoodConstraint> ncs = new ArrayList<>();
+	List<Shape> ncs = new ArrayList<>();
 	
 	@Override
-	public List<NeighbourhoodConstraint> getResult() {
+	public List<Shape> getResult() {
 		return Collections.unmodifiableList(ncs);
 	}
 
 	@Override
-	public void visitNeighbourhoodConstraint(NeighbourhoodConstraint expr, Object... arguments) {
+	public void visitShape(Shape expr, Object... arguments) {
 		ncs.add(expr);
 	}
 
@@ -48,6 +49,11 @@ public class CollectNeighbourhoodConstraintsVisitor extends ShapeExpressionVisit
 	public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {}
 
 	@Override
-	public void visitShapeRef(ShapeRef expr, Object[] arguments) {}
+	public void visitShapeExprRef(ShapeExprRef expr, Object[] arguments) {}
+
+	@Override
+	public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+		throw new UnsupportedOperationException("Not yet implemented.");
+	}
 
 }

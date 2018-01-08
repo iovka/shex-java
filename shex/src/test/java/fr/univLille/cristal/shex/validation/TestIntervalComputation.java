@@ -30,8 +30,8 @@ import org.junit.Test;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
-import fr.univLille.cristal.shex.schema.analysis.SchemaRulesInstrumentations;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
+import fr.univLille.cristal.shex.schema.analysis.InstrumentationListsOfTripleConstraintsOnTripleExpressions;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.validation.Bag;
@@ -43,14 +43,11 @@ import fr.univLille.cristal.shex.validation.IntervalComputation;
  * 10 oct. 2017
  */
 public class TestIntervalComputation {
-	
-	private static final Object TRIPLE_CONSTRAINTS_LIST_PROP = new Object();
-	
-	
+
 	@Test
 	public void testEmptyExpression() {
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
-		TripleExpression expr = new EmptyTripleExpression();
+		IntervalComputation ic = new IntervalComputation();
+		NonRefTripleExpr expr = new EmptyTripleExpression();
 		expr.accept(ic);
 		assertEquals(Interval.STAR, ic.getResult());
 	}
@@ -60,7 +57,7 @@ public class TestIntervalComputation {
 		TripleConstraint tca = (TripleConstraint) tc("a:: .");
 		Bag word = createBag(tca, 2); 
 
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		tca.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(2, interval.min);
@@ -73,7 +70,7 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
 		Bag word = createBag(tca, 2, tcb, 1); 
 
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		tca.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(2, interval.min);
@@ -87,7 +84,7 @@ public class TestIntervalComputation {
 		RepeatedTripleExpression expr = new RepeatedTripleExpression(tca, new Interval(2,4)); 
 		Bag word = createBag(tca, 8); 
 
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(2, interval.min);
@@ -100,7 +97,7 @@ public class TestIntervalComputation {
 		RepeatedTripleExpression expr = new RepeatedTripleExpression(tca, new Interval(2,4)); 
 		Bag word = createBag(tca, 2); 
 
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.ONE, interval);
@@ -113,7 +110,7 @@ public class TestIntervalComputation {
 		RepeatedTripleExpression expr = new RepeatedTripleExpression(tca, new Interval(3,4)); 
 		Bag word = createBag(tca, 2); 
 
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.EMPTY, interval);
@@ -126,9 +123,9 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
 		Bag word = createBag(tca, 2, tcb, 0); 
 
-		TripleExpression expr = someof(tca, tcb);
+		NonRefTripleExpr expr = someof(tca, tcb);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(2, interval.min);
@@ -141,9 +138,9 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
 		Bag word = createBag(tca, 2, tcb, 1); 
 
-		TripleExpression expr = someof(tca, tcb);
+		NonRefTripleExpr expr = someof(tca, tcb);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(3, interval.min);
@@ -156,9 +153,9 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
 		Bag word = createBag(tca, 2, tcb, 0); 
 
-		TripleExpression expr = eachof(tca, tcb);
+		NonRefTripleExpr expr = eachof(tca, tcb);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.EMPTY, interval);
@@ -170,9 +167,9 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
 		Bag word = createBag(tca, 2, tcb, 2); 
 
-		TripleExpression expr = eachof(tca, tcb);
+		NonRefTripleExpr expr = eachof(tca, tcb);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(2, interval.min);
@@ -186,10 +183,10 @@ public class TestIntervalComputation {
 		TripleConstraint tcc = (TripleConstraint) tc("c:: .");
 		
 		Bag word = createBag(tca, 2, tcb, 2, tcc, 0); 
-		TripleExpression expr = new RepeatedTripleExpression(tcc, Interval.STAR);
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(tcc, Interval.STAR);
+		InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(expr);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.STAR, interval);
@@ -202,14 +199,14 @@ public class TestIntervalComputation {
 		TripleConstraint tcc = (TripleConstraint) tc("c:: .");
 	 
 		// (a | b) *
-		TripleExpression subexpr = someof(tca, tcb);
-		TripleExpression expr = new RepeatedTripleExpression(subexpr, Interval.STAR);
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
+		NonRefTripleExpr subexpr = someof(tca, tcb);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(subexpr, Interval.STAR);
+		InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(expr);
 		
 		// {a,a,b,b}
 		Bag word = createBag(tca, 2, tcb, 2, tcc, 0);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.PLUS, interval);
@@ -222,14 +219,14 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
 		
 		// (a;b)*
-		TripleExpression subexpr = eachof(tca, tcb);
-		TripleExpression expr = new RepeatedTripleExpression(subexpr, Interval.STAR);
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
-
+		NonRefTripleExpr subexpr = eachof(tca, tcb);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(subexpr, Interval.STAR);
+		InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(expr);
+		
 		// {a,a,b}
 		Bag word = createBag(tca, 2, tcb, 1); 
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.EMPTY, interval);
@@ -242,10 +239,10 @@ public class TestIntervalComputation {
 		TripleConstraint tcc = (TripleConstraint) tc("c:: .");
 		
 		Bag word = createBag(tca, 2, tcb, 2, tcc, 0); 
-		TripleExpression expr = new RepeatedTripleExpression(tcc, Interval.PLUS);
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(tcc, Interval.PLUS);
+		InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(expr);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.ZERO, interval);
@@ -258,14 +255,14 @@ public class TestIntervalComputation {
 		TripleConstraint tcc = (TripleConstraint) tc("c:: .");
 	 
 		// (a | b) *
-		TripleExpression subexpr = someof(tca, tcb);
-		TripleExpression expr = new RepeatedTripleExpression(subexpr, Interval.PLUS);
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
+		NonRefTripleExpr subexpr = someof(tca, tcb);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(subexpr, Interval.PLUS);
+		InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(expr);
 		
 		// {a,a,b}
 		Bag word = createBag(tca, 2, tcb, 1, tcc, 0);
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(1, interval.min);
@@ -279,15 +276,15 @@ public class TestIntervalComputation {
 		TripleConstraint tcc = (TripleConstraint) tc("c:: .");
 
 		// (a | b) [2;4]
-		TripleExpression subexpr = someof(tca, tcb);
-		TripleExpression expr = new RepeatedTripleExpression(subexpr, new Interval(2,4));
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
-		TripleExpression unfoldedTripleExpression = SchemaRulesStaticAnalysis.computeUnfoldedRepetitions(expr);
+		NonRefTripleExpr subexpr = someof(tca, tcb);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(subexpr, new Interval(2,4));
+		InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(expr);
+		NonRefTripleExpr unfoldedTripleExpression = SchemaRulesStaticAnalysis.computeUnfoldedRepetitions(expr);
 
 		// {a,a,b}
 		Bag word = createBag(tca, 2, tcb, 1, tcc, 0);
 
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		assertTrue(true);
 		unfoldedTripleExpression.accept(ic, word);
 		// FIXME: add assertions
@@ -301,12 +298,12 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
  
 
-		TripleExpression subexpr = eachof(tca, tcb);
-		TripleExpression expr = new RepeatedTripleExpression(subexpr, Interval.OPT);
+		NonRefTripleExpr subexpr = eachof(tca, tcb);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(subexpr, Interval.OPT);
 
 		Bag word = createBag(tca, 2, tcb, 2);
 
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		
@@ -324,14 +321,14 @@ public class TestIntervalComputation {
 		TripleConstraint tcb = (TripleConstraint) tc("b:: .");
 		
 		// (a;b)*
-		TripleExpression subexpr = eachof(tca, tcb);
-		TripleExpression expr = new RepeatedTripleExpression(subexpr, Interval.PLUS);
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
+		NonRefTripleExpr subexpr = eachof(tca, tcb);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(subexpr, Interval.PLUS);
+		InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(expr);
 
 		// {a,a,b}
 		Bag word = createBag(tca, 2, tcb, 1); 
 		
-		IntervalComputation ic = new IntervalComputation(TRIPLE_CONSTRAINTS_LIST_PROP);
+		IntervalComputation ic = new IntervalComputation();
 		expr.accept(ic, word);
 		Interval interval = ic.getResult();
 		assertEquals(Interval.EMPTY, interval);
@@ -353,10 +350,6 @@ public class TestIntervalComputation {
 				bag.increment(e.getKey());
 		}
 		return bag;
-	}
-
-	private void computeTripleConstraints2 (TripleExpression expr) {
-		SchemaRulesInstrumentations.computeAndSetTripleConstraintsOn(expr, TRIPLE_CONSTRAINTS_LIST_PROP);
 	}
 
 }

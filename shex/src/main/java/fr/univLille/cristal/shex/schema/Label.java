@@ -15,32 +15,38 @@ limitations under the License.
 
 */
 
+package fr.univLille.cristal.shex.schema;
 
-package fr.univLille.cristal.shex.schema.abstrsynt;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-public abstract class AbstractNaryTripleExpression extends AbstractTripleExpression {
-
-	private final List<TripleExpression> subExpressions;
+/**
+ * 
+ * @author Iovka Boneva
+ * 11 oct. 2017
+ */
+public abstract class Label {
 	
-	public AbstractNaryTripleExpression (List<TripleExpression> subExpressions) {
-		this.subExpressions = new ArrayList<>(subExpressions);
+	// Exactly one of these is non null
+	private final IRI iri;
+	private final BNode bnode;
+
+	public Label (IRI iri) {
+		this.iri = iri;
+		bnode = null;
 	}
 	
-	public List<TripleExpression> getSubExpressions () {
-		return Collections.unmodifiableList(this.subExpressions);
+	public Label (BNode bnode) {
+		this.bnode = bnode;
+		iri = null;
 	}
 
-	/*
-	// FIXME: are the hashCode and equals methods useful ?
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((subExpressions == null) ? 0 : subExpressions.hashCode());
+		if (bnode != null) result = prime * result + bnode.hashCode();
+		if (iri != null) result = prime * result + iri.hashCode();
 		return result;
 	}
 
@@ -52,15 +58,23 @@ public abstract class AbstractNaryTripleExpression extends AbstractTripleExpress
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AbstractNaryTripleExpression other = (AbstractNaryTripleExpression) obj;
-		if (subExpressions == null) {
-			if (other.subExpressions != null)
+		Label other = (Label) obj;
+		if (bnode == null) {
+			if (other.bnode != null)
 				return false;
-		} else if (!subExpressions.equals(other.subExpressions))
+		} else if (!bnode.equals(other.bnode))
+			return false;
+		if (iri == null) {
+			if (other.iri != null)
+				return false;
+		} else if (!iri.equals(other.iri))
 			return false;
 		return true;
 	}
-	*/
 	
-	
+	@Override
+	public String toString() {
+		if (iri != null) return iri.toString();
+		else return bnode.toString();
+	}
 }

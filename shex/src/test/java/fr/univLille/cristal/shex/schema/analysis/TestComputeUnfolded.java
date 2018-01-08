@@ -23,17 +23,17 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.abstrsynt.EachOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.schema.analysis.ComputeUnfoldedArbitraryRepetitionsVisitor;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 import fr.univLille.cristal.shex.util.Interval;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -41,11 +41,11 @@ import java.util.stream.Collectors;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class TestComputeUnfolded {
+public class TestComputeUnfolded { 
 
 	@Test
 	public void testEmptyExpr() {
-		TripleExpression empty = new EmptyTripleExpression();
+		NonRefTripleExpr empty = new EmptyTripleExpression();
 		
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		empty.accept(visitor);
@@ -54,7 +54,7 @@ public class TestComputeUnfolded {
 	
 	@Test
 	public void testTripleConstraint() {
-		TripleExpression tc = tc("a::SL");
+		NonRefTripleExpr tc = tc("a::SL");
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		tc.accept(visitor);
 		assertEquals(tc, visitor.getResult());
@@ -62,7 +62,7 @@ public class TestComputeUnfolded {
 	
 	@Test
 	public void testNoRepetitions() {
-		TripleExpression expr = eachof(tc("a::SL"), tc("b::SL"));
+		NonRefTripleExpr expr = eachof(tc("a::SL"), tc("b::SL"));
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
 		assertEquals(expr, visitor.getResult());
@@ -70,7 +70,7 @@ public class TestComputeUnfolded {
 	
 	@Test
 	public void testRepetedTripleConstraintNoUnfolding() {
-		TripleExpression expr = eachof(tc("a::SL"), tc("b::SL[2;3]"));
+		NonRefTripleExpr expr = eachof(tc("a::SL"), tc("b::SL[2;3]"));
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
 		assertEquals(expr, visitor.getResult());
@@ -78,7 +78,7 @@ public class TestComputeUnfolded {
 	
 	@Test
 	public void testStarRepetition1() {
-		TripleExpression expr = new RepeatedTripleExpression(eachof(tc("a::SL"), tc("b::SL")), Interval.STAR);
+		NonRefTripleExpr expr = new RepeatedTripleExpression(eachof(tc("a::SL"), tc("b::SL")), Interval.STAR);
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
 		assertEquals(expr, visitor.getResult());
@@ -86,8 +86,8 @@ public class TestComputeUnfolded {
 	
 	@Test
 	public void testStarRepetition2() {
-		TripleExpression expr1 = new RepeatedTripleExpression(eachof(tc("a::SL"), tc("b::SL")), Interval.STAR);
-		TripleExpression expr = someof(expr1, tc("a::SL[4;5]"));
+		NonRefTripleExpr expr1 = new RepeatedTripleExpression(eachof(tc("a::SL"), tc("b::SL")), Interval.STAR);
+		NonRefTripleExpr expr = someof(expr1, tc("a::SL[4;5]"));
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
 		assertEquals(expr, visitor.getResult());
@@ -97,25 +97,25 @@ public class TestComputeUnfolded {
 	public void testOneFiniteRepetitionToUnfold() {
 		TripleConstraint tca = (TripleConstraint) tc("a::SL");
 		TripleConstraint tcb = (TripleConstraint) tc("b::SL");
-		TCProperty a_prop = tca.getPropertySet().getAsFiniteSet().iterator().next();
-		TCProperty b_prop = tcb.getPropertySet().getAsFiniteSet().iterator().next();
+		TCProperty a_prop = tca.getProperty();
+		TCProperty b_prop = tcb.getProperty();
 		
-		TripleExpression expr = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(2,2));
+		NonRefTripleExpr expr = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(2,2));
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
-		TripleExpression result = visitor.getResult();
-		List<TripleConstraint> tripleConstraints = SchemaRulesStaticAnalysis.collectTripleConstraints(result);
+		NonRefTripleExpr result = visitor.getResult();
+		Set<TripleConstraint> tripleConstraints = SchemaRulesStaticAnalysis.collectTripleConstraints(result);
 		assertEquals(4, tripleConstraints.size());
  
 		List<TripleConstraint> a_constraints = 
 				tripleConstraints.stream()
-				.filter(tc -> tc.getPropertySet().contains(a_prop))
+				.filter(tc -> tc.getProperty().equals(a_prop))
 				.collect(Collectors.toList());
 		assertEquals(2, a_constraints.size());
 		
 		List<TripleConstraint> b_constraints = 
 				tripleConstraints.stream()
-				.filter(tc -> tc.getPropertySet().contains(b_prop))
+				.filter(tc -> tc.getProperty().equals(b_prop))
 				.collect(Collectors.toList());
 		assertEquals(2, b_constraints.size());
 	}
@@ -125,24 +125,24 @@ public class TestComputeUnfolded {
 		TripleConstraint tca = (TripleConstraint) tc("a::SL");
 		TripleConstraint tcb = (TripleConstraint) tc("b::SL");
 		
-		TripleExpression expr = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(3,Interval.UNBOUND));
+		NonRefTripleExpr expr = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(3,Interval.UNBOUND));
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
-		TripleExpression result = visitor.getResult();
+		NonRefTripleExpr result = visitor.getResult();
 				
-		assertTrue(result instanceof EachOfTripleExpression);
-		EachOfTripleExpression eachOf = (EachOfTripleExpression) result;
+		assertTrue(result instanceof EachOf);
+		EachOf eachOf = (EachOf) result;
 		assertEquals(3, eachOf.getSubExpressions().size());
 
-		List<TripleExpression> notRepetitions =
+		List<NonRefTripleExpr> notRepetitions =
 				eachOf.getSubExpressions().stream()
 				.filter(e -> ! (e instanceof RepeatedTripleExpression))
 				.collect(Collectors.toList());
 		assertEquals(2, notRepetitions.size());
-		for (TripleExpression e : notRepetitions)
-			assertTrue(e instanceof EachOfTripleExpression);
+		for (NonRefTripleExpr e : notRepetitions)
+			assertTrue(e instanceof EachOf);
 		
-		List<TripleExpression> repetitions = 
+		List<NonRefTripleExpr> repetitions = 
 				eachOf.getSubExpressions().stream()
 				.filter(e -> e instanceof RepeatedTripleExpression)
 				.collect(Collectors.toList());
@@ -150,7 +150,7 @@ public class TestComputeUnfolded {
 		
 		RepeatedTripleExpression repetition = (RepeatedTripleExpression) repetitions.get(0);
 		assertEquals(Interval.PLUS, repetition.getCardinality());
-		assertTrue(repetition.getSubExpression() instanceof EachOfTripleExpression);
+		assertTrue(repetition.getSubExpression() instanceof EachOf);
 	}
 	
 	@Test
@@ -160,12 +160,12 @@ public class TestComputeUnfolded {
 		TripleConstraint tcb = (TripleConstraint) tc("b::SL");
 		TripleConstraint tcc = (TripleConstraint) tc("c::SL");
 		
-		TripleExpression rep = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(1,2));
-		TripleExpression expr = someof(rep, tcc);
+		NonRefTripleExpr rep = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(1,2));
+		NonRefTripleExpr expr = someof(rep, tcc);
 		
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
-		TripleExpression result = visitor.getResult();
+		NonRefTripleExpr result = visitor.getResult();
 		
 		System.out.println(result);
 		fail("correct, but add assertions");
@@ -182,13 +182,13 @@ public class TestComputeUnfolded {
 		TripleConstraint tcc = (TripleConstraint) tc("c::SL");
 		TripleConstraint tcd = (TripleConstraint) tc("d::SL");
 		
-		TripleExpression rep1 = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(1,2));
-		TripleExpression rep2 = new RepeatedTripleExpression(someof(rep1, tcc), new Interval(2,3));
-		TripleExpression expr = someof(rep2, tcd);
+		NonRefTripleExpr rep1 = new RepeatedTripleExpression(eachof(tca, tcb), new Interval(1,2));
+		NonRefTripleExpr rep2 = new RepeatedTripleExpression(someof(rep1, tcc), new Interval(2,3));
+		NonRefTripleExpr expr = someof(rep2, tcd);
 		
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
-		TripleExpression result = visitor.getResult();
+		NonRefTripleExpr result = visitor.getResult();
 		
 		System.out.println(result);
 		fail("check if correct and add assertions");

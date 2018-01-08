@@ -17,13 +17,14 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.analysis;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAndExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNotExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOrExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
 
 /**
  * 
@@ -35,24 +36,25 @@ public abstract class ShapeExpressionVisitor<ResultType> {
 	
 	public abstract ResultType getResult ();
 	
-	public void visitShapeAnd (ShapeAndExpression expr, Object ... arguments) {
-		for (ShapeExpression subExpr: expr.getSubExpressions()) {
+	public void visitShapeAnd (ShapeAnd expr, Object ... arguments) {
+		for (ShapeExpr subExpr: expr.getSubExpressions()) {
 			subExpr.accept(this, arguments);
 		}
 	}
 
-	public void visitShapeOr (ShapeOrExpression expr, Object ... arguments) {
-		for (ShapeExpression subExpr: expr.getSubExpressions()) {
+	public void visitShapeOr (ShapeOr expr, Object ... arguments) {
+		for (ShapeExpr subExpr: expr.getSubExpressions()) {
 			subExpr.accept(this, arguments);
 		}
 	}
 	
-	public void visitShapeNot (ShapeNotExpression expr, Object ...arguments) {
+	public void visitShapeNot (ShapeNot expr, Object ...arguments) {
 		expr.getSubExpression().accept(this, arguments);
 	}
 	
-	public abstract void visitNeighbourhoodConstraint (NeighbourhoodConstraint expr, Object... arguments) ;
+	public abstract void visitShape (Shape expr, Object... arguments) ;
 	public abstract void visitNodeConstraint (NodeConstraint expr, Object ... arguments);
-	public abstract void visitShapeRef(ShapeRef shapeRef, Object[] arguments);
+	public abstract void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments);
+	public abstract void visitShapeExternal (ShapeExternal shapeExt, Object[] arguments);
 	
 }

@@ -15,18 +15,24 @@ limitations under the License.
 
 */
 
-
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
+import java.util.HashMap;
+import java.util.Map;
+
+import fr.univLille.cristal.shex.schema.analysis.ASTAttribute;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public interface TripleExpression extends AbstractSyntaxElement {
-	
-	public <ResultType> void accept (TripleExpressionVisitor<ResultType> visitor, Object... arguments);	
+public abstract class AbstractASTElement implements ASTElement {
 
+	private final Map<ASTAttribute<?,?>, Object> map = new HashMap<>();
+	
+	@Override
+	public final Map<ASTAttribute<?, ?>, Object> getDynamicAttributes () {
+		return map;
+	}
 }

@@ -19,16 +19,17 @@ package fr.univLille.cristal.shex.validation;
 
 import org.eclipse.rdf4j.model.Literal;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAndExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNotExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOrExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
-/** Recursively visits the expression and its {@link ShapeRef} atoms.
+/** Recursively visits the expression and its {@link ShapeExprRef} atoms.
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
@@ -50,29 +51,29 @@ class EvaluateShapeExpressionOnLiteralVisitor extends ShapeExpressionVisitor<Boo
 	}
 	
 	@Override
-	public void visitShapeAnd(ShapeAndExpression expr, Object... arguments) {
-		for (ShapeExpression e : expr.getSubExpressions()) {
+	public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
+		for (ShapeExpr e : expr.getSubExpressions()) {
 			e.accept(this);
 			if (result == null || !result) break;
 		}
 	}
 
 	@Override
-	public void visitShapeOr(ShapeOrExpression expr, Object... arguments) {
-		for (ShapeExpression e : expr.getSubExpressions()) {
+	public void visitShapeOr(ShapeOr expr, Object... arguments) {
+		for (ShapeExpr e : expr.getSubExpressions()) {
 			e.accept(this);
 			if (result == null || result) break;
 		}
 	}
 	
 	@Override
-	public void visitShapeNot(ShapeNotExpression expr, Object... arguments) {
+	public void visitShapeNot(ShapeNot expr, Object... arguments) {
 		expr.getSubExpression().accept(this);
 		if (result != null) result = !result;
 	}
 	
 	@Override
-	public void visitNeighbourhoodConstraint(NeighbourhoodConstraint expr, Object... arguments) {
+	public void visitShape(Shape expr, Object... arguments) {
 		result = null;
 	}
 
@@ -82,8 +83,14 @@ class EvaluateShapeExpressionOnLiteralVisitor extends ShapeExpressionVisitor<Boo
 	}
 
 	@Override
-	public void visitShapeRef(ShapeRef ref, Object[] arguments) {
-		ref.getShapeDefinition().expression.accept(this);
+	public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
+		ref.getShapeDefinition().accept(this);
+	}
+
+	@Override
+	public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Not yet implemented.");
 	}
 	
 }

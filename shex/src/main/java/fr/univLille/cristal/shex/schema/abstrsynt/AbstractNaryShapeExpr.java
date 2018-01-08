@@ -15,30 +15,37 @@ limitations under the License.
 
 */
 
+
+
 package fr.univLille.cristal.shex.schema.abstrsynt;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Antonin Durey
+ *
  */
-public class ShapeDefinition implements AbstractSyntaxElement {
+public abstract class AbstractNaryShapeExpr extends ShapeExpr {
 	
-	public final ShapeExpression expression;
-	
-	public ShapeDefinition (ShapeExpression expression) {
-		this.expression = expression;
+	private List<ShapeExpr> subExpressions;
+		
+	public AbstractNaryShapeExpr (List<ShapeExpr> subExpressions) {
+		this(null, subExpressions);
 	}
 	
-	
-	private final ASElementAttributes attributes = new ASElementAttributes();
-	public final ASElementAttributes getAttributes() {
-		return this.attributes;
+	public AbstractNaryShapeExpr (ShapeExprLabel id, List<ShapeExpr> subExpressions) {
+		super();
+		this.subExpressions = new ArrayList<>(subExpressions);
 	}
 	
-	
-	@Override
-	public String toString() {
-		return expression.toString();
+	public List<ShapeExpr> getSubExpressions (){
+		return Collections.unmodifiableList(this.subExpressions);
 	}
+	
 }

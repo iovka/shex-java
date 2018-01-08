@@ -28,7 +28,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
  * @author Antonin Durey
  *
  */
-public class NodeConstraint extends AbstractShapeExpression implements AtomicShapeExpression {
+public class NodeConstraint extends ShapeExpr {
 
 	private SetOfNodes setOfNodes;
 	

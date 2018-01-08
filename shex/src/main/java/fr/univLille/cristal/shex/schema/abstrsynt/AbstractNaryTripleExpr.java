@@ -16,35 +16,24 @@ limitations under the License.
 */
 
 
-
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
-import fr.univLille.cristal.shex.util.CollectionToString;
+public abstract class AbstractNaryTripleExpr extends NonRefTripleExpr {
 
-/**
- * 
- * @author Iovka Boneva
- * @author Antonin Durey
- *
- */
-public class ShapeOrExpression extends AbstractNaryShapeExpression{
-
-
-	public ShapeOrExpression(List<ShapeExpression> subExpressions) {
-		super(subExpressions);
+	private final List<NonRefTripleExpr> subExpressions;
+	
+	public AbstractNaryTripleExpr (List<NonRefTripleExpr> subExpressions) {
+		if (subExpressions.size() < 2)
+			throw new IllegalArgumentException("At least two subexpressions required");
+		this.subExpressions = new ArrayList<>(subExpressions);
 	}
 	
-	@Override
-	public String toString() {
-		return CollectionToString.collectionToString(getSubExpressions(), " OR ", "(", ")");
-	}
-
-	@Override
-	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
-		visitor.visitShapeOr(this, arguments);
+	public List<NonRefTripleExpr> getSubExpressions () {
+		return Collections.unmodifiableList(this.subExpressions);
 	}
 	
 }

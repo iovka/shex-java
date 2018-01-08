@@ -26,17 +26,17 @@ import fr.univLille.cristal.shex.util.Interval;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class RepeatedTripleExpression extends AbstractTripleExpression {
+public class RepeatedTripleExpression extends NonRefTripleExpr {
 	
-	private TripleExpression subExpr;
+	private NonRefTripleExpr subExpr;
 	private Interval card;
 	
-	public RepeatedTripleExpression (TripleExpression subExpr, Interval card) {
+	public RepeatedTripleExpression (NonRefTripleExpr subExpr, Interval card) {
 		this.subExpr = subExpr;
 		this.card = card;
 	}
 	
-	public TripleExpression getSubExpression() {
+	public NonRefTripleExpr getSubExpression() {
 		return this.subExpr;
 	}
 
@@ -47,7 +47,7 @@ public class RepeatedTripleExpression extends AbstractTripleExpression {
 	@Override
 	public String toString() {
 		String format;
-		if (subExpr instanceof AbstractNaryTripleExpression) 
+		if (subExpr instanceof AbstractNaryTripleExpr) 
 			format = "(%s)%s";
 		else
 			format = "%s%s";
@@ -59,13 +59,13 @@ public class RepeatedTripleExpression extends AbstractTripleExpression {
 		visitor.visitRepeated (this, arguments);
 	}
 
-	private TripleExpression unfoldedVersion;
+	private NonRefTripleExpr unfoldedVersion;
 	
-	public TripleExpression getUnfoldedVersion() {
+	public NonRefTripleExpr getUnfoldedVersion() {
 		return this.unfoldedVersion;
 	}
 	
-	public void setUnfoldedVersion (TripleExpression expr) {
+	public void setUnfoldedVersion (NonRefTripleExpr expr) {
 		if (this.unfoldedVersion != null)
 			throw new IllegalStateException("Unfolded version can be set at most once.");
 		this.unfoldedVersion = expr;

@@ -17,12 +17,13 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.analysis;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.EachOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.SomeOfTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 
 /**
  * 
@@ -35,20 +36,26 @@ public abstract class TripleExpressionVisitor<ResultType> {
 	public abstract ResultType getResult ();
 
 	public abstract void visitTripleConstraint (TripleConstraint tc, Object ... arguments);
-	public abstract void visitEmpty(EmptyTripleExpression emptyTripleExpression, Object[] arguments);
 	
-	public void visitEachOf (EachOfTripleExpression expr, Object ... arguments) {
-		for (TripleExpression subExpr : expr.getSubExpressions())
+	public void visitEachOf (EachOf expr, Object ... arguments) {
+		for (NonRefTripleExpr subExpr : expr.getSubExpressions())
 			subExpr.accept(this, arguments);
 	}
 	
-	public void visitSomeOf (SomeOfTripleExpression expr, Object ... arguments) {
-		for (TripleExpression subExpr : expr.getSubExpressions())
+	public void visitOneOf (OneOf expr, Object ... arguments) {
+		for (NonRefTripleExpr subExpr : expr.getSubExpressions())
 			subExpr.accept(this, arguments);
+	}
+	
+	public void visitTripleExprReference (TripleExprRef expr, Object... arguments) {
+		throw new UnsupportedOperationException("not yet implemented");
 	}
 
+	public abstract void visitEmpty(EmptyTripleExpression expr, Object[] arguments);
+	
 	public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
-		expr.getSubExpression().accept(this, arguments);
+		expr.getSubExpression().accept(this,arguments);
 	}
+
 
 }

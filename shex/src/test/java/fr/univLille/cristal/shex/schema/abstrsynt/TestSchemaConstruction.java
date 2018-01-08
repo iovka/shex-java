@@ -21,8 +21,7 @@ import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor
 import org.junit.Test;
 
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.SchemaRules;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 
 /**
  * 
@@ -35,19 +34,16 @@ public class TestSchemaConstruction {
 	@Test(expected=IllegalArgumentException.class)
 	public void testMissingShapeDefinition() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
-		constr.addRule("SL1", se(tc("ex:p :: SL")));
+		constr.addRule("SL1", se(tc("p :: SL")));
 		
-		new SchemaRules(constr.getRulesMap());
-	
+		constr.getSchema().finalize();
 	}
 	
 	@Test
 	public void testTreeStructuredSchema10rules() {
 		
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
-		TripleExpression 
+		NonRefTripleExpr 
 			te1 = tc("ex:a :: SL1"),
 			te3 = tc("ex:a :: SL3"),
 			te4 = someof("ex:a :: SL4 | ex:b :: SL4bis"),
@@ -60,6 +56,7 @@ public class TestSchemaConstruction {
 		constr.addRule("SL4bis", se(not(tempty)));
 		constr.addRule("SL6", shapeAnd(tempty, not(tempty), tempty));
 		
-		SchemaRules r = new SchemaRules(constr.getRulesMap());
+		constr.getSchema().finalize();
+		System.out.println(constr.getSchema());
 	}
 }

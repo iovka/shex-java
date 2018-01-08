@@ -17,34 +17,31 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import static org.junit.Assert.*;
+import java.util.List;
 
-import org.junit.Test;
-
-import fr.univLille.cristal.shex.schema.ShapeLabel;
+import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
+import fr.univLille.cristal.shex.util.CollectionToString;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class TestShapeLabel {
+public class EachOf extends AbstractNaryTripleExpr {
 	
-	@Test
-	public void testEquals() {
-		ShapeLabel lab1 = new ShapeLabel("SL1");
-		ShapeLabel lab2 = new ShapeLabel(" SL1 ".substring(1, 4));
-		assertEquals(lab1, lab2);
-		assertFalse(lab1 == lab2);
-		
-		assertEquals(lab1.hashCode(), lab2.hashCode());
+
+	public EachOf(List<NonRefTripleExpr> subExpressions) {
+		super(subExpressions);
 	}
 	
-	@Test
-	public void testNotEquals() {
-		ShapeLabel lab1 = new ShapeLabel("SL1");
-		ShapeLabel lab2 = new ShapeLabel(" SL1 ".substring(1, 3));
-		assertNotEquals(lab1, lab2);
+	@Override
+	public String toString() {
+		return CollectionToString.collectionToString(getSubExpressions(), " ; ", "EachOf(", ")");
 	}
 
+	@Override
+	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
+		visitor.visitEachOf(this, arguments);
+	}
+	
 }

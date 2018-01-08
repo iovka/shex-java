@@ -21,8 +21,8 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.schema.ShapeLabel;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 
@@ -39,30 +39,27 @@ public class TestComputeDependencyGraph {
 	@Test
 	public void testWithShapeRefs() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
-		
 		// SL1 -> SL2 AND SL3
 		// SL2 -> a::SL4
 		// SL3 -> b::SL5
 		// SL4 -> c:: .
 		// SL5 -> d:: .
 	
-		constr.addRule("SL1", shapeAnd(new ShapeRef(new ShapeLabel("SL2")), new ShapeRef(new ShapeLabel("SL3"))));
+		constr.addRule("SL1", shapeAnd(new ShapeExprRef(newShapeLabel("SL2")), new ShapeExprRef(newShapeLabel("SL3"))));
 		constr.addRule("SL2", se(tc("a:: SL4")));
 		constr.addRule("SL3", se(tc("b:: SL5")));
 		constr.addRule("SL4", se(tc("c:: .")));
 		constr.addRule("SL5", se(tc("d:: .")));
 			
-		DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph = SchemaRulesStaticAnalysis.computeDependencyGraph(constr.getRulesMap());
-		assertTrue(depGraph.containsEdge(new ShapeLabel("SL1"), new ShapeLabel("SL2")));
-		assertTrue(depGraph.containsEdge(new ShapeLabel("SL1"), new ShapeLabel("SL3")));
+		DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph = SchemaRulesStaticAnalysis.computeDependencyGraph(constr.getSchema());
+		assertTrue(depGraph.containsEdge(newShapeLabel("SL1"), newShapeLabel("SL2")));
+		assertTrue(depGraph.containsEdge(newShapeLabel("SL1"), newShapeLabel("SL3")));
 	}
 	
 	
 	@Test
 	public void testWithHiearchyOfShapeRefs() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
 		// SL1 -> SL2 AND SL3
 		// SL2 -> SL4 OR SL5
@@ -72,18 +69,18 @@ public class TestComputeDependencyGraph {
 		// SL6 -> c:: .
 		// SL7 -> d:: .
 	
-		constr.addRule("SL1", shapeAnd(new ShapeRef(new ShapeLabel("SL2")), new ShapeRef(new ShapeLabel("SL3"))));
-		constr.addRule("SL2", shapeOr(new ShapeRef(new ShapeLabel("SL4")), new ShapeRef(new ShapeLabel("SL5"))));
-		constr.addRule("SL3", shapeAnd(new ShapeRef(new ShapeLabel("SL6")), new ShapeRef(new ShapeLabel("SL7"))));
+		constr.addRule("SL1", shapeAnd(new ShapeExprRef(newShapeLabel("SL2")), new ShapeExprRef(newShapeLabel("SL3"))));
+		constr.addRule("SL2", shapeOr(new ShapeExprRef(newShapeLabel("SL4")), new ShapeExprRef(newShapeLabel("SL5"))));
+		constr.addRule("SL3", shapeAnd(new ShapeExprRef(newShapeLabel("SL6")), new ShapeExprRef(newShapeLabel("SL7"))));
 		constr.addRule("SL4", se(tc("a:: .")));
 		constr.addRule("SL5", se(tc("b:: .")));
 		constr.addRule("SL6", se(tc("c:: .")));
 		constr.addRule("SL7", se(tc("d:: .")));
 		
-		DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph = SchemaRulesStaticAnalysis.computeDependencyGraph(constr.getRulesMap());
-		assertTrue(depGraph.containsEdge(new ShapeLabel("SL1"), new ShapeLabel("SL2")));
-		assertTrue(depGraph.containsEdge(new ShapeLabel("SL1"), new ShapeLabel("SL3")));
-		assertFalse(depGraph.containsEdge(new ShapeLabel("SL1"), new ShapeLabel("SL4")));
+		DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph = SchemaRulesStaticAnalysis.computeDependencyGraph(constr.getSchema());
+		assertTrue(depGraph.containsEdge(newShapeLabel("SL1"), newShapeLabel("SL2")));
+		assertTrue(depGraph.containsEdge(newShapeLabel("SL1"), newShapeLabel("SL3")));
+		assertFalse(depGraph.containsEdge(newShapeLabel("SL1"), newShapeLabel("SL4")));
 		
 		
 	}

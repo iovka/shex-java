@@ -38,8 +38,7 @@ import org.junit.Test;
 
 import fr.univLille.cristal.shex.graph.JenaGraph;
 import fr.univLille.cristal.shex.graph.RDFGraph;
-import fr.univLille.cristal.shex.schema.abstrsynt.SchemaRules;
-import fr.univLille.cristal.shex.schema.ShapeLabel;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor;
 import fr.univLille.cristal.shex.util.Pair;
@@ -52,15 +51,16 @@ import fr.univLille.cristal.shex.validation.Typing;
  * 10 oct. 2017
  */
 public class TestRefineValidationJena { 
-	
+	 
 	
 	@Test
 	public void testEmptySchemaWithEmptyModel(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = new ShexSchema();
+		schema.finalize();
 
 		Model model = ModelFactory.createDefaultModel();
 
@@ -75,12 +75,12 @@ public class TestRefineValidationJena {
 	public void testSimpleSchemaWithEmptyModel(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlallRule();
 
 		constr.addRule("SL1", se(tc("ex:p :: .")));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 
 		Model model = ModelFactory.createDefaultModel();
@@ -97,12 +97,12 @@ public class TestRefineValidationJena {
 	public void testSimpleSchemaWithSimpleModelRightPropertyIntValue(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 
 		constr.addRule("SL1", se(tc("hasValue :: int")));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 
 		Model model = ModelFactory.createDefaultModel();
@@ -117,25 +117,25 @@ public class TestRefineValidationJena {
 		RDFGraph graph = new JenaGraph(model);
 		RefineValidation validation = new RefineValidation(schema, graph);
 		
+		
 		validation.validate(null, null);
 
 		Typing typing = validation.getTyping();
 		
 		org.eclipse.rdf4j.model.Resource res = newRDF4JIRI("note");
-		assertTrue(typing.contains(res, new ShapeLabel("SL1")));
+		assertTrue(typing.contains(res, newShapeLabel("SL1")));
 	}
 
 	@Test
 	public void testSimpleSchemaWithSimpleModelWrongProperty(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 
 		constr.addRule("SL1", se(tc("p :: int")));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
-
+		ShexSchema schema = constr.getSchema();
 
 		Model model = ModelFactory.createDefaultModel();
 
@@ -158,12 +158,12 @@ public class TestRefineValidationJena {
 	public void testSimpleSchemaWithSimpleModelWrongDatatype(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 
 		constr.addRule("SL1", se(tc("hasValue :: int")));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 
 		Model model = ModelFactory.createDefaultModel();
@@ -187,14 +187,14 @@ public class TestRefineValidationJena {
 	public void testOneTELabelWithTwoShapeLabelsSchemaWithOneStatementsModel(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 		constr.addSlallRule();
 
 		constr.addRule("SL1", se(tc("p :: int")));
 		constr.addRule("SL2", se(tc("p :: .")));
 		
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 
 		Model model = ModelFactory.createDefaultModel();
@@ -213,8 +213,8 @@ public class TestRefineValidationJena {
 
 		assertEquals(3, typing.asSet().size());
 		org.eclipse.rdf4j.model.Resource res = newRDF4JIRI("note");
-		assertTrue(typing.contains(res, new ShapeLabel("SL1")));
-		assertTrue(typing.contains(res, new ShapeLabel("SL2")));
+		assertTrue(typing.contains(res, newShapeLabel("SL1")));
+		assertTrue(typing.contains(res, newShapeLabel("SL2")));
 		assertTrue(typing.contains(res, SimpleSchemaConstructor.slAll));
 	}
 
@@ -223,14 +223,14 @@ public class TestRefineValidationJena {
 	public void testTwoTELabelSchemaWithOneStatementsModel(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 		constr.addSlstringRule();
 
 		constr.addRule("SL1", se(tc("p :: int")));
 		constr.addRule("SL2", se(tc("p :: string")));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 
 		Model model = ModelFactory.createDefaultModel();
@@ -248,7 +248,7 @@ public class TestRefineValidationJena {
 
 		validation.validate(null, null);
 		
-		Set<Pair<org.eclipse.rdf4j.model.Resource, ShapeLabel>> set = validation.getTyping().asSet();
+		Set<Pair<org.eclipse.rdf4j.model.Resource, ShapeExprLabel>> set = validation.getTyping().asSet();
 		assertEquals(1, set.size());
 
 	}
@@ -258,13 +258,13 @@ public class TestRefineValidationJena {
 	public void testTwoTELabelSchemaWithTwoStatementsModel(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 
 		constr.addRule("SL1", se(tc("p :: int")));
 		constr.addRule("SL2", se(tc("p :: int")));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 
 		Model model = ModelFactory.createDefaultModel();
@@ -288,28 +288,28 @@ public class TestRefineValidationJena {
 		validation.validate(null, null);
 
 
-		Set<Pair<org.eclipse.rdf4j.model.Resource, ShapeLabel>> typingSet = validation.getTyping().asSet();
+		Set<Pair<org.eclipse.rdf4j.model.Resource, ShapeExprLabel>> typingSet = validation.getTyping().asSet();
 
 		assertEquals(4, typingSet.size());
 		org.eclipse.rdf4j.model.Resource res1 = newRDF4JIRI("note1");
 		org.eclipse.rdf4j.model.Resource res2 = newRDF4JIRI("note2");
-		assertTrue(typingSet.contains(new Pair<>(res1, new ShapeLabel("SL1"))));
-		assertTrue(typingSet.contains(new Pair<>(res1, new ShapeLabel("SL2"))));
-		assertTrue(typingSet.contains(new Pair<>(res2, new ShapeLabel("SL1"))));
-		assertTrue(typingSet.contains(new Pair<>(res2, new ShapeLabel("SL2"))));
+		assertTrue(typingSet.contains(new Pair<>(res1, newShapeLabel("SL1"))));
+		assertTrue(typingSet.contains(new Pair<>(res1, newShapeLabel("SL2"))));
+		assertTrue(typingSet.contains(new Pair<>(res2, newShapeLabel("SL1"))));
+		assertTrue(typingSet.contains(new Pair<>(res2, newShapeLabel("SL2"))));
 	}
 
 	@Test
 	public void testOneComplexTELabelSchemaWithOneComplexStatementModel(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 		
 		constr.addRule("SL1", se(tc("hasControl :: SL2")));
 		constr.addRule("SL2", se(tc("hasCoefficient :: int")));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 		Model model = ModelFactory.createDefaultModel();
 
@@ -330,8 +330,8 @@ public class TestRefineValidationJena {
 		Typing typing = validation.getTyping();
 		org.eclipse.rdf4j.model.Resource resABD = newRDF4JIRI("ABD");
 		org.eclipse.rdf4j.model.Resource resCTP = newRDF4JIRI("CTP");
-		assertTrue(typing.contains(resABD, new ShapeLabel("SL1")));
-		assertTrue(typing.contains(resCTP, new ShapeLabel("SL2")));
+		assertTrue(typing.contains(resABD, newShapeLabel("SL1")));
+		assertTrue(typing.contains(resCTP, newShapeLabel("SL2")));
 		assertEquals(2, typing.asSet().size());
 
 	}
@@ -340,12 +340,12 @@ public class TestRefineValidationJena {
 	public void testOneNegatedTELabelSchemaWithOneStatementModel_pass(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 
 		constr.addRule("SL1", not(se(tc("xsd:value :: int"))));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 		Model model = ModelFactory.createDefaultModel();
 
@@ -363,19 +363,19 @@ public class TestRefineValidationJena {
 		Typing typing = validation.getTyping();
 		assertEquals(1, typing.asSet().size());
 		org.eclipse.rdf4j.model.Resource res = newRDF4JIRI("toto");
-		assertTrue(typing.contains(res, new ShapeLabel("SL1")));
+		assertTrue(typing.contains(res, newShapeLabel("SL1")));
 	}
 
 	@Test
 	public void testOneNegatedTELabelSchemaWithOneStatementModel_fail(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 
 		constr.addRule("SL1", not(se(tc("value :: int"))));
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 		Model model = ModelFactory.createDefaultModel();
 
@@ -398,14 +398,14 @@ public class TestRefineValidationJena {
 	public void testOneTEEachOfLabelSchemaWithOneStatementModel(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 		constr.addSlstringRule();
 		
 		constr.addRule("SL1", se(eachof("value :: int ; text :: string")));
 		
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 		Model model = ModelFactory.createDefaultModel();
 
@@ -427,7 +427,7 @@ public class TestRefineValidationJena {
 		Typing typing = validation.getTyping();
 		
 		org.eclipse.rdf4j.model.Resource res = newRDF4JIRI("toto");
-		assertTrue(typing.contains(res, new ShapeLabel("SL1")));
+		assertTrue(typing.contains(res, newShapeLabel("SL1")));
 		assertEquals(1, typing.asSet().size());
 	}
 	
@@ -435,14 +435,14 @@ public class TestRefineValidationJena {
 	public void testOneTEEachOfLabelSchemaWithOneStatementModel_2(){
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
+		 
 		constr.addSlintRule();
 		constr.addSlstringRule();
 		
 		constr.addRule("SL1", se(eachof("xsd:value :: int ; xsd:text :: string")));
 		
 
-		ShexSchema schema = new ShexSchema(new SchemaRules(constr.getRulesMap()));
+		ShexSchema schema = constr.getSchema();
 
 		Model model = ModelFactory.createDefaultModel();
 
@@ -477,6 +477,9 @@ public class TestRefineValidationJena {
 		return SimpleValueFactory.getInstance().createIRI(SimpleSchemaConstructor.PREFIX + localName);
 	}
 
-	
+	public final static String PREFIX = "http://a.ex#";
+	public static ShapeExprLabel newShapeLabel (String label){
+		return new ShapeExprLabel(SimpleValueFactory.getInstance().createIRI(PREFIX + label));
+	}
 	
 }

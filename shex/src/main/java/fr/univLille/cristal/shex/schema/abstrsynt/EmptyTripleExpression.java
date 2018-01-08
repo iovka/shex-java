@@ -24,8 +24,9 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class EmptyTripleExpression extends AbstractTripleExpression {
+public class EmptyTripleExpression extends NonRefTripleExpr {
 
+	
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitEmpty(this, arguments);

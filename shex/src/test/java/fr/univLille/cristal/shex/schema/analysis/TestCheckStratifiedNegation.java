@@ -30,18 +30,18 @@ import static org.junit.Assert.assertNull;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.schema.ShapeLabel;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeDefinition;
 import fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 
 /**
  * 
@@ -53,10 +53,9 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testSchemaWithOneShapeExpression() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		constr.addSlallRule();
 		
-		List<Set<ShapeLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap());
+		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getSchema());
 		
 		// Check that the stratification is correct
 		assertEquals(1, stratification.size());
@@ -66,10 +65,9 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testPositiveSelfLoopDependency() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		constr.addRule("SL", se(tc("p :: SL")));
 	
-		List<Set<ShapeLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap());
+		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getSchema());
 		
 		// Check that the stratification is correct
 		assertEquals(1, stratification.size());
@@ -79,11 +77,10 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testPositiveLoopLength2Dependency() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		constr.addRule("SL1", se(tc("p :: SL2")));
 		constr.addRule("SL2", se(tc("q :: SL1")));
 
-		List<Set<ShapeLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap());
+		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getSchema());
 		
 		// Check that the stratification is correct
 		assertEquals(1, stratification.size());
@@ -93,13 +90,12 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testPositiveLoopLength5Dependency() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		for (int i = 1; i <= 4; i++) {
 			constr.addRule("SL"+i, se(tc(""+((char)('o'+i))+ ":: SL"+(i+1))));
 		}
 		constr.addRule("SL5", se(tc("t :: SL1")));
 		
-		List<Set<ShapeLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap());
+		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getSchema());
 
 		
 		// Check that the stratification is correct
@@ -115,9 +111,8 @@ public class TestCheckStratifiedNegation {
 		// SL6 -> SL8, !SL9, SL10
 		
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
-		TripleExpression 
+		NonRefTripleExpr 
 			te1 = tc("a :: SL1"),
 			te2 = tc("a :: SL2"),
 			te3 = tc("a :: SL3"),
@@ -142,7 +137,7 @@ public class TestCheckStratifiedNegation {
 		constr.addRule("SL9", se(tempty));
 		constr.addRule("SL10", se(tempty));
 
-		List<Set<ShapeLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap());
+		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getSchema());
 
 		// Check that the stratification is correct
 		assertEquals(10, stratification.size());
@@ -150,7 +145,7 @@ public class TestCheckStratifiedNegation {
 			assertEquals(1, stratification.get(i).size());
 		}
 		
-		Set<ShapeLabel> allLabelsInStratification = new HashSet<>();
+		Set<ShapeExprLabel> allLabelsInStratification = new HashSet<>();
 		for (int i = 0; i < 10; i++) {
 			allLabelsInStratification.addAll(stratification.get(i));
 		}
@@ -160,9 +155,8 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testPositiveDependecyOnlyWithComplexValueExpressions() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 
-		TripleExpression 
+		NonRefTripleExpr 
 			te1_1 = tc("a :: SL1"), te1_2 = tc("a :: SL1"), te1_3 = tc("a :: SL1"),
 			te2_1 = tc("a :: SL2"),	te2_2 = tc("a :: SL2"), te2_3 = tc("a :: SL2"), te2_4 = tc("a :: SL2"),
 			te3_1 = tc("a :: SL3"),	te3_2 = tc("a :: SL3"),	te3_3 = tc("a :: SL3"),	te3_4 = tc("a :: SL3"),
@@ -179,7 +173,7 @@ public class TestCheckStratifiedNegation {
 		constr.addRule("SL3", shapeAnd(eachof(te1_2, te2_3), someof(te3_3, te4_2)));
 		constr.addRule("SL4", shapeAnd(eachof(te1_3, te2_4, te3_4), te4_3));
 		
-		List<Set<ShapeLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap());
+		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getSchema());
 		
 		// Check that the stratification is correct
 		assertEquals(1, stratification.size());
@@ -189,9 +183,8 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testPositiveAndNegativeDependeciesWithComplexShapeExpressions() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
-		TripleExpression 
+		NonRefTripleExpr 
 		te1_1 = tc("a :: SL1"), te1_2 = tc("a :: SL1"), te1_3 = tc("a :: SL1"),
 		te2_1 = tc("a :: SL2"),	te2_2 = tc("a :: SL2"), te2_3 = tc("a :: SL2"), te2_4 = tc("a :: SL2"),
 		te3_1 = tc("a :: SL3"),	te3_2 = tc("a :: SL3"),	te3_3 = tc("a :: SL3"),	te3_4 = tc("a :: SL3"),
@@ -210,24 +203,24 @@ public class TestCheckStratifiedNegation {
 		constr.addRule("SL4", se(te5));
 		constr.addRule("SL5", se(te4_4));
 		
-		Map<ShapeLabel, ShapeDefinition> rules = constr.getRulesMap(); 
-		DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph = SchemaRulesStaticAnalysis.computeDependencyGraph(rules);
+		ShexSchema rules = constr.getSchema(); 
+		DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph = SchemaRulesStaticAnalysis.computeDependencyGraph(rules);
 		System.out.println(SchemaRulesStaticAnalysis.depGraphToString(depGraph));
-		List<Set<ShapeLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap());
+		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(constr.getSchema());
 		
 		// Check that the stratification is correct
 		assertEquals(3, stratification.size());
 	
-		Set<ShapeLabel> str0 = new HashSet<>();
-		str0.add(new ShapeLabel("SL4"));
-		str0.add(new ShapeLabel("SL5"));
+		Set<ShapeExprLabel> str0 = new HashSet<>();
+		str0.add(newShapeLabel("SL4"));
+		str0.add(newShapeLabel("SL5"));
 		
-		Set<ShapeLabel> str1 = new HashSet<>();
-		str1.add(new ShapeLabel("SL2"));
-		str1.add(new ShapeLabel("SL3"));
+		Set<ShapeExprLabel> str1 = new HashSet<>();
+		str1.add(newShapeLabel("SL2"));
+		str1.add(newShapeLabel("SL3"));
 		
-		Set<ShapeLabel> str2 = new HashSet<>();
-		str2.add(new ShapeLabel("SL1"));
+		Set<ShapeExprLabel> str2 = new HashSet<>();
+		str2.add(newShapeLabel("SL1"));
 
 		assertEquals(str0, new HashSet<>(stratification.get(0)));
 		assertEquals(str1, stratification.get(1));
@@ -240,18 +233,16 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testNegativeSelfLoopDependency() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
 		// SL -> !SL
 		constr.addRule("SL", not(se(tc("p :: SL"))));
 		
-		assertNull(SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap()));
+		assertNull(SchemaRulesStaticAnalysis.computeStratification(constr.getSchema()));
 	}
 
 	@Test
 	public void testLoopLength2WithOneNegationDependency() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
 		// SL1 -> SL2
 		// SL2 -> !SL1
@@ -259,7 +250,7 @@ public class TestCheckStratifiedNegation {
 		constr.addRule("SL1", se(tc("p :: SL2")));
 		constr.addRule("SL2", not(se(tc("q :: SL1"))));
 		
-		assertNull(SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap()));
+		assertNull(SchemaRulesStaticAnalysis.computeStratification(constr.getSchema()));
 
 	}
 
@@ -267,7 +258,6 @@ public class TestCheckStratifiedNegation {
 	@Test
 	public void testPositiveAndNegativeDependeciesWithComplexValueExpressionsAndNegativeDependencyLoop() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		constr.clearRuleMaps();
 		
 		// SL1 -> SL2, SL3, SL4
 		// SL2 -> SL3, SL2
@@ -281,8 +271,15 @@ public class TestCheckStratifiedNegation {
 		constr.addRule("SL4", se(tc("q :: SL5")));
 		constr.addRule("SL5", shapeAnd(tc("p :: SL4"), not(se(tc("q :: SL2")))));
 
-		assertNull(SchemaRulesStaticAnalysis.computeStratification(constr.getRulesMap()));
+		assertNull(SchemaRulesStaticAnalysis.computeStratification(constr.getSchema()));
 	}
+	
+	private static final String PREFIX = "http://a.ex#";
+	
+	public static ShapeExprLabel newShapeLabel (String label){
+		return new ShapeExprLabel(SimpleValueFactory.getInstance().createIRI(PREFIX + label));
+	}
+	
 	
 	
 }

@@ -23,17 +23,19 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.EachOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor;
-import fr.univLille.cristal.shex.schema.abstrsynt.SomeOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
-import fr.univLille.cristal.shex.schema.analysis.ComputeAndSetTripleConstraintsVisitor;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
+import fr.univLille.cristal.shex.schema.analysis.ComputeListsOfTripleConstraintsVisitor;
 import fr.univLille.cristal.shex.util.Interval;
 
 /**
@@ -42,144 +44,123 @@ import fr.univLille.cristal.shex.util.Interval;
  * 10 oct. 2017
  */
 public class TestGetTripleConstraintVisitor {
-
-	Object TRIPLE_CONSTR_LIST = new Object();
 	
 	@Test
 	public void testEmptyExpression() {
 		
 		EmptyTripleExpression empty = new EmptyTripleExpression();
 		
-		ComputeAndSetTripleConstraintsVisitor visitor = new ComputeAndSetTripleConstraintsVisitor(TRIPLE_CONSTR_LIST);
+		ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
 		empty.accept(visitor);
+		Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
 			
-		List<TripleConstraint> result = (List<TripleConstraint>) empty.getAttributes().getAttribute(TRIPLE_CONSTR_LIST);
-		assertTrue(result.isEmpty());
+		assertTrue(map.get(empty).isEmpty());
 		
 		//TODO remove assertTrue(empty.getTripleConstraints().isEmpty());
 	}
 	
 	@Test
 	public void testTripleConstraintExpression(){
-		TripleExpression tripleConstraint = SimpleSchemaConstructor.tc("a :: @SL");
-		ComputeAndSetTripleConstraintsVisitor visitor = new ComputeAndSetTripleConstraintsVisitor(TRIPLE_CONSTR_LIST);
+		NonRefTripleExpr tripleConstraint = SimpleSchemaConstructor.tc("a :: @SL");
+		ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
 		tripleConstraint.accept(visitor);
+		Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
 		
-		List<TripleConstraint> result = (List<TripleConstraint>) tripleConstraint.getAttributes().getAttribute(TRIPLE_CONSTR_LIST);
-		assertEquals(1, result.size());
+		assertEquals(1, map.get(tripleConstraint).size());
 	}
 	
 	@Test
 	public void testEachOfExpression(){
-		TripleExpression tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
-		TripleExpression tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
-		List<TripleExpression> list = new ArrayList<TripleExpression>();
+		NonRefTripleExpr tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
+		NonRefTripleExpr tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
+		List<NonRefTripleExpr> list = new ArrayList<NonRefTripleExpr>();
 		list.add(tc1);
 		list.add(tc2);
-		EachOfTripleExpression eachOf = new EachOfTripleExpression(list);
+		EachOf eachOf = new EachOf(list);
 		
-		ComputeAndSetTripleConstraintsVisitor visitor = new ComputeAndSetTripleConstraintsVisitor(TRIPLE_CONSTR_LIST);
+		ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
 		eachOf.accept(visitor);
-		
-		List<TripleConstraint> result = (List<TripleConstraint>) eachOf.getAttributes().getAttribute(TRIPLE_CONSTR_LIST);
+		Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
+		List<TripleConstraint> l = map.get(eachOf);
 
-
-		assertEquals(2, result.size());
-		assertEquals(tc1, result.get(0));
-		assertEquals(tc2, result.get(1));
+		assertEquals(2, l.size());
+		assertEquals(tc1, l.get(0));
+		assertEquals(tc2, l.get(1));
 		
-//		assertEquals(2, eachOf.getTripleConstraints().size());
-//		assertEquals(tc1, eachOf.getTripleConstraints().get(0));
-//		assertEquals(tc2, eachOf.getTripleConstraints().get(1));
 	}
 	
 	
 	@Test
 	public void testSomeOfExpression() {
-		TripleExpression tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
-		TripleExpression tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
-		List<TripleExpression> list = new ArrayList<TripleExpression>();
+		NonRefTripleExpr tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
+		NonRefTripleExpr tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
+		List<NonRefTripleExpr> list = new ArrayList<NonRefTripleExpr>();
 		list.add(tc1);
 		list.add(tc2);
-		SomeOfTripleExpression eachOf = new SomeOfTripleExpression(list);
+		OneOf eachOf = new OneOf(list);
 		
-		ComputeAndSetTripleConstraintsVisitor visitor = new ComputeAndSetTripleConstraintsVisitor(TRIPLE_CONSTR_LIST);
+		ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
 		eachOf.accept(visitor);
+		Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
+		List<TripleConstraint> l = map.get(eachOf);
 		
-		List<TripleConstraint> result = (List<TripleConstraint>) eachOf.getAttributes().getAttribute(TRIPLE_CONSTR_LIST);
-		
-		assertEquals(2, result.size());
-		assertEquals(tc1, result.get(0));
-		assertEquals(tc2, result.get(1));
-		
-//		assertEquals(2, eachOf.getTripleConstraints().size());
-//		assertEquals(tc1, eachOf.getTripleConstraints().get(0));
-//		assertEquals(tc2, eachOf.getTripleConstraints().get(1));
+		assertEquals(2, l.size());
+		assertEquals(tc1, l.get(0));
+		assertEquals(tc2, l.get(1));
 	}
 	
 	
 	@Test
 	public void testRepeatedExpression(){
-		TripleExpression tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
-		TripleExpression tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
-		List<TripleExpression> list = new ArrayList<TripleExpression>();
+		NonRefTripleExpr tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
+		NonRefTripleExpr tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
+		List<NonRefTripleExpr> list = new ArrayList<NonRefTripleExpr>();
 		list.add(tc1);
 		list.add(tc2);
-		SomeOfTripleExpression eachOf = new SomeOfTripleExpression(list);
+		OneOf eachOf = new OneOf(list);
 		RepeatedTripleExpression expr = new RepeatedTripleExpression(eachOf, Interval.PLUS);
 		
-		ComputeAndSetTripleConstraintsVisitor visitor = new ComputeAndSetTripleConstraintsVisitor(TRIPLE_CONSTR_LIST);
+		ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
 		expr.accept(visitor);
-		
-		List<TripleConstraint> result = (List<TripleConstraint>) eachOf.getAttributes().getAttribute(TRIPLE_CONSTR_LIST);
-		
-		assertEquals(2, result.size());
-		assertEquals(tc1, result.get(0));
-		assertEquals(tc2, result.get(1));
+		Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
+		List<TripleConstraint> l = map.get(eachOf);
 
-	
-//		assertEquals(2, eachOf.getTripleConstraints().size());
-//		assertEquals(tc1, eachOf.getTripleConstraints().get(0));
-//		assertEquals(tc2, eachOf.getTripleConstraints().get(1));
+		assertEquals(2, l.size());
+		assertEquals(tc1, l.get(0));
+		assertEquals(tc2, l.get(1));
 	}
 	
 	@Test
 	public void testComplexExpression(){
-		TripleExpression tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
-		TripleExpression tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
-		TripleExpression tc3 = SimpleSchemaConstructor.tc("b :: @SL1");
-		TripleExpression tc4 = SimpleSchemaConstructor.tc("c :: @SL2");
+		NonRefTripleExpr tc1 = SimpleSchemaConstructor.tc("a :: @SL1");
+		NonRefTripleExpr tc2 = SimpleSchemaConstructor.tc("a :: @SL2");
+		NonRefTripleExpr tc3 = SimpleSchemaConstructor.tc("b :: @SL1");
+		NonRefTripleExpr tc4 = SimpleSchemaConstructor.tc("c :: @SL2");
 		
-		List<TripleExpression> list1 = new ArrayList<TripleExpression>();
+		List<NonRefTripleExpr> list1 = new ArrayList<NonRefTripleExpr>();
 		list1.add(tc1);
 		list1.add(tc2);
-		SomeOfTripleExpression someOf = new SomeOfTripleExpression(list1);
+		OneOf someOf = new OneOf(list1);
 		RepeatedTripleExpression repeatedTripleExpression = new RepeatedTripleExpression(someOf, new Interval(1,2));
 		
-		List<TripleExpression> list2 = new ArrayList<TripleExpression>();
+		List<NonRefTripleExpr> list2 = new ArrayList<NonRefTripleExpr>();
 		list2.add(repeatedTripleExpression);
 		list2.add(tc3);
 		list2.add(new EmptyTripleExpression());
 		list2.add(tc4);
 		
-		EachOfTripleExpression eachOf = new EachOfTripleExpression(list2);
+		EachOf eachOf = new EachOf(list2);
 
-		ComputeAndSetTripleConstraintsVisitor visitor = new ComputeAndSetTripleConstraintsVisitor(TRIPLE_CONSTR_LIST);
+		ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
 		eachOf.accept(visitor);
-				
-		List<TripleConstraint> result = (List<TripleConstraint>) eachOf.getAttributes().getAttribute(TRIPLE_CONSTR_LIST);
+		Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
+		List<TripleConstraint> l = map.get(eachOf);		
 		
-		assertEquals(4, result.size());
-		assertEquals(tc1, result.get(0));
-		assertEquals(tc2, result.get(1));
-		assertEquals(tc3, result.get(2));
-		assertEquals(tc4, result.get(3));
-		
-//		assertEquals(4, eachOf.getTripleConstraints().size());
-//		assertEquals(tc1, eachOf.getTripleConstraints().get(0));
-//		assertEquals(tc2, eachOf.getTripleConstraints().get(1));
-//		assertEquals(tc3, eachOf.getTripleConstraints().get(2));
-//		assertEquals(tc4, eachOf.getTripleConstraints().get(3));
+		assertEquals(4, l.size());
+		assertEquals(tc1, l.get(0));
+		assertEquals(tc2, l.get(1));
+		assertEquals(tc3, l.get(2));
+		assertEquals(tc4, l.get(3));
 	}
 
 }

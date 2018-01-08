@@ -18,13 +18,16 @@ limitations under the License.
 package fr.univLille.cristal.shex.schema.analysis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.EachOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.SomeOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.util.SubList;
 
 /**
@@ -32,51 +35,44 @@ import fr.univLille.cristal.shex.util.SubList;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class ComputeAndSetTripleConstraintsVisitor extends TripleExpressionVisitor<Void> {
+public class ComputeListsOfTripleConstraintsVisitor extends TripleExpressionVisitor<Map<TripleExpr, List<TripleConstraint>>> {
 	
 	private List<TripleConstraint> theList = new ArrayList<>();
-	private Object propertyKey;
+	private Map<TripleExpr, List<TripleConstraint>> theMap = new HashMap<>();
 	
-	public ComputeAndSetTripleConstraintsVisitor(Object propertyKey) {
-		this.propertyKey = propertyKey;
-	}
-
 	@Override
 	public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
 		int begin = theList.size();
 		theList.add(tc);
 		int end = theList.size();
-		tc.getAttributes().setAttribute(propertyKey, new SubList(theList, begin, end));
-		//TODO remove tc.setTripleConstraints();
+		theMap.put(tc, new SubList(theList, begin, end));
 	}
 
 	@Override
 	public void visitEmpty(EmptyTripleExpression emptyTripleExpression, Object[] arguments) {
 		int beginEnd = theList.size();
-		emptyTripleExpression.getAttributes().setAttribute(propertyKey, new SubList(theList, beginEnd, beginEnd));
+		theMap.put(emptyTripleExpression, new SubList(theList, beginEnd, beginEnd));
 	}		
 	
 	@Override
-	public Void getResult() {
-		return null;
+	public Map<TripleExpr, List<TripleConstraint>> getResult() {
+		return theMap;
 	}
 	
 	@Override
-	public void visitEachOf(EachOfTripleExpression expr, Object... arguments) {
+	public void visitEachOf(EachOf expr, Object... arguments) {
 		int begin = theList.size();
 		super.visitEachOf(expr, arguments);
 		int end = theList.size();
-		expr.getAttributes().setAttribute(propertyKey, new SubList(theList, begin, end));
-		//TODO remove expr.setTripleConstraints(new SubList(theList, begin, end));
+		theMap.put(expr, new SubList(theList, begin, end));
 	}
 
 	@Override
-	public void visitSomeOf(SomeOfTripleExpression expr, Object... arguments) {
+	public void visitOneOf(OneOf expr, Object... arguments) {
 		int begin = theList.size();
-		super.visitSomeOf(expr, arguments);
+		super.visitOneOf(expr, arguments);
 		int end = theList.size();
-		expr.getAttributes().setAttribute(propertyKey, new SubList(theList, begin, end));
-		//TODO removeexpr.setTripleConstraints(new SubList(theList, begin, end));
+		theMap.put(expr, new SubList(theList, begin, end));
 	}
 
 	@Override
@@ -84,8 +80,7 @@ public class ComputeAndSetTripleConstraintsVisitor extends TripleExpressionVisit
 		int begin = theList.size();
 		super.visitRepeated(expr, arguments);
 		int end = theList.size();
-		expr.getAttributes().setAttribute(propertyKey, new SubList(theList, begin, end));
-		//TODO remove expr.setTripleConstraints(new SubList(theList, begin, end));
+		theMap.put(expr, new SubList(theList, begin, end));
 	}
 	
 }

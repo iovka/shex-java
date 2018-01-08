@@ -17,65 +17,65 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import java.util.Set;
-
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
-import fr.univLille.cristal.shex.schema.concrsynt.ForwardComplementPropertySet;
-import fr.univLille.cristal.shex.schema.concrsynt.InverseComplementPropertySet;
-import fr.univLille.cristal.shex.schema.concrsynt.SingletonPropertySet;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class TripleConstraint extends AbstractTripleExpression {
+public class TripleConstraint extends NonRefTripleExpr {
 	
-	private PropertySet propertySet;	
-	private ShapeRef shapeRef;
+	private TCProperty property;	
+	// FIXME: here it should become a ShapeEXpr and not a reference
+	private ShapeExpr shapeExpr;
 	private boolean isSingleton;
 		
 	
-	public static TripleConstraint newSingleton (TCProperty property, ShapeRef shapeRef) {
-		return new TripleConstraint(new SingletonPropertySet(property), shapeRef, true);
+	public static TripleConstraint newSingleton (TCProperty property, ShapeExpr shapeExpr) {
+		return new TripleConstraint(property, shapeExpr, true);
 	}
 	
-	public static TripleConstraint newForwardOpen (Set<TCProperty> closedProperties, ShapeRef shapeRef) {
+	/*
+	
+	public static TripleConstraint newForwardOpen (Set<TCProperty> closedProperties, ShapeExprRef shapeRef) {
 		return new TripleConstraint(new ForwardComplementPropertySet(closedProperties), shapeRef, false);
 	}
 	
-	public static TripleConstraint newInverseOpen (Set<TCProperty> closedProperties, ShapeRef shapeRef) {
+	public static TripleConstraint newInverseOpen (Set<TCProperty> closedProperties, ShapeExprRef shapeRef) {
 		return new TripleConstraint(new InverseComplementPropertySet(closedProperties), shapeRef, false);
 	}
 	
-	
-	private TripleConstraint (PropertySet propertySet, ShapeRef shapeRef, boolean isSingleton) {
-		this.propertySet = propertySet;
-		this.shapeRef = shapeRef;
+	*/
+	private TripleConstraint (TCProperty property, ShapeExpr shapeExpr, boolean isSingleton) {
+		this.property = property;
+		this.shapeExpr = shapeExpr;
 		this.isSingleton = isSingleton;
 	}	
 
-	public PropertySet getPropertySet(){
-		return propertySet;
+	public TCProperty getProperty(){
+		return property;
 	}
 
+	/*
 	public TCProperty getProperty () {
 		if (! isSingleton)
 			throw new IllegalStateException("Trying to retrieve the property of a non-singleton property set");
-		return ((SingletonPropertySet) propertySet).getProperty();
+		return ((SingletonPropertySet) property).getProperty();
+	}
+	*/
+	
+	public ShapeExpr getShapeExpr(){
+		return shapeExpr;
 	}
 	
-	public ShapeRef getShapeRef(){
-		return shapeRef;
-	}
-		
 	
 	@Override
 	public String toString() {
 		return String.format("%s::%s",
-				propertySet.toString(),
-				shapeRef.toString());
+				property.toString(),
+				shapeExpr.toString());
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class TripleConstraint extends AbstractTripleExpression {
 	
 	@Override
 	public TripleConstraint clone() {
-		return new TripleConstraint(this.propertySet, this.shapeRef, this.isSingleton);
+		return new TripleConstraint(this.property, (ShapeExprRef) this.shapeExpr, this.isSingleton);
 	}
 	
 }

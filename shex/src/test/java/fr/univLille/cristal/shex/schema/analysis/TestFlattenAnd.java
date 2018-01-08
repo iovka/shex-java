@@ -31,12 +31,12 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAndExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNotExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOrExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis.FlattenAndOr;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis.PushNegationsDownVisitor;
@@ -50,27 +50,27 @@ public class TestFlattenAnd {
 
 	@Test
 	public void testNeighConstr() {
-		ShapeExpression expr = se(tc("ex:a :: SL"));
+		ShapeExpr expr = se(tc("ex:a :: SL"));
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		
 		expr.accept(visitor, new Object());
-		ShapeExpression result = visitor.getResult();
-		assertTrue(result instanceof NeighbourhoodConstraint);
+		ShapeExpr result = visitor.getResult();
+		assertTrue(result instanceof Shape);
 	}
 
 	@Test
 	public void testNegatedNeighConstr() {
-		ShapeExpression expr = not(se(tc("ex:a :: SL")));
+		ShapeExpr expr = not(se(tc("ex:a :: SL")));
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		
 		expr.accept(visitor, new Object());
-		ShapeExpression result = visitor.getResult();
-		assertTrue(result instanceof ShapeNotExpression);
+		ShapeExpr result = visitor.getResult();
+		assertTrue(result instanceof ShapeNot);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testDoublyNegatedNeighConstr() {
-		ShapeExpression expr = not(not(se(tc("ex:a :: SL"))));
+		ShapeExpr expr = not(not(se(tc("ex:a :: SL"))));
 		
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		expr.accept(visitor, new Object());
@@ -78,37 +78,37 @@ public class TestFlattenAnd {
 	
 	@Test
 	public void testShapeOr() {
-		ShapeExpression expr = shapeOr(tc("ex:a :: SL"), tc("ex:b :: SL"));
+		ShapeExpr expr = shapeOr(tc("ex:a :: SL"), tc("ex:b :: SL"));
 		
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		expr.accept(visitor, new Object());
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeOrExpression);
+		assertTrue(result instanceof ShapeOr);
 		System.out.println(result);
 	}
 	
 	@Test
 	public void testShapeOrOr() {
-		TripleExpression tc1 = tc("ex:a :: SL");
-		TripleExpression tc2 = tc("ex:b :: SL");
-		TripleExpression tc3 = tc("ex:c :: SL");
+		NonRefTripleExpr tc1 = tc("ex:a :: SL");
+		NonRefTripleExpr tc2 = tc("ex:b :: SL");
+		NonRefTripleExpr tc3 = tc("ex:c :: SL");
 		
-		ShapeExpression expr = shapeOr(shapeOr(tc1, tc2), tc3);
+		ShapeExpr expr = shapeOr(shapeOr(tc1, tc2), tc3);
 		
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		expr.accept(visitor, new Object());
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeOrExpression);
+		assertTrue(result instanceof ShapeOr);
 	
-		List<ShapeExpression> subExpr = ((ShapeOrExpression) result).getSubExpressions();
+		List<ShapeExpr> subExpr = ((ShapeOr) result).getSubExpressions();
 		assertEquals(3, subExpr.size());
 		
-		List<TripleExpression> subExprList = new ArrayList<>(); 
-		for (ShapeExpression e : subExpr) {
-			assertTrue(e instanceof NeighbourhoodConstraint);
-			subExprList.add(((NeighbourhoodConstraint)e).getTripleExpression());
+		List<NonRefTripleExpr> subExprList = new ArrayList<>(); 
+		for (ShapeExpr e : subExpr) {
+			assertTrue(e instanceof Shape);
+			subExprList.add(((Shape)e).getTripleExpression());
 		}
 		assertTrue(subExprList.contains(tc1));
 		assertTrue(subExprList.contains(tc2));
@@ -118,19 +118,19 @@ public class TestFlattenAnd {
 	
 	@Test
 	public void testShapeSingletonOrOr() {
-		ShapeExpression expr = shapeOr(shapeOr(tc("ex:a :: SL"), tc("ex:b :: SL"), tc("ex:c :: SL")));
+		ShapeExpr expr = shapeOr(shapeOr(tc("ex:a :: SL"), tc("ex:b :: SL"), tc("ex:c :: SL")));
 		System.out.println(expr);
 		
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		expr.accept(visitor, new Object());
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeOrExpression);
+		assertTrue(result instanceof ShapeOr);
 	
-		List<ShapeExpression> subExpr = ((ShapeOrExpression) result).getSubExpressions();
+		List<ShapeExpr> subExpr = ((ShapeOr) result).getSubExpressions();
 		assertEquals(3, subExpr.size());
-		for (ShapeExpression e : subExpr) {
-			assertTrue(e instanceof NeighbourhoodConstraint);
+		for (ShapeExpr e : subExpr) {
+			assertTrue(e instanceof Shape);
 		}
 		
 		System.out.println(result);
@@ -138,19 +138,19 @@ public class TestFlattenAnd {
 	
 	@Test
 	public void testShapeAndAnd() {
-		ShapeExpression expr = shapeAnd(shapeAnd(tc("ex:a :: SL"), tc("ex:b :: SL")), shapeAnd(tc("ex:c :: SL"), tc("ex:d :: SL")));
+		ShapeExpr expr = shapeAnd(shapeAnd(tc("ex:a :: SL"), tc("ex:b :: SL")), shapeAnd(tc("ex:c :: SL"), tc("ex:d :: SL")));
 		System.out.println(expr);
 		
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		expr.accept(visitor, new Object());
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeAndExpression);
+		assertTrue(result instanceof ShapeAnd);
 	
-		List<ShapeExpression> subExpr = ((ShapeAndExpression) result).getSubExpressions();
+		List<ShapeExpr> subExpr = ((ShapeAnd) result).getSubExpressions();
 		assertEquals(4, subExpr.size());
-		for (ShapeExpression e : subExpr) {
-			assertTrue(e instanceof NeighbourhoodConstraint);
+		for (ShapeExpr e : subExpr) {
+			assertTrue(e instanceof Shape);
 		}
 		
 		System.out.println(result);
@@ -159,7 +159,7 @@ public class TestFlattenAnd {
 	
 	@Test
 	public void testMixedAndOr() {
-		TripleExpression tca = tc("ex:a :: SL"), 
+		NonRefTripleExpr tca = tc("ex:a :: SL"), 
 				tcb = tc("ex:b :: SL"),
 				tcc = tc("ex:c :: SL"),
 				tcd = tc("ex:d :: SL"),
@@ -173,37 +173,37 @@ public class TestFlattenAnd {
 				tcl = tc("ex:l :: SL"),
 				tcm = tc("ex:m :: SL"),
 				tcn =  tc("ex:n :: SL");
-		ShapeExpression and1 = shapeAnd(tca, tcb);
-		ShapeExpression and2 = shapeAnd(tcc, tcd);
-		ShapeExpression and3 = shapeAnd(and1, and2);
+		ShapeExpr and1 = shapeAnd(tca, tcb);
+		ShapeExpr and2 = shapeAnd(tcc, tcd);
+		ShapeExpr and3 = shapeAnd(and1, and2);
 
-		ShapeExpression or1 = shapeOr(tce, tcf);
-		ShapeExpression or2 = shapeOr(tcg, tch);
-		ShapeExpression or3 = shapeOr(and3, or1, or2);
+		ShapeExpr or1 = shapeOr(tce, tcf);
+		ShapeExpr or2 = shapeOr(tcg, tch);
+		ShapeExpr or3 = shapeOr(and3, or1, or2);
 		
-		ShapeExpression and4 = shapeAnd(tci, tcj);
-		ShapeExpression and5 = shapeAnd(tck, tcl);
-		ShapeExpression or4 = shapeOr(tcm, tcn);
-		ShapeExpression expr = shapeAnd(or3, and4, and5, or4);
+		ShapeExpr and4 = shapeAnd(tci, tcj);
+		ShapeExpr and5 = shapeAnd(tck, tcl);
+		ShapeExpr or4 = shapeOr(tcm, tcn);
+		ShapeExpr expr = shapeAnd(or3, and4, and5, or4);
 		
 		System.out.println(expr);
 		
 		FlattenAndOr visitor = SchemaRulesStaticAnalysis.getInstance().new FlattenAndOr();
 		expr.accept(visitor, new Object());
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeAndExpression);
-		List<ShapeExpression> subExpr = ((ShapeAndExpression) result).getSubExpressions();
+		assertTrue(result instanceof ShapeAnd);
+		List<ShapeExpr> subExpr = ((ShapeAnd) result).getSubExpressions();
 		assertEquals(6, subExpr.size());
 	
-		Set<ShapeOrExpression> subOrSet = new HashSet<>();
-		Set<TripleExpression> subLeafSet = new HashSet<>();
-		for (ShapeExpression e : subExpr) {
-			if (e instanceof ShapeOrExpression)
-				subOrSet.add((ShapeOrExpression) e);
+		Set<ShapeOr> subOrSet = new HashSet<>();
+		Set<NonRefTripleExpr> subLeafSet = new HashSet<>();
+		for (ShapeExpr e : subExpr) {
+			if (e instanceof ShapeOr)
+				subOrSet.add((ShapeOr) e);
 			else {
-				assertTrue(e instanceof NeighbourhoodConstraint);
-				subLeafSet.add(((NeighbourhoodConstraint)e).getTripleExpression());
+				assertTrue(e instanceof Shape);
+				subLeafSet.add(((Shape)e).getTripleExpression());
 			}
 		}
 		assertTrue(subLeafSet.contains(tci));
@@ -214,21 +214,21 @@ public class TestFlattenAnd {
 		assertEquals(2, subOrSet.size());
 		
 		
-		ShapeOrExpression subOr = null;
-		for (ShapeOrExpression e : subOrSet) {
+		ShapeOr subOr = null;
+		for (ShapeOr e : subOrSet) {
 			if (e.getSubExpressions().size() != 2) {
 				subOr = e;
 			}
 		}
 		assertEquals(5, subOr.getSubExpressions().size());
 		
-		Set<ShapeAndExpression> subAndSet = new HashSet<>();
+		Set<ShapeAnd> subAndSet = new HashSet<>();
 		subLeafSet = new HashSet<>();
-		for (ShapeExpression e: subOr.getSubExpressions()) {
-			if (e instanceof ShapeAndExpression) {
-				subAndSet.add((ShapeAndExpression) e);
+		for (ShapeExpr e: subOr.getSubExpressions()) {
+			if (e instanceof ShapeAnd) {
+				subAndSet.add((ShapeAnd) e);
 			} else {
-				subLeafSet.add(((NeighbourhoodConstraint)e).getTripleExpression());
+				subLeafSet.add(((Shape)e).getTripleExpression());
 			}
 		}
 		assertTrue(subLeafSet.contains(tce));
@@ -238,7 +238,7 @@ public class TestFlattenAnd {
 		
 		assertEquals(1, subAndSet.size());
 		
-		ShapeAndExpression subAnd = subAndSet.iterator().next();
+		ShapeAnd subAnd = subAndSet.iterator().next();
 		assertEquals(4, subAnd.getSubExpressions().size());
 		
 		System.out.println(result);
@@ -246,19 +246,19 @@ public class TestFlattenAnd {
 	
 	@Test
 	public void testNegatedShapeOrWithInnerNegatedShapeAnd() {
-		ShapeExpression expr = not(shapeOr(tc("ex:a :: SL"), not(shapeAnd(tc("ex:b :: SL"), tc("ex:c :: SL")))));
+		ShapeExpr expr = not(shapeOr(tc("ex:a :: SL"), not(shapeAnd(tc("ex:b :: SL"), tc("ex:c :: SL")))));
 		
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeAndExpression);
-		List<ShapeExpression> subExpr = ((ShapeAndExpression) result).getSubExpressions();
+		assertTrue(result instanceof ShapeAnd);
+		List<ShapeExpr> subExpr = ((ShapeAnd) result).getSubExpressions();
 		assertEquals(2, subExpr.size());
-		ShapeExpression subExpr0 = subExpr.get(0);
-		ShapeExpression subExpr1 = subExpr.get(1);
-		assertTrue(subExpr0 instanceof ShapeNotExpression || subExpr1 instanceof ShapeNotExpression);
-		assertTrue(subExpr0 instanceof ShapeAndExpression || subExpr1 instanceof ShapeAndExpression);
+		ShapeExpr subExpr0 = subExpr.get(0);
+		ShapeExpr subExpr1 = subExpr.get(1);
+		assertTrue(subExpr0 instanceof ShapeNot || subExpr1 instanceof ShapeNot);
+		assertTrue(subExpr0 instanceof ShapeAnd || subExpr1 instanceof ShapeAnd);
 		System.out.println(result);
 	}
 

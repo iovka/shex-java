@@ -15,19 +15,12 @@ limitations under the License.
 
 */
 
-
-
 package fr.univLille.cristal.shex.schema.abstrsynt;
-
-import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * 11 oct. 2017
  */
-public interface ShapeExpression extends AbstractSyntaxElement {
-	
-	public <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
-
+public abstract class TripleExprRef implements TripleExpr {
 }

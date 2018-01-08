@@ -26,12 +26,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
@@ -42,24 +40,21 @@ import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeLabel;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.abstrsynt.EachOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.SchemaRules;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAndExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeDefinition;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNotExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOrExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
-import fr.univLille.cristal.shex.schema.abstrsynt.SomeOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
-import fr.univLille.cristal.shex.schema.analysis.CollectTripleConstraintsVisitor;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.schema.concrsynt.ConjunctiveSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.ExplictValuesSetOfNodes;
@@ -82,15 +77,28 @@ import fr.univLille.cristal.shex.util.Interval;
  */
 @SuppressWarnings("rawtypes")
 public class JsonldParser {
+	
+	
+	// ----------------------------------------------------------------------
+	// CONSTANTS
+	// ----------------------------------------------------------------------
+	private final static Pattern LANG_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*(\")(@[a-zA-Z]+)(-[a-zA-Z0-9]+)*");
+	private final static Pattern DATATYPE_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^" + "([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
+	private final static Pattern IRI_PATTERN = Pattern.compile("([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
+	// TODO is this correct ?
+	private static final Pattern STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^"); 
+
+	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+
+	
 		
 	private Object schemaObject; 
 	private Path path;
 	private boolean semActsWarning = false;
 	private boolean annotationsWarning = false;
-	private Map<ShapeLabel, ShapeExpression> rules = new HashMap<>();
-	private ShapeLabel SL_ALL = createShapeLabel("SLall");
-	private ShapeExpression ALL_NODES = new NodeConstraint(SetOfNodes.AllNodes);
-	private final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private Map<ShapeExprLabel, ShapeExpr> rules = new HashMap<>();
+	public static final ShapeExprLabel SL_ALL = createShapeLabel("http://a.ex/Slall");
+	private ShapeExpr ALL_NODES = new NodeConstraint(SetOfNodes.AllNodes);
 
 	
 	public JsonldParser(Path path) throws IOException, JsonLdError {
@@ -134,40 +142,41 @@ public class JsonldParser {
 		
 		// TODO: what happens if neither start not shapes ?
 
+		ShexSchema schema = new ShexSchema();
+		
+		// FIXME: to remove eventually
+		addAcceptsAllRule();
+		
 		for (Object shapeObj : shapes) {
-			
 			Map shape = (Map) shapeObj;
 			String label = getId(shape);
-			ShapeExpression shexpr = parseShapeExpression(shape);
-			rules.put(createShapeLabel(label), shexpr);
+			ShapeExpr shexpr = parseShapeExpression(shape);
+			schema.put(createShapeLabel(label), shexpr);
 		}
 				
-		Map<ShapeLabel, ShapeDefinition> rulesMap = new HashMap<>();
-		for (Map.Entry<ShapeLabel, ShapeExpression> e: rules.entrySet()) {
-			rulesMap.put(e.getKey(), new ShapeDefinition(e.getValue()));
-		}
-		SchemaRules schemaRules = new SchemaRules(rulesMap);
-		return new ShexSchema(schemaRules);
+		schema.finalize();
+		return schema;
 	}
 	
 	
 
 
 	// shapeExpr 	= 	ShapeOr | ShapeAnd | ShapeNot | NodeConstraint | Shape | ShapeExternal | shapeExprRef
-	
-	protected ShapeExpression parseShapeExpression(Object exprObj) {
+	// shapeExprRef = shapeExprLabel
+	// shapeExprLabel = IRI | BNode
+	protected ShapeExpr parseShapeExpression(Object exprObj) {
 
 		// TODO does not support shapeExprRef
 		// It is only supported when the shape expression comes from a triple constraint
 		// Then it is supported within the triple constraint
 		// TODO this method should evolve when the abstract syntax of shape expressions is adapted so that it can be a reference
 		if (exprObj instanceof String)
-			return new ShapeRef(new ShapeLabel((String) exprObj));
+			return new ShapeExprRef(createShapeLabel(((String)exprObj)));
 		
 		Map exprMap = (Map) exprObj;
 
 		String type = getType(exprMap);		
-		ShapeExpression resultExpr = null;
+		ShapeExpr resultExpr = null;
 		
 		switch(type){
 		case "ShapeOr":
@@ -187,7 +196,7 @@ public class JsonldParser {
 			break;		
 
 		case "Shape":
-			resultExpr = parseNeighbourhoodConstraint(exprMap);
+			resultExpr = parseShape(exprMap);
 			break;
 
 		case "ShapeExternal":
@@ -198,34 +207,34 @@ public class JsonldParser {
 	}
 
 	// ShapeOr 	{ 	id:shapeExprLabel? shapeExprs:[shapeExpr] }
-	protected ShapeExpression parseShapeOr (Map map) {
+	protected ShapeExpr parseShapeOr (Map map) {
 		String id = getId(map);
 		// TODO: the id is not used
 		
 		List shapeExprs = (List) (map.get("shapeExprs"));
-		List<ShapeExpression> subExpressions = parseListOfShapeExprs(shapeExprs);
-		return new ShapeOrExpression(subExpressions);
+		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
+		return new ShapeOr(subExpressions);
 		
 	}
 	
 	// ShapeAnd 	{ 	id:shapeExprLabel? shapeExprs:[shapeExpr] }
-	protected ShapeExpression parseShapeAnd (Map map) {
+	protected ShapeExpr parseShapeAnd (Map map) {
 		String id = getId(map); 
 		// TODO: the id is not used
 		
 		List shapeExprs = (List) (map.get("shapeExprs"));
-		List<ShapeExpression> subExpressions = parseListOfShapeExprs(shapeExprs);
-		return new ShapeAndExpression(subExpressions);
+		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
+		return new ShapeAnd(subExpressions);
 	}
 	
 	// ShapeNot 	{ 	id:shapeExprLabel? shapeExpr:shapeExpr }
-	protected ShapeExpression parseShapeNot (Map map) {
+	protected ShapeExpr parseShapeNot (Map map) {
 		String id = getId(map); 
 		// TODO: the id is not used
 
 		Map shapeExpr = (Map) map.get("shapeExpr");
-		ShapeExpression subExpr = parseShapeExpression(shapeExpr);
-		return new ShapeNotExpression(subExpr);
+		ShapeExpr subExpr = parseShapeExpression(shapeExpr);
+		return new ShapeNot(subExpr);
 	}
 	
 	// NodeConstraint 	{ 	id:shapeExprLabel? nodeKind:("iri" | "bnode" | "nonliteral" | "literal")? datatype:IRI? xsFacet* values:[valueSetValue]? }
@@ -347,7 +356,7 @@ public class JsonldParser {
 	}
 	
 	// Shape 	{ 	id:shapeExprLabel? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
-	protected NeighbourhoodConstraint parseNeighbourhoodConstraint(Map map) {
+	protected Shape parseShape(Map map) {
 		
 		// TODO not used or not supported
 		String id = getId(map);
@@ -367,7 +376,7 @@ public class JsonldParser {
 			extra = Collections.EMPTY_LIST;
 		
 			
-		TripleExpression texpr;
+		NonRefTripleExpr texpr;
 		
 		Object texprObj = map.get("expression");
 		if (texprObj == null)
@@ -386,10 +395,10 @@ public class JsonldParser {
 		
 	// tripleExpr 	= 	EachOf | OneOf | TripleConstraint | tripleExprRef ;
 
-	protected TripleExpression parseTripleExpression (Map map) {
+	protected NonRefTripleExpr parseTripleExpression (Map map) {
 		String type = getType(map);
 		
-		TripleExpression resultExpr = null;
+		NonRefTripleExpr resultExpr = null;
 		
 		switch (type) {
 		case "EachOf" : 
@@ -411,7 +420,7 @@ public class JsonldParser {
 	
 	// EachOf 	{ 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	
-	protected TripleExpression parseEachOf (Map map) {
+	protected NonRefTripleExpr parseEachOf (Map map) {
 		
 		// TODO not used or not supported
 		String id = getId(map);
@@ -421,20 +430,20 @@ public class JsonldParser {
 	
 		
 		List list = (List) (map.get("expressions"));
-		List<TripleExpression> subExpressions = parseListOfTripleExprs(list);
+		List<NonRefTripleExpr> subExpressions = parseListOfTripleExprs(list);
 	
 		Interval card = getCardinality(map);
 
 		if (card == null)
-			return new EachOfTripleExpression(subExpressions);
+			return new EachOf(subExpressions);
 		else 
-			return new RepeatedTripleExpression(new EachOfTripleExpression(subExpressions), card);	
+			return new RepeatedTripleExpression(new EachOf(subExpressions), card);	
 	}
 	
 	// OneOf { 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	
 	@SuppressWarnings("rawtypes")
-	protected TripleExpression parseOneOf (Map map) {
+	protected NonRefTripleExpr parseOneOf (Map map) {
 		
 		// TODO not used or not supported
 		String id = getId(map);
@@ -444,20 +453,20 @@ public class JsonldParser {
 		
 		
 		List list = (List) (map.get("expressions"));
-		List<TripleExpression> subExpressions = parseListOfTripleExprs(list);
+		List<NonRefTripleExpr> subExpressions = parseListOfTripleExprs(list);
 	
 		Interval card = getCardinality(map);
 		
 		if (card == null)
-			return new SomeOfTripleExpression(subExpressions);
+			return new OneOf(subExpressions);
 		else 
-			return new RepeatedTripleExpression(new SomeOfTripleExpression(subExpressions), card);	
+			return new RepeatedTripleExpression(new OneOf(subExpressions), card);	
 	
 	}
 	
 	// TripleConstraint 	{ 	id:tripleExprLabel? inverse:BOOL? predicate:IRI valueExpr: shapeExpr? min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 
-	protected TripleExpression parseTripleConstraint(Map map) {
+	protected NonRefTripleExpr parseTripleConstraint(Map map) {
 		
 		// TODO not used or not supported
 		String id = getId(map);
@@ -474,34 +483,38 @@ public class JsonldParser {
 		
 		Interval card = getCardinality(map);
 		
-		ShapeExpression shexpr = null;
+		ShapeExpr shexpr = null;
 		
 		Object valueExpr = map.get("valueExpr");
 		if (valueExpr != null)
 			shexpr = parseShapeExpression(valueExpr);
-				
+		else
+			shexpr = new Shape(new EmptyTripleExpression(), Collections.EMPTY_SET, false);
 		TCProperty property = createTCProperty(predicate, !inv);
 		
-		ShapeRef shapeRef = null;
+		
+/*		
+		ShapeExprRef shapeRef = null; 
 
 		if (shexpr == null) {
 			addAcceptsAllRule();
-			shapeRef = new ShapeRef(SL_ALL);
+			shapeRef = new ShapeExprRef(SL_ALL);
 		} 
 		else {
-			if (shexpr instanceof ShapeRef) {
-				shapeRef = (ShapeRef) shexpr;
+			if (shexpr instanceof ShapeExprRef) {
+				shapeRef = (ShapeExprRef) shexpr; 
 			}
 			else {
-				ShapeLabel shapeLabel = createFreshLabel();
+				ShapeExprLabel shapeLabel = createFreshLabel();
 				rules.put(shapeLabel, shexpr);
-				shapeRef = new ShapeRef(shapeLabel);
+				shapeRef = new ShapeExprRef(shapeLabel);
 			}
 		}
+		*/
 		if (card == null)
-			return TripleConstraint.newSingleton(property, shapeRef);
+			return TripleConstraint.newSingleton(property, shexpr);
 		else 
-			return new RepeatedTripleExpression(TripleConstraint.newSingleton(property, shapeRef), card); 
+			return new RepeatedTripleExpression(TripleConstraint.newSingleton(property, shexpr), card); 
 			
 	}
 	
@@ -584,19 +597,19 @@ public class JsonldParser {
 		return res;
 	}
 	
-	private List<TripleExpression> parseListOfTripleExprs (List list) {
-		ArrayList<TripleExpression> resultList = new ArrayList<>();
+	private List<NonRefTripleExpr> parseListOfTripleExprs (List list) {
+		ArrayList<NonRefTripleExpr> resultList = new ArrayList<>();
 		for(Object o : list){
-			TripleExpression tripleExpression = parseTripleExpression((Map) o);
+			NonRefTripleExpr tripleExpression = parseTripleExpression((Map) o);
 			resultList.add(tripleExpression);
 		}
 		return resultList;
 	}
 	
-	private List<ShapeExpression> parseListOfShapeExprs (List expressionsList) {
-		ArrayList<ShapeExpression> list = new ArrayList<>();
+	private List<ShapeExpr> parseListOfShapeExprs (List expressionsList) {
+		ArrayList<ShapeExpr> list = new ArrayList<>();
 		for(Object exprObj : expressionsList){
-			ShapeExpression shapeExpression = parseShapeExpression(exprObj);
+			ShapeExpr shapeExpression = parseShapeExpression(exprObj);
 			list.add(shapeExpression);
 		}
 		return list;
@@ -639,13 +652,23 @@ public class JsonldParser {
 	// ----------------------------------------------------------------------
 	// FACTORY METHODS
 	// ----------------------------------------------------------------------
-	private static ShapeLabel createShapeLabel (String string) {
-		return new ShapeLabel(string);
+
+	
+	private static IRI createIri (String s) {
+		return RDF_FACTORY.createIRI(s);
 	}
 	
 	private static SetOfNodes createDatatypeSet (String datatypeIri) {
-		return new DatatypeSetOfNodes(SimpleValueFactory.getInstance().createIRI(datatypeIri));
+		return new DatatypeSetOfNodes(createIri(datatypeIri));
 	}
+	
+	private static ShapeExprLabel createShapeLabel (String string) {
+		if (isIriString(string))
+			return new ShapeExprLabel(createIri(string));
+		else 
+			return new ShapeExprLabel(RDF_FACTORY.createBNode(string));
+	}
+	
 	/*
 	private static Property createProperty (String iri) {
 		return ResourceFactory.createProperty(iri);
@@ -659,88 +682,20 @@ public class JsonldParser {
 		}
 	}
 
-	private NeighbourhoodConstraint createNeighbourhoodConstraint (TripleExpression expr, boolean isClosed, Set<TCProperty> extraProps) {
-		List<TripleConstraint> tripleConstraints;
-		CollectTripleConstraintsVisitor visitor = new CollectTripleConstraintsVisitor();
-		expr.accept(visitor);
-		tripleConstraints = visitor.getResult();
+	private Shape createNeighbourhoodConstraint (NonRefTripleExpr expr, boolean isClosed, Set<TCProperty> extraProps) {
 		
-		List<TripleConstraint> additionalTripleConstraints = new ArrayList<>();
+		return new Shape(expr, extraProps, isClosed);
 		
-		Iterator<TCProperty> extraPropsIterator = extraProps.iterator();
-		while (extraPropsIterator.hasNext()) {
-			TCProperty extraProp = extraPropsIterator.next();
-			List<ShapeExpression> refsWithThisPropNegated = 
-					tripleConstraints.stream()
-					.filter(tc -> tc.getPropertySet().getAsFiniteSet().iterator().next().equals(extraProp))
-					.map(tc -> new ShapeNotExpression(tc.getShapeRef()))
-					.collect(Collectors.toList());
-
-			if (refsWithThisPropNegated.isEmpty() && !isClosed) {
-				extraPropsIterator.remove();
-			}
-			else if (refsWithThisPropNegated.isEmpty() && isClosed) {
-				addAcceptsAllRule();
-				additionalTripleConstraints.add(TripleConstraint.newSingleton(extraProp, new ShapeRef(SL_ALL))); 
-			}
-			else {
-				ShapeLabel shapeLabel = createFreshExtraLabel();
-			
-				ShapeExpression shapeExpression;
-				if (refsWithThisPropNegated.size() == 1)
-					shapeExpression = refsWithThisPropNegated.get(0);
-				else
-					shapeExpression = new ShapeAndExpression(refsWithThisPropNegated);
-				
-				rules.put(shapeLabel, shapeExpression);
-				additionalTripleConstraints.add(TripleConstraint.newSingleton(extraProp, new ShapeRef(shapeLabel)));
-			}
-		}
-		
-		// FIXME ShEx can close only the forward properties, so the open properties should always contain the complement
-		// of all the mentioned inverses
-		// best is to make two open triple constraints, one for the inverses and one for the forward
-
-		Set<TCProperty> mentionnedProperties = new HashSet<>();
-		mentionnedProperties.addAll(extraProps);
-		mentionnedProperties.addAll(tripleConstraints.stream()
-				.map(tc -> tc.getPropertySet().getAsFiniteSet().iterator().next())
-				.collect(Collectors.toSet()));
-
-		TripleConstraint fwdOpenTripleConstraint = null;
-		if (! isClosed) {
-			fwdOpenTripleConstraint = TripleConstraint.newForwardOpen(mentionnedProperties, new ShapeRef(SL_ALL));
-			addAcceptsAllRule();
-			additionalTripleConstraints.add(fwdOpenTripleConstraint);
-		}
-		addAcceptsAllRule();
-		TripleConstraint inverseOpenTripleConstraint = TripleConstraint.newInverseOpen(mentionnedProperties, new ShapeRef(SL_ALL));
-		additionalTripleConstraints.add(inverseOpenTripleConstraint);
-		
-		if (additionalTripleConstraints.isEmpty())
-			return new NeighbourhoodConstraint(expr, expr, extraProps, fwdOpenTripleConstraint, inverseOpenTripleConstraint);
-		else {
-			List<TripleExpression> eachOfList = new ArrayList<>();
-			eachOfList.add(expr);
-			eachOfList.addAll(additionalTripleConstraints.stream().map(tc -> new RepeatedTripleExpression(tc, Interval.STAR)).collect(Collectors.toList()));
-		
-			TripleExpression enrichedTripleExpression = new EachOfTripleExpression(eachOfList);
-			return new NeighbourhoodConstraint(enrichedTripleExpression, expr, extraProps, fwdOpenTripleConstraint, inverseOpenTripleConstraint);
-		}
 	}
 	
 	
 	// TODO: would it be preferable to have blank node identifiers ?
-	private int shapeLabelNb = 0;
+	private static int shapeLabelNb = 0;
 	private static String SHAPE_LABEL_PREFIX = "SL";
 	private static String EXTRA_SHAPE_LABEL_PREFIX = "SL_EXTRA";
 	
-	
-	private ShapeLabel createFreshLabel () {
-		return createShapeLabel(SHAPE_LABEL_PREFIX+(shapeLabelNb++));
-	}
-	
-	private ShapeLabel createFreshExtraLabel () {
+
+	public static ShapeExprLabel createFreshExtraLabel () {
 		return createShapeLabel(EXTRA_SHAPE_LABEL_PREFIX+(shapeLabelNb++));
 	}
  
@@ -775,10 +730,6 @@ public class JsonldParser {
 		return (String) (map.get("id"));
 	}
 	
-	private IRI createIri (String s) {
-		return SimpleValueFactory.getInstance().createIRI(s);
-	}
-	
 	
 	private boolean isLangString (String s) {
 		return LANG_STRING_PATTERN.matcher(s).matches();
@@ -786,7 +737,7 @@ public class JsonldParser {
 	private boolean isDatatypeString (String s) {
 		return DATATYPE_STRING_PATTERN.matcher(s).matches();
 	}
-	private boolean isIriString (String s) {
+	private static boolean isIriString (String s) {
 		return IRI_PATTERN.matcher(s).matches();
 	}
 	/*
@@ -798,16 +749,6 @@ public class JsonldParser {
 		if (! rules.containsKey(SL_ALL))
 			rules.put(SL_ALL, ALL_NODES);
 	}
-	
-	
-	// ----------------------------------------------------------------------
-	// CONSTANTS
-	// ----------------------------------------------------------------------
-	private final static Pattern LANG_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*(\")(@[a-zA-Z]+)(-[a-zA-Z0-9]+)*");
-	private final static Pattern DATATYPE_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^" + "([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
-	private final static Pattern IRI_PATTERN = Pattern.compile("([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
-	// TODO is this correct ?
-	private static final Pattern STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^"); 
 	
 	
 }

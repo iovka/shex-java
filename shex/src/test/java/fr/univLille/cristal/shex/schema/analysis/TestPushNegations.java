@@ -28,11 +28,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAndExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNotExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOrExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis.PushNegationsDownVisitor;
 
@@ -45,93 +45,93 @@ public class TestPushNegations {
 	
 	@Test
 	public void testNonNegatedNeighConstr() {
-		ShapeExpression expr = se(tc("a :: SL"));
+		ShapeExpr expr = se(tc("a :: SL"));
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
-		assertTrue(result instanceof NeighbourhoodConstraint);
+		ShapeExpr result = visitor.getResult();
+		assertTrue(result instanceof Shape);
 	}
 
 	@Test
 	public void testNegatedNeighConstr() {
-		ShapeExpression expr = not(se(tc("a :: SL")));
+		ShapeExpr expr = not(se(tc("a :: SL")));
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
-		assertTrue(result instanceof ShapeNotExpression);
+		ShapeExpr result = visitor.getResult();
+		assertTrue(result instanceof ShapeNot);
 	}
 	
 	@Test
 	public void testDoublyNegatedNeighConstr() {
-		ShapeExpression expr = not(not(se(tc("a :: SL"))));
+		ShapeExpr expr = not(not(se(tc("a :: SL"))));
 		
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof NeighbourhoodConstraint);
+		assertTrue(result instanceof Shape);
 		System.out.println(result);
 	}
 	
 	@Test
 	public void testShapeOr() {
-		ShapeExpression expr = shapeOr(tc("a :: SL"), tc("b :: SL"));
+		ShapeExpr expr = shapeOr(tc("a :: SL"), tc("b :: SL"));
 		
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeOrExpression);
+		assertTrue(result instanceof ShapeOr);
 		System.out.println(result);
 	}
 	
 	@Test
 	public void testNegatedShapeOr() {
-		ShapeExpression expr = not(shapeOr(tc("a :: SL"), tc("b :: SL")));
+		ShapeExpr expr = not(shapeOr(tc("a :: SL"), tc("b :: SL")));
 		
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeAndExpression);
+		assertTrue(result instanceof ShapeAnd);
 		System.out.println(result);
 	}
 	
 	@Test
 	public void testNegatedShapeOrWithInnerShapeAnd() {
-		ShapeExpression expr = not(shapeOr(tc("a :: SL"), shapeAnd(tc("b :: SL"), tc("c :: SL"))));
+		ShapeExpr expr = not(shapeOr(tc("a :: SL"), shapeAnd(tc("b :: SL"), tc("c :: SL"))));
 		
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeAndExpression);
-		List<ShapeExpression> subExpr = ((ShapeAndExpression) result).getSubExpressions();
+		assertTrue(result instanceof ShapeAnd);
+		List<ShapeExpr> subExpr = ((ShapeAnd) result).getSubExpressions();
 		assertEquals(2, subExpr.size());
-		ShapeExpression subExpr0 = subExpr.get(0);
-		ShapeExpression subExpr1 = subExpr.get(1);
-		assertTrue(subExpr0 instanceof ShapeNotExpression || subExpr1 instanceof ShapeNotExpression);
-		assertTrue(subExpr0 instanceof ShapeOrExpression || subExpr1 instanceof ShapeOrExpression);
+		ShapeExpr subExpr0 = subExpr.get(0);
+		ShapeExpr subExpr1 = subExpr.get(1);
+		assertTrue(subExpr0 instanceof ShapeNot || subExpr1 instanceof ShapeNot);
+		assertTrue(subExpr0 instanceof ShapeOr || subExpr1 instanceof ShapeOr);
 		System.out.println(result);
 	}
 	
 	@Test
 	public void testNegatedShapeOrWithInnerNegatedShapeAnd() {
-		ShapeExpression expr = not(shapeOr(tc("a :: SL"), not(shapeAnd(tc("b :: SL"), tc("c :: SL")))));
+		ShapeExpr expr = not(shapeOr(tc("a :: SL"), not(shapeAnd(tc("b :: SL"), tc("c :: SL")))));
 		
 		PushNegationsDownVisitor visitor = SchemaRulesStaticAnalysis.getInstance().new PushNegationsDownVisitor();
 		expr.accept(visitor, false);
-		ShapeExpression result = visitor.getResult();
+		ShapeExpr result = visitor.getResult();
 		
-		assertTrue(result instanceof ShapeAndExpression);
-		List<ShapeExpression> subExpr = ((ShapeAndExpression) result).getSubExpressions();
+		assertTrue(result instanceof ShapeAnd);
+		List<ShapeExpr> subExpr = ((ShapeAnd) result).getSubExpressions();
 		assertEquals(2, subExpr.size());
-		ShapeExpression subExpr0 = subExpr.get(0);
-		ShapeExpression subExpr1 = subExpr.get(1);
-		assertTrue(subExpr0 instanceof ShapeNotExpression || subExpr1 instanceof ShapeNotExpression);
-		assertTrue(subExpr0 instanceof ShapeAndExpression || subExpr1 instanceof ShapeAndExpression);
+		ShapeExpr subExpr0 = subExpr.get(0);
+		ShapeExpr subExpr1 = subExpr.get(1);
+		assertTrue(subExpr0 instanceof ShapeNot || subExpr1 instanceof ShapeNot);
+		assertTrue(subExpr0 instanceof ShapeAnd || subExpr1 instanceof ShapeAnd);
 		System.out.println(result);
 	}
 	

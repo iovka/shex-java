@@ -20,7 +20,7 @@ package fr.univLille.cristal.shex.validation;
 import org.eclipse.rdf4j.model.Resource;
 
 import fr.univLille.cristal.shex.graph.RDFGraph;
-import fr.univLille.cristal.shex.schema.ShapeLabel;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 
 /**
@@ -35,7 +35,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	}
 	
 	@Override
-	public void validate(Resource focusNode, ShapeLabel label) {
+	public void validate(Resource focusNode, ShapeExprLabel label) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Not yet implemented.");
 	}

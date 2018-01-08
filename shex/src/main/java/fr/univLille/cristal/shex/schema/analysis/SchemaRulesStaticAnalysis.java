@@ -19,7 +19,6 @@ package fr.univLille.cristal.shex.schema.analysis;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -39,17 +38,19 @@ import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.builder.DirectedWeightedGraphBuilder;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.NeighbourhoodConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
+import fr.univLille.cristal.shex.schema.abstrsynt.ASTElement;
+import fr.univLille.cristal.shex.schema.abstrsynt.AbstractASTElement;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAndExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeDefinition;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpression;
-import fr.univLille.cristal.shex.schema.ShapeLabel;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNotExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOrExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.util.Pair;
 
 
@@ -69,97 +70,101 @@ public class SchemaRulesStaticAnalysis {
 	// COMMON
 	// -------------------------------------------------------------------------
 	
-	public static Set<ShapeLabel> computeUndefinedShapeLabels (Map<ShapeLabel, ShapeDefinition> rules) {
-		Set<ShapeLabel> definedLabels = rules.keySet();
-		Set<ShapeRef> shapeRefs = collectAllShapeRefs(rules.values()); 
-		if (definedLabels.containsAll(shapeRefs))
+	public static Set<ShapeExprLabel> computeUndefinedShapeLabels (Map<ShapeExprLabel, ShapeExpr> rules) {
+		Set<ShapeExprLabel> definedLabels = rules.keySet();
+		Set<ShapeExprLabel> referencedLabels = collectAllShapeRefs(rules).stream().map(ref -> ref.getLabel()).collect(Collectors.toSet()); 
+		if (definedLabels.containsAll(referencedLabels))
 			return Collections.emptySet();
 		
-		Set<ShapeLabel> difference = new HashSet<>(shapeRefs.stream().map(ref -> ref.getLabel()).collect(Collectors.toSet()));
-		difference.removeAll(definedLabels);
-		return difference;
+		referencedLabels.removeAll(definedLabels);
+		return referencedLabels;
 	}
 	
 	
 	
-	/** The dependency is defined as a shape label that directly references another shape label through a {@link ShapeRef}, without {@link NeighbourhoodConstraint}
+	/** The dependency is defined as a shape label that directly references another shape label through a {@link ShapeExprRef}, without {@link Shape}
 	 * 
 	 * @param rules
 	 * @return
 	 */
-	public static List<List<ShapeLabel>> computeCyclicShapeRefDependencies (Map<ShapeLabel, ShapeDefinition> rules) {
+	public static List<List<ShapeExprLabel>> computeCyclicShapeRefDependencies (Map<ShapeExprLabel, ShapeExpr> rules) {
 		
-		Function<ShapeExpression, List<Pair<ShapeLabel, Integer>>> directlyReferencedShapeLabelsCollector = new Function<ShapeExpression, List<Pair<ShapeLabel,Integer>>>() {
+		Function<ShapeExpr, List<Pair<ShapeExprLabel, Integer>>> directlyReferencedShapeLabelsCollector = new Function<ShapeExpr, List<Pair<ShapeExprLabel,Integer>>>() {
 				
 			@Override
-			public List<Pair<ShapeLabel, Integer>> apply(ShapeExpression expr) {
-				CollectDirectlyReferencedShapeLabelsVisitor visitor = staticInstance.new CollectDirectlyReferencedShapeLabelsVisitor();
+			public List<Pair<ShapeExprLabel, Integer>> apply(ShapeExpr expr) {
+				CollectDirectlyReferencedShapeExprLabelsVisitor visitor = staticInstance.new CollectDirectlyReferencedShapeExprLabelsVisitor();
 				expr.accept(visitor);
 				return visitor.getResult();
 			}
 		};
-		DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> directShapeReferenceDependency =
+		DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> directShapeReferenceDependency =
 			computeDependencyGraph(rules, directlyReferencedShapeLabelsCollector);
 		
-		TarjanSimpleCycles<ShapeLabel, DefaultWeightedEdge> tarjan = new TarjanSimpleCycles<>(directShapeReferenceDependency);
+		TarjanSimpleCycles<ShapeExprLabel, DefaultWeightedEdge> tarjan = new TarjanSimpleCycles<>(directShapeReferenceDependency);
 		return tarjan.findSimpleCycles();		
 	}
 	
-	public static Set<ShapeRef> collectAllShapeRefs (Collection<ShapeDefinition> expressions) {
-		Set<ShapeRef> set = new HashSet<>();
-		
-		for (ShapeDefinition def: expressions) {
-			set.addAll(collectReferencedShapeLabels(def.expression));
+	public static Set<ShapeExprRef> collectAllShapeRefs (Map<ShapeExprLabel, ShapeExpr> rules) { 
+		Set<ShapeExprRef> set = new HashSet<>();
+		CollectASTElementsS<ShapeExprRef> collector = 
+				new CollectASTElementsS<>((ASTElement ast) -> ast.getClass().equals(ShapeExprRef.class), 
+						                   set,
+						                   true);
+		for (ShapeExpr expr: rules.values()) {
+			expr.accept(collector);
 		}
 		return set;
 	}
 	
-	private static Set<ShapeRef> collectReferencedShapeLabels (ShapeExpression expr) {
-		CollectShapeRefsVisitor visitor = staticInstance.new CollectShapeRefsVisitor();
-		expr.accept(visitor);
-		return visitor.getResult();
-	}
-	
-	
-	private static List<Pair<ShapeLabel, Integer>> collectDependsOnShapeLabels (ShapeExpression expr, int polarity, Map<ShapeLabel, ShapeDefinition> rules) {
+	private static List<Pair<ShapeExprLabel, Integer>> collectDependsOnShapeLabels (ShapeExpr expr, int polarity, Map<ShapeExprLabel, ShapeExpr> rules) {
 		
 		CollectDependsOnShapeLabelsVisitor visitor = staticInstance.new CollectDependsOnShapeLabelsVisitor();
 		expr.accept(visitor, polarity, rules);
 		return visitor.getResult();
 	}
 	
-	private static Set<ShapeRef> collectReferencedShapeLabels (TripleExpression texpr) {
+	private static Set<ShapeExprRef> collectReferencedShapeLabels (NonRefTripleExpr texpr) {
 		
-		Set<ShapeRef> shapeRefs = new HashSet<>();
+		Set<ShapeExprRef> shapeRefs = new HashSet<>();
 		for (TripleConstraint tc: collectTripleConstraints(texpr)) {
-			shapeRefs.add(tc.getShapeRef());
+			shapeRefs.add((ShapeExprRef) tc.getShapeExpr());
 		}
 		return shapeRefs;
 	}
 	
-	public static List<TripleConstraint> collectTripleConstraints (TripleExpression expr) {
-		CollectTripleConstraintsVisitor visitor = new CollectTripleConstraintsVisitor();
-		expr.accept(visitor);
-		return visitor.getResult();
-	}
-	
-	public static List<NeighbourhoodConstraint> collectNeighbourhoodConstraints (ShapeExpression expr) {
-		CollectNeighbourhoodConstraintsVisitor visitor = new CollectNeighbourhoodConstraintsVisitor();
-		expr.accept(visitor);
-		return visitor.getResult();
-	}
-	
-	class CollectShapeRefsVisitor extends ShapeExpressionVisitor<Set<ShapeRef>> {
+	public static Set<TripleConstraint> collectTripleConstraints (NonRefTripleExpr expr) {
+		Set<TripleConstraint> set = new HashSet<>();
+		CollectASTElementsT<TripleConstraint> collector = 
+				new CollectASTElementsT<>((ASTElement ast) -> ast.getClass().equals(TripleConstraint.class), 
+										  set,
+										  false);
 
-		private HashSet<ShapeRef> theSet = new HashSet<>();
+		expr.accept(collector);
+		return set;
+	}
+	
+	public static Set<Shape> collectShapes (ShapeExpr expr) {
+		Set<Shape> set = new HashSet<>();
+		CollectASTElementsS<Shape> collector = 
+				new CollectASTElementsS<Shape>((ASTElement ast) -> ast.getClass().equals(Shape.class), 
+						                       set,
+						                       false);
+		expr.accept(collector);
+		return set;
+	}
+	
+	class CollectShapeRefsVisitor extends ShapeExpressionVisitor<Set<ShapeExprRef>> {
+
+		private HashSet<ShapeExprRef> theSet = new HashSet<>();
 		
 		@Override
-		public Set<ShapeRef> getResult() {
+		public Set<ShapeExprRef> getResult() {
 			return Collections.unmodifiableSet(theSet);
 		}
 
 		@Override
-		public void visitNeighbourhoodConstraint(NeighbourhoodConstraint expr, Object... arguments) {
+		public void visitShape(Shape expr, Object... arguments) {
 			theSet.addAll(collectReferencedShapeLabels(expr.getTripleExpression()));
 		}
 
@@ -167,8 +172,14 @@ public class SchemaRulesStaticAnalysis {
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {}
 
 		@Override
-		public void visitShapeRef(ShapeRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			theSet.add(shapeRef);
+		}
+
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Not yet implemented.");
 		}
 		
 	}
@@ -180,19 +191,19 @@ public class SchemaRulesStaticAnalysis {
 	 * @author Antonin Durey
 	 *
 	 */
-	class CollectDependsOnShapeLabelsVisitor extends ShapeExpressionVisitor<List<Pair<ShapeLabel, Integer>>> {
+	class CollectDependsOnShapeLabelsVisitor extends ShapeExpressionVisitor<List<Pair<ShapeExprLabel, Integer>>> {
 		
-		private ArrayList<Pair<ShapeLabel, Integer>> theList = new ArrayList<>();
+		private ArrayList<Pair<ShapeExprLabel, Integer>> theList = new ArrayList<>();
 	
 		@Override
-		public List<Pair<ShapeLabel, Integer>> getResult() {
+		public List<Pair<ShapeExprLabel, Integer>> getResult() {
 			return theList;
 		}
 
 		@Override
-		public void visitNeighbourhoodConstraint(NeighbourhoodConstraint nc, Object... arguments) {
+		public void visitShape(Shape nc, Object... arguments) {
 			int polarity = (Integer) arguments[0];
-			for (ShapeRef ref : collectReferencedShapeLabels(nc.getTripleExpression())) 
+			for (ShapeExprRef ref : collectReferencedShapeLabels(nc.getTripleExpression())) 
 				theList.add(new Pair<>(ref.getLabel(), polarity));
 		}
 
@@ -200,7 +211,7 @@ public class SchemaRulesStaticAnalysis {
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {}
 
 		@Override
-		public void visitShapeNot(ShapeNotExpression expr, Object... arguments) {
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			int polarity = (Integer) arguments[0];
 			Object[] newArguments = new Object[2];
 			newArguments[0] = polarity * (-1);
@@ -209,28 +220,40 @@ public class SchemaRulesStaticAnalysis {
 		}
 		
 		@Override
-		public void visitShapeRef(ShapeRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			int polarity = (Integer) arguments[0];
 			theList.add(new Pair<>(shapeRef.getLabel(), polarity));
 		}
+
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Not yet implemented.");
+		}
 	}
 		
-	class CollectDirectlyReferencedShapeLabelsVisitor extends ShapeExpressionVisitor<List<Pair<ShapeLabel,Integer>>> {
+	class CollectDirectlyReferencedShapeExprLabelsVisitor extends ShapeExpressionVisitor<List<Pair<ShapeExprLabel,Integer>>> {
 
-		private List<Pair<ShapeLabel,Integer>> result = new ArrayList<>();
+		private List<Pair<ShapeExprLabel,Integer>> result = new ArrayList<>();
 		
 		@Override
-		public List<Pair<ShapeLabel,Integer>> getResult() { return result; }
+		public List<Pair<ShapeExprLabel,Integer>> getResult() { return result; }
 
 		@Override
-		public void visitNeighbourhoodConstraint(NeighbourhoodConstraint expr, Object... arguments) {}
+		public void visitShape(Shape expr, Object... arguments) {}
 
 		@Override
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {}
 
 		@Override
-		public void visitShapeRef(ShapeRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			result.add(new Pair<>(shapeRef.getLabel(), +1));
+		}
+
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Not yet implemented.");
 		}
 	}
 	
@@ -240,66 +263,66 @@ public class SchemaRulesStaticAnalysis {
 	// -------------------------------------------------------------------------
 	
 	/** Computes a stratification, or null if the set of rules is not stratified. */ 
-	public static List<Set<ShapeLabel>> computeStratification (Map<ShapeLabel, ShapeDefinition> rules) {
-		DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph = computeDependencyGraph(rules);
+	public static List<Set<ShapeExprLabel>> computeStratification (Map<ShapeExprLabel, ShapeExpr> rules) {
+		DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph = computeDependencyGraph(rules);
 
 		if(! checkIsStratified(depGraph))
 			return null; 
 
-		List<Set<ShapeLabel>> strats = getStronglyConnectedComponents(depGraph);
-		List<Set<ShapeLabel>> orderedStrats = constructTopologicalOrder(depGraph, strats);
+		List<Set<ShapeExprLabel>> strats = getStronglyConnectedComponents(depGraph);
+		List<Set<ShapeExprLabel>> orderedStrats = constructTopologicalOrder(depGraph, strats);
 		return orderedStrats;
 	}
 	
-	protected static DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> computeDependencyGraph 
-		(Map<ShapeLabel, ShapeDefinition> rules) {
+	protected static DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> computeDependencyGraph 
+		(Map<ShapeExprLabel, ShapeExpr> rules) {
 		
-		Function<ShapeExpression, List<Pair<ShapeLabel, Integer>>> dependsOnShapeLabelsCollector = new Function<ShapeExpression, List<Pair<ShapeLabel, Integer>>>() {
+		Function<ShapeExpr, List<Pair<ShapeExprLabel, Integer>>> dependsOnShapeLabelsCollector = new Function<ShapeExpr, List<Pair<ShapeExprLabel, Integer>>>() {
 			
 			@Override
-			public List<Pair<ShapeLabel, Integer>> apply(ShapeExpression e) {
+			public List<Pair<ShapeExprLabel, Integer>> apply(ShapeExpr e) {
 				return collectDependsOnShapeLabels(e, 1, rules);
 			}
 		};
 		return computeDependencyGraph(rules, dependsOnShapeLabelsCollector);
 	}
 	
-	private static DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> computeDependencyGraph 
-		(Map<ShapeLabel, ShapeDefinition> rules,
-		Function<ShapeExpression, List<Pair<ShapeLabel, Integer>>> dependencyCollector) {
+	private static DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> computeDependencyGraph 
+		(Map<ShapeExprLabel, ShapeExpr> rules,
+		Function<ShapeExpr, List<Pair<ShapeExprLabel, Integer>>> dependencyCollector) {
 		
-		DirectedWeightedGraphBuilder<ShapeLabel, DefaultWeightedEdge, DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge>> builder = 
-				new DirectedWeightedGraphBuilder<ShapeLabel, DefaultWeightedEdge, DefaultDirectedWeightedGraph<ShapeLabel,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class));
+		DirectedWeightedGraphBuilder<ShapeExprLabel, DefaultWeightedEdge, DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge>> builder = 
+				new DirectedWeightedGraphBuilder<ShapeExprLabel, DefaultWeightedEdge, DefaultDirectedWeightedGraph<ShapeExprLabel,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<>(DefaultWeightedEdge.class));
 
 
-		for (ShapeLabel label : rules.keySet()) {
-			// FIXME ensure that ShapeLabel has the appropriate equals method
+		for (ShapeExprLabel label : rules.keySet()) {
+			// FIXME ensure that ShapeExprLabel has the appropriate equals method
 			builder.addVertex(label);
 		}
 
-		for (Map.Entry<ShapeLabel, ShapeDefinition> def : rules.entrySet()) {
-			ShapeLabel label = def.getKey();
-			ShapeExpression expr = def.getValue().expression;
+		for (Map.Entry<ShapeExprLabel, ShapeExpr> def : rules.entrySet()) {
+			ShapeExprLabel label = def.getKey();
+			ShapeExpr expr = def.getValue();
 			
-			for (Pair<ShapeLabel, Integer> pair : dependencyCollector.apply(expr))
+			for (Pair<ShapeExprLabel, Integer> pair : dependencyCollector.apply(expr))
 				builder.addEdge(label, pair.one, pair.two);
 		}
 		return builder.build();
 	}
 	
-	private static boolean checkIsStratified (DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph) {
-		TarjanSimpleCycles<ShapeLabel, DefaultWeightedEdge> tarjan = new TarjanSimpleCycles<>(depGraph);
+	private static boolean checkIsStratified (DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph) {
+		TarjanSimpleCycles<ShapeExprLabel, DefaultWeightedEdge> tarjan = new TarjanSimpleCycles<>(depGraph);
 		
 		// get all cycles
-		List<List<ShapeLabel>> cycles = tarjan.findSimpleCycles();
+		List<List<ShapeExprLabel>> cycles = tarjan.findSimpleCycles();
 		
 		// check if in one cycle, there is an edge with a negative value
-		for(List<ShapeLabel> cycle : cycles){
+		for(List<ShapeExprLabel> cycle : cycles){
 			
 			int cycleSize = cycle.size();
 			for (int i = 0; i < cycleSize; i++) {
-				ShapeLabel src = cycle.get(i);
-				ShapeLabel tgt = cycle.get((i+1) % cycleSize);
+				ShapeExprLabel src = cycle.get(i);
+				ShapeExprLabel tgt = cycle.get((i+1) % cycleSize);
 				if (hasNegativeEdge(depGraph, src,tgt))
 					return false;
 			}
@@ -307,7 +330,7 @@ public class SchemaRulesStaticAnalysis {
 		return true;
 	}
 	
-	private static boolean hasNegativeEdge(DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> graph, ShapeLabel src, ShapeLabel tgt){
+	private static boolean hasNegativeEdge(DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> graph, ShapeExprLabel src, ShapeExprLabel tgt){
 			
 		// check all edges between 2 nodes
 		for(DefaultWeightedEdge edge : graph.getAllEdges(src, tgt)){
@@ -319,17 +342,17 @@ public class SchemaRulesStaticAnalysis {
 		return false;		
 	}
 	
-	private static List<Set<ShapeLabel>> getStronglyConnectedComponents(DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph){
-		KosarajuStrongConnectivityInspector<ShapeLabel, DefaultWeightedEdge> kscInspector = new KosarajuStrongConnectivityInspector<>(depGraph); 
+	private static List<Set<ShapeExprLabel>> getStronglyConnectedComponents(DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph){
+		KosarajuStrongConnectivityInspector<ShapeExprLabel, DefaultWeightedEdge> kscInspector = new KosarajuStrongConnectivityInspector<>(depGraph); 
 		return kscInspector.stronglyConnectedSets();
 	}
 	
-	private static List<Set<ShapeLabel>> constructTopologicalOrder(DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph,
-			List<Set<ShapeLabel>> strats){
+	private static List<Set<ShapeExprLabel>> constructTopologicalOrder(DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph,
+			List<Set<ShapeExprLabel>> strats){
 		DirectedAcyclicGraph<String, DefaultWeightedEdge> acyclicGraph =
 				new DirectedAcyclicGraph<String, DefaultWeightedEdge>(new ClassBasedEdgeFactory<String, DefaultWeightedEdge>(DefaultWeightedEdge.class));
 
-		Map<String, Set<ShapeLabel>> map = new HashMap<>();
+		Map<String, Set<ShapeExprLabel>> map = new HashMap<>();
 		// Creating a map to have a link between a node into the strongly connected graph and the nodes forming the strongly connected parts
 		for(int i=0;i<strats.size();i++){
 			String nodeName = i + "";
@@ -343,18 +366,18 @@ public class SchemaRulesStaticAnalysis {
 		return getTopologicalOrderFromNonCyclicGraph(acyclicGraph, map);
 	}
 
-	private static void addAllEdgesIntoStronglyConnectedGraph(List<Set<ShapeLabel>> strats, DirectedAcyclicGraph<String,
-			DefaultWeightedEdge> acyclicGraph, Map<String, Set<ShapeLabel>> map,
-			DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph){
+	private static void addAllEdgesIntoStronglyConnectedGraph(List<Set<ShapeExprLabel>> strats, DirectedAcyclicGraph<String,
+			DefaultWeightedEdge> acyclicGraph, Map<String, Set<ShapeExprLabel>> map,
+			DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph){
 		for(String newNode : map.keySet()){
-			Set<ShapeLabel> set = map.get(newNode);
+			Set<ShapeExprLabel> set = map.get(newNode);
 
 			for(String otherNode : map.keySet()){
 				if(!newNode.equals(otherNode)){
-					Set<ShapeLabel> otherSet = map.get(otherNode);
+					Set<ShapeExprLabel> otherSet = map.get(otherNode);
 
-					for(ShapeLabel label : set){
-						for(ShapeLabel otherLabel : otherSet){
+					for(ShapeExprLabel label : set){
+						for(ShapeExprLabel otherLabel : otherSet){
 							// If there is a edge between these two vertex, and there is not yet an edge between the two concerned vertex into the acyclic graph
 							// then add an edge into the two concerned vertex in the directed acyclic graph
 							if(depGraph.containsEdge(label, otherLabel) && !acyclicGraph.containsEdge(newNode, otherNode))
@@ -366,11 +389,11 @@ public class SchemaRulesStaticAnalysis {
 		}
 	}
 
-	private static List<Set<ShapeLabel>> getTopologicalOrderFromNonCyclicGraph(DirectedAcyclicGraph<String, DefaultWeightedEdge> graph, Map<String, Set<ShapeLabel>> map){
+	private static List<Set<ShapeExprLabel>> getTopologicalOrderFromNonCyclicGraph(DirectedAcyclicGraph<String, DefaultWeightedEdge> graph, Map<String, Set<ShapeExprLabel>> map){
 
 		Iterator<String> it = graph.iterator();
 
-		List<Set<ShapeLabel>> stratsOrdered = new ArrayList<>();
+		List<Set<ShapeExprLabel>> stratsOrdered = new ArrayList<>();
 		while(it.hasNext()){
 			String newNode = it.next();
 
@@ -384,46 +407,46 @@ public class SchemaRulesStaticAnalysis {
 	// DNF
 	// -------------------------------------------------------------------------
 	
-	public static ShapeOrExpression computeDNF (ShapeExpression expr) {
+	public static ShapeOr computeDNF (ShapeExpr expr) {
 
 		PushNegationsDownVisitor pushNegationsVisitor = staticInstance.new PushNegationsDownVisitor();
 		expr.accept(pushNegationsVisitor, false);
-		ShapeExpression negationsOnLeavesExpr = pushNegationsVisitor.getResult();
+		ShapeExpr negationsOnLeavesExpr = pushNegationsVisitor.getResult();
 		
 		FlattenAndOr flattenVisitor = staticInstance.new FlattenAndOr();
 		negationsOnLeavesExpr.accept(flattenVisitor, new Object());
-		ShapeExpression flattenedExpr = flattenVisitor.getResult(); 
+		ShapeExpr flattenedExpr = flattenVisitor.getResult(); 
 		
 		CreateDNFVisitor createDNFVisitor = staticInstance.new CreateDNFVisitor();
 		flattenedExpr.accept(createDNFVisitor);
-		ShapeExpression preDNF = createDNFVisitor.getResult();
+		ShapeExpr preDNF = createDNFVisitor.getResult();
 		
 		// Flatten the result
 		flattenVisitor = staticInstance.new FlattenAndOr();
 		preDNF.accept(flattenVisitor, new Object());
-		ShapeExpression flatDNF = flattenVisitor.getResult();
+		ShapeExpr flatDNF = flattenVisitor.getResult();
 		
-		if (! (flatDNF instanceof ShapeOrExpression))
-			return new ShapeOrExpression(Collections.singletonList(flatDNF));
-		else return (ShapeOrExpression) flatDNF;
+		if (! (flatDNF instanceof ShapeOr))
+			return new ShapeOr(Collections.singletonList(flatDNF));
+		else return (ShapeOr) flatDNF;
 	}
 	
 	
-	public class PushNegationsDownVisitor extends ShapeExpressionVisitor<ShapeExpression>{
+	public class PushNegationsDownVisitor extends ShapeExpressionVisitor<ShapeExpr>{
 
-		private Deque<ShapeExpression> stack = new ArrayDeque<>(); 
+		private Deque<ShapeExpr> stack = new ArrayDeque<>(); 
 		
 		@Override
-		public ShapeExpression getResult() {
+		public ShapeExpr getResult() {
 			return stack.pop();
 		}
 
 		@Override
-		public void visitNeighbourhoodConstraint(NeighbourhoodConstraint nc, Object... arguments) {
+		public void visitShape(Shape nc, Object... arguments) {
 			boolean isNegated = (Boolean) arguments[0];
 			
-			ShapeExpression result;
-			if (isNegated) result = new ShapeNotExpression(nc);
+			ShapeExpr result;
+			if (isNegated) result = new ShapeNot(nc);
 			else result = nc;
 
 			stack.push(result);
@@ -433,78 +456,84 @@ public class SchemaRulesStaticAnalysis {
 		public void visitNodeConstraint(NodeConstraint nc, Object... arguments) {
 			boolean isNegated = (Boolean) arguments[0];
 			
-			ShapeExpression result;
-			if (isNegated) result = new ShapeNotExpression(nc);
+			ShapeExpr result;
+			if (isNegated) result = new ShapeNot(nc);
 			else result = nc;
 
 			stack.push(result);
 		}
 		
 		@Override
-		public void visitShapeRef(ShapeRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			boolean isNegated = (Boolean) arguments[0];
 			
-			ShapeExpression result;
-			if (isNegated) result = new ShapeNotExpression(shapeRef);
+			ShapeExpr result;
+			if (isNegated) result = new ShapeNot(shapeRef);
 			else result = shapeRef;
 			
 			stack.push(result);
 		}
 				
 		@Override
-		public void visitShapeAnd(ShapeAndExpression expr, Object... arguments) {
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			super.visitShapeAnd(expr, arguments);
-			List<ShapeExpression> subExpressions = new ArrayList<>();
+			List<ShapeExpr> subExpressions = new ArrayList<>();
 			for (int i = 0; i < expr.getSubExpressions().size(); i++) {
 				subExpressions.add(stack.pop());
 			}
 			
 			boolean isNegated = (Boolean) arguments[0];
-			ShapeExpression result;
-			if (isNegated) result = new ShapeOrExpression(subExpressions);
-			else result = new ShapeAndExpression(subExpressions);
+			ShapeExpr result;
+			if (isNegated) result = new ShapeOr(subExpressions);
+			else result = new ShapeAnd(subExpressions);
 			
 			stack.push(result);
 		}
 
 		@Override
-		public void visitShapeOr(ShapeOrExpression expr, Object... arguments) {
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			super.visitShapeOr(expr, arguments);
-			List<ShapeExpression> subExpressions = new ArrayList<>();
+			List<ShapeExpr> subExpressions = new ArrayList<>();
 			for (int i = 0; i < expr.getSubExpressions().size(); i++) {
 				subExpressions.add(stack.pop());
 			}
 			
 			boolean isNegated = (Boolean) arguments[0];
-			ShapeExpression result;
-			if (isNegated) result = new ShapeAndExpression(subExpressions);
-			else result = new ShapeOrExpression(subExpressions);
+			ShapeExpr result;
+			if (isNegated) result = new ShapeAnd(subExpressions);
+			else result = new ShapeOr(subExpressions);
 			
 			stack.push(result);
 		}
 
 		@Override
-		public void visitShapeNot(ShapeNotExpression expr, Object... arguments) {
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			super.visitShapeNot(expr, ! (Boolean)arguments[0]);
+		}
+
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Not yet implemented.");
 		}
 	}
 
 	
 	
-	protected class FlattenAndOr extends ShapeExpressionVisitor<ShapeExpression> {
+	protected class FlattenAndOr extends ShapeExpressionVisitor<ShapeExpr> {
 		
-		private Deque<ShapeExpression> stack = new ArrayDeque<>();
+		private Deque<ShapeExpr> stack = new ArrayDeque<>();
 		private final Object AND = new Object();
 		private final Object OR = new Object();
 		
 		
 		@Override
-		public ShapeExpression getResult() {
+		public ShapeExpr getResult() {
 			return stack.pop();
 		}
 
 		@Override
-		public void visitNeighbourhoodConstraint(NeighbourhoodConstraint nc, Object... arguments) {
+		public void visitShape(Shape nc, Object... arguments) {
 			stack.push(nc);
 		}
 
@@ -514,28 +543,28 @@ public class SchemaRulesStaticAnalysis {
 		}
 		
 		@Override
-		public void visitShapeRef(ShapeRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			stack.push(shapeRef);
 		}
 
 		@Override
-		public void visitShapeNot(ShapeNotExpression expr, Object... arguments) {
-			ShapeExpression subExpr = expr.getSubExpression();
-			if (! (subExpr instanceof NeighbourhoodConstraint || subExpr instanceof NodeConstraint))
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			ShapeExpr subExpr = expr.getSubExpression();
+			if (! (subExpr instanceof Shape || subExpr instanceof NodeConstraint))
 				throw new IllegalArgumentException("Negation accepted only on the leaves");
 			stack.push(expr);	
 		}
 		
 		@Override
-		public void visitShapeAnd(ShapeAndExpression expr, Object... arguments) {
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			if (arguments[0].equals(AND)) {
-				for (ShapeExpression e : expr.getSubExpressions()) {
+				for (ShapeExpr e : expr.getSubExpressions()) {
 					e.accept(this, AND);
 				}
 			} 
 			else { // the father is not an AND
-				List<ShapeExpression> subExpressions = new ArrayList<>();
-				for (ShapeExpression e : expr.getSubExpressions()) {
+				List<ShapeExpr> subExpressions = new ArrayList<>();
+				for (ShapeExpr e : expr.getSubExpressions()) {
 					int stackSizeBefore = stack.size();
 					e.accept(this, AND);
 					int numberChildren = stack.size() - stackSizeBefore;
@@ -543,20 +572,20 @@ public class SchemaRulesStaticAnalysis {
 						subExpressions.add(stack.pop());
 					}
 				}
-				stack.push(new ShapeAndExpression(subExpressions));	
+				stack.push(new ShapeAnd(subExpressions));	
 			}
 		}
 
 		@Override
-		public void visitShapeOr(ShapeOrExpression expr, Object... arguments) {
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			if (arguments[0].equals(OR)) {
-				for (ShapeExpression e : expr.getSubExpressions()) {
+				for (ShapeExpr e : expr.getSubExpressions()) {
 					e.accept(this, OR);
 				}
 			} 
 			else { // the father is not an OR
-				List<ShapeExpression> subExpressions = new ArrayList<>();
-				for (ShapeExpression e : expr.getSubExpressions()) {
+				List<ShapeExpr> subExpressions = new ArrayList<>();
+				for (ShapeExpr e : expr.getSubExpressions()) {
 					int stackSizeBefore = stack.size();
 					e.accept(this, OR);
 					int numberChildren = stack.size() - stackSizeBefore;
@@ -564,24 +593,30 @@ public class SchemaRulesStaticAnalysis {
 						subExpressions.add(stack.pop());
 					}
 				}
-				stack.push(new ShapeOrExpression(subExpressions));	
+				stack.push(new ShapeOr(subExpressions));	
 			}
+		}
+
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Not yet implemented.");
 		}		
 		
 	}
 	
 	/** To be applied only on expressions in which negation has been pushed down to the leaves. */
-	protected class CreateDNFVisitor extends ShapeExpressionVisitor<ShapeExpression> {
+	protected class CreateDNFVisitor extends ShapeExpressionVisitor<ShapeExpr> {
 		
-		private Deque<ShapeExpression> stack = new ArrayDeque<>(); 
+		private Deque<ShapeExpr> stack = new ArrayDeque<>(); 
 		
 		@Override
-		public ShapeExpression getResult() {
+		public ShapeExpr getResult() {
 			return stack.pop();
 		}
 
 		@Override
-		public void visitNeighbourhoodConstraint(NeighbourhoodConstraint expr, Object... arguments) {
+		public void visitShape(Shape expr, Object... arguments) {
 			stack.push(expr);
 		}
 
@@ -591,48 +626,48 @@ public class SchemaRulesStaticAnalysis {
 		}
 		
 		@Override
-		public void visitShapeRef(ShapeRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			stack.push(shapeRef);
 		}
 		
 		@Override
-		public void visitShapeNot(ShapeNotExpression expr, Object... arguments) {
-			ShapeExpression subExpr = expr.getSubExpression();
-			if (! (subExpr instanceof NeighbourhoodConstraint || subExpr instanceof NodeConstraint))
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			ShapeExpr subExpr = expr.getSubExpression();
+			if (! (subExpr instanceof Shape || subExpr instanceof NodeConstraint))
 				throw new IllegalArgumentException("Negation accepted only on the leaves");
 			stack.push(expr);		
 		}
 		
 		@Override
-		public void visitShapeOr(ShapeOrExpression expr, Object... arguments) {
-			List<ShapeExpression> newSubExpressions = new ArrayList<>();
-			for (ShapeExpression e : expr.getSubExpressions()) {
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+			List<ShapeExpr> newSubExpressions = new ArrayList<>();
+			for (ShapeExpr e : expr.getSubExpressions()) {
 				e.accept(this);
 				newSubExpressions.add(stack.pop());
 			}
 			FlattenAndOr flattenVisitor = new FlattenAndOr();
-			new ShapeOrExpression(newSubExpressions).accept(flattenVisitor);
+			new ShapeOr(newSubExpressions).accept(flattenVisitor);
 			stack.push(flattenVisitor.getResult());
 		}
 
 		@Override
-		public void visitShapeAnd(ShapeAndExpression expr, Object... arguments) {
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			int stackSizeBefore = stack.size();
-			List<ShapeExpression> subExpressions = new ArrayList<>(expr.getSubExpressions());
+			List<ShapeExpr> subExpressions = new ArrayList<>(expr.getSubExpressions());
 			
-			ShapeOrExpression orSubExpression = getRemoveOrSubExpression(subExpressions);
+			ShapeOr orSubExpression = getRemoveOrSubExpression(subExpressions);
 			if (orSubExpression != null) {
-				for (ShapeExpression e : orSubExpression.getSubExpressions()) {
-					ShapeExpression andExpr = newFlattenedAndShapeExpression(subExpressions, e);
+				for (ShapeExpr e : orSubExpression.getSubExpressions()) {
+					ShapeExpr andExpr = newFlattenedAndShapeExpression(subExpressions, e);
 					andExpr.accept(this);
 				}
 			
 				int numberChildren = stack.size() - stackSizeBefore;
-				List<ShapeExpression> newOrSubexpressions = new ArrayList<>();
+				List<ShapeExpr> newOrSubexpressions = new ArrayList<>();
 				for (int i = 0; i < numberChildren; i++) {
 					newOrSubexpressions.add(stack.pop());
 				}
-				ShapeOrExpression newOr = new ShapeOrExpression(newOrSubexpressions);
+				ShapeOr newOr = new ShapeOr(newOrSubexpressions);
 				stack.push(newOr);
 			}
 			else
@@ -645,30 +680,36 @@ public class SchemaRulesStaticAnalysis {
 		 * @param subExpressions
 		 * @return
 		 */
-		private ShapeOrExpression getRemoveOrSubExpression(List<ShapeExpression> subExpressions) {
-			Iterator<ShapeExpression> it = subExpressions.iterator();
+		private ShapeOr getRemoveOrSubExpression(List<ShapeExpr> subExpressions) {
+			Iterator<ShapeExpr> it = subExpressions.iterator();
 			while (it.hasNext()) {
-				ShapeExpression e = it.next();
-				if (e instanceof ShapeOrExpression) {
+				ShapeExpr e = it.next();
+				if (e instanceof ShapeOr) {
 					it.remove();
-					return (ShapeOrExpression) e;
+					return (ShapeOr) e;
 				}
 			}
 			return null;
 		}
 
-		private ShapeExpression newFlattenedAndShapeExpression (List<ShapeExpression> subExpressions, ShapeExpression additionalSubExpr) {
-			List<ShapeExpression> list = new ArrayList<>(subExpressions);
+		private ShapeExpr newFlattenedAndShapeExpression (List<ShapeExpr> subExpressions, ShapeExpr additionalSubExpr) {
+			List<ShapeExpr> list = new ArrayList<>(subExpressions);
 			list.add(additionalSubExpr);
 			FlattenAndOr flattenVisitor = new FlattenAndOr();
-			new ShapeAndExpression(list).accept(flattenVisitor, new Object());
+			new ShapeAnd(list).accept(flattenVisitor, new Object());
 			return flattenVisitor.getResult();
+		}
+
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+			// TODO Auto-generated method stub
+			throw new UnsupportedOperationException("Not yet implemented.");
 		}
 		
 	}
 	
 	
-	protected static String depGraphToString (DefaultDirectedWeightedGraph<ShapeLabel, DefaultWeightedEdge> depGraph) {
+	protected static String depGraphToString (DefaultDirectedWeightedGraph<ShapeExprLabel, DefaultWeightedEdge> depGraph) {
 		StringBuilder s = new StringBuilder();
 		s.append("(");
 		s.append(depGraph.vertexSet());
@@ -686,7 +727,7 @@ public class SchemaRulesStaticAnalysis {
 	// ------------------------------------------------------------------------------------
 	// UNFOLDING
 	// ------------------------------------------------------------------------------------
-	public static TripleExpression computeUnfoldedRepetitions (TripleExpression expr) {
+	public static NonRefTripleExpr computeUnfoldedRepetitions (NonRefTripleExpr expr) {
 		ComputeUnfoldedArbitraryRepetitionsVisitor visitor = new ComputeUnfoldedArbitraryRepetitionsVisitor();
 		expr.accept(visitor);
 		return visitor.getResult();

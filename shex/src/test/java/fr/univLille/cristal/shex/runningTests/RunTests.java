@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -44,7 +45,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
-import fr.univLille.cristal.shex.schema.ShapeLabel;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.validation.Configuration;
@@ -313,11 +314,11 @@ public class RunTests {
 		public final String testName;
 		public final String schemaFileName;
 		public final String dataFileName;
-		public final ShapeLabel shapeLabel;
+		public final ShapeExprLabel shapeLabel;
 		public final Resource focusNode;
 		public final String testComment;
 		
-		public TestCase(String testName, String schemaFileName, String dataFileName, ShapeLabel shapeLabel, Resource focusNode, String testComment, Resource testKind) {
+		public TestCase(String testName, String schemaFileName, String dataFileName, ShapeExprLabel shapeLabel, Resource focusNode, String testComment, Resource testKind) {
 			super();
 			this.testName = testName;
 			this.schemaFileName = schemaFileName;
@@ -357,7 +358,12 @@ public class RunTests {
 		Resource actionNode = Models.getPropertyResource(manifest, testNode, ACTION_PROPERTY).get();
 		String schemaFileName = getSchemaFileName(Models.getPropertyIRI(manifest, actionNode, SCHEMA_PROPERTY).get());  
 		String dataFileName = getDataFileName(Models.getPropertyIRI(manifest, actionNode, DATA_PROPERTY).get());
-		ShapeLabel label = new ShapeLabel(Models.getPropertyString(manifest, actionNode, SHAPE_PROPERTY).get());
+		Resource labelRes = Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).get();
+		ShapeExprLabel label;
+		if (labelRes instanceof BNode)
+			label = new ShapeExprLabel((BNode)labelRes);
+		else
+			label = new ShapeExprLabel((IRI)labelRes);
 		Resource focus = Models.getPropertyResource(manifest, actionNode, FOCUS_PROPERTY).get();
 		
 		String testComment = getTestComment(manifest, testNode);

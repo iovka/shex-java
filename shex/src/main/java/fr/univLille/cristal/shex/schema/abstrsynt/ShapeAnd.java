@@ -15,33 +15,36 @@ limitations under the License.
 
 */
 
+
+
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import java.util.List;
 
-import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
+import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 import fr.univLille.cristal.shex.util.CollectionToString;
 
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Antonin Durey
+ *
  */
-public class SomeOfTripleExpression extends AbstractNaryTripleExpression {
-	
+public class ShapeAnd extends AbstractNaryShapeExpr{
 
-	public SomeOfTripleExpression(List<TripleExpression> subExpressions) {
+
+	public ShapeAnd(List<ShapeExpr> subExpressions) {
 		super(subExpressions);
 	}
 	
 	@Override
 	public String toString() {
-		return CollectionToString.collectionToString(getSubExpressions(), " | ", "SomeOf(", ")");
+		return CollectionToString.collectionToString(getSubExpressions(), " AND ", "(", ")");
 	}
 
 	@Override
-	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
-		visitor.visitSomeOf(this, arguments);
+	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
+		visitor.visitShapeAnd(this, arguments);
 	}
 	
 }

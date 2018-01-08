@@ -17,48 +17,49 @@ limitations under the License.
 
 
 
-
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import fr.univLille.cristal.shex.schema.ShapeLabel;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Antonin Durey
+ *
  */
-public class ShapeRef extends AbstractShapeExpression implements AtomicShapeExpression {
-	
-	private final ShapeLabel label;
-	private ShapeDefinition def;
-	
-	public ShapeRef(ShapeLabel label) {
-		this.label = label;
-	}
+public class ShapeNot extends ShapeExpr {
 
-	public ShapeLabel getLabel () {
-		return this.label;
+	private ShapeExpr subExpression;
+	
+	public ShapeNot(ShapeExpr subExpression) {
+		this.subExpression = subExpression;
 	}
 	
-	@Override
-	public String toString() {
-		return "@"+label.toString();
+	public ShapeExpr getSubExpression(){
+		return subExpression;
 	}
 
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
-		visitor.visitShapeRef(this, arguments);
-	}
-
-	public void setShapeDefinition(ShapeDefinition def) {
-		if (this.def != null)
-			throw new IllegalStateException("Shape definition can be set at most once");
-		this.def = def;
+		visitor.visitShapeNot(this, arguments);
 	}
 	
-	public ShapeDefinition getShapeDefinition () {
-		return this.def;
+
+	@Override
+	public String toString() {
+		return String.format("(NOT %s)", subExpression.toString());
 	}
+	
+	/*
+	private ShapeOrExpression expressionDNF;
+	@Override
+	public void setDNF(ShapeOrExpression valueExpression){
+		expressionDNF = valueExpression;
+	}
+
+	@Override
+	public ShapeOrExpression getDNF() {
+		return expressionDNF;
+	}*/
 	
 }

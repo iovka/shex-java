@@ -20,12 +20,12 @@ package fr.univLille.cristal.shex.schema.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.EachOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.SomeOfTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.util.Interval;
 
 /**
@@ -33,14 +33,14 @@ import fr.univLille.cristal.shex.util.Interval;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class ComputeUnfoldedArbitraryRepetitionsVisitor extends TripleExpressionVisitor<TripleExpression> {
+public class ComputeUnfoldedArbitraryRepetitionsVisitor extends TripleExpressionVisitor<NonRefTripleExpr> {
 	
-	private TripleExpression unfoldedExpr;
+	private NonRefTripleExpr unfoldedExpr;
 	private boolean hasChanged;
 	
 	
 	@Override
-	public TripleExpression getResult() {
+	public NonRefTripleExpr getResult() {
 		return unfoldedExpr;
 	}
 
@@ -69,7 +69,7 @@ public class ComputeUnfoldedArbitraryRepetitionsVisitor extends TripleExpression
 		}
 		else {
 			expr.getSubExpression().accept(this);
-			List<TripleExpression> clones = new ArrayList<>();
+			List<NonRefTripleExpr> clones = new ArrayList<>(); 
 			int nbRepetitions, nbOptRepetitions;
 			if (expr.getCardinality().max == Interval.UNBOUND) {
 				clones.add(new RepeatedTripleExpression(expr.getSubExpression(), Interval.PLUS));
@@ -86,16 +86,16 @@ public class ComputeUnfoldedArbitraryRepetitionsVisitor extends TripleExpression
 			for (int i = 0; i < nbOptRepetitions; i++) {
 				clones.add(new RepeatedTripleExpression(clone(unfoldedExpr), Interval.OPT));
 			}
-			unfoldedExpr = new EachOfTripleExpression(clones);
+			unfoldedExpr = new EachOf(clones);
 			hasChanged = true;
 		}
 	}
 	
 	@Override
-	public void visitEachOf(EachOfTripleExpression expr, Object... arguments) {
+	public void visitEachOf(EachOf expr, Object... arguments) {
 		boolean changed = false;
-		List<TripleExpression> newSubExpr = new ArrayList<>();
-		for (TripleExpression subExpr: expr.getSubExpressions()) {
+		List<NonRefTripleExpr> newSubExpr = new ArrayList<>();
+		for (NonRefTripleExpr subExpr: expr.getSubExpressions()) {
 			subExpr.accept(this);
 			changed = changed || hasChanged;
 			newSubExpr.add(unfoldedExpr);
@@ -106,15 +106,15 @@ public class ComputeUnfoldedArbitraryRepetitionsVisitor extends TripleExpression
 		}
 		else {
 			hasChanged = true;
-			unfoldedExpr = new EachOfTripleExpression(newSubExpr);
+			unfoldedExpr = new EachOf(newSubExpr);
 		}
 	}
 	
 	@Override
-	public void visitSomeOf(SomeOfTripleExpression expr, Object... arguments) {
+	public void visitOneOf(OneOf expr, Object... arguments) {
 		boolean changed = false;
-		List<TripleExpression> newSubExpr = new ArrayList<>();
-		for (TripleExpression subExpr: expr.getSubExpressions()) {
+		List<NonRefTripleExpr> newSubExpr = new ArrayList<>();
+		for (NonRefTripleExpr subExpr: expr.getSubExpressions()) {
 			subExpr.accept(this);
 			changed = changed || hasChanged;
 			newSubExpr.add(unfoldedExpr);
@@ -125,22 +125,22 @@ public class ComputeUnfoldedArbitraryRepetitionsVisitor extends TripleExpression
 		}
 		else {
 			hasChanged = true;
-			unfoldedExpr = new SomeOfTripleExpression(newSubExpr);
+			unfoldedExpr = new OneOf(newSubExpr);
 		}
 	}
 	
-	private TripleExpression clone (TripleExpression expr) {
+	private NonRefTripleExpr clone (NonRefTripleExpr expr) {
 		CloneTripleExpressionVisitor visitor = new CloneTripleExpressionVisitor();
 		expr.accept(visitor);
 		return visitor.getResult();
 	}
 	
-	class CloneTripleExpressionVisitor extends TripleExpressionVisitor<TripleExpression> {
+	class CloneTripleExpressionVisitor extends TripleExpressionVisitor<NonRefTripleExpr> {
 
-		private TripleExpression result;
+		private NonRefTripleExpr result;
 		
 		@Override
-		public TripleExpression getResult() {
+		public NonRefTripleExpr getResult() {
 			return result;
 		}
 
@@ -155,23 +155,23 @@ public class ComputeUnfoldedArbitraryRepetitionsVisitor extends TripleExpression
 		}
 		
 		@Override
-		public void visitEachOf(EachOfTripleExpression expr, Object... arguments) {
-			List<TripleExpression> subExpressions = new ArrayList<>();
-			for (TripleExpression subExpr: expr.getSubExpressions()) {
+		public void visitEachOf(EachOf expr, Object... arguments) {
+			List<NonRefTripleExpr> subExpressions = new ArrayList<>();
+			for (NonRefTripleExpr subExpr: expr.getSubExpressions()) {
 				subExpr.accept(this);
 				subExpressions.add(result);
 			}
-			result = new EachOfTripleExpression(subExpressions);
+			result = new EachOf(subExpressions);
 		}
 		
 		@Override
-		public void visitSomeOf(SomeOfTripleExpression expr, Object... arguments) {
-			List<TripleExpression> subExpressions = new ArrayList<>();
-			for (TripleExpression subExpr: expr.getSubExpressions()) {
+		public void visitOneOf(OneOf expr, Object... arguments) {
+			List<NonRefTripleExpr> subExpressions = new ArrayList<>();
+			for (NonRefTripleExpr subExpr: expr.getSubExpressions()) {
 				subExpr.accept(this);
 				subExpressions.add(result);
 			}
-			result = new SomeOfTripleExpression(subExpressions);
+			result = new OneOf(subExpressions);
 		}
 		
 		@Override

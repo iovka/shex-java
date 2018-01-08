@@ -15,23 +15,23 @@ limitations under the License.
 
 */
 
+package fr.univLille.cristal.shex.schema;
 
-package fr.univLille.cristal.shex.validation;
-
-import fr.univLille.cristal.shex.graph.NeighborTriple;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
 
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * 11 oct. 2017
  */
-public class PredicateOnlyMatcher implements Matcher {
-
-	@Override
-	public Boolean apply(NeighborTriple triple, TripleConstraint tc) {
-		return tc.getProperty().equals(triple.getPredicate());
+public class TripleExprLabel extends Label {
+	
+	public TripleExprLabel(BNode bnode) {
+		super(bnode);
 	}
 
-
+	public TripleExprLabel(IRI iri) {
+		super(iri);
+	}
 }

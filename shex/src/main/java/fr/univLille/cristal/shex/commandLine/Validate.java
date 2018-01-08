@@ -36,7 +36,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
-import fr.univLille.cristal.shex.schema.ShapeLabel;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.validation.Configuration;
@@ -121,9 +121,9 @@ public class Validate {
 		if (parameters.get("-f") != null)
 			focusNode = factory.createIRI(parameters.get("-f"));
 		
-		ShapeLabel shapeLabel = null;
+		ShapeExprLabel shapeLabel = null;
 		if (parameters.get("-l") != null)
-			shapeLabel = new ShapeLabel(parameters.get("-l"));
+			shapeLabel = new ShapeExprLabel(SimpleValueFactory.getInstance().createIRI(parameters.get("-l")));
 		
 		ValidationAlgorithm val = null;
 		switch (parameters.get("-a")) {

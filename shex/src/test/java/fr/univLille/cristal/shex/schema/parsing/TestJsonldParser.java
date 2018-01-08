@@ -39,9 +39,9 @@ public class TestJsonldParser {
 
 	private static Path getJsonFile (String testCaseName) {
 		if (testCaseName.endsWith(".json"))
-			return Paths.get("../../../../github/shexTest/schemas/", testCaseName);
+			return Paths.get("../../../github/shexTest/schemas/", testCaseName);
 		else
-			return Paths.get("../../../../github/shexTest/schemas/", testCaseName+".json");
+			return Paths.get("../../../github/shexTest/schemas/", testCaseName+".json");
 	}
 	
 	@Test

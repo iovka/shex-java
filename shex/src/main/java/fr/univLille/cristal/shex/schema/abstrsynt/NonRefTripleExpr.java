@@ -15,13 +15,28 @@ limitations under the License.
 
 */
 
+
 package fr.univLille.cristal.shex.schema.abstrsynt;
+
+import fr.univLille.cristal.shex.schema.TripleExprLabel;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public interface AtomicShapeExpression extends ShapeExpression {
-
+public abstract class NonRefTripleExpr extends AbstractASTElement implements TripleExpr {
+	
+	private TripleExprLabel id;
+	
+	public void setId(TripleExprLabel id) {
+		if (this.id != null)
+			throw new IllegalStateException("ID can be set only once");
+		this.id = id;
+	}
+	
+	public TripleExprLabel getId () {
+		return this.id;
+	}
+	
 }

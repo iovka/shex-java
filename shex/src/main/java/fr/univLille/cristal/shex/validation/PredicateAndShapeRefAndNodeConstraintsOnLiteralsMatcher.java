@@ -22,6 +22,8 @@ import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 
 import fr.univLille.cristal.shex.graph.NeighborTriple;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 
 /**
@@ -44,11 +46,15 @@ public class PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher extends Pre
 		if (triple.getOpposite() instanceof Literal) {
 			Literal opLit = (Literal) triple.getOpposite();
 			EvaluateShapeExpressionOnLiteralVisitor visitor = new EvaluateShapeExpressionOnLiteralVisitor(opLit);
-			tc.getShapeRef().getShapeDefinition().expression.accept(visitor);
+			ShapeExpr expr = tc.getShapeExpr();
+			if (expr instanceof ShapeExprRef) {
+				expr = ((ShapeExprRef) expr).getShapeDefinition();
+			}
+			expr.accept(visitor);
 			return visitor.getResult();
 		}
 		else 
-			return typing.contains((Resource) triple.getOpposite(), tc.getShapeRef().getLabel());
+			return typing.contains((Resource) triple.getOpposite(), tc.getShapeExpr().getId());
 	}
 	
 }

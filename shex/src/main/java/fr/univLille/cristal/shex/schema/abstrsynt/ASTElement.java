@@ -14,37 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 */
-
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import fr.univLille.cristal.shex.schema.analysis.ASTAttribute;
 
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * 13 oct. 2017
  */
-public class ASElementAttributes {
+public interface ASTElement {
 	
-	private Map<Object, Object> attributes = new HashMap<>();
-	
-	public Object getAttribute (Object key) {
-		return attributes.get(key);
-	}
-	
-	public void setAttribute (Object key, Object value) {
-		if (attributes.containsKey(key))
-			throw new IllegalStateException("Property already set :"  + key);
-		attributes.put(key, value);
-	}
-	
-	public Object hasAttribute (Object key) {
-		return attributes.containsKey(key);
-	}
-	
-	public void cleanAttribute (Object key) {
-		attributes.remove(key);
-	}
-	
+	public Map<ASTAttribute<?,?>, Object> getDynamicAttributes();
+
 }
