@@ -19,17 +19,14 @@ package fr.univLille.cristal.shex.schema;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import fr.univLille.cristal.shex.schema.abstrsynt.ASTElement;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
-import fr.univLille.cristal.shex.schema.analysis.ASTAttribute;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationAdditionalShapeDefinitions;
-import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
+//import fr.univLille.cristal.shex.schema.analysis.InstrumentationAdditionalShapeDefinitions;
+//import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 
 /** A ShEx schema.
  * 
@@ -45,37 +42,37 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 	private boolean finalized = false;
 	
 	public void finalize () {
-		// Check that all shape labels are defined
-		Set<ShapeExprLabel> undefinedLabels = SchemaRulesStaticAnalysis.computeUndefinedShapeLabels(this);
-		if (! undefinedLabels.isEmpty())
-			throw new IllegalArgumentException("Undefined shape labels: " + undefinedLabels);
-		
-		// Check that there are no cyclic shape ref dependencies
-		List<List<ShapeExprLabel>> cyclicShapeRefDependencies = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(this);
-		if (! cyclicShapeRefDependencies.isEmpty())
-			throw new IllegalArgumentException("Cyclic dependency of shape refences: " + cyclicShapeRefDependencies.get(0));
-		
-		/*
-		// Enrich all shape references with the corresponding shape definition
-		Set<ShapeExprRef> shapeRefs = SchemaRulesStaticAnalysis.collectAllShapeRefs(this.values());
-		for (ShapeExprRef ref : shapeRefs)
-			ref.setShapeDefinition(rules.get(ref.getLabel()));
-		 */
-		
-		
-		Map<ShapeExprLabel, ShapeExpr> additionalRules = new HashMap<>(); 
-		InstrumentationAdditionalShapeDefinitions.getInstance().apply(this, additionalRules);
-		Map<ShapeExprLabel, ShapeExpr> allRules = new HashMap<>();
-		allRules.putAll(this);
-		allRules.putAll(additionalRules);
-		
-		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(allRules);
-		if (stratification == null)
-			throw new IllegalArgumentException("The set of rules is not stratified.");
-		else
-			setStratification(stratification);
-		
-		this.finalized = true;
+//		// Check that all shape labels are defined
+//		Set<ShapeExprLabel> undefinedLabels = SchemaRulesStaticAnalysis.computeUndefinedShapeLabels(this);
+//		if (! undefinedLabels.isEmpty())
+//			throw new IllegalArgumentException("Undefined shape labels: " + undefinedLabels);
+//		
+//		// Check that there are no cyclic shape ref dependencies
+//		List<List<ShapeExprLabel>> cyclicShapeRefDependencies = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(this);
+//		if (! cyclicShapeRefDependencies.isEmpty())
+//			throw new IllegalArgumentException("Cyclic dependency of shape refences: " + cyclicShapeRefDependencies.get(0));
+//		
+//		/*
+//		// Enrich all shape references with the corresponding shape definition
+//		Set<ShapeExprRef> shapeRefs = SchemaRulesStaticAnalysis.collectAllShapeRefs(this.values());
+//		for (ShapeExprRef ref : shapeRefs)
+//			ref.setShapeDefinition(rules.get(ref.getLabel()));
+//		 */
+//		
+//		
+//		Map<ShapeExprLabel, ShapeExpr> additionalRules = new HashMap<>(); 
+//		//InstrumentationAdditionalShapeDefinitions.getInstance().apply(this, additionalRules);
+//		Map<ShapeExprLabel, ShapeExpr> allRules = new HashMap<>();
+//		allRules.putAll(this);
+//		allRules.putAll(additionalRules);
+//		
+//		List<Set<ShapeExprLabel>> stratification = SchemaRulesStaticAnalysis.computeStratification(allRules);
+//		if (stratification == null)
+//			throw new IllegalArgumentException("The set of rules is not stratified.");
+//		else
+//			setStratification(stratification);
+//		
+//		this.finalized = true;
 	}
 	
 	@Override
@@ -147,18 +144,6 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 			tmp.add(Collections.unmodifiableSet(strat));
 		}
 		this.stratification = Collections.unmodifiableList(tmp);		
-	}
-
-
-	// -----------------------------------------------------------------
-	// Instrumentable
-	// -----------------------------------------------------------------
-	
-	private Map<ASTAttribute<?,?>, Object> instrumentationsMap = new HashMap<>();
-	
-	@Override
-	public Map<ASTAttribute<?,?>, Object> getDynamicAttributes() {
-		return instrumentationsMap;
 	}
 
 }

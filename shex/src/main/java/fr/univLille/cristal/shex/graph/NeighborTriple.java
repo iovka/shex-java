@@ -35,7 +35,7 @@ public class NeighborTriple {
 	private final Value opposite;
 	private final TCProperty prop;
 
-	protected NeighborTriple(Value focus, TCProperty prop, Value opposite) {
+	public NeighborTriple(Value focus, TCProperty prop, Value opposite) {
 		this.focus = focus;
 		this.opposite = opposite;
 		this.prop = prop;

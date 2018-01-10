@@ -43,7 +43,7 @@ public class TestSchemaConstruction {
 	public void testTreeStructuredSchema10rules() {
 		
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		NonRefTripleExpr 
+		TripleExpr 
 			te1 = tc("ex:a :: SL1"),
 			te3 = tc("ex:a :: SL3"),
 			te4 = someof("ex:a :: SL4 | ex:b :: SL4bis"),

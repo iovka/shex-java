@@ -22,6 +22,7 @@ import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 
@@ -38,12 +39,12 @@ public abstract class TripleExpressionVisitor<ResultType> {
 	public abstract void visitTripleConstraint (TripleConstraint tc, Object ... arguments);
 	
 	public void visitEachOf (EachOf expr, Object ... arguments) {
-		for (NonRefTripleExpr subExpr : expr.getSubExpressions())
+		for (TripleExpr subExpr : expr.getSubExpressions())
 			subExpr.accept(this, arguments);
 	}
 	
 	public void visitOneOf (OneOf expr, Object ... arguments) {
-		for (NonRefTripleExpr subExpr : expr.getSubExpressions())
+		for (TripleExpr subExpr : expr.getSubExpressions())
 			subExpr.accept(this, arguments);
 	}
 	

@@ -17,10 +17,39 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
+
 /**
  * 
  * @author Iovka Boneva
  * 11 oct. 2017
  */
-public abstract class TripleExprRef implements TripleExpr {
+public class TripleExprRef extends TripleExpr {
+	private TripleExprLabel label;
+	private TripleExpr tripleExp;
+	
+	public TripleExprRef(TripleExprLabel ref) {
+		this.label = ref;
+	}
+	
+	public TripleExpr getTripleExp() {
+		return tripleExp;
+	}
+
+
+	public void setTripleExp(TripleExpr tripleExp) {
+		this.tripleExp = tripleExp;
+	}
+
+
+	public TripleExprLabel getLabel() {
+		return label;
+	}
+
+
+	@Override
+	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
+		// TODO Auto-generated method stub
+	}
 }

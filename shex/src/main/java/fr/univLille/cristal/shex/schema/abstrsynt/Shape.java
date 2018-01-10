@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**
@@ -30,25 +31,24 @@ import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
  * 10 oct. 2017
  */
 public class Shape extends ShapeExpr {
-	
 	private boolean closed;
 	private Set<TCProperty> extra;
-	private NonRefTripleExpr tripleExpr;
+	private TripleExpr tripleExpr;
 	/** Creates a {@link Shape} that is forward closed, inverse open, and has no extra properties.
 	 * 
 	 * @param tripleExpression
 	 */
-	protected Shape (NonRefTripleExpr tripleExpression) {
+	protected Shape (TripleExpr tripleExpression) {
 		this(tripleExpression, Collections.emptySet(), true);
 	}
 	
-	public Shape(NonRefTripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
+	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
 		this.tripleExpr = tripleExpression;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
 		this.closed = closed;
 	}
 	
-	public NonRefTripleExpr getTripleExpression () {
+	public TripleExpr getTripleExpression () {
 		return tripleExpr;
 	}
 	

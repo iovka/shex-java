@@ -30,7 +30,7 @@ import fr.univLille.cristal.shex.util.CollectionToString;
 public class EachOf extends AbstractNaryTripleExpr {
 	
 
-	public EachOf(List<NonRefTripleExpr> subExpressions) {
+	public EachOf(List<TripleExpr> subExpressions) {
 		super(subExpressions);
 	}
 	

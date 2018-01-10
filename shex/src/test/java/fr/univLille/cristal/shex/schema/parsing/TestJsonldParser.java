@@ -16,75 +16,89 @@ limitations under the License.
 */
 package fr.univLille.cristal.shex.schema.parsing;
 
+import static org.junit.Assert.fail;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Test;
 
 import com.github.jsonldjava.core.JsonLdError;
 
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
+
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
+@RunWith(Parameterized.class)
 public class TestJsonldParser {
-
-	private static Path getJsonFile (String testCaseName) {
-		if (testCaseName.endsWith(".json"))
-			return Paths.get("../../../github/shexTest/schemas/", testCaseName);
-		else
-			return Paths.get("../../../github/shexTest/schemas/", testCaseName+".json");
-	}
-	
-	@Test
-	public void test0() throws IOException, JsonLdError {
-		JsonldParser parser = new JsonldParser(getJsonFile("0"));
+	@Parameters
+	public static Collection<Object[]> data() throws IOException {
+		List<Object[]> listOfParameters = new LinkedList<Object[]>();
 		
-		ShexSchema schema = parser.parseSchema();
-		System.out.println("0: " + schema);	
-	}
-	
-	
-	@Test
-	public void test0focusBNODE() throws IOException, JsonLdError {
-		JsonldParser parser = new JsonldParser(getJsonFile("0focusBNODE"));
-		ShexSchema schema = parser.parseSchema();
-		System.out.println("0focusBNODE: " + schema);
-	}
-	
-	@Test
-	public void test0focusIRI() throws IOException, JsonLdError {
-		JsonldParser parser = new JsonldParser(getJsonFile("0focusIRI"));
-		ShexSchema schema = parser.parseSchema();
-		System.out.println("0focusIRI: " + schema);
-	}
-	
-	@Test
-	public void test1Adot() throws IOException, JsonLdError {
-		JsonldParser parser = new JsonldParser(getJsonFile("1Adot"));
-		ShexSchema schema = parser.parseSchema();
-		System.out.println("1Adot: " + schema);
-	}
-	
-	@Test
-	public void test1bnode() throws IOException, JsonLdError {
-		JsonldParser parser = new JsonldParser(getJsonFile("1bnode"));
-		ShexSchema schema = parser.parseSchema();
-		System.out.println("1bnode: " + schema);
+//		String[] selected = {"1Include1-after","1Include1",
+//							 "2EachInclude1-after","2EachInclude1-IS2",
+//							 "2EachInclude1","2EachInclude1-S2",
+//							 "2OneInclude1-after","2OneInclude1"};
+//		String[] selected = {"test"};
+//		Path[] paths = new Path[selected.length];
+//		for (int i=0;i<selected.length;i++) {
+//			paths[i]=Paths.get("/home/jdusart/Documents/Shex/workspace/shex-java/",selected[i]+".json");
+//			paths[i]=Paths.get("/home/jdusart/Documents/Shex/workspace/shexTest/schemas/",selected[i]+".json");
+//		}
+		
+		DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get("/home/jdusart/Documents/Shex/workspace/shexTest/schemas/"));	
+		
+		HashSet<Path> exclude = new HashSet<Path>();
+		exclude.add(Paths.get("/home/jdusart/Documents/Shex/workspace/shexTest/schemas/coverage.json"));
+		
+		for (Path path : paths) {
+			if (! exclude.contains(path)) {
+				if (path.toString().endsWith(".json")) {
+					Object [] parameters = new Object[1]; 
+					parameters[0] = path;
+					listOfParameters.add(parameters);
+				}
+			}
+		}
+		return listOfParameters;
 	}
 		
-	private static void parse (Path schemaFile) throws IOException, JsonLdError {
-		JsonldParser parser = new JsonldParser(schemaFile);
-		ShexSchema schema = parser.parseSchema();
-		System.out.println("\t" + schema);
+	@Parameter
+	public Path schemaFile;
+		
+	@Test
+	public void parse (){
+		try {
+			JsonldParser parser = new JsonldParser(schemaFile);
+			ShexSchema schema = parser.parseSchema();
+			//System.out.println("\t" + schema);
+		}catch(UnsupportedOperationException e){
+			System.out.println(schemaFile);
+			System.out.println(e.getClass().getName()+':'+e.getMessage());
+			fail(schemaFile+" create error "+e.getClass().getName()+": "+e.getMessage());
+		}catch(Exception e){
+			System.out.println(schemaFile);
+			System.out.println(e.getClass().getName()+':'+e.getMessage());
+			//e.printStackTrace();
+			fail(schemaFile+" create error "+e.getClass().getName()+": "+e.getMessage());
+		}
 	}
 	
 	private static void printFile (Path schemaFile) {
@@ -96,31 +110,6 @@ public class TestJsonldParser {
 		} catch (IOException x) {
 		    System.err.format("IOException: %s%n", x);
 		}
-	}
-	
-	
-	public static void main(String[] args) throws IOException, JsonLdError  {
-//		String testName = "1val1vExprRefOR3";
-//		System.out.println(testName);
-//		printFile(getJsonFile(testName));
-//		parse(getJsonFile(testName));
-//		System.exit(0);
-		
-		Scanner scan = new Scanner(System.in);
-		int i = 0;
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get("test-resources/schemas"))) {
-            for (Path path : directoryStream) {
-            	if (path.toString().endsWith(".json")) {
-                	System.out.println("---- " + ++i + " ----");
-            		System.out.println(path.getFileName());
-            		parse(path);
-            		// scan.nextLine();
-            	}
-            }
-        } catch (IOException ex) {
-        	System.err.println(ex.getMessage());
-        }
-        scan.close();
 	}
 	
 }

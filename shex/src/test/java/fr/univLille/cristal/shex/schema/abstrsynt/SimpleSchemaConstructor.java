@@ -81,7 +81,7 @@ public class SimpleSchemaConstructor {
 
 	
 	// Parses a possibly repeated triple expression
-	public static NonRefTripleExpr tc (String s) {
+	public static TripleExpr tc (String s) {
 		if (s.contains("#"))
 			return reptc(s);
 		else
@@ -146,8 +146,8 @@ public class SimpleSchemaConstructor {
 			return new EachOf(getTeExpressions(arg));
 	}
 
-	private static List<NonRefTripleExpr> getTeExpressions (Object... arg) {
-		List<NonRefTripleExpr> list = new ArrayList<>();
+	private static List<TripleExpr> getTeExpressions (Object... arg) {
+		List<TripleExpr> list = new ArrayList<>();
 		for (Object a : arg) {
 			asrt((a instanceof NonRefTripleExpr), "Not a triple expression " + a.toString());
 			list.add((NonRefTripleExpr)a);
@@ -165,8 +165,8 @@ public class SimpleSchemaConstructor {
 		return new EachOf(nary(s.split(";")));
 	}
 	
-	private static List<NonRefTripleExpr> nary(String[] x) {
-		List<NonRefTripleExpr> l = new ArrayList<>();
+	private static List<TripleExpr> nary(String[] x) {
+		List<TripleExpr> l = new ArrayList<>();
 		for (String y: x) {
 			l.add(tc(y));
 		}

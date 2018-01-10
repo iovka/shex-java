@@ -27,7 +27,7 @@ import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public abstract class ShapeExpr extends AbstractASTElement {
+public abstract class ShapeExpr {
 	
 	protected ShapeExprLabel id = null;
 	

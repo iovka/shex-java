@@ -72,7 +72,7 @@ public class TCProperty {
 	
 	@Override
 	public String toString() {
-		return (isFwd ? "" : "^") + iri.toString(); 
+		return (isFwd ? "" : "^") + iri; 
 	}
 
 	@Override

@@ -25,18 +25,8 @@ import fr.univLille.cristal.shex.schema.TripleExprLabel;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public abstract class NonRefTripleExpr extends AbstractASTElement implements TripleExpr {
+public abstract class NonRefTripleExpr extends TripleExpr {
 	
-	private TripleExprLabel id;
-	
-	public void setId(TripleExprLabel id) {
-		if (this.id != null)
-			throw new IllegalStateException("ID can be set only once");
-		this.id = id;
-	}
-	
-	public TripleExprLabel getId () {
-		return this.id;
-	}
+
 	
 }
