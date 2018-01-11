@@ -25,7 +25,7 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class TripleConstraint extends NonRefTripleExpr {
+public class TripleConstraint extends TripleExpr {
 	
 	private TCProperty property;	
 	// FIXME: here it should become a ShapeEXpr and not a reference

@@ -38,7 +38,6 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.util.Interval;
@@ -149,8 +148,8 @@ public class SimpleSchemaConstructor {
 	private static List<TripleExpr> getTeExpressions (Object... arg) {
 		List<TripleExpr> list = new ArrayList<>();
 		for (Object a : arg) {
-			asrt((a instanceof NonRefTripleExpr), "Not a triple expression " + a.toString());
-			list.add((NonRefTripleExpr)a);
+			asrt((a instanceof TripleExpr), "Not a triple expression " + a.toString());
+			list.add((TripleExpr)a);
 		}
 		return list;
 	}
@@ -174,8 +173,8 @@ public class SimpleSchemaConstructor {
 	}
 
 	public static ShapeExpr se (Object o) {
-		if (o instanceof NonRefTripleExpr)
-			return new Shape((NonRefTripleExpr)o);
+		if (o instanceof TripleExpr)
+			return new Shape((TripleExpr)o);
 		else if (o instanceof ShapeExpr)
 			return (ShapeExpr) o;
 		else 

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractNaryTripleExpr extends NonRefTripleExpr {
+public abstract class AbstractNaryTripleExpr extends TripleExpr {
 
 	private final List<TripleExpr> subExpressions;
 	

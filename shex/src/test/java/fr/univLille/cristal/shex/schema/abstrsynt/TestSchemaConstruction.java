@@ -21,7 +21,6 @@ import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor
 import org.junit.Test;
 
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 
 /**
  * 

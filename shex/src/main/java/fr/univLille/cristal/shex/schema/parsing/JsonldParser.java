@@ -58,7 +58,6 @@ import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
-import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.schema.concrsynt.ConjunctiveSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.ExplictValuesSetOfNodes;

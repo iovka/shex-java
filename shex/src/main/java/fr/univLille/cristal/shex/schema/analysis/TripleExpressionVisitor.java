@@ -24,7 +24,6 @@ import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
-import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 
 /**
  * 
