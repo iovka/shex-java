@@ -51,18 +51,18 @@ public class TestJsonldParser {
 	@Parameters
 	public static Collection<Object[]> data() throws IOException {
 		List<Object[]> listOfParameters = new LinkedList<Object[]>();
-		
+	
 //		String[] selected = {"1Include1-after","1Include1",
-//							 "2EachInclude1-after","2EachInclude1-IS2",
-//							 "2EachInclude1","2EachInclude1-S2",
-//							 "2OneInclude1-after","2OneInclude1"};
-//		String[] selected = {"test"};
+//				"2EachInclude1-after","2EachInclude1-IS2",
+//				"2EachInclude1","2EachInclude1-S2",
+//				"2OneInclude1-after","2OneInclude1"};
+//		//String[] selected = {"test"};
 //		Path[] paths = new Path[selected.length];
 //		for (int i=0;i<selected.length;i++) {
 //			paths[i]=Paths.get("/home/jdusart/Documents/Shex/workspace/shex-java/",selected[i]+".json");
 //			paths[i]=Paths.get("/home/jdusart/Documents/Shex/workspace/shexTest/schemas/",selected[i]+".json");
 //		}
-		
+
 		DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get("/home/jdusart/Documents/Shex/workspace/shexTest/schemas/"));	
 		
 		HashSet<Path> exclude = new HashSet<Path>();
@@ -88,6 +88,7 @@ public class TestJsonldParser {
 		try {
 			JsonldParser parser = new JsonldParser(schemaFile);
 			ShexSchema schema = parser.parseSchema();
+			//System.out.println(schemaFile);
 			//System.out.println("\t" + schema);
 		}catch(UnsupportedOperationException e){
 			System.out.println(schemaFile);

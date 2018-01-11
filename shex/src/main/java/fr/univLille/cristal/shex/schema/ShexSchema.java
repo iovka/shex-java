@@ -38,8 +38,8 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
  *
  */
 public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Map<ShapeExprLabel, ShapeExpr> {
-
 	private boolean finalized = false;
+	private List<Set<ShapeExprLabel>> stratification = null;
 	
 	public void finalize () {
 //		// Check that all shape labels are defined
@@ -94,6 +94,7 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		return super.toString();
 	}
 	
+	
 	// -------------------------------------------------------------------------------
 	// STRATIFICATION
 	// -------------------------------------------------------------------------------
@@ -128,8 +129,6 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 				return i;
 		throw new IllegalArgumentException("Unknown shape label: " + label);
 	}
-	
-	private List<Set<ShapeExprLabel>> stratification = null;
 	
 	public List<Set<ShapeExprLabel>> getStratification() {
 		return this.stratification;

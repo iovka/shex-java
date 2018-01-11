@@ -26,30 +26,38 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * 11 oct. 2017
  */
 public class TripleExprRef extends TripleExpr {
-	private TripleExprLabel label;
+	private TripleExprLabel reference;
 	private TripleExpr tripleExp;
 	
+	
 	public TripleExprRef(TripleExprLabel ref) {
-		this.label = ref;
+		this.reference = ref;
 	}
+	
 	
 	public TripleExpr getTripleExp() {
 		return tripleExp;
 	}
 
 
-	public void setTripleExp(TripleExpr tripleExp) {
-		this.tripleExp = tripleExp;
+	public void setTripleExp(TripleExpr def) {
+		if (this.tripleExp != null)
+			throw new IllegalStateException("Triple Expression definition can be set at most once");
+		this.tripleExp = def;
 	}
 
 
-	public TripleExprLabel getLabel() {
-		return label;
+	public TripleExprLabel getReference() {
+		return reference;
 	}
 
 
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
 		// TODO Auto-generated method stub
+	}
+	
+	public String toString() {
+		return "@"+reference;
 	}
 }
