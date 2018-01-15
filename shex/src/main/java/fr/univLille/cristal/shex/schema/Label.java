@@ -26,7 +26,6 @@ import org.eclipse.rdf4j.model.IRI;
  * 11 oct. 2017
  */
 public abstract class Label {
-	
 	// Exactly one of these is non null
 	private final IRI iri;
 	private final BNode bnode;

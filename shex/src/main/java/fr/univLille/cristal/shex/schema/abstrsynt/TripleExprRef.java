@@ -26,12 +26,12 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * 11 oct. 2017
  */
 public class TripleExprRef extends TripleExpr {
-	private TripleExprLabel reference;
+	private TripleExprLabel label;
 	private TripleExpr tripleExp;
 	
 	
-	public TripleExprRef(TripleExprLabel ref) {
-		this.reference = ref;
+	public TripleExprRef(TripleExprLabel label) {
+		this.label = label;
 	}
 	
 	
@@ -40,15 +40,15 @@ public class TripleExprRef extends TripleExpr {
 	}
 
 
-	public void setTripleExp(TripleExpr def) {
+	public void setTripleDefinition(TripleExpr def) {
 		if (this.tripleExp != null)
 			throw new IllegalStateException("Triple Expression definition can be set at most once");
 		this.tripleExp = def;
 	}
 
 
-	public TripleExprLabel getReference() {
-		return reference;
+	public TripleExprLabel getLabel() {
+		return label;
 	}
 
 
@@ -58,6 +58,6 @@ public class TripleExprRef extends TripleExpr {
 	}
 	
 	public String toString() {
-		return "@"+reference;
+		return "@"+label;
 	}
 }

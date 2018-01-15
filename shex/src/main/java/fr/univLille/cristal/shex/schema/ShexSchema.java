@@ -25,8 +25,10 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
-//import fr.univLille.cristal.shex.schema.analysis.InstrumentationAdditionalShapeDefinitions;
-//import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
+import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 
 /** A ShEx schema.
  * 
@@ -40,13 +42,44 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Map<ShapeExprLabel, ShapeExpr> {
 	private boolean finalized = false;
 	private List<Set<ShapeExprLabel>> stratification = null;
-	
+	private Map<ShapeExprLabel,ShapeExpr> shapeMap;
+	private Map<TripleExprLabel,TripleExpr> tripleMap;
+
 	public void finalize () {
-//		// Check that all shape labels are defined
-//		Set<ShapeExprLabel> undefinedLabels = SchemaRulesStaticAnalysis.computeUndefinedShapeLabels(this);
-//		if (! undefinedLabels.isEmpty())
-//			throw new IllegalArgumentException("Undefined shape labels: " + undefinedLabels);
-//		
+		Set<ShapeExpr> allShapes = SchemaRulesStaticAnalysis.collectAllShapes(this);
+		shapeMap = new HashMap<ShapeExprLabel,ShapeExpr>();
+		for(ShapeExpr shexp:allShapes) {
+			shapeMap.put(shexp.getId(),shexp);
+		}
+		
+		// Check shape references
+		for (Map.Entry<ShapeExprLabel,ShapeExpr> entry:shapeMap.entrySet()){
+			if (entry.getValue() instanceof ShapeExprRef) {
+				ShapeExprRef ref = (ShapeExprRef) entry.getValue();
+				if (shapeMap.containsKey(ref.getLabel())) {
+					ref.setShapeDefinition(shapeMap.get(ref.getLabel()));
+				}else {
+					throw new IllegalArgumentException("Undefined shape labels: " + ref.getLabel());
+				}
+			}
+		}
+		
+		Set<TripleExpr> allTriples = SchemaRulesStaticAnalysis.collectAllTriples(this);
+		for (TripleExpr tcexp:allTriples) {
+			tripleMap.put(tcexp.getId(),tcexp);
+		}
+		
+		// Check triple references
+		for (Map.Entry<TripleExprLabel,TripleExpr> entry:tripleMap.entrySet()){
+			if (entry.getValue() instanceof TripleExprRef) {
+				TripleExprRef ref = (TripleExprRef) entry.getValue();
+				if (shapeMap.containsKey(ref.getLabel())) {
+					ref.setTripleDefinition(tripleMap.get(ref.getLabel()));
+				}else {
+					throw new IllegalArgumentException("Undefined shape labels: " + ref.getLabel());
+				}
+			}
+		}
 //		// Check that there are no cyclic shape ref dependencies
 //		List<List<ShapeExprLabel>> cyclicShapeRefDependencies = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(this);
 //		if (! cyclicShapeRefDependencies.isEmpty())
@@ -82,6 +115,13 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		return super.put(key,value);
 	}
 
+	@Override
+	public void putAll(Map<? extends ShapeExprLabel,? extends ShapeExpr> m) {
+		if (finalized)
+			throw new IllegalStateException("A finalized schema cannot be modified");
+		super.putAll(m);
+	}
+	
 	@Override
 	public ShapeExpr remove(Object key) {
 		if (finalized)

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 */
-package fr.univLille.cristal.shex.schema.parsing;
+package fr.univLille.cristal.shex.schema.analysis;
 
 import static org.junit.Assert.fail;
 
@@ -40,7 +40,10 @@ import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import fr.univLille.cristal.shex.Configuration;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -53,7 +56,9 @@ import org.junit.runners.Parameterized.Parameters;
  * 10 oct. 2017
  */
 @RunWith(Parameterized.class)
-public class TestJsonldParser {
+public class TestUndefinedShapeReferences {
+	
+	
 	@Parameters
 	public static Collection<Object[]> data() throws IOException {
 		List<Object[]> listOfParameters = new LinkedList<Object[]>();
@@ -76,15 +81,17 @@ public class TestJsonldParser {
 	
 		Set<Path> selectedSchema = new HashSet<Path>();
 		for (Map test:tests) {
+
 			Set<String> traits = new HashSet<String>();
 			traits.addAll((List<String>) test.get("trait"));
-			if (!(traits.contains("Stem") | traits.contains("SemanticAction") | traits.contains("Start"))) {
+			if (!(traits.contains("Stem") | traits.contains("SemanticAction") | traits.contains("Start") | traits.contains("Import"))) {
 				Map action = (Map) test.get("action");
 				String jsonPath = ((String) action.get("schema")).replaceAll(".shex", ".json");
 				Path path = Paths.get(Configuration.shexTestPath.toString(),"success","validation",jsonPath).normalize();
 				if (path.toFile().exists()) {
 					selectedSchema.add(path);
 				}
+
 			}
 		}
 		
@@ -97,6 +104,20 @@ public class TestJsonldParser {
 
 			}
 		}
+		
+		listOfParameters = new LinkedList<Object[]>();
+		Path undefinedShapeRefDir = Paths.get(Configuration.shexTestPath.toString(),"success","TestReferences");
+		DirectoryStream<Path> directoryStream = Files.newDirectoryStream(undefinedShapeRefDir);
+		for (Path path : directoryStream) {
+			if (path.toString().endsWith(".json")) {
+				Object [] parameters = new Object[2]; 
+				parameters[0] = path;
+				parameters[1] = 0;
+				listOfParameters.add(parameters);
+
+			}
+		}
+		
 		return listOfParameters;
 	}
 		
@@ -110,18 +131,19 @@ public class TestJsonldParser {
 		try {
 			JsonldParser parser = new JsonldParser(schemaFile);
 			ShexSchema schema = parser.parseSchema();
-			if (status!=0) {
-				fail("Error: test success but it should fail.");
-			}
-			//System.out.println(schemaFile);
-			//System.out.println("\t" + schema);
-		}catch(UnsupportedOperationException e){
-			System.out.println(schemaFile);
-			System.out.println(e.getClass().getName()+':'+e.getMessage());
-			fail(schemaFile+" create error "+e.getClass().getName()+": "+e.getMessage());
+			schema.finalize();
+//			if (!undefinedLabel.isEmpty() & status==0) {
+//				System.out.println(schemaFile);
+//				fail("Error: undefined label found when all should be defined.");
+//			}
+//			if (undefinedLabel.isEmpty() & status==1) {
+//				System.out.println(schemaFile);
+//				fail("Error: undefined label not found when some should be defined.");
+//			}
 		}catch(Exception e){
 			System.out.println(schemaFile);
 			System.out.println(e.getClass().getName()+':'+e.getMessage());
+			e.printStackTrace();
 			fail(schemaFile+" create error "+e.getClass().getName()+": "+e.getMessage());
 		}
 	}
@@ -136,5 +158,5 @@ public class TestJsonldParser {
 		    System.err.format("IOException: %s%n", x);
 		}
 	}
-	
+
 }

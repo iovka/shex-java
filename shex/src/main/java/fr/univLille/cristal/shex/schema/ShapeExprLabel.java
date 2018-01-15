@@ -34,5 +34,4 @@ public class ShapeExprLabel extends Label {
 	public ShapeExprLabel(IRI iri) {
 		super(iri);
 	}
-	
 }
