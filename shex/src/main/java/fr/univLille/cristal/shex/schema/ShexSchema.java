@@ -65,6 +65,7 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		}
 		
 		Set<TripleExpr> allTriples = SchemaRulesStaticAnalysis.collectAllTriples(this);
+		tripleMap = new HashMap<TripleExprLabel,TripleExpr>();
 		for (TripleExpr tcexp:allTriples) {
 			tripleMap.put(tcexp.getId(),tcexp);
 		}
