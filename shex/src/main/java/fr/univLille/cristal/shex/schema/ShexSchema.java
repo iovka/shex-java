@@ -20,15 +20,36 @@ package fr.univLille.cristal.shex.schema;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
+import org.jgrapht.alg.cycle.TarjanSimpleCycles;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.builder.GraphBuilder;
+
+import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
+import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
+import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
+import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
+import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
+import fr.univLille.cristal.shex.util.Pair;
 
 /** A ShEx schema.
  * 
@@ -50,6 +71,7 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		shapeMap = new HashMap<ShapeExprLabel,ShapeExpr>();
 		for(ShapeExpr shexp:allShapes) {
 			shapeMap.put(shexp.getId(),shexp);
+			//System.out.println(shexp.getId()+" : "+shexp.getClass());
 		}
 		
 		// Check shape references
@@ -68,19 +90,28 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		tripleMap = new HashMap<TripleExprLabel,TripleExpr>();
 		for (TripleExpr tcexp:allTriples) {
 			tripleMap.put(tcexp.getId(),tcexp);
+			//System.out.println(tcexp.getId()+" : "+tcexp.getClass());
 		}
 		
 		// Check triple references
 		for (Map.Entry<TripleExprLabel,TripleExpr> entry:tripleMap.entrySet()){
 			if (entry.getValue() instanceof TripleExprRef) {
 				TripleExprRef ref = (TripleExprRef) entry.getValue();
-				if (shapeMap.containsKey(ref.getLabel())) {
+				if (tripleMap.containsKey(ref.getLabel())) {
 					ref.setTripleDefinition(tripleMap.get(ref.getLabel()));
 				}else {
-					throw new IllegalArgumentException("Undefined shape labels: " + ref.getLabel());
+					throw new IllegalArgumentException("Undefined triple labels: " + ref.getLabel());
 				}
 			}
 		}
+		
+		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph();
+		TarjanSimpleCycles<Label,DefaultEdge> cyclesFinder = new TarjanSimpleCycles<Label,DefaultEdge>(referencesGraph);
+		List<List<Label>> allcycles = cyclesFinder.findSimpleCycles();
+		
+		if (! allcycles.isEmpty())
+			throw new IllegalArgumentException("Cyclic dependency of shape refences: " + allcycles);
+		
 //		// Check that there are no cyclic shape ref dependencies
 //		List<List<ShapeExprLabel>> cyclicShapeRefDependencies = SchemaRulesStaticAnalysis.computeCyclicShapeRefDependencies(this);
 //		if (! cyclicShapeRefDependencies.isEmpty())
@@ -135,6 +166,146 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		return super.toString();
 	}
 	
+	//--------------------------------------------------------------------------------
+	// Graph References computation
+	//--------------------------------------------------------------------------------
+	
+	class CollectGraphReferencesFromShape extends ShapeExpressionVisitor<Set<Pair<Label,Label>>> {
+		private Set<Pair<Label,Label>> set;
+
+		public CollectGraphReferencesFromShape () {	
+			this.set = new HashSet<Pair<Label,Label>>();
+		}
+		
+		public CollectGraphReferencesFromShape (Set<Pair<Label,Label>> set) {	
+			this.set = set;
+		}	
+		
+		@Override
+		public Set<Pair<Label,Label>> getResult() {
+			return set;
+		}
+		
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			//set.add(new Pair<Label,Label>(expr.getId(),expr.getTripleExpression().getId()));
+			CollectGraphReferencesFromTriple visitor = new CollectGraphReferencesFromTriple(set);
+			expr.getTripleExpression().accept(visitor,arguments);
+		}
+		
+		@Override
+		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+		}
+		
+		@Override
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
+			set.add(new Pair<Label,Label>(shapeRef.getId(),shapeRef.getLabel()));
+		}
+		
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {}
+		
+		@Override
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+			}
+			super.visitShapeAnd(expr, arguments);
+		}
+		
+		@Override
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+			}
+			super.visitShapeOr(expr, arguments);
+		}
+		
+		@Override
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			set.add(new Pair<Label,Label>(expr.getId(),expr.getSubExpression().getId()));
+			super.visitShapeNot(expr, arguments);
+		}
+	}
+	
+	
+	class CollectGraphReferencesFromTriple extends TripleExpressionVisitor<Set<Pair<Label,Label>>> {
+		private Set<Pair<Label,Label>> set;
+
+		public CollectGraphReferencesFromTriple(Set<Pair<Label,Label>> set){
+			this.set = set;
+		}
+		
+		@Override
+		public Set<Pair<Label, Label>> getResult() {
+			return set;
+		}
+
+		@Override		
+		public void visitEachOf (EachOf expr, Object ... arguments) {
+			for (TripleExpr subExpr: expr.getSubExpressions()) {
+				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+			}
+			super.visitEachOf(expr, arguments);
+		}
+		
+		@Override		
+		public void visitOneOf (OneOf expr, Object ... arguments) {
+			for (TripleExpr subExpr: expr.getSubExpressions()) {
+				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+			}
+			super.visitOneOf(expr, arguments);
+		}
+		
+		@Override		
+		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
+			expr.getSubExpression().accept(this, arguments);
+		}
+		
+		@Override
+		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
+			//set.add(new Pair<Label,Label>(tc.getId(),tc.getShapeExpr().getId()));
+			CollectGraphReferencesFromShape visitor = new CollectGraphReferencesFromShape(set);
+			tc.getShapeExpr().accept(visitor,arguments);		}
+
+		@Override
+		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
+			set.add(new Pair<Label,Label>(expr.getId(),expr.getLabel()));
+		}
+
+		@Override
+		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {}
+		
+	
+	}
+	
+	
+	private DefaultDirectedGraph<Label,DefaultEdge> computeReferencesGraph () {
+		// Visit the schema to collect the references
+		CollectGraphReferencesFromShape collector = new CollectGraphReferencesFromShape();
+		for (ShapeExpr expr: this.values()) {
+			expr.accept(collector);
+		}
+		
+		// build the graph
+		GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>> builder;
+		builder = new GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>>(new DefaultDirectedGraph<Label,DefaultEdge>(DefaultEdge.class));
+
+		for (Label label : this.shapeMap.keySet()) {
+			builder.addVertex(label);
+			//System.out.println(label+":"+shapeMap.get(label).getClass());
+		}
+		for (Label label : this.tripleMap.keySet()) {
+			builder.addVertex(label);
+			//System.out.println(label+":"+tripleMap.get(label).getClass());
+		}
+
+		for (Pair<Label,Label> edge : collector.getResult()) {
+			builder.addEdge(edge.one, edge.two);
+			//System.out.println(edge);
+		}
+		return builder.build();
+	}
 	
 	// -------------------------------------------------------------------------------
 	// STRATIFICATION

@@ -136,8 +136,70 @@ public class SchemaRulesStaticAnalysis {
 		return set;
 	}
 	
+	//---------------------------------------------------------------------------
+	// Graph references computation
+	//---------------------------------------------------------------------------
 	
-	
+//	class CollectGraphReferencesFromShape extends ShapeExpressionVisitor<Set<Pair<ShapeExprLabel,ShapeExprLabel>>> {
+//		private Set<Pair<ShapeExprLabel,ShapeExprLabel>> set;
+//
+//		public CollectGraphReferencesFromShape () {	
+//			this.set = new HashSet<Pair<ShapeExprLabel,ShapeExprLabel>>();
+//		}
+//		
+//		
+//		@Override
+//		public Set<Pair<ShapeExprLabel,ShapeExprLabel>> getResult() {
+//			return set;
+//		}
+//
+//		
+//		@Override
+//		public void visitShape(Shape expr, Object... arguments) {}
+//
+//		
+//		@Override
+//		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {}
+//
+//		
+//		@Override
+//		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
+//			set.add(new Pair<ShapeExprLabel,ShapeExprLabel>(shapeRef.getId(),shapeRef.getLabel()));
+//		}
+//
+//		
+//		@Override
+//		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {}
+//		
+//		
+//		@Override
+//		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
+//			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+//				set.add(new Pair<ShapeExprLabel,ShapeExprLabel>(expr.getId(),subExpr.getId()));
+//			}
+//			super.visitShapeAnd(expr, arguments);
+//		}
+//		
+//		
+//		@Override
+//		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+//			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+//				set.add(new Pair<ShapeExprLabel,ShapeExprLabel>(expr.getId(),subExpr.getId()));
+//			}
+//			super.visitShapeOr(expr, arguments);
+//		}
+//		
+//		
+//		@Override
+//		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+//			set.add(new Pair<ShapeExprLabel,ShapeExprLabel>(expr.getId(),expr.getSubExpression().getId()));
+//			super.visitShapeNot(expr, arguments);
+//		}
+//
+//	}
+//	
+//	
+//	
 //	public static List<List<ShapeExprLabel>> computeCyclicShapeRefDependencies (Map<ShapeExprLabel, ShapeExpr> rules) {
 //
 //		Function<ShapeExpr, List<Pair<ShapeExprLabel, Integer>>> directlyReferencedShapeLabelsCollector = new Function<ShapeExpr, List<Pair<ShapeExprLabel,Integer>>>() {
@@ -156,32 +218,7 @@ public class SchemaRulesStaticAnalysis {
 //		return tarjan.findSimpleCycles();		
 //	}
 //
-//	//Remove the next visitor and reuse collectFromShape
-//	class CollectDirectlyReferencedShapeExprLabelsVisitor extends ShapeExpressionVisitor<List<Pair<ShapeExprLabel,Integer>>> {
-//
-//		private List<Pair<ShapeExprLabel,Integer>> result = new ArrayList<>();
-//
-//		@Override
-//		public List<Pair<ShapeExprLabel,Integer>> getResult() { return result; }
-//
-//		@Override
-//		public void visitShape(Shape expr, Object... arguments) {}
-//
-//		@Override
-//		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {}
-//
-//		@Override
-//		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
-//			result.add(new Pair<>(shapeRef.getLabel(), +1));
-//		}
-//
-//		@Override
-//		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
-//			// TODO Auto-generated method stub
-//			throw new UnsupportedOperationException("Not yet implemented.");
-//		}
-//	}
-//
+
 //
 //	private static DefaultDirectedGraph<ShapeExprLabel,DefaultEdge> computeDependencyGraph 
 //	(Map<ShapeExprLabel, ShapeExpr> rules,
@@ -206,13 +243,13 @@ public class SchemaRulesStaticAnalysis {
 //		}
 //		return builder.build();
 //	}
-	
-	public static void main(String[] args) throws IOException, JsonLdError, UnsupportedOperationException, ParseException {
-		Path schemaFile = Paths.get("test","test.json");
-		JsonldParser parser = new JsonldParser(schemaFile);
-		ShexSchema schema = parser.parseSchema();
-		//Set<ShapeExprLabel> undefinedLabel = SchemaRulesStaticAnalysis.computeUndefinedShapeLabels(schema);
-		//System.out.println(undefinedLabel);
-		//System.out.println(schema.keySet());
-	}
+//	
+//	public static void main(String[] args) throws IOException, JsonLdError, UnsupportedOperationException, ParseException {
+//		Path schemaFile = Paths.get("test","test.json");
+//		JsonldParser parser = new JsonldParser(schemaFile);
+//		ShexSchema schema = parser.parseSchema();
+//		//Set<ShapeExprLabel> undefinedLabel = SchemaRulesStaticAnalysis.computeUndefinedShapeLabels(schema);
+//		//System.out.println(undefinedLabel);
+//		//System.out.println(schema.keySet());
+//	}
 }

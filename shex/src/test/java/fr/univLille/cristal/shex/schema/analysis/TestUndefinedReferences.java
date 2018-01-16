@@ -56,23 +56,17 @@ import org.junit.runners.Parameterized.Parameters;
  * 10 oct. 2017
  */
 @RunWith(Parameterized.class)
-public class TestUndefinedShapeReferences {
+public class TestUndefinedReferences {
 	
 	
 	@Parameters
 	public static Collection<Object[]> data() throws IOException {
 		List<Object[]> listOfParameters = new LinkedList<Object[]>();
 	
-//		String[] selected = {"1Include1-after","1Include1",
-//				"2EachInclude1-after","2EachInclude1-IS2",
-//				"2EachInclude1","2EachInclude1-S2",
-//				"2OneInclude1-after","2OneInclude1"};
-//		//String[] selected = {"test"};
-//		Path[] paths = new Path[selected.length];
-//		for (int i=0;i<selected.length;i++) {
-//			//paths[i]=Paths.get("/home/jdusart/Documents/Shex/workspace/shex-java/",selected[i]+".json");
-//			paths[i]=Paths.get(Configuration.shexTextPath.toString(),"schemas",selected[i]+".json");
-//		}
+		String[] selected = {"1Include1-after.json","1Include1",
+				"2EachInclude1-after","2EachInclude1-IS2",
+				"2EachInclude1","2EachInclude1-S2",
+				"2OneInclude1-after","2OneInclude1"};
 		
 		InputStream inputStream = new FileInputStream(Configuration.manifest_json.toFile());
 		Object manifest = JsonUtils.fromInputStream(inputStream);
@@ -84,10 +78,11 @@ public class TestUndefinedShapeReferences {
 
 			Set<String> traits = new HashSet<String>();
 			traits.addAll((List<String>) test.get("trait"));
-			if (!(traits.contains("Stem") | traits.contains("SemanticAction") | traits.contains("Start") | traits.contains("Import"))) {
+			if (!(traits.contains("Stem") | traits.contains("SemanticAction") | traits.contains("Start") | 
+					traits.contains("Import") | traits.contains("Include")) ) {
 				Map action = (Map) test.get("action");
 				String jsonPath = ((String) action.get("schema")).replaceAll(".shex", ".json");
-				Path path = Paths.get(Configuration.shexTestPath.toString(),"success","validation",jsonPath).normalize();
+				Path path = Paths.get(Configuration.shexTestPath.toString(),"success","TestReferences",jsonPath).normalize();
 				if (path.toFile().exists()) {
 					selectedSchema.add(path);
 				}
@@ -105,14 +100,25 @@ public class TestUndefinedShapeReferences {
 			}
 		}
 		
-		listOfParameters = new LinkedList<Object[]>();
-		Path undefinedShapeRefDir = Paths.get(Configuration.shexTestPath.toString(),"success","TestReferences");
+		Path undefinedShapeRefDir = Paths.get(Configuration.shexTestPath.toString(),"failure","UndefinedShapeReference");
 		DirectoryStream<Path> directoryStream = Files.newDirectoryStream(undefinedShapeRefDir);
 		for (Path path : directoryStream) {
 			if (path.toString().endsWith(".json")) {
 				Object [] parameters = new Object[2]; 
 				parameters[0] = path;
-				parameters[1] = 0;
+				parameters[1] = 1;
+				listOfParameters.add(parameters);
+
+			}
+		}
+		
+		undefinedShapeRefDir = Paths.get(Configuration.shexTestPath.toString(),"failure","UndefinedTripleReference");
+		directoryStream = Files.newDirectoryStream(undefinedShapeRefDir);
+		for (Path path : directoryStream) {
+			if (path.toString().endsWith(".json")) {
+				Object [] parameters = new Object[2]; 
+				parameters[0] = path;
+				parameters[1] = 1;
 				listOfParameters.add(parameters);
 
 			}
@@ -140,11 +146,13 @@ public class TestUndefinedShapeReferences {
 //				System.out.println(schemaFile);
 //				fail("Error: undefined label not found when some should be defined.");
 //			}
-		}catch(Exception e){
-			System.out.println(schemaFile);
-			System.out.println(e.getClass().getName()+':'+e.getMessage());
-			e.printStackTrace();
-			fail(schemaFile+" create error "+e.getClass().getName()+": "+e.getMessage());
+		}catch(IllegalArgumentException e){
+			if (status == 0) {
+				System.out.println(schemaFile);
+				fail("Error : exception raises but schema should be fine");
+			}
+		}catch (Exception e) {
+			
 		}
 	}
 	

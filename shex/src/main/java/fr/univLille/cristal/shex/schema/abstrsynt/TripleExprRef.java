@@ -54,7 +54,7 @@ public class TripleExprRef extends TripleExpr {
 
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
-		// TODO Auto-generated method stub
+		visitor.visitTripleExprReference(this, arguments);
 	}
 	
 	public String toString() {

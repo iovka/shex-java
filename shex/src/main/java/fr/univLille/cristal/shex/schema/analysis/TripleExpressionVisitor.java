@@ -37,6 +37,10 @@ public abstract class TripleExpressionVisitor<ResultType> {
 
 	public abstract void visitTripleConstraint (TripleConstraint tc, Object ... arguments);
 	
+	public abstract void visitTripleExprReference (TripleExprRef expr, Object... arguments) ;
+
+	public abstract void visitEmpty(EmptyTripleExpression expr, Object[] arguments);
+	
 	public void visitEachOf (EachOf expr, Object ... arguments) {
 		for (TripleExpr subExpr : expr.getSubExpressions())
 			subExpr.accept(this, arguments);
@@ -47,15 +51,7 @@ public abstract class TripleExpressionVisitor<ResultType> {
 			subExpr.accept(this, arguments);
 	}
 	
-	public void visitTripleExprReference (TripleExprRef expr, Object... arguments) {
-		throw new UnsupportedOperationException("not yet implemented");
-	}
-
-	public abstract void visitEmpty(EmptyTripleExpression expr, Object[] arguments);
-	
 	public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
 		expr.getSubExpression().accept(this,arguments);
 	}
-
-
 }

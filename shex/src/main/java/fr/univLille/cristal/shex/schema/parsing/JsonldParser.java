@@ -94,9 +94,10 @@ public class JsonldParser {
 	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
 	
 	// TODO: would it be preferable to have blank node identifiers ?
-	//private static int shapeLabelNb = 0;
-	private static String SHAPE_LABEL_PREFIX = "SL";
-	private static String TRIPLE_LABEL_PREFIX = "TL";
+	private static int shapeLabelNb = 0;
+	private static String SHAPE_LABEL_PREFIX = "SLGEN";
+	private static int tripleLabelNb = 0;
+	private static String TRIPLE_LABEL_PREFIX = "TLGEN";
 	//private static String EXTRA_SHAPE_LABEL_PREFIX = "SL_EXTRA";
 	
 		
@@ -508,26 +509,26 @@ public class JsonldParser {
 		Boolean inv = (Boolean) (map.get("inverse"));
 		if (inv == null)
 			inv = false;
-		
 		IRI predicate = createIri((String) (map.get("predicate")));
-		
-		Interval card = getCardinality(map);
+		TCProperty property = createTCProperty(predicate, !inv);
 		
 		ShapeExpr shexpr = null;
-		
 		Object valueExpr = map.get("valueExpr");
 		if (valueExpr != null)
 			shexpr = parseShapeExpression(valueExpr);
-		else
-			shexpr = new Shape(new EmptyTripleExpression(), Collections.EMPTY_SET, false);
-		TCProperty property = createTCProperty(predicate, !inv);
-		
+		else {
+			TripleExpr tmp = new EmptyTripleExpression();
+			setTripleId(tmp,Collections.EMPTY_MAP);
+			shexpr = new Shape(tmp, Collections.EMPTY_SET, false);
+			setShapeId(shexpr, Collections.EMPTY_MAP);
+		}
+				
+		Interval card = getCardinality(map);	
 		TripleExpr res ;
 		if (card == null)
 			res = TripleConstraint.newSingleton(property, shexpr);
 		else 
 			res = new RepeatedTripleExpression(TripleConstraint.newSingleton(property, shexpr), card); 
-		
 		setTripleId(res, map);
 		
 		return res;
@@ -717,7 +718,8 @@ public class JsonldParser {
 		if (map.containsKey("id")) {
 			shape.setId(createShapeLabel(getId(map)));
 		}else {
-			shape.setId(createShapeLabel(SHAPE_LABEL_PREFIX+"_"+shape.hashCode()));
+			shape.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb)));
+			shapeLabelNb++;
 		}
 	}
 	
@@ -725,7 +727,8 @@ public class JsonldParser {
 		if (map.containsKey("id")) {
 			triple.setId(createTripleLabel(getId(map)));
 		}else {
-			triple.setId(createTripleLabel(TRIPLE_LABEL_PREFIX+"_"+triple.hashCode()));
+			triple.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb)));
+			tripleLabelNb++;
 		}
 	}
 	
