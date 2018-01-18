@@ -37,29 +37,26 @@ import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
  * 10 oct. 2017
  */
 public class OneTestUndefinedReferences {
-		
+
+	
+	
 	@Test
 	public void parse (){
-		//Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"success","TestReferences","TripleReferences.json");;
-		Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"failure","CyclicReferences","TripleReferences.json");;
+		Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"success","TestExtra","ShapeExtra.json");;
+		//Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"failure","CyclicReferences","TripleReferences.json");;
 		int status = 1;
 		try {
 			JsonldParser parser = new JsonldParser(schemaFile);
 			ShexSchema schema = parser.parseSchema();
 			schema.finalize();
-//			if (!undefinedLabel.isEmpty() & status==0) {
-//				System.out.println(schemaFile);
-//				fail("Error: undefined label found when all should be defined.");
-//			}
-//			if (undefinedLabel.isEmpty() & status==1) {
-//				System.out.println(schemaFile);
-//				fail("Error: undefined label not found when some should be defined.");
-//			}
+			if (status==1) {
+				fail("Error : test success but it should fail.");
+			}
 		}catch(IllegalArgumentException e){
-			if (status == 0) {
-				System.out.println(schemaFile);
-				//e.printStackTrace();
-				System.out.println(e);
+			System.out.println(schemaFile);
+			System.out.println(e);
+			e.printStackTrace();
+			if (status == 0) {	
 				fail("Error : exception raises but schema should be fine");
 			}
 		}catch (Exception e) {

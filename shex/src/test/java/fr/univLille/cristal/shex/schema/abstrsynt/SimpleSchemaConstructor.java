@@ -24,6 +24,9 @@ import java.util.List;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
+import fr.univLille.cristal.shex.exception.CyclicReferencesException;
+import fr.univLille.cristal.shex.exception.NotStratifiedException;
+import fr.univLille.cristal.shex.exception.UndefinedLabelException;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
@@ -55,7 +58,7 @@ public class SimpleSchemaConstructor {
 
 	private ShexSchema schema = new ShexSchema();
 	
-	public ShexSchema getSchema () {
+	public ShexSchema getSchema () throws UndefinedLabelException, CyclicReferencesException, NotStratifiedException {
 		schema.finalize();
 		return this.schema;
 	}

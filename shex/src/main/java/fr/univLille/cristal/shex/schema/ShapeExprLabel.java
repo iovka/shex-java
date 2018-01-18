@@ -34,4 +34,14 @@ public class ShapeExprLabel extends Label {
 	public ShapeExprLabel(IRI iri) {
 		super(iri);
 	}
+
+	public ShapeExprLabel(BNode bnode, boolean generated) {
+		super(bnode, generated);
+	}
+
+	public ShapeExprLabel(IRI iri, boolean generated) {
+		super(iri, generated);
+	}
+	
+	
 }

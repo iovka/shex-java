@@ -29,15 +29,34 @@ public abstract class Label {
 	// Exactly one of these is non null
 	private final IRI iri;
 	private final BNode bnode;
+	private final boolean generated;
 
 	public Label (IRI iri) {
 		this.iri = iri;
-		bnode = null;
+		this.bnode = null;
+		this.generated = false;
 	}
 	
 	public Label (BNode bnode) {
 		this.bnode = bnode;
-		iri = null;
+		this.iri = null;
+		this.generated = false;
+	}
+	
+	public Label (IRI iri,boolean generated) {
+		this.iri = iri;
+		this.bnode = null;
+		this.generated = generated;
+	}
+	
+	public Label (BNode bnode,boolean generated) {
+		this.bnode = bnode;
+		this.iri = null;
+		this.generated = generated;
+	}
+	
+	public boolean isGenerated() {
+		return this.generated;
 	}
 
 	@Override

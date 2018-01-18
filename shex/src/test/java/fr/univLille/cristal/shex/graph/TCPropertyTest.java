@@ -2,6 +2,9 @@ package fr.univLille.cristal.shex.graph;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -61,6 +64,15 @@ class TCPropertyTest {
 			fail("Error with hashcode value.");
 		if (backwd.hashCode() != 20203507)
 			fail("Error with hashcode value.");
+	}
+	
+	@Test
+	public void testSameHashCode() {
+		Set<TCProperty> set= new HashSet<TCProperty>();
+		TCProperty p1 =TCProperty.createFwProperty(SimpleValueFactory.getInstance().createIRI("http://a.example/p1"));
+		TCProperty p2 =TCProperty.createFwProperty(SimpleValueFactory.getInstance().createIRI("http://a.example/p1"));
+		set.add(p1);
+		System.out.println("Sep contains p2:"+set.contains(p1));
 	}
 	
 	@Test

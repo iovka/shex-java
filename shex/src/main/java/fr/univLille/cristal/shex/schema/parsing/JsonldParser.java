@@ -106,7 +106,7 @@ public class JsonldParser {
 	private boolean semActsWarning = false;
 	private boolean annotationsWarning = false;
 	private Map<ShapeExprLabel, ShapeExpr> rules = new HashMap<>();
-	public static final ShapeExprLabel SL_ALL = createShapeLabel("http://a.ex/Slall");
+	public static final ShapeExprLabel SL_ALL = createShapeLabel("http://a.ex/Slall",false);
 	private ShapeExpr ALL_NODES = new NodeConstraint(SetOfNodes.AllNodes);
 
 	
@@ -150,7 +150,7 @@ public class JsonldParser {
 			Map shape = (Map) shapeObj;
 			String label = getId(shape);
 			ShapeExpr shexpr = parseShapeExpression(shape);
-			schema.put(createShapeLabel(label), shexpr);
+			schema.put(createShapeLabel(label,false), shexpr);
 		}
 				
 		//schema.finalize();
@@ -173,7 +173,7 @@ public class JsonldParser {
 		// TODO this method should evolve when the abstract syntax of shape expressions is adapted so that it can be a reference
 		ShapeExpr resultExpr = null;
 		if (exprObj instanceof String) {
-			resultExpr = new ShapeExprRef(createShapeLabel(((String)exprObj)));
+			resultExpr = new ShapeExprRef(createShapeLabel(((String)exprObj),false));
 			setShapeId(resultExpr, Collections.EMPTY_MAP);
 			return resultExpr;
 		}
@@ -295,7 +295,7 @@ public class JsonldParser {
 		TripleExpr resultExpr = null;
 		
 		if (obj instanceof String) {
-			resultExpr = new TripleExprRef(createTripleLabel((String) obj));
+			resultExpr = new TripleExprRef(createTripleLabel((String) obj,false));
 			setTripleId(resultExpr, Collections.EMPTY_MAP);
 			return resultExpr;
 		}
@@ -657,18 +657,18 @@ public class JsonldParser {
 		return new DatatypeSetOfNodes(createIri(datatypeIri));
 	}
 	
-	private static ShapeExprLabel createShapeLabel (String string) {
+	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new ShapeExprLabel(createIri(string));
+			return new ShapeExprLabel(createIri(string),generated);
 		else 
-			return new ShapeExprLabel(RDF_FACTORY.createBNode(string));
+			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
 	}
 	
-	private static TripleExprLabel createTripleLabel (String string) {
+	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new TripleExprLabel(createIri(string));
+			return new TripleExprLabel(createIri(string),generated);
 		else 
-			return new TripleExprLabel(RDF_FACTORY.createBNode(string));
+			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
 	}
 
 	private static TCProperty createTCProperty(IRI iri, boolean isFwd){
@@ -716,18 +716,18 @@ public class JsonldParser {
 
 	private void setShapeId (ShapeExpr shape, Map map) {
 		if (map.containsKey("id")) {
-			shape.setId(createShapeLabel(getId(map)));
+			shape.setId(createShapeLabel(getId(map),false));
 		}else {
-			shape.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb)));
+			shape.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
 			shapeLabelNb++;
 		}
 	}
 	
 	private void setTripleId (TripleExpr triple, Map map) {
 		if (map.containsKey("id")) {
-			triple.setId(createTripleLabel(getId(map)));
+			triple.setId(createTripleLabel(getId(map),false));
 		}else {
-			triple.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb)));
+			triple.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
 			tripleLabelNb++;
 		}
 	}
