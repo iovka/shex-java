@@ -26,7 +26,7 @@ import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedLabelException;
+import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
@@ -58,7 +58,7 @@ public class SimpleSchemaConstructor {
 
 	private ShexSchema schema = new ShexSchema();
 	
-	public ShexSchema getSchema () throws UndefinedLabelException, CyclicReferencesException, NotStratifiedException {
+	public ShexSchema getSchema () throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		schema.finalize();
 		return this.schema;
 	}

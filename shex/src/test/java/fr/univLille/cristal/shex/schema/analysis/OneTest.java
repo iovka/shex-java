@@ -18,9 +18,6 @@ package fr.univLille.cristal.shex.schema.analysis;
 
 import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -36,7 +33,7 @@ import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class OneTestUndefinedReferences {
+public class OneTest {
 
 	
 	
@@ -65,15 +62,5 @@ public class OneTestUndefinedReferences {
 		}
 	}
 	
-	private static void printFile (Path schemaFile) {
-		try (BufferedReader reader = Files.newBufferedReader(schemaFile)) {
-		    String line = null;
-		    while ((line = reader.readLine()) != null) {
-		        System.out.println(line);
-		    }
-		} catch (IOException x) {
-		    System.err.format("IOException: %s%n", x);
-		}
-	}
 
 }

@@ -41,10 +41,6 @@ public class ShapeExprRef extends ShapeExpr {
 		return this.label;
 	}
 	
-	@Override
-	public String toString() {
-		return "@"+label.toString();
-	}
 
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
@@ -63,5 +59,13 @@ public class ShapeExprRef extends ShapeExpr {
 		return this.def;
 	}
 	
+	@Override
+	public Object toJsonLD() {
+		return label.toString();
+	}
 	
+	@Override
+	public String toString() {
+		return "@"+label.toString();
+	}
 }

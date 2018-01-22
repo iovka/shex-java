@@ -1,0 +1,9 @@
+test/success/validation/1dot-relative.json
+l6 : "id": "S1"        >> "id": "http://a.example/S1"
+l10: "predicate": "p1" >> "predicate" : "http://a.example/p1"
+l14: "predicate": "o1" >> "predicate" : "http://a.example/o1"
+
+
+modif manifest.json
+ - adding trait import for test cave with 1valExprRef-IV1 et 1valExprRefbnode-IV1
+

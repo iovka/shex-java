@@ -1,0 +1,25 @@
+{
+	"@context": "http://www.w3.org/ns/shex.jsonld",
+	"type": "Schema",
+	"shapes": [{
+		"id": "http://a.example/S1",
+		"type":"ShapeAnd",
+		"shapeExprs":["http://a.example/S2"]
+	},{
+		"id": "http://a.example/S2",
+		"type":"ShapeAnd",
+		"shapeExprs":["http://a.example/S3"]
+	},{
+		"id": "http://a.example/S3",
+		"type":"ShapeAnd",
+		"shapeExprs":["http://a.example/S4"]
+	},{
+		"id": "http://a.example/S4",
+		"type":"ShapeAnd",
+		"shapeExprs":["http://a.example/S5"]
+	},{
+		"id": "http://a.example/S5",
+		"type":"ShapeAnd",
+		"shapeExprs":["http://a.example/S1"]
+    }]
+}

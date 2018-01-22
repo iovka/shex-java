@@ -17,9 +17,18 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,9 +44,12 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.builder.GraphBuilder;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.github.jsonldjava.utils.JsonUtils;
+
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedLabelException;
+import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
@@ -61,7 +73,7 @@ import fr.univLille.cristal.shex.util.Pair;
 
 /** A ShEx schema.
  * 
- * An instance of this class is represents a well-defined schema, that is, all shape labels are defined, and the set of rules is stratified.
+ * An instance of this class represents a well-defined schema, that is, all shape labels are defined, and the set of rules is stratified.
  * The stratification is a most refined stratification.
  * 
  * @author Iovka Boneva
@@ -102,26 +114,27 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 	}
 	
 	
-	public void finalize () throws UndefinedLabelException, CyclicReferencesException, NotStratifiedException {
+	public void finalize () throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		// Collect all the ShapeExpr
 		Set<ShapeExpr> allShapes = SchemaRulesStaticAnalysis.collectAllShapes(this);
 		shapeMap = new HashMap<ShapeExprLabel,ShapeExpr>();
 		for(ShapeExpr shexp:allShapes) {
 			shapeMap.put(shexp.getId(),shexp);
-			//System.out.println(shexp.getId()+" : "+shexp.getClass());
 		}
 		
-		// Check shape references
+		// Check that all the shape references are defined
 		for (Map.Entry<ShapeExprLabel,ShapeExpr> entry:shapeMap.entrySet()){
 			if (entry.getValue() instanceof ShapeExprRef) {
 				ShapeExprRef ref = (ShapeExprRef) entry.getValue();
 				if (shapeMap.containsKey(ref.getLabel())) {
 					ref.setShapeDefinition(shapeMap.get(ref.getLabel()));
 				}else {
-					throw new UndefinedLabelException("Undefined shape label: " + ref.getLabel());
+					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
 				}
 			}
 		}
 		
+		// Collect all TripleExpr
 		Set<TripleExpr> allTriples = SchemaRulesStaticAnalysis.collectAllTriples(this);
 		tripleMap = new HashMap<TripleExprLabel,TripleExpr>();
 		for (TripleExpr tcexp:allTriples) {
@@ -129,18 +142,19 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 			//System.out.println(tcexp.getId()+" : "+tcexp.getClass());
 		}
 		
-		// Check triple references
+		// Check that all the triple references are defined
 		for (Map.Entry<TripleExprLabel,TripleExpr> entry:tripleMap.entrySet()){
 			if (entry.getValue() instanceof TripleExprRef) {
 				TripleExprRef ref = (TripleExprRef) entry.getValue();
 				if (tripleMap.containsKey(ref.getLabel())) {
 					ref.setTripleDefinition(tripleMap.get(ref.getLabel()));
 				}else {
-					throw new UndefinedLabelException("Undefined triple label: " + ref.getLabel());
+					throw new UndefinedReferenceException("Undefined triple label: " + ref.getLabel());
 				}
 			}
 		}
 		
+		// Check that there is no cycle in the definition of the references
 		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph();
 		TarjanSimpleCycles<Label,DefaultEdge> cyclesFinder = new TarjanSimpleCycles<Label,DefaultEdge>(referencesGraph);
 		List<List<Label>> allcycles = cyclesFinder.findSimpleCycles();
@@ -148,7 +162,7 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		if (! allcycles.isEmpty())
 			throw new CyclicReferencesException("Cyclic dependencies of refences found: " + allcycles);
 		
-		//Check stratification
+		//Starting to check and compute stratification
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.computeDependencesGraph();
 		
 		// Compute strongly connected components
@@ -165,8 +179,7 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 			}
 		}
 		
-		
-		//	Create a directed acyclic graph to compute topological sort
+		//	Create a directed acyclic graph to compute the topological sort
 		DirectedAcyclicGraph<Label,DefaultEdge> dag = new DirectedAcyclicGraph<Label,DefaultEdge>(DefaultEdge.class);
 		
 		// create an index map 
@@ -201,11 +214,6 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 				tmp.add((ShapeExprLabel) l);
 			stratification.add(tmp);
 		}
-		
-		
-		System.out.println("Startification");
-		for(Set<ShapeExprLabel> strat:stratification)
-			System.out.println(strat);
 	}
 
 	
@@ -231,7 +239,6 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
-			//set.add(new Pair<Label,Label>(expr.getId(),expr.getTripleExpression().getId()));
 			CollectGraphReferencesFromTriple visitor = new CollectGraphReferencesFromTriple(set);
 			expr.getTripleExpression().accept(visitor,arguments);
 		}
@@ -307,7 +314,6 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		
 		@Override
 		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-			//set.add(new Pair<Label,Label>(tc.getId(),tc.getShapeExpr().getId()));
 			CollectGraphReferencesFromShape visitor = new CollectGraphReferencesFromShape(set);
 			tc.getShapeExpr().accept(visitor,arguments);		}
 
@@ -336,16 +342,13 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 
 		for (Label label : this.shapeMap.keySet()) {
 			builder.addVertex(label);
-			//System.out.println(label+":"+shapeMap.get(label).getClass());
 		}
 		for (Label label : this.tripleMap.keySet()) {
 			builder.addVertex(label);
-			//System.out.println(label+":"+tripleMap.get(label).getClass());
 		}
 
 		for (Pair<Label,Label> edge : collector.getResult()) {
 			builder.addEdge(edge.one, edge.two);
-			//System.out.println(edge);
 		}
 		return builder.build();
 	}
@@ -388,7 +391,7 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 			
 			Set<TCProperty> extra = expr.getExtraProperties();
 			for(TripleConstraint texpr:triples) {
-				System.out.println(texpr.getProperty());
+				//System.out.println(texpr.getProperty());
 				if (extra.contains(texpr.getProperty())) {
 					Pair<Label,Label> edge =new Pair<Label,Label>(expr.getId(),texpr.getShapeExpr().getId());
 					set.add(new Pair<Pair<Label,Label>,Integer>(edge,-1));
@@ -498,21 +501,14 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		// build the graph
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
-
-		System.out.println("Nodes:");
 		for (Label label : this.shapeMap.keySet()) {
 			builder.addVertex(label);
-			System.out.println(label+":"+shapeMap.get(label).getClass());
 		}
-
-		System.out.println("\nEdges:");
 		for (Pair<Pair<Label,Label>,Integer> weightededge : collector.getResult()) {
 			double weight = weightededge.two;
 			Pair<Label,Label> edge = weightededge.one;
 			builder.addEdge(edge.one, edge.two,weight);
-			System.out.println(edge+":"+weight);
 		}
-		System.out.println();
 		return builder.build();
 	}
 	
@@ -550,6 +546,24 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 	
 	public List<Set<ShapeExprLabel>> getStratification() {
 		return this.stratification;
+	}
+	
+	
+	//-------------------------
+	//
+	//-------------------------
+	
+	public void toJsonLD(Path destination) throws JsonGenerationException, IOException {
+		Writer outputStream = new OutputStreamWriter(new FileOutputStream(destination.toFile()));
+		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
+		jsonObject.put("@context","http://www.w3.org/ns/shex.jsonld");
+		jsonObject.put("type","Schema");
+		List<Object> shapes = new LinkedList<Object>();
+		for (ShapeExpr sh:this.values()) {
+			shapes.add(sh.toJsonLD());
+		}
+		jsonObject.put("shapes", shapes);
+		JsonUtils.writePrettyPrint(outputStream, jsonObject);
 	}
 
 }

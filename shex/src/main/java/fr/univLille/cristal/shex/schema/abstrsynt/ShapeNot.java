@@ -19,6 +19,10 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**
@@ -50,16 +54,15 @@ public class ShapeNot extends ShapeExpr {
 		return String.format("(NOT %s)", subExpression.toString());
 	}
 	
-	/*
-	private ShapeOrExpression expressionDNF;
 	@Override
-	public void setDNF(ShapeOrExpression valueExpression){
-		expressionDNF = valueExpression;
+	public Object toJsonLD() {
+		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
+		jsonObject.put("type", "ShapeNot");
+		if (! this.id.isGenerated()) {
+			jsonObject.put("id", this.id.toString());
+		}
+		jsonObject.put("SHapeExpr", subExpression.toJsonLD());
+		return jsonObject;
 	}
-
-	@Override
-	public ShapeOrExpression getDNF() {
-		return expressionDNF;
-	}*/
 	
 }

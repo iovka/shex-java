@@ -17,6 +17,12 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 
@@ -69,14 +75,7 @@ public class TripleConstraint extends TripleExpr {
 	public ShapeExpr getShapeExpr(){
 		return shapeExpr;
 	}
-	
-	
-	@Override
-	public String toString() {
-		return String.format("%s::%s",
-				property.toString(),
-				shapeExpr.toString());
-	}
+
 
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
@@ -88,4 +87,24 @@ public class TripleConstraint extends TripleExpr {
 		return new TripleConstraint(this.property, (ShapeExprRef) this.shapeExpr, this.isSingleton);
 	}
 	
+	
+	@Override
+	public Object toJsonLD() {
+		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
+		jsonObject.put("type", "TripleConstraint");
+		if (! this.id.isGenerated()) {
+			jsonObject.put("id", this.id.toString());
+		}
+		jsonObject.put("predicate", this.property.toJsonLD());
+		jsonObject.put("valueExpr", this.shapeExpr.toJsonLD());
+		return jsonObject;	}
+	
+	@Override
+	public String toString() {
+		return String.format("%s::%s",
+				property.toString(),
+				shapeExpr.toString());
+	}
+
 }
+

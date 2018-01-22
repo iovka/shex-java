@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedLabelException;
+import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 
 /**
@@ -34,7 +34,7 @@ public class TestSchemaConstruction {
 	
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testMissingShapeDefinition() throws UndefinedLabelException, CyclicReferencesException, NotStratifiedException {
+	public void testMissingShapeDefinition() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addRule("SL1", se(tc("p :: SL")));
 		
@@ -42,7 +42,7 @@ public class TestSchemaConstruction {
 	}
 	
 	@Test
-	public void testTreeStructuredSchema10rules() throws UndefinedLabelException, CyclicReferencesException, NotStratifiedException {
+	public void testTreeStructuredSchema10rules() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		TripleExpr 

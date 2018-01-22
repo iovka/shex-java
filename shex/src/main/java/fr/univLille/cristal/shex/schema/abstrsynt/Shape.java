@@ -18,7 +18,12 @@ limitations under the License.
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
@@ -63,6 +68,24 @@ public class Shape extends ShapeExpr {
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShape(this, arguments);
+	}
+	
+	@Override
+	public Object toJsonLD() {
+		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
+		jsonObject.put("type", "Shape");
+		if (! this.id.isGenerated()) {
+			jsonObject.put("id", this.id.toString());
+		}
+		if (this.getExtraProperties().size()>0) {
+			List<Object> extraprops = new LinkedList<Object>();
+			for (TCProperty ex:this.getExtraProperties()) {
+				extraprops.add(ex.toJsonLD());
+			}
+			jsonObject.put("extra", extraprops);
+		}
+		jsonObject.put("expression", this.tripleExpr.toJsonLD());
+		return jsonObject;
 	}
 
 	@Override

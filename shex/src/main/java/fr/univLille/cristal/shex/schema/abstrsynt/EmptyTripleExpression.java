@@ -37,4 +37,10 @@ public class EmptyTripleExpression extends TripleExpr {
 		return "EMPTY";
 	}
 	
+	@Override
+	public Object toJsonLD() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

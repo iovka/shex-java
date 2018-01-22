@@ -21,13 +21,14 @@ package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
+import fr.univLille.cristal.shex.schema.parsing.ToJsonLD;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public abstract class ShapeExpr {
+public abstract class ShapeExpr implements ToJsonLD{
 	
 	protected ShapeExprLabel id = null;
 	

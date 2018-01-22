@@ -19,7 +19,11 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 import fr.univLille.cristal.shex.util.CollectionToString;
@@ -45,6 +49,21 @@ public class ShapeAnd extends AbstractNaryShapeExpr{
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShapeAnd(this, arguments);
+	}
+
+	@Override
+	public Object toJsonLD() {
+		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
+		jsonObject.put("type", "ShapeAnd");
+		if (! this.id.isGenerated()) {
+			jsonObject.put("id", this.id.toString());
+		}
+		List<Object> subexpressions = new LinkedList<Object>();
+		for (ShapeExpr sh:this.getSubExpressions()) {
+			subexpressions.add(sh.toJsonLD());
+		}
+		jsonObject.put("ShapeExprs", subexpressions);
+		return jsonObject;
 	}
 	
 }

@@ -1,0 +1,23 @@
+{
+	"@context": "http://www.w3.org/ns/shex.jsonld",
+	"type": "Schema",
+	"shapes": [{
+		"id": "http://a.example/S1",
+		"type":"Shape",
+		"shapeExprs":[{
+			"type": "NodeConstraint",
+			"nodeKind":"iri"
+		}]
+	},{
+		"id": "http://a.example/S2",
+		"type":"Shape",
+		"shapeExprs":[{
+			"type": "NodeConstraint",
+			"nodeKind":"iri"
+		}]
+	},{
+	    "id": "http://a.example/Root",
+	    "type":"ShapeAnd",
+	     "shapeExprs":["http://a.example/S1","http://a.example/S2","http://a.example/S3"]
+	}]
+}

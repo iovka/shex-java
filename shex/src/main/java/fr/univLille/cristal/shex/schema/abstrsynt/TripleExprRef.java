@@ -57,6 +57,12 @@ public class TripleExprRef extends TripleExpr {
 		visitor.visitTripleExprReference(this, arguments);
 	}
 	
+	@Override
+	public Object toJsonLD() {
+		return label.toString();
+	}
+	
+	@Override
 	public String toString() {
 		return "@"+label;
 	}

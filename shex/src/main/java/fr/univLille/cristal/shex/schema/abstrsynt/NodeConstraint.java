@@ -17,6 +17,12 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
@@ -43,6 +49,17 @@ public class NodeConstraint extends ShapeExpr {
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitNodeConstraint(this, arguments);
+	}
+	
+	@Override
+	public Object toJsonLD() {
+		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
+		jsonObject.put("type", "NodeConstraint");
+		if (! this.id.isGenerated()) {
+			jsonObject.put("id", this.id.toString());
+		}
+		//TODO: finish it....
+		return jsonObject;
 	}
 	
 	@Override

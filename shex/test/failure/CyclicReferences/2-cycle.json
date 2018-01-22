@@ -1,0 +1,56 @@
+{
+	"@context": "http://www.w3.org/ns/shex.jsonld",
+	"type": "Schema",
+	"shapes": [{
+		"id": "http://a.example/S",
+		"type":"ShapeAnd",
+		"shapeExprs":[{
+		    "id":"http://a.example/S1",
+			"type": "ShapeAnd",
+			"shapeExprs":["http://a.example/S7",
+		    {
+		        "id":"http://a.example/S4",
+			    "type": "Shape",
+			    "expression":{
+				    "type":"TripleConstraint",
+				    "predicate":"http://a.example/son",
+				    "valueExpr": {
+				    "type": "NodeConstraint", 
+				    "values": [ "http://schema.example/s4s" ] }
+			    }
+		    }]
+		},{
+		    "id":"http://a.example/S2",
+			"type": "ShapeAnd",
+			"shapeExprs":[{
+		        "id":"http://a.example/S5",
+			    "type": "Shape",
+			    "expression":{
+				    "type":"TripleConstraint",
+				    "predicate":"http://a.example/son",
+				    "valueExpr": {
+				    "type": "NodeConstraint", 
+				    "values": [ "http://schema.example/s5s" ] }
+			    }
+		    },{
+		        "id":"http://a.example/S6",
+			    "type": "Shape",
+			    "expression":{
+				    "type":"TripleConstraint",
+				    "predicate":"http://a.example/son",
+				    "valueExpr": {
+				    "type": "NodeConstraint", 
+				    "values": [ "http://schema.example/s6s" ] }
+			    }
+		    }]
+		}]
+
+	},{
+		"id": "http://a.example/S7",
+		"type":"ShapeOr",
+		"shapeExprs":[
+		    "http://a.example/S1",
+		    "http://a.example/S4"
+		]
+	}]
+}

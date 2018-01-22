@@ -1,0 +1,19 @@
+{
+	"@context": "http://www.w3.org/ns/shex.jsonld",
+	"type": "Schema",
+	"shapes": [{
+		"id": "http://a.example/S",
+		"type":"ShapeNot",
+		"shapeExpr":{
+		        "id":"http://a.example/S3",
+			    "type": "Shape",
+			    "expression":{
+				    "type":"TripleConstraint",
+				    "predicate":"http://a.example/son",
+				    "valueExpr": {
+				    "type": "NodeConstraint", 
+				    "values": [ "http://schema.example/s3s" ] }
+			    }
+		}
+	}]
+}
