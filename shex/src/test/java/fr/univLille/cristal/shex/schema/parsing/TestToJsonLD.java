@@ -23,7 +23,7 @@ public class TestToJsonLD {
 		ShexSchema schema = parser.parseSchema();
 		schema.finalize();
 		
-		Path destFile = Paths.get(Configuration.shexTestPath.toString(),"Output-ShapeExtra.json");;
+		Path destFile = Paths.get(Configuration.shexTestPath.toString(),"..","Output-ShapeExtra.json");;
 		schema.toJsonLD(destFile);
 	}
 

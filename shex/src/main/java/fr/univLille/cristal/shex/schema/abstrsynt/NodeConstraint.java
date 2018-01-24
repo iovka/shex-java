@@ -17,10 +17,7 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.rdf4j.model.Value;

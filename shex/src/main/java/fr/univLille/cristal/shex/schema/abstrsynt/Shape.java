@@ -18,7 +18,6 @@ limitations under the License.
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**

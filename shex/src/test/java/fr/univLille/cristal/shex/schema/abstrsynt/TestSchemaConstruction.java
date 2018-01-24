@@ -20,10 +20,8 @@ import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor
 
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.exception.CyclicReferencesException;
-import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 
 /**
  * 
@@ -34,7 +32,7 @@ public class TestSchemaConstruction {
 	
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void testMissingShapeDefinition() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	public void testMissingShapeDefinition() {
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addRule("SL1", se(tc("p :: SL")));
 		
@@ -42,10 +40,10 @@ public class TestSchemaConstruction {
 	}
 	
 	@Test
-	public void testTreeStructuredSchema10rules() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	public void testTreeStructuredSchema10rules() {
 		
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
-		TripleExpr 
+		NonRefTripleExpr 
 			te1 = tc("ex:a :: SL1"),
 			te3 = tc("ex:a :: SL3"),
 			te4 = someof("ex:a :: SL4 | ex:b :: SL4bis"),

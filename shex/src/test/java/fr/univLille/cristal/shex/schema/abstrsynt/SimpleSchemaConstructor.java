@@ -24,9 +24,6 @@ import java.util.List;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
-import fr.univLille.cristal.shex.exception.CyclicReferencesException;
-import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
@@ -41,6 +38,7 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.util.Interval;
@@ -58,7 +56,7 @@ public class SimpleSchemaConstructor {
 
 	private ShexSchema schema = new ShexSchema();
 	
-	public ShexSchema getSchema () throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	public ShexSchema getSchema () {
 		schema.finalize();
 		return this.schema;
 	}
@@ -83,7 +81,7 @@ public class SimpleSchemaConstructor {
 
 	
 	// Parses a possibly repeated triple expression
-	public static TripleExpr tc (String s) {
+	public static NonRefTripleExpr tc (String s) {
 		if (s.contains("#"))
 			return reptc(s);
 		else
@@ -148,11 +146,11 @@ public class SimpleSchemaConstructor {
 			return new EachOf(getTeExpressions(arg));
 	}
 
-	private static List<TripleExpr> getTeExpressions (Object... arg) {
-		List<TripleExpr> list = new ArrayList<>();
+	private static List<NonRefTripleExpr> getTeExpressions (Object... arg) {
+		List<NonRefTripleExpr> list = new ArrayList<>();
 		for (Object a : arg) {
-			asrt((a instanceof TripleExpr), "Not a triple expression " + a.toString());
-			list.add((TripleExpr)a);
+			asrt((a instanceof NonRefTripleExpr), "Not a triple expression " + a.toString());
+			list.add((NonRefTripleExpr)a);
 		}
 		return list;
 	}
@@ -167,8 +165,8 @@ public class SimpleSchemaConstructor {
 		return new EachOf(nary(s.split(";")));
 	}
 	
-	private static List<TripleExpr> nary(String[] x) {
-		List<TripleExpr> l = new ArrayList<>();
+	private static List<NonRefTripleExpr> nary(String[] x) {
+		List<NonRefTripleExpr> l = new ArrayList<>();
 		for (String y: x) {
 			l.add(tc(y));
 		}
@@ -176,8 +174,8 @@ public class SimpleSchemaConstructor {
 	}
 
 	public static ShapeExpr se (Object o) {
-		if (o instanceof TripleExpr)
-			return new Shape((TripleExpr)o);
+		if (o instanceof NonRefTripleExpr)
+			return new Shape((NonRefTripleExpr)o);
 		else if (o instanceof ShapeExpr)
 			return (ShapeExpr) o;
 		else 

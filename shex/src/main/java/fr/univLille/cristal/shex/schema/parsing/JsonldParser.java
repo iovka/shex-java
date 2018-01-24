@@ -122,7 +122,7 @@ public class JsonldParser {
 	
 	
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
-	public ShexSchema parseSchema() throws ParseException, UnsupportedOperationException  {
+	public ShexSchema parseSchema() throws ParseException  {
 		Map map = (Map) schemaObject;
 		
 		if (! "Schema".equals(getType(map))) {
