@@ -17,18 +17,9 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +34,6 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.builder.GraphBuilder;
-
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.github.jsonldjava.utils.JsonUtils;
 
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
@@ -173,8 +161,7 @@ public class ShexSchema {
 			}
 		}
 		
-		// add the edge
-		Set<DefaultEdge> edges = new HashSet<DefaultEdge>();
+		// add the edges
 		for(DefaultWeightedEdge wedge:dependecesGraph.edgeSet()) {
 			Label source = index.get(dependecesGraph.getEdgeSource(wedge));
 			Label target = index.get(dependecesGraph.getEdgeTarget(wedge));

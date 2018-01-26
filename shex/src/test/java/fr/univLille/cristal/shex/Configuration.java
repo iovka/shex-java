@@ -17,7 +17,7 @@ import java.util.Set;
 import com.github.jsonldjava.utils.JsonUtils;
 
 public class Configuration {
-	public static Path shexTestPath = Paths.get("test");
+	public static Path shexTestPath = Paths.get("src","test","ressources");
 	public static Path manifest_json = Paths.get("test","success","validation","manifest.jsonld");
 	
 	

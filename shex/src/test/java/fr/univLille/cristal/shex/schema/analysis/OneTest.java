@@ -39,9 +39,9 @@ public class OneTest {
 	
 	@Test
 	public void parse (){
-		Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"success","TestExtra","ShapeExtra.json");;
+		Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"success","TestStratification","ShapeExtra.json");;
 		//Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"failure","CyclicReferences","TripleReferences.json");;
-		int status = 1;
+		int status = 0;
 		try {
 			JsonldParser parser = new JsonldParser(schemaFile);
 			ShexSchema schema = parser.parseSchema();

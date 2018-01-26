@@ -408,24 +408,26 @@ public class ConverterFromShaclex {
 			if (trExp.id().nonEmpty()) {
 				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
 			}else {
-				tripleRes.setId(createTripleLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
-				shapeLabelNb++;
-			}		}
+				tripleRes.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
+				tripleLabelNb++;
+			}	
+		}
 		if (triple instanceof es.weso.shex.OneOf) {
 			es.weso.shex.OneOf  trExp = (es.weso.shex.OneOf) triple;
 			if (trExp.id().nonEmpty()) {
 				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
 			}else {
-				tripleRes.setId(createTripleLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
-				shapeLabelNb++;
-			}		}
+				tripleRes.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
+				tripleLabelNb++;
+			}		
+		}
 		if (triple instanceof es.weso.shex.TripleConstraint) {
 			es.weso.shex.TripleConstraint  trExp = (es.weso.shex.TripleConstraint) triple;
 			if (trExp.id().nonEmpty()) {
 				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
 			}else {
-				tripleRes.setId(createTripleLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
-				shapeLabelNb++;
+				tripleRes.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
+				tripleLabelNb++;
 			}
 		}
 	}
