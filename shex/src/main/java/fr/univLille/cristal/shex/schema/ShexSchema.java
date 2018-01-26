@@ -80,47 +80,23 @@ import fr.univLille.cristal.shex.util.Pair;
  * @author Antonin Durey
  * @author Jérémie Dusart
  */
-public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Map<ShapeExprLabel, ShapeExpr> {
-	private boolean finalized = false;
+public class ShexSchema {
 	private List<Set<ShapeExprLabel>> stratification = null;
+	private Map<ShapeExprLabel, ShapeExpr> rules;
 	private Map<ShapeExprLabel,ShapeExpr> shapeMap;
 	private Map<TripleExprLabel,TripleExpr> tripleMap;
 
 	
-	@Override
-	public ShapeExpr put(ShapeExprLabel key, ShapeExpr value) {
-		if (finalized)
-			throw new IllegalStateException("A finalized schema cannot be modified");
-		return super.put(key,value);
-	}
-
-	@Override
-	public void putAll(Map<? extends ShapeExprLabel,? extends ShapeExpr> m) {
-		if (finalized)
-			throw new IllegalStateException("A finalized schema cannot be modified");
-		super.putAll(m);
-	}
-	
-	@Override
-	public ShapeExpr remove(Object key) {
-		if (finalized)
-			throw new IllegalStateException("A finalized schema cannot be modified");
-		return super.remove(key);
-	}
-	
-	@Override
-	public String toString() {
-		return super.toString();
-	}
-	
-	
-	public void finalize () throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	public ShexSchema(Map<ShapeExprLabel, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		this.rules = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(rules));
+		
 		// Collect all the ShapeExpr
-		Set<ShapeExpr> allShapes = SchemaRulesStaticAnalysis.collectAllShapes(this);
-		shapeMap = new HashMap<ShapeExprLabel,ShapeExpr>();
+		Set<ShapeExpr> allShapes = SchemaRulesStaticAnalysis.collectAllShapes(this.rules);
+		Map<ShapeExprLabel,ShapeExpr> shapeMapTmp = new HashMap<ShapeExprLabel,ShapeExpr>();
 		for(ShapeExpr shexp:allShapes) {
-			shapeMap.put(shexp.getId(),shexp);
+			shapeMapTmp.put(shexp.getId(),shexp);
 		}
+		this.shapeMap = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(shapeMapTmp));
 		
 		// Check that all the shape references are defined
 		for (Map.Entry<ShapeExprLabel,ShapeExpr> entry:shapeMap.entrySet()){
@@ -135,12 +111,12 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 		}
 		
 		// Collect all TripleExpr
-		Set<TripleExpr> allTriples = SchemaRulesStaticAnalysis.collectAllTriples(this);
-		tripleMap = new HashMap<TripleExprLabel,TripleExpr>();
+		Set<TripleExpr> allTriples = SchemaRulesStaticAnalysis.collectAllTriples(this.rules);
+		Map<TripleExprLabel,TripleExpr> tripleMapTmp = new HashMap<TripleExprLabel,TripleExpr>();
 		for (TripleExpr tcexp:allTriples) {
-			tripleMap.put(tcexp.getId(),tcexp);
-			//System.out.println(tcexp.getId()+" : "+tcexp.getClass());
+			tripleMapTmp.put(tcexp.getId(),tcexp);
 		}
+		tripleMap = Collections.unmodifiableMap(new HashMap<TripleExprLabel,TripleExpr>(tripleMapTmp));
 		
 		// Check that all the triple references are defined
 		for (Map.Entry<TripleExprLabel,TripleExpr> entry:tripleMap.entrySet()){
@@ -217,10 +193,23 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 	}
 
 	
+	public Map<ShapeExprLabel, ShapeExpr> getRules() {
+		return rules;
+	}
+
+	public Map<ShapeExprLabel, ShapeExpr> getShapeMap() {
+		return shapeMap;
+	}
+
+	public Map<TripleExprLabel, TripleExpr> getTripleMap() {
+		return tripleMap;
+	}
+
+	
 	//--------------------------------------------------------------------------------
 	// Graph References computation
 	//--------------------------------------------------------------------------------
-	
+
 	class CollectGraphReferencesFromShape extends ShapeExpressionVisitor<Set<Pair<Label,Label>>> {
 		private Set<Pair<Label,Label>> set;
 
@@ -332,7 +321,7 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 	private DefaultDirectedGraph<Label,DefaultEdge> computeReferencesGraph () {
 		// Visit the schema to collect the references
 		CollectGraphReferencesFromShape collector = new CollectGraphReferencesFromShape();
-		for (ShapeExpr expr: this.values()) {
+		for (ShapeExpr expr: this.rules.values()) {
 			expr.accept(collector);
 		}
 		
@@ -546,24 +535,6 @@ public class ShexSchema extends HashMap<ShapeExprLabel, ShapeExpr> implements Ma
 	
 	public List<Set<ShapeExprLabel>> getStratification() {
 		return this.stratification;
-	}
-	
-	
-	//-------------------------
-	//
-	//-------------------------
-	
-	public void toJsonLD(Path destination) throws JsonGenerationException, IOException {
-		Writer outputStream = new OutputStreamWriter(new FileOutputStream(destination.toFile()));
-		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
-		jsonObject.put("@context","http://www.w3.org/ns/shex.jsonld");
-		jsonObject.put("type","Schema");
-		List<Object> shapes = new LinkedList<Object>();
-		for (ShapeExpr sh:this.values()) {
-			shapes.add(sh.toJsonLD());
-		}
-		jsonObject.put("shapes", shapes);
-		JsonUtils.writePrettyPrint(outputStream, jsonObject);
 	}
 
 }

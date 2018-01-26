@@ -69,7 +69,6 @@ public class TestStratification {
 		try {
 			JsonldParser parser = new JsonldParser(schemaFile);
 			ShexSchema schema = parser.parseSchema();
-			schema.finalize();
 		}catch(NotStratifiedException e) {
 			if (status!=1) {
 				fail("Error: schema not stratified for test: "+schemaFile+".");

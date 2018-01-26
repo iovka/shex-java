@@ -45,7 +45,6 @@ public class OneTest {
 		try {
 			JsonldParser parser = new JsonldParser(schemaFile);
 			ShexSchema schema = parser.parseSchema();
-			schema.finalize();
 			if (status==1) {
 				fail("Error : test success but it should fail.");
 			}

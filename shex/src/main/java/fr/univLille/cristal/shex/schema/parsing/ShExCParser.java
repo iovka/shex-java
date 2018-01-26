@@ -6,6 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import es.weso.shex.Schema;
+import fr.univLille.cristal.shex.exception.CyclicReferencesException;
+import fr.univLille.cristal.shex.exception.NotStratifiedException;
+import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import scala.util.Try;
 
 public class ShExCParser {
@@ -14,11 +17,11 @@ public class ShExCParser {
 		return new String(encoded, Charset.defaultCharset());
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		String fileContent = readFile("../../shexTest/schemas/1bnodeRef1.shex");
 		Try<Schema> trySchema = Schema.fromString(fileContent, "SHEXC",null);
 		Schema sh = trySchema.get();
-		ShaclexConverter converter = new ShaclexConverter(sh);
+		ConverterFromShaclex converter = new ConverterFromShaclex(sh);
 		converter.convert();
 	}
 }

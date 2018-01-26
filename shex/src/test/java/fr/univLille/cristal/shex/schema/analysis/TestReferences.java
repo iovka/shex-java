@@ -73,7 +73,6 @@ public class TestReferences {
 		try {
 			JsonldParser parser = new JsonldParser(schemaFile);
 			ShexSchema schema = parser.parseSchema();
-			schema.finalize();
 		}catch(UndefinedReferenceException e) {
 			if (status!=1) {
 				fail("Error: undefined reference catch on test ("+schemaFile+")");

@@ -40,6 +40,9 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.utils.JsonUtils;
 
+import fr.univLille.cristal.shex.exception.CyclicReferencesException;
+import fr.univLille.cristal.shex.exception.NotStratifiedException;
+import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
@@ -122,7 +125,7 @@ public class JsonldParser {
 	
 	
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
-	public ShexSchema parseSchema() throws ParseException  {
+	public ShexSchema parseSchema() throws ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException  {
 		Map map = (Map) schemaObject;
 		
 		if (! "Schema".equals(getType(map))) {
@@ -141,8 +144,8 @@ public class JsonldParser {
 		
 		// TODO: what happens if neither start not shapes ?
 
-		ShexSchema schema = new ShexSchema();
 		
+		Map<ShapeExprLabel,ShapeExpr> rules = new HashMap<ShapeExprLabel,ShapeExpr>();
 		// FIXME: to remove eventually
 		addAcceptsAllRule();
 		
@@ -150,9 +153,9 @@ public class JsonldParser {
 			Map shape = (Map) shapeObj;
 			String label = getId(shape);
 			ShapeExpr shexpr = parseShapeExpression(shape);
-			schema.put(createShapeLabel(label,false), shexpr);
+			rules.put(createShapeLabel(label,false), shexpr);
 		}
-				
+		ShexSchema schema = new ShexSchema(rules);
 		//schema.finalize();
 		return schema;
 	}
