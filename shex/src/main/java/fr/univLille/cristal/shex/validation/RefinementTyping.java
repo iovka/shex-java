@@ -25,7 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
@@ -41,7 +42,7 @@ public class RefinementTyping implements Typing {
 	
 	private ShexSchema schema;
 	private RDFGraph graph;
-	private List<Set<Pair<Resource, ShapeExprLabel>>> theTyping;
+	private List<Set<Pair<Value, ShapeExprLabel>>> theTyping;
 	
 	public RefinementTyping(ShexSchema schema, RDFGraph graph) {
 		this.schema = schema;
@@ -52,31 +53,31 @@ public class RefinementTyping implements Typing {
 		}
 	}
 
-	public void addAllLabelsFrom(int stratum, Resource focusNode) {
+	public void addAllLabelsFrom(int stratum, Value focusNode) {
 		Set<ShapeExprLabel> labels = schema.getStratum(stratum);
-		Set<Pair<Resource, ShapeExprLabel>> set = theTyping.get(stratum);
+		Set<Pair<Value, ShapeExprLabel>> set = theTyping.get(stratum);
 		for (ShapeExprLabel label: labels) {
-			for (Resource res : graph.getAllResources())
+			for (Value res : graph.getAllNodes())
 				set.add(new Pair<>(res, label));
 			if (focusNode != null)
 				set.add(new Pair<>(focusNode, label));
 		}
 	}
 	
-	public Iterator<Pair<Resource, ShapeExprLabel>> typesIterator (int stratum) {
+	public Iterator<Pair<Value, ShapeExprLabel>> typesIterator (int stratum) {
 		return theTyping.get(stratum).iterator();
 	}
 	
 	@Override
-	public boolean contains (Resource node, ShapeExprLabel label) {
+	public boolean contains (Value node, ShapeExprLabel label) {
 		return theTyping.get(schema.hasStratum(label)).contains(new Pair<>(node, label));
 	}
 	
 	
 	@Override
-	public Set<Pair<Resource, ShapeExprLabel>> asSet() {
-		Set<Pair<Resource, ShapeExprLabel>> set = new HashSet<>();
-		for (Set<Pair<Resource, ShapeExprLabel>> subset : theTyping)
+	public Set<Pair<Value, ShapeExprLabel>> asSet() {
+		Set<Pair<Value, ShapeExprLabel>> set = new HashSet<>();
+		for (Set<Pair<Value, ShapeExprLabel>> subset : theTyping)
 			set.addAll(subset);
 		
 		return set;

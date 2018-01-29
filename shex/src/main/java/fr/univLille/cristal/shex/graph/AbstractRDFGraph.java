@@ -27,15 +27,15 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 
 /** Helper implementation of {@link RDF}.
- * Implementing classes need to implement only the methods {@link RDFGraph#getAllResources()}, {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)}.
+ * Implementing classes need to implement only the methods {@link RDFGraph#getAllNodes()}, {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)}.
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- *
+ * 
  */
 abstract class AbstractRDFGraph implements RDFGraph {
  
-	protected abstract Iterator<NeighborTriple> itOutNeighbours (Resource focusNode);
+	protected abstract Iterator<NeighborTriple> itOutNeighbours (Value focusNode);
 	protected abstract Iterator<NeighborTriple> itInNeighbours (Value focusNode);
 	
 	private Iterator<NeighborTriple> itAllNeighbours (final Value focusNode) {
@@ -79,8 +79,7 @@ abstract class AbstractRDFGraph implements RDFGraph {
 		return listNeighbours(itAllNeighbours(focusNode));
 	}
 
-	@Override
-	public List<NeighborTriple> listOutNeighbours(Resource focusNode) {
+	public List<NeighborTriple> listOutNeighbours(Value focusNode) {
 		if (! (focusNode instanceof Resource))
 			return Collections.emptyList();
 		return listNeighbours(itOutNeighbours((Resource) focusNode));

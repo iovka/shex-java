@@ -30,7 +30,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.univLille.cristal.shex.Configuration;
+import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
@@ -44,14 +44,14 @@ import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 public class TestStratification {
 	@Parameters
 	public static Collection<Object[]> data() throws IOException {
-		Path testStratification = Paths.get(Configuration.shexTestPath.toString(),"success","TestStratification");
-		List<Object[]> listOfParameters = Configuration.getTestFromDirectory(testStratification, 0);
+		Path testStratification = Paths.get(ConfigurationTest.shexTestPath.toString(),"success","TestStratification");
+		List<Object[]> listOfParameters = ConfigurationTest.getTestFromDirectory(testStratification, 0);
 		
-		Path errorStratification = Paths.get(Configuration.shexTestPath.toString(),"failure","TestExtra");
-		listOfParameters.addAll(Configuration.getTestFromDirectory(errorStratification, 1));
+		Path errorStratification = Paths.get(ConfigurationTest.shexTestPath.toString(),"failure","TestExtra");
+		listOfParameters.addAll(ConfigurationTest.getTestFromDirectory(errorStratification, 1));
 		
-		errorStratification = Paths.get(Configuration.shexTestPath.toString(),"failure","TestNot");
-		listOfParameters.addAll(Configuration.getTestFromDirectory(errorStratification, 1));
+		errorStratification = Paths.get(ConfigurationTest.shexTestPath.toString(),"failure","TestNot");
+		listOfParameters.addAll(ConfigurationTest.getTestFromDirectory(errorStratification, 1));
 		
 		return listOfParameters;
 	}

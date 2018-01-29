@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
-import fr.univLille.cristal.shex.schema.abstrsynt.ASTElement;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
@@ -40,14 +40,6 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
-import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
-import fr.univLille.cristal.shex.schema.analysis.CollectASTElementsS;
-import fr.univLille.cristal.shex.schema.analysis.ComputeListsOfTripleConstraintsVisitor;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationAdditionalShapeDefinitions;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationListsOfTripleConstraintsOnTripleExpressions;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationMentionedPropertiesOnShapes;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationShapesWithTripleExressionsForValidation;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationUsesInversePropertiesOnShapes;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 import fr.univLille.cristal.shex.util.Pair;
 
@@ -72,23 +64,31 @@ public class RefineValidation implements ValidationAlgorithm {
 		super();
 		this.graph = graph;
 		this.schema = schema;
-		InstrumentationAdditionalShapeDefinitions.getInstance().apply(schema);
-		InstrumentationUsesInversePropertiesOnShapes.getInstance().apply(schema);
-		allRules = (Map<ShapeExprLabel, ShapeExpr>) schema.getDynamicAttributes().get(InstrumentationAdditionalShapeDefinitions.getInstance().getKey());
-		InstrumentationShapesWithTripleExressionsForValidation.getInstance().apply(allRules);
-		
-		Set<Shape> allShapes = new HashSet<>();
-		CollectASTElementsS<Shape> collector = new CollectASTElementsS<Shape>((ASTElement ast) -> ast.getClass().equals(Shape.class), 
-																					allShapes, false);
-		
-		for (Shape shape : collector.getResult()) {
-			InstrumentationMentionedPropertiesOnShapes.getInstance().apply(shape);
-			TripleExpr texpr = shape.getTripleExpression();
-			ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
-			texpr.accept(visitor);
-			Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
-			InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(texpr, map);			
-		}
+//		// I believe that the change that I performed in the schema make the following useless
+//		// Maybe not since additionnal rules are only the roots...
+//		InstrumentationAdditionalShapeDefinitions.getInstance().apply(schema);
+//		// The following compute if a shape contains an inverse property
+//		InstrumentationUsesInversePropertiesOnShapes.getInstance().apply(schema);
+//		// Collect all the rules
+//		allRules = (Map<ShapeExprLabel, ShapeExpr>) schema.getDynamicAttributes().get(InstrumentationAdditionalShapeDefinitions.getInstance().getKey());
+//		InstrumentationShapesWithTripleExressionsForValidation.getInstance().apply(allRules);
+//		
+//		
+//		// collect all the shape that have a triple expression
+//		// -> enumerate all shape and compute if type is shape
+//		// The goal is easy acces to all the TC definition but we lose the structure
+//		Set<Shape> allShapes = new HashSet<>();
+//		CollectASTElementsS<Shape> collector = new CollectASTElementsS<Shape>((ASTElement ast) -> ast.getClass().equals(Shape.class), 
+//																					allShapes, false);
+//		//For each triple expression compute the list of dependent tripleconstraint
+//		for (Shape shape : collector.getResult()) {
+//			InstrumentationMentionedPropertiesOnShapes.getInstance().apply(shape);
+//			TripleExpr texpr = shape.getTripleExpression();
+//			ComputeListsOfTripleConstraintsVisitor visitor = new ComputeListsOfTripleConstraintsVisitor();
+//			texpr.accept(visitor);
+//			Map<TripleExpr, List<TripleConstraint>> map = visitor.getResult();
+//			InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().apply(texpr, map);			
+//		}
 	}
 	
 	@Override
@@ -97,7 +97,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 	
 	@Override
-	public void validate(Resource focusNode, ShapeExprLabel label) {
+	public void validate(Value focusNode, ShapeExprLabel label) {
 		this.typing = new RefinementTyping(schema, graph);
 
 		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
@@ -106,9 +106,9 @@ public class RefineValidation implements ValidationAlgorithm {
 			boolean changed;
 			do {
 				changed = false;
-				Iterator<Pair<Resource, ShapeExprLabel>> typesIt = typing.typesIterator(stratum);
+				Iterator<Pair<Value, ShapeExprLabel>> typesIt = typing.typesIterator(stratum);
 				while (typesIt.hasNext()) {
-					Pair<Resource, ShapeExprLabel> nl = typesIt.next();
+					Pair<Value, ShapeExprLabel> nl = typesIt.next();
 					if (! isLocallyValid(nl)) {
 						typesIt.remove();
 						changed = true;
@@ -119,19 +119,19 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 
 	
-	private boolean isLocallyValid(Pair<Resource, ShapeExprLabel> nl) {
+	private boolean isLocallyValid(Pair<Value, ShapeExprLabel> nl) {
 		EvaluateShapeExpressionOnNonLiteralVisitor visitor = new EvaluateShapeExpressionOnNonLiteralVisitor(nl.one);
-		schema.get(nl.two).accept(visitor);
+		schema.getRules().get(nl.two).accept(visitor);
 		return visitor.getResult();
 	}
 	
 	class EvaluateShapeExpressionOnNonLiteralVisitor extends ShapeExpressionVisitor<Boolean> {
 		
-		private Resource node; 
+		private Value node; 
 		private Boolean result;
 		
-		public EvaluateShapeExpressionOnNonLiteralVisitor(Resource node) {
-			this.node = node;
+		public EvaluateShapeExpressionOnNonLiteralVisitor(Value one) {
+			this.node = one;
 		}
 
 		@Override
@@ -183,36 +183,36 @@ public class RefineValidation implements ValidationAlgorithm {
 		}
 	}
 	
-	private boolean isLocallyValid (Resource node, Shape shape) {
+	private boolean isLocallyValid (Value node, Shape shape) {
 		
-		NonRefTripleExpr tripleExpression = (NonRefTripleExpr) shape.getDynamicAttributes().get(InstrumentationShapesWithTripleExressionsForValidation.getInstance().getKey());
-		List<NeighborTriple> neighbourhood = getNeighbourhood(node, shape);
-		@SuppressWarnings("unchecked")
-		List<TripleConstraint> constraints = (List<TripleConstraint>) tripleExpression.getDynamicAttributes().get(InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().getKey());
-		
-		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 
-		
-		List<List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
-		
-		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		BagIterator bagIt = new BagIterator(matchingTC);
-		
-		IntervalComputation intervalComputation = new IntervalComputation();
-		
-		while(bagIt.hasNext()){
-			Bag bag = bagIt.next();
-			tripleExpression.accept(intervalComputation, bag);
-			if (intervalComputation.getResult().contains(1))
-				return true;
-		}
+//		NonRefTripleExpr tripleExpression = (NonRefTripleExpr) shape.getDynamicAttributes().get(InstrumentationShapesWithTripleExressionsForValidation.getInstance().getKey());
+//		List<NeighborTriple> neighbourhood = getNeighbourhood(node, shape);
+//		@SuppressWarnings("unchecked")
+//		List<TripleConstraint> constraints = (List<TripleConstraint>) tripleExpression.getDynamicAttributes().get(InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().getKey());
+//		
+//		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 
+//		
+//		List<List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
+//		
+//		// Create a BagIterator for all possible bags induced by the matching triple constraints
+//		BagIterator bagIt = new BagIterator(matchingTC);
+//		
+//		IntervalComputation intervalComputation = new IntervalComputation();
+//		
+//		while(bagIt.hasNext()){
+//			Bag bag = bagIt.next();
+//			tripleExpression.accept(intervalComputation, bag);
+//			if (intervalComputation.getResult().contains(1))
+//				return true;
+//		}
 
 		return false;
 	}
 
-	private List<NeighborTriple> getNeighbourhood(Resource node, Shape shape) {
-		if ((Boolean) (shape.getDynamicAttributes().get(InstrumentationUsesInversePropertiesOnShapes.getInstance().getKey())))
-			return graph.listAllNeighbours(node);
-		else 
-			return graph.listOutNeighbours(node);
-	}	
+//	private List<NeighborTriple> getNeighbourhood(Resource node, Shape shape) {
+//		if ((Boolean) (shape.getDynamicAttributes().get(InstrumentationUsesInversePropertiesOnShapes.getInstance().getKey())))
+//			return graph.listAllNeighbours(node);
+//		else 
+//			return graph.listOutNeighbours(node);
+//	}	
 }

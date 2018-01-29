@@ -30,7 +30,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.univLille.cristal.shex.Configuration;
+import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.schema.ShexSchema;
@@ -45,14 +45,14 @@ import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 public class TestReferences {
 	@Parameters
 	public static Collection<Object[]> data() throws IOException {
-		Path testReferences = Paths.get(Configuration.shexTestPath.toString(),"success","TestReferences");
-		List<Object[]> listOfParameters = Configuration.getTestFromDirectory(testReferences, 0);
+		Path testReferences = Paths.get(ConfigurationTest.shexTestPath.toString(),"success","TestReferences");
+		List<Object[]> listOfParameters = ConfigurationTest.getTestFromDirectory(testReferences, 0);
 		
-		Path undefinedReferences = Paths.get(Configuration.shexTestPath.toString(),"failure","UndefinedReference");
-		listOfParameters.addAll(Configuration.getTestFromDirectory(undefinedReferences, 1));
+		Path undefinedReferences = Paths.get(ConfigurationTest.shexTestPath.toString(),"failure","UndefinedReference");
+		listOfParameters.addAll(ConfigurationTest.getTestFromDirectory(undefinedReferences, 1));
 		
-		Path cyclicReferences = Paths.get(Configuration.shexTestPath.toString(),"failure","CyclicReferences");
-		listOfParameters.addAll(Configuration.getTestFromDirectory(cyclicReferences, 2));
+		Path cyclicReferences = Paths.get(ConfigurationTest.shexTestPath.toString(),"failure","CyclicReferences");
+		listOfParameters.addAll(ConfigurationTest.getTestFromDirectory(cyclicReferences, 2));
 		
 		
 		

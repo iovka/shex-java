@@ -39,7 +39,7 @@ import org.junit.Test;
 import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.utils.JsonUtils;
 
-import fr.univLille.cristal.shex.Configuration;
+import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -69,7 +69,7 @@ public class TestJsonldParser {
 //			paths[i]=Paths.get(Configuration.shexTextPath.toString(),"schemas",selected[i]+".json");
 //		}
 		
-		InputStream inputStream = new FileInputStream(Configuration.manifest_json.toFile());
+		InputStream inputStream = new FileInputStream(ConfigurationTest.manifest_json.toFile());
 		Object manifest = JsonUtils.fromInputStream(inputStream);
 		
 		List<Map> tests = (List<Map>) ((Map) ((List) ((Map) manifest).get("@graph")).get(0)).get("entries");
@@ -81,7 +81,7 @@ public class TestJsonldParser {
 			if (!(traits.contains("Stem") | traits.contains("SemanticAction") | traits.contains("Start"))) {
 				Map action = (Map) test.get("action");
 				String jsonPath = ((String) action.get("schema")).replaceAll(".shex", ".json");
-				Path path = Paths.get(Configuration.shexTestPath.toString(),"success","validation",jsonPath).normalize();
+				Path path = Paths.get(ConfigurationTest.shexTestPath.toString(),"success","validation",jsonPath).normalize();
 				if (path.toFile().exists()) {
 					selectedSchema.add(path);
 				}

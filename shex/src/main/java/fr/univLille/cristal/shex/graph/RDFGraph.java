@@ -52,12 +52,12 @@ public interface RDFGraph {
 	 * @param focusNode
 	 * @return
 	 */
-	public List<NeighborTriple> listOutNeighbours (Resource focusNode);
+	public List<NeighborTriple> listOutNeighbours (Value focusNode);
 
 
 	/** The set of all resources in the graph.
 	 * 
 	 * @return
 	 */
-	public Set<Resource> getAllResources ();
+	public Set<Value> getAllNodes ();
 }

@@ -19,6 +19,7 @@ package fr.univLille.cristal.shex.graph;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.Model;
@@ -35,7 +36,7 @@ import org.eclipse.rdf4j.model.util.Models;
 public class RDF4JGraph extends AbstractRDFGraph {
 	
 	private Model rdf4jModel;
-	private Set<Resource> allResources;
+	private Set<Value> allResources;
 	
 	public RDF4JGraph(Model rdf4jModel) {
 		super();
@@ -43,33 +44,46 @@ public class RDF4JGraph extends AbstractRDFGraph {
 	}
 
 	@Override
-	public Set<Resource> getAllResources() {
+	public Set<Value> getAllNodes() {
 		if (allResources != null)
 			return allResources;
 		
-		allResources = new HashSet<>();
-		allResources.addAll(Models.objectResources(rdf4jModel));
-		allResources.addAll(Models.subjectBNodes(rdf4jModel));
-		allResources.addAll(Models.subjectIRIs(rdf4jModel));
+		allResources = new HashSet<Value>();
+		allResources.addAll(rdf4jModel.objects());
+		allResources.addAll(rdf4jModel.subjects());
 		return allResources;
 	}
 
 	@Override
-	protected Iterator<NeighborTriple> itOutNeighbours(Resource focusNode) {
-		return new Iterator<NeighborTriple>() {
-
-			Iterator<Statement> it = rdf4jModel.filter(focusNode, null, null).iterator();
-			
-			@Override
-			public boolean hasNext() {
-				return it.hasNext();
-			}
-
-			@Override
-			public NeighborTriple next() {
-				return newFwTriple(it.next());
-			}
-		};
+	protected Iterator<NeighborTriple> itOutNeighbours(Value focusNode) {
+		if (focusNode instanceof Resource) {
+			return new Iterator<NeighborTriple>() {
+	
+				Iterator<Statement> it = rdf4jModel.filter((Resource) focusNode, null, null).iterator();
+				
+				@Override
+				public boolean hasNext() {
+					return it.hasNext();
+				}
+	
+				@Override
+				public NeighborTriple next() {
+					return newFwTriple(it.next());
+				}
+			};
+		}else {
+			return new Iterator<NeighborTriple>() {				
+				@Override
+				public boolean hasNext() {
+					return false;
+				}
+	
+				@Override
+				public NeighborTriple next() {
+					return null;
+				}
+			};
+		}
 	}
 
 	@Override
@@ -99,4 +113,5 @@ public class RDF4JGraph extends AbstractRDFGraph {
 	private NeighborTriple newBwdTriple(Statement st) {
 		return new NeighborTriple(st.getObject(), TCProperty.createInvProperty(st.getPredicate()), st.getSubject());
 	}
+
 }

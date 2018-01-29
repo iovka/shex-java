@@ -14,12 +14,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+
 import com.github.jsonldjava.utils.JsonUtils;
 
-public class Configuration {
+public class ConfigurationTest {
 	public static Path shexTestPath = Paths.get("src","test","ressources");
 	public static Path manifest_json = Paths.get("test","success","validation","manifest.jsonld");
-	
+	public static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+
 	
 	public static List<Object[]> getTestFromDirectory(Path testDirectory,int result) throws IOException{
 		List<Object[]> listOfParameters = new LinkedList<Object[]>();
@@ -43,7 +47,7 @@ public class Configuration {
 	public static List<Object[]> getJsonTestFromManifest(Set<String> excludedTraits) throws IOException{
 		List<Object[]> listOfParameters = new LinkedList<Object[]>();
 		
-		InputStream inputStream = new FileInputStream(Configuration.manifest_json.toFile());
+		InputStream inputStream = new FileInputStream(ConfigurationTest.manifest_json.toFile());
 		Object manifest = JsonUtils.fromInputStream(inputStream);
 		
 		List<Map> tests = (List<Map>) ((Map) ((List) ((Map) manifest).get("@graph")).get(0)).get("entries");
@@ -63,7 +67,7 @@ public class Configuration {
 			if (useThisTest) {
 				Map action = (Map) test.get("action");
 				String jsonPath = ((String) action.get("schema")).replaceAll(".shex", ".json");
-				Path path = Paths.get(Configuration.shexTestPath.toString(),"success","validation",jsonPath).normalize();
+				Path path = Paths.get(ConfigurationTest.shexTestPath.toString(),"success","validation",jsonPath).normalize();
 				if (path.toFile().exists()) {
 					selectedSchema.add(path);
 				}

@@ -18,6 +18,7 @@ limitations under the License.
 package fr.univLille.cristal.shex.validation;
 
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
@@ -69,7 +70,7 @@ public interface ValidationAlgorithm {
 	 * @param focusNode The focus node for which the typing is to be complete. If null, then the typing will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
 	 * @param label The label for which the typing is to be complete. If null, then the typing will be complete for all labels.
 	 */
-	public void validate(Resource focusNode, ShapeExprLabel label);
+	public void validate(Value focusNode, ShapeExprLabel label);
 	
 	/** Retrieves the typing constructed by a previous call of {@link #validate(Resource, ShapeLabel)}.
 	 * 

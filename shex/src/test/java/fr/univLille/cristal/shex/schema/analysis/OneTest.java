@@ -23,7 +23,7 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.Configuration;
+import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 
@@ -39,7 +39,7 @@ public class OneTest {
 	
 	@Test
 	public void parse (){
-		Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"success","TestStratification","ShapeExtra.json");;
+		Path schemaFile = Paths.get(ConfigurationTest.shexTestPath.toString(),"success","TestStratification","ShapeExtra.json");;
 		//Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"failure","CyclicReferences","TripleReferences.json");;
 		int status = 0;
 		try {

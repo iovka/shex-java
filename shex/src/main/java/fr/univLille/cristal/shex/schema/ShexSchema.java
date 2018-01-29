@@ -191,7 +191,11 @@ public class ShexSchema {
 	public Map<TripleExprLabel, TripleExpr> getTripleMap() {
 		return tripleMap;
 	}
-
+	
+	@Override
+	public String toString() {
+		return rules.toString();
+	}
 	
 	//--------------------------------------------------------------------------------
 	// Graph References computation
