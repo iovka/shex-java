@@ -19,8 +19,6 @@ package fr.univLille.cristal.shex.graph;
 
 import org.eclipse.rdf4j.model.IRI;
 
-import fr.univLille.cristal.shex.schema.parsing.ToJsonLD;
-
 /** Represents a property with an orientation which is forward or backward.
  * Used as predicate in a {@link NeighborTriple}.
  * 
@@ -28,7 +26,7 @@ import fr.univLille.cristal.shex.schema.parsing.ToJsonLD;
  * @author Antonin Durey
  *
  */
-public class TCProperty implements ToJsonLD{
+public class TCProperty{
 
 	private IRI iri;
 	private boolean isFwd;
@@ -106,10 +104,4 @@ public class TCProperty implements ToJsonLD{
 		return true;
 	}
 
-	@Override
-	public Object toJsonLD() {
-		return this.toString();
-	}
-	
-	
 }

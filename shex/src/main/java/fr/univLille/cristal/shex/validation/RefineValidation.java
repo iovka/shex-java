@@ -50,7 +50,7 @@ import fr.univLille.cristal.shex.util.Pair;
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- *
+ * 
  */
 public class RefineValidation implements ValidationAlgorithm {
 
@@ -102,17 +102,18 @@ public class RefineValidation implements ValidationAlgorithm {
 
 		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
-				
+						
 			boolean changed;
 			do {
 				changed = false;
 				Iterator<Pair<Value, ShapeExprLabel>> typesIt = typing.typesIterator(stratum);
 				while (typesIt.hasNext()) {
 					Pair<Value, ShapeExprLabel> nl = typesIt.next();
-					if (! isLocallyValid(nl)) {
-						typesIt.remove();
-						changed = true;
-					}
+					System.out.println("Testing: "+nl);
+//					if (! isLocallyValid(nl)) {
+//						typesIt.remove();
+//						changed = true;
+//					}
 				}
 			} while (changed);
 		}

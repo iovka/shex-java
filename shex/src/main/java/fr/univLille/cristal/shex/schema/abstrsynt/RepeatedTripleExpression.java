@@ -71,11 +71,4 @@ public class RepeatedTripleExpression extends TripleExpr {
 		this.unfoldedVersion = expr;
 	}
 	
-	@Override
-	public Object toJsonLD() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	
 }

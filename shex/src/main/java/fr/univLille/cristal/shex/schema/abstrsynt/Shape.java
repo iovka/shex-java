@@ -67,24 +67,6 @@ public class Shape extends ShapeExpr {
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShape(this, arguments);
 	}
-	
-	@Override
-	public Object toJsonLD() {
-		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
-		jsonObject.put("type", "Shape");
-		if (! this.id.isGenerated()) {
-			jsonObject.put("id", this.id.toString());
-		}
-		if (this.getExtraProperties().size()>0) {
-			List<Object> extraprops = new LinkedList<Object>();
-			for (TCProperty ex:this.getExtraProperties()) {
-				extraprops.add(ex.toJsonLD());
-			}
-			jsonObject.put("extra", extraprops);
-		}
-		jsonObject.put("expression", this.tripleExpr.toJsonLD());
-		return jsonObject;
-	}
 
 	@Override
 	public String toString() {

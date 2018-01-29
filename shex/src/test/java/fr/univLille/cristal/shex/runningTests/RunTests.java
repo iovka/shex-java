@@ -88,7 +88,6 @@ public class RunTests {
 
 
 	public static void main(String[] args) throws IOException, ParseException {
-
 		Configuration.setXMLSchemaRegexMatcher(new PartialXMLSchemaRegexMatcher());
 
 		Model manifest = loadManifest();
@@ -126,14 +125,6 @@ public class RunTests {
 					reasons.add(reason);
 				}
 			}
-
-			//			TestCase testCase = parseTestCase(manifest, testNode);
-			//			String[] schemaFilePath = testCase.schemaFileName.split("/");
-			//			if (schemaFilePath[schemaFilePath.length-2].equals("validation")) {
-			//				shouldRun = false;
-			//				reasons.add("Old syntax");
-			//			}
-
 		}
 		if (shouldRun)
 			return new Object[]{true};
@@ -146,6 +137,7 @@ public class RunTests {
 		}
 	}
 
+	
 	protected static List<TestResultForTestReport> runAllTests (Model manifest) throws IOException, ParseException {
 		List<TestResultForTestReport> report = new ArrayList<>();
 		try (
@@ -169,7 +161,6 @@ public class RunTests {
 
 
 	private static void runTestByName (String testName, Model manifest) throws IOException, ParseException {
-
 		Value testNameString = RDF_FACTORY.createLiteral(testName);
 		Set<Resource> testsWithThisName = manifest.filter(null, TEST_NAME_IRI, testNameString).subjects();
 
@@ -183,7 +174,6 @@ public class RunTests {
 	
 
 	private static TestResultForTestReport runTest(Resource testNode, Model manifest, PrintStream passLog, PrintStream failLog, PrintStream errorLog) throws IOException {
-
 		String testName = getTestName(manifest, testNode);
 
 		Object[] shouldRun = shouldRunTest(testNode, manifest);
@@ -209,10 +199,8 @@ public class RunTests {
 		Model data = null;
 		try {
 			// Run the test case, exception possible
-
 			JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
 			schema = parser.parseSchema(); // exception possible
-			System.out.println(schema);
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString());
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
 			

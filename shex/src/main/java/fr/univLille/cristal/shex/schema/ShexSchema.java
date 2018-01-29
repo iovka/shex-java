@@ -323,6 +323,7 @@ public class ShexSchema {
 		for (Label label : this.shapeMap.keySet()) {
 			builder.addVertex(label);
 		}
+		System.out.println(tripleMap);
 		for (Label label : this.tripleMap.keySet()) {
 			builder.addVertex(label);
 		}

@@ -143,7 +143,6 @@ public class JsonldParser {
 		List shapes = (List) (map.get("shapes"));
 		
 		// TODO: what happens if neither start not shapes ?
-
 		
 		Map<ShapeExprLabel,ShapeExpr> rules = new HashMap<ShapeExprLabel,ShapeExpr>();
 		// FIXME: to remove eventually
@@ -274,9 +273,10 @@ public class JsonldParser {
 		TripleExpr texpr;
 		
 		Object texprObj = map.get("expression");
-		if (texprObj == null)
+		if (texprObj == null) {
 			texpr = new EmptyTripleExpression();
-		else {
+			setTripleId(texpr, Collections.EMPTY_MAP);
+		}else {
 			texpr = parseTripleExpression(texprObj);
 		}
 		

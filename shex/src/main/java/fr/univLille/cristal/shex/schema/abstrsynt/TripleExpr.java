@@ -19,14 +19,13 @@ package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
-import fr.univLille.cristal.shex.schema.parsing.ToJsonLD;
 
 /**
  * 
  * @author Iovka Boneva
  * 11 oct. 2017
  */
-public abstract class TripleExpr implements ToJsonLD {
+public abstract class TripleExpr {
 	protected TripleExprLabel id;
 	
 	public void setId(TripleExprLabel id) {

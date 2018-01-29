@@ -49,20 +49,5 @@ public class ShapeAnd extends AbstractNaryShapeExpr{
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShapeAnd(this, arguments);
 	}
-
-	@Override
-	public Object toJsonLD() {
-		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
-		jsonObject.put("type", "ShapeAnd");
-		if (! this.id.isGenerated()) {
-			jsonObject.put("id", this.id.toString());
-		}
-		List<Object> subexpressions = new LinkedList<Object>();
-		for (ShapeExpr sh:this.getSubExpressions()) {
-			subexpressions.add(sh.toJsonLD());
-		}
-		jsonObject.put("ShapeExprs", subexpressions);
-		return jsonObject;
-	}
 	
 }

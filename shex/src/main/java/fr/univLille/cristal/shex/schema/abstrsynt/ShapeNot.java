@@ -53,15 +53,4 @@ public class ShapeNot extends ShapeExpr {
 		return String.format("(NOT %s)", subExpression.toString());
 	}
 	
-	@Override
-	public Object toJsonLD() {
-		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
-		jsonObject.put("type", "ShapeNot");
-		if (! this.id.isGenerated()) {
-			jsonObject.put("id", this.id.toString());
-		}
-		jsonObject.put("SHapeExpr", subExpression.toJsonLD());
-		return jsonObject;
-	}
-	
 }

@@ -49,17 +49,6 @@ public class NodeConstraint extends ShapeExpr {
 	}
 	
 	@Override
-	public Object toJsonLD() {
-		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
-		jsonObject.put("type", "NodeConstraint");
-		if (! this.id.isGenerated()) {
-			jsonObject.put("id", this.id.toString());
-		}
-		//TODO: finish it....
-		return jsonObject;
-	}
-	
-	@Override
 	public String toString() {
 		return setOfNodes.toString();
 	}

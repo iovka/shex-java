@@ -84,18 +84,7 @@ public class TripleConstraint extends TripleExpr {
 		return new TripleConstraint(this.property, (ShapeExprRef) this.shapeExpr, this.isSingleton);
 	}
 	
-	
-	@Override
-	public Object toJsonLD() {
-		Map<String,Object> jsonObject = new LinkedHashMap<String,Object>();
-		jsonObject.put("type", "TripleConstraint");
-		if (! this.id.isGenerated()) {
-			jsonObject.put("id", this.id.toString());
-		}
-		jsonObject.put("predicate", this.property.toJsonLD());
-		jsonObject.put("valueExpr", this.shapeExpr.toJsonLD());
-		return jsonObject;	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("%s::%s",

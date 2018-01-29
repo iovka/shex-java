@@ -58,12 +58,7 @@ public class ShapeExprRef extends ShapeExpr {
 	public ShapeExpr getShapeDefinition () {
 		return this.def;
 	}
-	
-	@Override
-	public Object toJsonLD() {
-		return label.toString();
-	}
-	
+		
 	@Override
 	public String toString() {
 		return "@"+label.toString();

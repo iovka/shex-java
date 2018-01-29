@@ -43,12 +43,6 @@ public class EachOf extends AbstractNaryTripleExpr {
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitEachOf(this, arguments);
 	}
-	
-	@Override
-	public Object toJsonLD() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+
 	
 }

@@ -57,8 +57,9 @@ public class RefinementTyping implements Typing {
 		Set<ShapeExprLabel> labels = schema.getStratum(stratum);
 		Set<Pair<Value, ShapeExprLabel>> set = theTyping.get(stratum);
 		for (ShapeExprLabel label: labels) {
-			for (Value res : graph.getAllNodes())
+			for (Value res : graph.getAllNodes()) {
 				set.add(new Pair<>(res, label));
+			}
 			if (focusNode != null)
 				set.add(new Pair<>(focusNode, label));
 		}
