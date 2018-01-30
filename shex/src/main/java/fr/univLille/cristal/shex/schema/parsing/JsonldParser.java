@@ -154,8 +154,8 @@ public class JsonldParser {
 			ShapeExpr shexpr = parseShapeExpression(shape);
 			rules.put(createShapeLabel(label,false), shexpr);
 		}
+		
 		ShexSchema schema = new ShexSchema(rules);
-		//schema.finalize();
 		return schema;
 	}
 	

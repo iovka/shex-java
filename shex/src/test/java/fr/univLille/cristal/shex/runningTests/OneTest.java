@@ -34,7 +34,7 @@ public class OneTest {
 		
 		//model.add(RDF_FACTORY.createBNode("lol"), FOAF.MBOX, RDF_FACTORY.createLiteral("mdr@mdr.org"));
 		//model.add(RDF_FACTORY.createBNode("lol"), FOAF.FIRST_NAME, RDF_FACTORY.createLiteral("MDR"));
-
+		
 		RDF4JGraph graph = new RDF4JGraph(model);
 		
 		JsonldParser parser = new JsonldParser(Paths.get(".","User.json"));

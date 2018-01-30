@@ -19,14 +19,12 @@ package fr.univLille.cristal.shex.graph;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.util.Models;
 
 /** Wraps an RDF4J graph as {@link RDFGraph}.
  * 

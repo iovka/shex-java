@@ -19,10 +19,6 @@ package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import fr.univLille.cristal.shex.graph.TCProperty;

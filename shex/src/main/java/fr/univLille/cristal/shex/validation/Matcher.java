@@ -47,6 +47,7 @@ public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Bo
 		for (NeighborTriple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: constraints) {
+				//System.out.println("Matcher: "+triple.getPredicate()+" ?? "+tc+" : "+matcher.apply(triple, tc));
 				if (matcher.apply(triple, tc)) {
 					matching.add(tc);
 				}

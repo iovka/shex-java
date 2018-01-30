@@ -19,9 +19,6 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**

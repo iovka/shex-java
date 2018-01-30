@@ -77,15 +77,14 @@ public class ShexSchema {
 	
 	public ShexSchema(Map<ShapeExprLabel, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		this.rules = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(rules));
-		
 		// Collect all the ShapeExpr
 		Set<ShapeExpr> allShapes = SchemaRulesStaticAnalysis.collectAllShapes(this.rules);
 		Map<ShapeExprLabel,ShapeExpr> shapeMapTmp = new HashMap<ShapeExprLabel,ShapeExpr>();
 		for(ShapeExpr shexp:allShapes) {
 			shapeMapTmp.put(shexp.getId(),shexp);
+			//System.out.println(shexp.getId()+" : "+shexp+ "("+shexp.getClass()+")");
 		}
 		this.shapeMap = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(shapeMapTmp));
-		
 		// Check that all the shape references are defined
 		for (Map.Entry<ShapeExprLabel,ShapeExpr> entry:shapeMap.entrySet()){
 			if (entry.getValue() instanceof ShapeExprRef) {
@@ -323,7 +322,6 @@ public class ShexSchema {
 		for (Label label : this.shapeMap.keySet()) {
 			builder.addVertex(label);
 		}
-		System.out.println(tripleMap);
 		for (Label label : this.tripleMap.keySet()) {
 			builder.addVertex(label);
 		}

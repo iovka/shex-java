@@ -141,6 +141,7 @@ public class ConverterFromShaclex {
 	
 	private ShapeExpr convertShapeRef(es.weso.shex.ShapeRef shape) {
 		ShapeExprRef result = new ShapeExprRef(createShapeLabel(shape.reference().toString(), false));
+		setShapeId(result);
 		return result;
 	}
 
@@ -339,19 +340,7 @@ public class ConverterFromShaclex {
 		return new DatatypeSetOfNodes(createIri(datatypeIri));
 	}
 	
-	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
-		if (isIriString(string))
-			return new ShapeExprLabel(createIri(string),generated);
-		else 
-			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
-	}
-	
-	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
-		if (isIriString(string))
-			return new TripleExprLabel(createIri(string),generated);
-		else 
-			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
-	}
+
 
 	private static TCProperty createTCProperty(IRI iri, boolean isFwd){
 		if(isFwd){
@@ -385,21 +374,40 @@ public class ConverterFromShaclex {
 	}
 	
 	
-	private String getType (Map map) {
-		return (String) (map.get("type"));
+	//--------------------------------------
+	// Id functions
+	//--------------------------------------
+	
+	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
+		if (isIriString(string))
+			return new ShapeExprLabel(createIri(string),generated);
+		else 
+			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
+	}
+		
+	private void setShapeId (ShapeExpr shapeRes, String id) {
+		shapeRes.setId(createShapeLabel(id, false));
 	}
 	
-	private String getId (Map map) {
-		return (String) (map.get("id"));
+	private void setShapeId (ShapeExpr shapeRes) {
+		String id = String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb);
+		shapeLabelNb++;
+		shapeRes.setId(createShapeLabel(id, false));
 	}
 
 	private void setShapeId (ShapeExpr shapeRes, es.weso.shex.ShapeExpr shape) {
 		if (shape.id().nonEmpty()) {
-			shapeRes.setId(createShapeLabel(shape.id().get().toString(), false));
+			setShapeId(shapeRes,shape.id().get().toString());
 		}else {
-			shapeRes.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
-			shapeLabelNb++;
+			setShapeId(shapeRes);
 		}
+	}
+		
+	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
+		if (isIriString(string))
+			return new TripleExprLabel(createIri(string),generated);
+		else 
+			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
 	}
 	
 	private void setTripleId (TripleExpr tripleRes,  es.weso.shex.TripleExpr triple) {
