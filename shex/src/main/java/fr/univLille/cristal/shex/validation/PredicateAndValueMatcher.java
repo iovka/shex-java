@@ -18,8 +18,6 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.validation;
 
-import org.eclipse.rdf4j.model.Resource;
-
 import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 
@@ -38,7 +36,7 @@ public class PredicateAndValueMatcher implements Matcher {
 	@Override
 	public Boolean apply(NeighborTriple triple, TripleConstraint tc) {
 		if (tc.getProperty().equals(triple.getPredicate())) 
-			return typing.contains((Resource) triple.getOpposite(), tc.getShapeExpr().getId());
+			return typing.contains(triple.getOpposite(), tc.getShapeExpr().getId());
 		return false;
 	}
 

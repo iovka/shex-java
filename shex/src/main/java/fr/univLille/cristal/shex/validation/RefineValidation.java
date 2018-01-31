@@ -85,7 +85,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
-		System.out.println(schemaSorbe.getShapeMap());
+		//System.out.println(schemaSorbe.getShapeMap());
 		this.typing = new RefinementTyping(schemaSorbe, graph);
 
 		for (int stratum = 0; stratum < schemaSorbe.getNbStratums(); stratum++) {
@@ -182,9 +182,9 @@ public class RefineValidation implements ValidationAlgorithm {
 //		System.out.println("Neighbourhood: "+neighbourhood);
 //		System.out.println("List of TC("+constraints.size()+"): "+constraints);
 
-//		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
+		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
 //		Matcher matcher = new PredicateOnlyMatcher(); 
-		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 
+//		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 
 		
 		List<List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
 		// Drop neighbor that cannot be match to any constraint. If shape is closed then return false.

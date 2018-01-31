@@ -141,9 +141,9 @@ public class RunTests {
 	protected static List<TestResultForTestReport> runAllTests (Model manifest) throws IOException, ParseException {
 		List<TestResultForTestReport> report = new ArrayList<>();
 		try (
-				PrintStream passLog = new PrintStream(Files.newOutputStream(Paths.get("/tmp/PASS"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
-				PrintStream failLog = new PrintStream(Files.newOutputStream(Paths.get("/tmp/FAIL"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
-				PrintStream errorLog = new PrintStream(Files.newOutputStream(Paths.get("/tmp/ERROR"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));)
+				PrintStream passLog = new PrintStream(Files.newOutputStream(Paths.get("report/PASS"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
+				PrintStream failLog = new PrintStream(Files.newOutputStream(Paths.get("report/FAIL"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
+				PrintStream errorLog = new PrintStream(Files.newOutputStream(Paths.get("report/ERROR"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));)
 		{
 
 			for (Resource testNode : getValidationTestsList(manifest)) {
@@ -186,7 +186,7 @@ public class RunTests {
 			nbSkip++;
 
 			return new TestResultForTestReport(testName, false, message, "validation");
-		} 
+		}
 
 		TestCase testCase = parseTestCase(manifest, testNode);
 		if (! testCase.isWellDefined()) {
