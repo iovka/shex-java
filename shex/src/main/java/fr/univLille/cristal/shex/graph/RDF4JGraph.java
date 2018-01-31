@@ -34,13 +34,35 @@ import org.eclipse.rdf4j.model.Value;
 public class RDF4JGraph extends AbstractRDFGraph {
 	
 	private Model rdf4jModel;
+	private Set<Value> allSubjects;
+	private Set<Value> allObjects;
 	private Set<Value> allResources;
 	
 	public RDF4JGraph(Model rdf4jModel) {
 		super();
 		this.rdf4jModel = rdf4jModel;
 	}
-
+	
+	@Override
+	public Set<Value> getAllSubjectNodes() {
+		if (allSubjects != null)
+			return allSubjects;
+		
+		allSubjects = new HashSet<Value>();
+		allSubjects.addAll(rdf4jModel.subjects());
+		return allSubjects;
+	}
+	
+	@Override
+	public Set<Value> getAllObjectNodes() {
+		if (allObjects != null)
+			return allObjects;
+		
+		allObjects = new HashSet<Value>();
+		allObjects.addAll(rdf4jModel.objects());
+		return allResources;
+	}
+	
 	@Override
 	public Set<Value> getAllNodes() {
 		if (allResources != null)

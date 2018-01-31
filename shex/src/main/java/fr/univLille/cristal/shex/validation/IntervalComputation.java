@@ -25,8 +25,8 @@ import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationListsOfTripleConstraintsOnTripleExpressions;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 import fr.univLille.cristal.shex.util.Interval;
 
@@ -42,7 +42,7 @@ import fr.univLille.cristal.shex.util.Interval;
  */
 public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 	
-	private Object listTripleConstraintsAttributeKey = InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().getKey();
+	//private Object listTripleConstraintsAttributeKey = InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().getKey();
 
 	
 	private Interval result;
@@ -69,7 +69,7 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 	public void visitOneOf(OneOf expr, Object... arguments) {
 		Interval res = Interval.ZERO; // the neutral element for addition
 		
-		for (NonRefTripleExpr subExpr : expr.getSubExpressions()) {
+		for (TripleExpr subExpr : expr.getSubExpressions()) {
 			subExpr.accept(this, arguments);
 			res = add(res, this.result);
 		}
@@ -80,7 +80,7 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 	public void visitEachOf(EachOf expr, Object... arguments) {
 		Interval res = Interval.STAR; // the neutral element for intersection
 
-		for (NonRefTripleExpr subExpr : expr.getSubExpressions()) {
+		for (TripleExpr subExpr : expr.getSubExpressions()) {
 			subExpr.accept(this, arguments);
 			res = inter(res, this.result);
 		}
@@ -92,7 +92,7 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 		Bag bag = (Bag) arguments[0];
 		
 		Interval card = expression.getCardinality();
-		NonRefTripleExpr subExpr = expression.getSubExpression();
+		TripleExpr subExpr = expression.getSubExpression();
 
 		if (card.equals(Interval.STAR)) {
 			
@@ -144,15 +144,21 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 
 	}
 
-	private boolean isEmptySubbag(Bag bag, NonRefTripleExpr expression){
-
-		@SuppressWarnings("unchecked")
-		List<TripleConstraint> list = (List<TripleConstraint>) expression.getDynamicAttributes().get(listTripleConstraintsAttributeKey);
-		for(TripleConstraint tripleConstraint : list){
-			if(!(bag.getMult(tripleConstraint) == 0))
-				return false;
-		}
-		
+	@Override
+	public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
+		expr.getTripleExp().accept(this, arguments);		
+	}
+	
+	// TODO: Fix the next function
+	private boolean isEmptySubbag(Bag bag, TripleExpr expression){
+//
+//		@SuppressWarnings("unchecked")
+//		List<TripleConstraint> list = (List<TripleConstraint>) expression.getDynamicAttributes().get(listTripleConstraintsAttributeKey);
+//		for(TripleConstraint tripleConstraint : list){
+//			if(!(bag.getMult(tripleConstraint) == 0))
+//				return false;
+//		}
+//		
 		return true;
 	}
 		
@@ -222,6 +228,8 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 
 		return new Interval(imin, imax);
 	}
+
+
 
 
 

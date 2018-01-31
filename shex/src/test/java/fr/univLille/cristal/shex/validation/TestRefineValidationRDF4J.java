@@ -35,7 +35,9 @@ import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.junit.Test;
 
-import fr.univLille.cristal.shex.graph.JenaGraph;
+import fr.univLille.cristal.shex.exception.CyclicReferencesException;
+import fr.univLille.cristal.shex.exception.NotStratifiedException;
+import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
@@ -54,7 +56,7 @@ public class TestRefineValidationRDF4J {
 	
 	
 	@Test
-	public void testEmptySchemaWithEmptyModel(){
+	public void testEmptySchemaWithEmptyModel() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		
@@ -71,7 +73,7 @@ public class TestRefineValidationRDF4J {
 	}
 
 	@Test
-	public void testSimpleSchemaWithEmptyModel(){
+	public void testSimpleSchemaWithEmptyModel() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlallRule();
@@ -92,7 +94,7 @@ public class TestRefineValidationRDF4J {
 
 	
 	@Test
-	public void testSimpleSchemaWithSimpleModelRightPropertyIntValue(){
+	public void testSimpleSchemaWithSimpleModelRightPropertyIntValue() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlintRule();
@@ -119,7 +121,7 @@ public class TestRefineValidationRDF4J {
 	
 
 	@Test
-	public void testSimpleSchemaWithSimpleModelWrongProperty(){
+	public void testSimpleSchemaWithSimpleModelWrongProperty() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlintRule();
@@ -142,7 +144,7 @@ public class TestRefineValidationRDF4J {
 
 
 	@Test
-	public void testSimpleSchemaWithSimpleModelWrongDatatype(){
+	public void testSimpleSchemaWithSimpleModelWrongDatatype() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlintRule();
@@ -165,7 +167,7 @@ public class TestRefineValidationRDF4J {
 
 	
 	@Test
-	public void testOneTELabelWithTwoShapeLabelsSchemaWithOneStatementsModel(){
+	public void testOneTELabelWithTwoShapeLabelsSchemaWithOneStatementsModel() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlintRule();
@@ -196,7 +198,7 @@ public class TestRefineValidationRDF4J {
 
 	
 	@Test
-	public void testTwoTELabelSchemaWithOneStatementsModel(){
+	public void testTwoTELabelSchemaWithOneStatementsModel() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlintRule();
@@ -216,14 +218,14 @@ public class TestRefineValidationRDF4J {
 
 		validation.validate(null, null);
 		
-		Set<Pair<org.eclipse.rdf4j.model.Resource, ShapeExprLabel>> set = validation.getTyping().asSet();
+		Set<Pair<org.eclipse.rdf4j.model.Value, ShapeExprLabel>> set = validation.getTyping().asSet();
 		assertEquals(1, set.size());
 
 	}
 
 	
 	@Test
-	public void testTwoTELabelSchemaWithTwoStatementsModel(){
+	public void testTwoTELabelSchemaWithTwoStatementsModel() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlintRule();
@@ -244,7 +246,7 @@ public class TestRefineValidationRDF4J {
 		validation.validate(null, null);
 
 
-		Set<Pair<org.eclipse.rdf4j.model.Resource, ShapeExprLabel>> typingSet = validation.getTyping().asSet();
+		Set<Pair<org.eclipse.rdf4j.model.Value, ShapeExprLabel>> typingSet = validation.getTyping().asSet();
 
 		assertEquals(4, typingSet.size());
 		org.eclipse.rdf4j.model.Resource res1 = newIRI("note1");
@@ -296,7 +298,7 @@ public class TestRefineValidationRDF4J {
 	*/
 
 	@Test
-	public void testOneNegatedTELabelSchemaWithOneStatementModel_pass(){
+	public void testOneNegatedTELabelSchemaWithOneStatementModel_pass() throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException{
 
 		SimpleSchemaConstructor constr = new SimpleSchemaConstructor();
 		constr.addSlintRule();

@@ -60,7 +60,8 @@ import fr.univLille.cristal.shex.util.Pair;
  */
 public class RefineValidation implements ValidationAlgorithm {
 	private RDFGraph graph;
-	private ShexSchema schema;
+	private ShexSchema originalSchema;
+	private ShexSchema schemaSorbe;
 	private Map<ShapeExprLabel, ShapeExpr> allRules;
 	private RefinementTyping typing;
 	private Map<TripleExpr,List<TripleConstraint>> collectionTripleConstraints;
@@ -69,7 +70,9 @@ public class RefineValidation implements ValidationAlgorithm {
 	public RefineValidation(ShexSchema schema, RDFGraph graph) {
 		super();
 		this.graph = graph;
-		this.schema = schema;
+		this.originalSchema = schema;
+		// TODO: implement conversion of original schema to a SORBE schema
+		this.schemaSorbe = schema;
 		this.collectionTripleConstraints = new HashMap<TripleExpr,List<TripleConstraint>>();
 	}
 	
@@ -82,10 +85,10 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
-		System.out.println(schema.getShapeMap());
-		this.typing = new RefinementTyping(schema, graph);
+		System.out.println(schemaSorbe.getShapeMap());
+		this.typing = new RefinementTyping(schemaSorbe, graph);
 
-		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
+		for (int stratum = 0; stratum < schemaSorbe.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
 						
 			boolean changed;
@@ -106,7 +109,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	private boolean isLocallyValid(Pair<Value, ShapeExprLabel> nl) {
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(nl.one);
-		schema.getShapeMap().get(nl.two).accept(visitor);
+		schemaSorbe.getShapeMap().get(nl.two).accept(visitor);
 		return visitor.getResult();
 	}
 	
@@ -170,44 +173,51 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	
 	private boolean isLocallyValid (Value node, Shape shape) {
-		// get the first triple expression that is not a ref
-		// It may not matter that it's not a ref...
 		TripleExpr tripleExpression = shape.getTripleExpression();
-		while(tripleExpression instanceof TripleExprRef)
-			tripleExpression = ((TripleExprRef) tripleExpression).getTripleExp();
-		
+				
 		List<NeighborTriple> neighbourhood = graph.listAllNeighbours(node);
 		List<TripleConstraint> constraints = this.getAllTripleConstraints(tripleExpression);
+			
+//		System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
+//		System.out.println("Neighbourhood: "+neighbourhood);
+//		System.out.println("List of TC("+constraints.size()+"): "+constraints);
 
-		if (constraints.size()==0)
-			return true;
-		System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
-		System.out.println("Neighbourhood: "+neighbourhood);
-
-		System.out.println("List of TC("+constraints.size()+"): "+constraints);
-
-		Matcher matcher = new PredicateOnlyMatcher(); 
-//		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 
+//		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
+//		Matcher matcher = new PredicateOnlyMatcher(); 
+		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 
 		
 		List<List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
-		System.out.println(matchingTC);
+		// Drop neighbor that cannot be match to any constraint. If shape is closed then return false.
+		Iterator<List<TripleConstraint>> iteMatchingTC = matchingTC.iterator();
+		while(iteMatchingTC.hasNext()) {
+			List<TripleConstraint> listTC = iteMatchingTC.next();
+			if (listTC.isEmpty()) {
+				if (shape.isClosed()) {
+					return false;
+				}
+				iteMatchingTC.remove();
+			}
+		}
+		//System.out.println("MatchingTC:"+matchingTC);
+		
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
 		BagIterator bagIt = new BagIterator(matchingTC);
-//		
-//		IntervalComputation intervalComputation = new IntervalComputation();
-//		
+		
+		IntervalComputation intervalComputation = new IntervalComputation();
+		
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
-			System.out.println("Bag: "+bag);
-//			tripleExpression.accept(intervalComputation, bag);
-//			if (intervalComputation.getResult().contains(1))
-//				return true;
+			//System.out.println("Bag: "+bag);
+			tripleExpression.accept(intervalComputation, bag);
+			if (intervalComputation.getResult().contains(1))
+				return true;
 		}
-		System.out.println();
-		return true;
+		//System.out.println();
+		return false;
 	}
 	
-	// collect all tricple constraint in a triple expression and store it to reuse later
+	
+	// collect all triple constraint in a triple expression and store it to reuse later
 	private List<TripleConstraint> getAllTripleConstraints (TripleExpr tripleExpression) {
 		if (this.collectionTripleConstraints.containsKey(tripleExpression))
 			return this.collectionTripleConstraints.get(tripleExpression);

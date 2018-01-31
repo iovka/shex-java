@@ -55,7 +55,19 @@ public interface RDFGraph {
 	public List<NeighborTriple> listOutNeighbours (Value focusNode);
 
 
-	/** The set of all resources in the graph.
+	/** The set of all object nodes in the graph.
+	 * 
+	 * @return
+	 */
+	public Set<Value> getAllObjectNodes ();
+	
+	/** The set of all subjects node in the graph.
+	 * 
+	 * @return
+	 */
+	public Set<Value> getAllSubjectNodes ();
+	
+	/** The set of all object and subject in the graph.
 	 * 
 	 * @return
 	 */

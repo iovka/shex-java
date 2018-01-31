@@ -21,7 +21,9 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
+import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.validation.RefineValidation;
+import fr.univLille.cristal.shex.validation.Typing;
 
 public class OneTest {
 	private static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
@@ -46,5 +48,11 @@ public class OneTest {
 		
 		RefineValidation valid = new RefineValidation(schema, graph);
 		valid.validate(focusNode, label);
+		Typing res = valid.getTyping();
+		
+		for( Pair<Value, ShapeExprLabel> element: res.asSet()) {
+			System.out.println(element);
+		}
+		
 		}
 }

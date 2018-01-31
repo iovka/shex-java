@@ -83,8 +83,6 @@ import fr.univLille.cristal.shex.util.Interval;
  */
 @SuppressWarnings("rawtypes")
 public class JsonldParser {
-	
-	
 	// ----------------------------------------------------------------------
 	// CONSTANTS
 	// ----------------------------------------------------------------------
@@ -95,15 +93,7 @@ public class JsonldParser {
 	private static final Pattern STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^"); 
 
 	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
-	
-	// TODO: would it be preferable to have blank node identifiers ?
-	private static int shapeLabelNb = 0;
-	private static String SHAPE_LABEL_PREFIX = "SLGEN";
-	private static int tripleLabelNb = 0;
-	private static String TRIPLE_LABEL_PREFIX = "TLGEN";
-	//private static String EXTRA_SHAPE_LABEL_PREFIX = "SL_EXTRA";
-	
-		
+			
 	private Object schemaObject; 
 	private Path path;
 	private boolean semActsWarning = false;
@@ -720,18 +710,12 @@ public class JsonldParser {
 	private void setShapeId (ShapeExpr shape, Map map) {
 		if (map.containsKey("id")) {
 			shape.setId(createShapeLabel(getId(map),false));
-		}else {
-			shape.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
-			shapeLabelNb++;
 		}
 	}
 	
 	private void setTripleId (TripleExpr triple, Map map) {
 		if (map.containsKey("id")) {
 			triple.setId(createTripleLabel(getId(map),false));
-		}else {
-			triple.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
-			tripleLabelNb++;
 		}
 	}
 	

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
@@ -74,13 +76,14 @@ public class ShexSchema {
 	private Map<ShapeExprLabel,ShapeExpr> shapeMap;
 	private Map<TripleExprLabel,TripleExpr> tripleMap;
 
-	
+	// generate ID, check cycle in reference and stratification
 	public ShexSchema(Map<ShapeExprLabel, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		this.rules = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(rules));
 		// Collect all the ShapeExpr
 		Set<ShapeExpr> allShapes = SchemaRulesStaticAnalysis.collectAllShapes(this.rules);
 		Map<ShapeExprLabel,ShapeExpr> shapeMapTmp = new HashMap<ShapeExprLabel,ShapeExpr>();
 		for(ShapeExpr shexp:allShapes) {
+			checkShapeID(shexp);
 			shapeMapTmp.put(shexp.getId(),shexp);
 			//System.out.println(shexp.getId()+" : "+shexp+ "("+shexp.getClass()+")");
 		}
@@ -101,6 +104,7 @@ public class ShexSchema {
 		Set<TripleExpr> allTriples = SchemaRulesStaticAnalysis.collectAllTriples(this.rules);
 		Map<TripleExprLabel,TripleExpr> tripleMapTmp = new HashMap<TripleExprLabel,TripleExpr>();
 		for (TripleExpr tcexp:allTriples) {
+			checkTripleID(tcexp);
 			tripleMapTmp.put(tcexp.getId(),tcexp);
 		}
 		tripleMap = Collections.unmodifiableMap(new HashMap<TripleExprLabel,TripleExpr>(tripleMapTmp));
@@ -195,6 +199,52 @@ public class ShexSchema {
 	public String toString() {
 		return rules.toString();
 	}
+	
+	//--------------------------------------------------------------------------------
+	// ID  function
+	//--------------------------------------------------------------------------------
+	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	
+	private static int shapeLabelNb = 0;
+	private static String SHAPE_LABEL_PREFIX = "SLGEN";
+	private static int tripleLabelNb = 0;
+	private static String TRIPLE_LABEL_PREFIX = "TLGEN";
+	
+	private static boolean isIriString (String s) {
+		if (s.indexOf(':') < 0) {
+			return false;
+		}
+		return true;
+	}
+	
+	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
+		if (isIriString(string))
+			return new ShapeExprLabel(RDF_FACTORY.createIRI(string),generated);
+		else 
+			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
+	}
+	
+	private void checkShapeID(ShapeExpr shape) {
+		if (shape.getId() == null) {
+			shape.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
+			shapeLabelNb++;
+		}
+	}
+	
+	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
+		if (isIriString(string))
+			return new TripleExprLabel(RDF_FACTORY.createIRI(string),generated);
+		else 
+			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
+	}
+	
+	private void checkTripleID(TripleExpr triple) {
+		if (triple.getId() == null) {
+			triple.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
+			tripleLabelNb++;
+		}
+	}
+	
 	
 	//--------------------------------------------------------------------------------
 	// Graph References computation

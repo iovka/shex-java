@@ -37,7 +37,6 @@ public class TestBagIterator {
 	
 	@Test
 	public void testEmptyNeighbourhood() {
-		
 		List<List<TripleConstraint>> emptyNeighbourhoodList = new ArrayList<>();
 		BagIterator it =  new BagIterator(emptyNeighbourhoodList);
 		
