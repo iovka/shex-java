@@ -55,6 +55,14 @@ public abstract class Label {
 		this.generated = generated;
 	}
 	
+	public boolean isIri() {
+		return this.iri!=null;
+	}
+	
+	public boolean isBNode() {
+		return this.bnode!=null;
+	}
+	
 	public boolean isGenerated() {
 		return this.generated;
 	}

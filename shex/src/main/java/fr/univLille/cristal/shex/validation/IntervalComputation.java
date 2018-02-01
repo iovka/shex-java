@@ -42,7 +42,6 @@ import fr.univLille.cristal.shex.util.Interval;
  */
 public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 	
-	//private Object listTripleConstraintsAttributeKey = InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().getKey();
 
 	
 	private Interval result;
@@ -93,22 +92,18 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 		
 		Interval card = expression.getCardinality();
 		TripleExpr subExpr = expression.getSubExpression();
-
 		if (card.equals(Interval.STAR)) {
-			
 			if (isEmptySubbag(bag, expression)) {
 				this.result = Interval.STAR;
 			} else {
 				subExpr.accept(this, arguments);
 				if (! this.result.equals(Interval.EMPTY)) {
 					this.result = Interval.PLUS;
-				} else {
-					this.result = Interval.EMPTY;
 				}
 			}
 		}
 
-		else if (card.equals(Interval.PLUS)) {			
+		else if (card.equals(Interval.PLUS)) {		
 			if (isEmptySubbag(bag, expression)) {
 				this.result = Interval.ZERO;
 			} else {
@@ -149,6 +144,9 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 		expr.getTripleExp().accept(this, arguments);		
 	}
 	
+	// I believe this is here that i am checking the empty in the plus
+	//private Object listTripleConstraintsAttributeKey = InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().getKey();
+	
 	// TODO: Fix the next function
 	private boolean isEmptySubbag(Bag bag, TripleExpr expression){
 //
@@ -159,7 +157,7 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 //				return false;
 //		}
 //		
-		return true;
+		return false;
 	}
 		
 

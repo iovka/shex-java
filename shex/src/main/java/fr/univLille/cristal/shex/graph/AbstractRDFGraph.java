@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 
@@ -34,20 +35,66 @@ import org.eclipse.rdf4j.model.Value;
  * 
  */
 abstract class AbstractRDFGraph implements RDFGraph {
- 
-	protected abstract Iterator<NeighborTriple> itOutNeighbours (Value focusNode);
-	protected abstract Iterator<NeighborTriple> itInNeighbours (Value focusNode);
+	public List<NeighborTriple> listAllNeighbours (Value focusNode) {
+		return listNeighbours(itAllNeighbours(focusNode,null));
+	}
 	
-	private Iterator<NeighborTriple> itAllNeighbours (final Value focusNode) {
+	public List<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates){
+		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
+		for (IRI predicate:allowedPredicates) {
+			result.addAll(listNeighbours(itAllNeighbours(focusNode,predicate)));
+		}
+		return result;
+	}
+
+	
+	public List<NeighborTriple> listOutNeighbours(Value focusNode) {
+		if (! (focusNode instanceof Resource))
+			return Collections.emptyList();
+		return listNeighbours(itOutNeighbours((Resource) focusNode,null));
+	}
+	
+
+	public List<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates){
+		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
+		for (IRI predicate:allowedPredicates) {
+			result.addAll(listNeighbours(itOutNeighbours(focusNode,predicate)));
+		}
+		return result;
+	}
+	
+
+	public List<NeighborTriple> listInNeighbours(Value focusNode) {
+		return listNeighbours(itInNeighbours(focusNode,null));
+	}
+	
+	
+	public List<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates){
+		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
+		for (IRI predicate:allowedPredicates) {
+			result.addAll(listNeighbours(itInNeighbours(focusNode,predicate)));
+		}
+		return result;
+	}
+	
+	
+	//---------------------------------------------------------------------------
+	// Iterators
+	//---------------------------------------------------------------------------
+	
+	protected abstract Iterator<NeighborTriple> itOutNeighbours (Value focusNode, IRI predicate);
+	protected abstract Iterator<NeighborTriple> itInNeighbours (Value focusNode, IRI predicate);
+	
+	private Iterator<NeighborTriple> itAllNeighbours (final Value focusNode,IRI predicate) {
 		return new Iterator<NeighborTriple>() {
 			Iterator<NeighborTriple> itFw, itBw;
 			{
 				if (focusNode instanceof Resource)
-					itFw = itOutNeighbours((Resource) focusNode);
+					itFw = itOutNeighbours((Resource) focusNode,predicate);
 				else 
 					itFw = new EmptyIterator<>();
 				
-				itBw = itInNeighbours(focusNode);
+				itBw = itInNeighbours(focusNode,predicate);
 			}
 			
 			@Override
@@ -66,30 +113,6 @@ abstract class AbstractRDFGraph implements RDFGraph {
 		};
 	}
 	
-	private List<NeighborTriple> listNeighbours (Iterator<NeighborTriple> it) {
-		ArrayList<NeighborTriple> result = new ArrayList<>();
-		while (it.hasNext()) {
-			result.add(it.next());
-		}
-		return result;
-	}
-
-	@Override
-	public List<NeighborTriple> listAllNeighbours (Value focusNode) {
-		return listNeighbours(itAllNeighbours(focusNode));
-	}
-
-	public List<NeighborTriple> listOutNeighbours(Value focusNode) {
-		if (! (focusNode instanceof Resource))
-			return Collections.emptyList();
-		return listNeighbours(itOutNeighbours((Resource) focusNode));
-	}
-	
-	@Override
-	public List<NeighborTriple> listInNeighbours(Value focusNode) {
-		return listNeighbours(itInNeighbours(focusNode));
-	}
-	
 	private class EmptyIterator<T> implements Iterator<T> {
 
 		@Override
@@ -103,4 +126,18 @@ abstract class AbstractRDFGraph implements RDFGraph {
 		}
 	}
 	
+	
+	//---------------------------------------------------------------------------
+	// Utils
+	//---------------------------------------------------------------------------
+	
+	private List<NeighborTriple> listNeighbours (Iterator<NeighborTriple> it) {
+		ArrayList<NeighborTriple> result = new ArrayList<>();
+		while (it.hasNext()) {
+			result.add(it.next());
+		}
+		return result;
+	}
+
+
 }

@@ -38,6 +38,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -202,11 +203,16 @@ public class RunTests {
 			JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
 			schema = parser.parseSchema(); // exception possible
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString());
+			System.out.println(schema.getShapeMap());
+			for (Statement st:data) {
+				System.out.println(st);
+			}
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
 			
 			RefineValidation validation = new RefineValidation(schema, dataGraph);
 
 			validation.validate(testCase.focusNode, null);
+			System.out.println(validation.getTyping().asSet());
 			if (testCase.testKind.equals(VALIDATION_TEST_CLASS) &&
 					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel)
 					||

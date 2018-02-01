@@ -20,6 +20,7 @@ package fr.univLille.cristal.shex.graph;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
  
@@ -45,7 +46,21 @@ public interface RDFGraph {
 	 * @param focusNode
 	 * @return
 	 */
+	public List<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates);
+	
+	/** A list of all the forward triples that have the given node as focus node.
+	 * 
+	 * @param focusNode
+	 * @return
+	 */
 	public List<NeighborTriple> listInNeighbours (Value focusNode);
+	
+	/** A list of all the forward triples that have the given node as focus node.
+	 * 
+	 * @param focusNode
+	 * @return
+	 */
+	public List<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates);
 	
 	/** A list of all the backward triples that have the given node as focus node.
 	 * 
@@ -53,6 +68,13 @@ public interface RDFGraph {
 	 * @return
 	 */
 	public List<NeighborTriple> listOutNeighbours (Value focusNode);
+	
+	/** A list of all the forward triples that have the given node as focus node.
+	 * 
+	 * @param focusNode
+	 * @return
+	 */
+	public List<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates);
 
 
 	/** The set of all object nodes in the graph.

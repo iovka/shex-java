@@ -23,8 +23,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 
@@ -60,19 +62,18 @@ import fr.univLille.cristal.shex.util.Pair;
  */
 public class RefineValidation implements ValidationAlgorithm {
 	private RDFGraph graph;
-	private ShexSchema originalSchema;
-	private ShexSchema schemaSorbe;
-	private Map<ShapeExprLabel, ShapeExpr> allRules;
+	private SORBEGenerator sorbeGenerator;
+	private ShexSchema schema;
 	private RefinementTyping typing;
+	
 	private Map<TripleExpr,List<TripleConstraint>> collectionTripleConstraints;
 	
 
 	public RefineValidation(ShexSchema schema, RDFGraph graph) {
 		super();
 		this.graph = graph;
-		this.originalSchema = schema;
-		// TODO: implement conversion of original schema to a SORBE schema
-		this.schemaSorbe = schema;
+		this.sorbeGenerator = new SORBEGenerator();
+		this.schema = schema;
 		this.collectionTripleConstraints = new HashMap<TripleExpr,List<TripleConstraint>>();
 	}
 	
@@ -86,9 +87,9 @@ public class RefineValidation implements ValidationAlgorithm {
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
 		//System.out.println(schemaSorbe.getShapeMap());
-		this.typing = new RefinementTyping(schemaSorbe, graph);
+		this.typing = new RefinementTyping(schema, graph);
 
-		for (int stratum = 0; stratum < schemaSorbe.getNbStratums(); stratum++) {
+		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
 						
 			boolean changed;
@@ -97,6 +98,7 @@ public class RefineValidation implements ValidationAlgorithm {
 				Iterator<Pair<Value, ShapeExprLabel>> typesIt = typing.typesIterator(stratum);
 				while (typesIt.hasNext()) {
 					Pair<Value, ShapeExprLabel> nl = typesIt.next();
+					
 					if (! isLocallyValid(nl)) {
 						typesIt.remove();
 						changed = true;
@@ -109,7 +111,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	private boolean isLocallyValid(Pair<Value, ShapeExprLabel> nl) {
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(nl.one);
-		schemaSorbe.getShapeMap().get(nl.two).accept(visitor);
+		schema.getShapeMap().get(nl.two).accept(visitor);
 		return visitor.getResult();
 	}
 	
@@ -173,42 +175,74 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	
 	private boolean isLocallyValid (Value node, Shape shape) {
-		TripleExpr tripleExpression = shape.getTripleExpression();
-				
-		List<NeighborTriple> neighbourhood = graph.listAllNeighbours(node);
+		System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
+
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		
 		List<TripleConstraint> constraints = this.getAllTripleConstraints(tripleExpression);
-			
-//		System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
+		if (constraints.size() == 0) {
+			if (!shape.isClosed()) {
+				return true;
+			} else {
+				if (graph.listOutNeighbours(node).size()==0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		
+		List<IRI> inversePredicate = new ArrayList<IRI>();
+		List<IRI> forwardPredicate = new ArrayList<IRI>();
+		for (TripleConstraint tc:constraints) {
+			if (tc.getProperty().isForward()) {
+				forwardPredicate.add(tc.getProperty().getIri());
+			}else {
+				inversePredicate.add(tc.getProperty().getIri());
+			}
+		}
+		
+		List<NeighborTriple> neighbourhood = graph.listInNeighboursWithPredicate(node, inversePredicate);
+		if (shape.isClosed()) {
+			neighbourhood.addAll(graph.listOutNeighbours(node));
+		} else {
+			neighbourhood.addAll(graph.listOutNeighboursWithPredicate(node,forwardPredicate));
+		}
+		
 //		System.out.println("Neighbourhood: "+neighbourhood);
 //		System.out.println("List of TC("+constraints.size()+"): "+constraints);
 
 		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
 //		Matcher matcher = new PredicateOnlyMatcher(); 
-//		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 
+//		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 		
 		
-		List<List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
-		// Drop neighbor that cannot be match to any constraint. If shape is closed then return false.
-		Iterator<List<TripleConstraint>> iteMatchingTC = matchingTC.iterator();
+		Map<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
+		
+		// Check that the neighbor that cannot be match to a constraint are in extra
+		Iterator<Map.Entry<NeighborTriple,List<TripleConstraint>>> iteMatchingTC = matchingTC.entrySet().iterator();
 		while(iteMatchingTC.hasNext()) {
-			List<TripleConstraint> listTC = iteMatchingTC.next();
-			if (listTC.isEmpty()) {
-				if (shape.isClosed()) {
+			Entry<NeighborTriple, List<TripleConstraint>> listTC = iteMatchingTC.next();
+			if (listTC.getValue().isEmpty()) {
+				if (! shape.getExtraProperties().contains(listTC.getKey().getPredicate())){
 					return false;
 				}
 				iteMatchingTC.remove();
 			}
 		}
-		//System.out.println("MatchingTC:"+matchingTC);
 		
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		BagIterator bagIt = new BagIterator(matchingTC);
-		
+		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>(matchingTC.values());
+		BagIterator bagIt = new BagIterator(listMatchingTC);
+//		System.out.println("Here MatchingTC:"+listMatchingTC);
+		System.out.println(shape);
+		System.out.println(tripleExpression);
 		IntervalComputation intervalComputation = new IntervalComputation();
 		
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
-			//System.out.println("Bag: "+bag);
-			tripleExpression.accept(intervalComputation, bag);
+			System.out.println("Bag: "+bag);
+			tripleExpression.accept(intervalComputation, bag, this);
+			System.out.println("Bag result:"+intervalComputation.getResult());
 			if (intervalComputation.getResult().contains(1))
 				return true;
 		}
@@ -217,6 +251,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 	
 	
+
 	// collect all triple constraint in a triple expression and store it to reuse later
 	private List<TripleConstraint> getAllTripleConstraints (TripleExpr tripleExpression) {
 		if (this.collectionTripleConstraints.containsKey(tripleExpression))

@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -75,11 +76,11 @@ public class RDF4JGraph extends AbstractRDFGraph {
 	}
 
 	@Override
-	protected Iterator<NeighborTriple> itOutNeighbours(Value focusNode) {
+	protected Iterator<NeighborTriple> itOutNeighbours(Value focusNode,IRI predicate) {
 		if (focusNode instanceof Resource) {
 			return new Iterator<NeighborTriple>() {
 	
-				Iterator<Statement> it = rdf4jModel.filter((Resource) focusNode, null, null).iterator();
+				Iterator<Statement> it = rdf4jModel.filter((Resource) focusNode, predicate, null).iterator();
 				
 				@Override
 				public boolean hasNext() {
@@ -107,10 +108,10 @@ public class RDF4JGraph extends AbstractRDFGraph {
 	}
 
 	@Override
-	protected Iterator<NeighborTriple> itInNeighbours(Value focusNode) {
+	protected Iterator<NeighborTriple> itInNeighbours(Value focusNode,IRI predicate) {
 		return new Iterator<NeighborTriple>() {
 
-			Iterator<Statement> it = rdf4jModel.filter(null, null, focusNode).iterator();
+			Iterator<Statement> it = rdf4jModel.filter(null, predicate, focusNode).iterator();
 				
 			
 			@Override

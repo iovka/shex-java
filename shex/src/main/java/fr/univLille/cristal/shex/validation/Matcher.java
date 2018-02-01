@@ -19,7 +19,9 @@ limitations under the License.
 package fr.univLille.cristal.shex.validation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import fr.univLille.cristal.shex.graph.NeighborTriple;
@@ -40,20 +42,19 @@ public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Bo
 	 * @param matcher
 	 * @return
 	 */
-	public static List<List<TripleConstraint>> collectMatchingTC (List<NeighborTriple> neighbourhood, List<TripleConstraint> constraints, Matcher matcher) {
+	public static Map<NeighborTriple,List<TripleConstraint>> collectMatchingTC (List<NeighborTriple> neighbourhood, List<TripleConstraint> constraints, Matcher matcher) {
 		
-		ArrayList<List<TripleConstraint>> result = new ArrayList<>(neighbourhood.size()); 
+		Map<NeighborTriple,List<TripleConstraint>> result = new HashMap<>(neighbourhood.size()); 
 		
 		for (NeighborTriple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: constraints) {
-				//System.out.println("Matcher: "+triple.getPredicate()+" ?? "+tc+" : "+matcher.apply(triple, tc));
 				if (matcher.apply(triple, tc)) {
 					matching.add(tc);
 				}
 			}
 			
-			result.add(matching);
+			result.put(triple,matching);
 		}
 		return result;
 	}

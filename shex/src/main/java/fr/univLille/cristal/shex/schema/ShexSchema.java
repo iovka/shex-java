@@ -17,6 +17,7 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,7 +72,7 @@ import fr.univLille.cristal.shex.util.Pair;
  * @author Jérémie Dusart
  */
 public class ShexSchema {
-	private List<Set<ShapeExprLabel>> stratification = null;
+	private Map<Integer,Set<ShapeExprLabel>> stratification = null;
 	private Map<ShapeExprLabel, ShapeExpr> rules;
 	private Map<ShapeExprLabel,ShapeExpr> shapeMap;
 	private Map<TripleExprLabel,TripleExpr> tripleMap;
@@ -173,13 +174,16 @@ public class ShexSchema {
 		}
 		
 		// Compute Stratification using an iterator of the dag
-		stratification = new LinkedList<Set<ShapeExprLabel>>();
+		stratification = new HashMap<Integer,Set<ShapeExprLabel>>();
+		int counterStrat = dag.vertexSet().size()-1;
 		for (Label S:dag) {
 			Set<ShapeExprLabel> tmp = new HashSet<ShapeExprLabel>();
 			for (Label l:revIndex.get(S))
 				tmp.add((ShapeExprLabel) l);
-			stratification.add(tmp);
+			stratification.put(counterStrat,tmp);
+			counterStrat--;
 		}
+	
 	}
 
 	
@@ -573,7 +577,7 @@ public class ShexSchema {
 		throw new IllegalArgumentException("Unknown shape label: " + label);
 	}
 	
-	public List<Set<ShapeExprLabel>> getStratification() {
+	public Map<Integer,Set<ShapeExprLabel>> getStratification() {
 		return this.stratification;
 	}
 

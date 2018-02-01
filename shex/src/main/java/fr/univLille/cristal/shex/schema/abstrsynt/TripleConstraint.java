@@ -28,7 +28,6 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 public class TripleConstraint extends TripleExpr {
 	
 	private TCProperty property;	
-	// FIXME: here it should become a ShapeEXpr and not a reference
 	private ShapeExpr shapeExpr;
 	private boolean isSingleton;
 		
@@ -37,17 +36,6 @@ public class TripleConstraint extends TripleExpr {
 		return new TripleConstraint(property, shapeExpr, true);
 	}
 	
-	/*
-	
-	public static TripleConstraint newForwardOpen (Set<TCProperty> closedProperties, ShapeExprRef shapeRef) {
-		return new TripleConstraint(new ForwardComplementPropertySet(closedProperties), shapeRef, false);
-	}
-	
-	public static TripleConstraint newInverseOpen (Set<TCProperty> closedProperties, ShapeExprRef shapeRef) {
-		return new TripleConstraint(new InverseComplementPropertySet(closedProperties), shapeRef, false);
-	}
-	
-	*/
 	private TripleConstraint (TCProperty property, ShapeExpr shapeExpr, boolean isSingleton) {
 		this.property = property;
 		this.shapeExpr = shapeExpr;
@@ -57,14 +45,6 @@ public class TripleConstraint extends TripleExpr {
 	public TCProperty getProperty(){
 		return property;
 	}
-
-	/*
-	public TCProperty getProperty () {
-		if (! isSingleton)
-			throw new IllegalStateException("Trying to retrieve the property of a non-singleton property set");
-		return ((SingletonPropertySet) property).getProperty();
-	}
-	*/
 	
 	public ShapeExpr getShapeExpr(){
 		return shapeExpr;
@@ -78,7 +58,7 @@ public class TripleConstraint extends TripleExpr {
 	
 	@Override
 	public TripleConstraint clone() {
-		return new TripleConstraint(this.property, (ShapeExprRef) this.shapeExpr, this.isSingleton);
+		return new TripleConstraint(this.property, this.shapeExpr, this.isSingleton);
 	}
 	
 
