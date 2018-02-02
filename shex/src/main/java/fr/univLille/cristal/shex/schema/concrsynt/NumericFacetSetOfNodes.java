@@ -104,11 +104,11 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 		
 		if (! satisfiesMinMax(dv))
 			return false;
-		
+
 		if (totalDigits != null && totalDigits <= dv.precision()) 
 			return false;
 		
-		if (fractionDigits != null && fractionDigits < dv.scale()) 
+		if (fractionDigits != null && fractionDigits < dv.stripTrailingZeros().scale()) 
 			return false;
 		
 		return true;
