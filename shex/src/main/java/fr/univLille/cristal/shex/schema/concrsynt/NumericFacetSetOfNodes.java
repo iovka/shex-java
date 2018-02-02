@@ -36,7 +36,7 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 
 	// FIXME: complete the xsd datatypes
 	private static final Set<IRI> decimalTypes = new HashSet<>(Arrays.asList(new IRI[] {
-			XMLSchema.DECIMAL, 	XMLSchema.INT, XMLSchema.INTEGER
+			XMLSchema.DECIMAL, 	XMLSchema.INT, XMLSchema.INTEGER, XMLSchema.BYTE
 	}));
 	private static final Set<IRI> doubleTypes = new HashSet<>(Arrays.asList(new IRI[] {
 			XMLSchema.DOUBLE, XMLSchema.FLOAT
@@ -90,14 +90,14 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 			return containsDecimal(lnode);	
 		if (doubleTypes.contains(datatype))
 			return containsDouble(lnode);
-
+		System.out.println("here:"+node);
 		return false;
 	}
 	
 	private boolean containsDecimal (Literal lnode) {
 		BigDecimal dv;
 		try {
-			dv = lnode.decimalValue();
+			dv = lnode.decimalValue().stripTrailingZeros();
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -108,7 +108,7 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 		if (totalDigits != null && totalDigits < dv.precision()) 
 			return false;
 		
-		if (fractionDigits != null && fractionDigits < dv.stripTrailingZeros().scale()) 
+		if (fractionDigits != null && fractionDigits < dv.scale()) 
 			return false;
 		
 		return true;
