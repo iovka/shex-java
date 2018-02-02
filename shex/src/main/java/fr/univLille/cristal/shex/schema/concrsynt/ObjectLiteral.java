@@ -39,7 +39,7 @@ public class ObjectLiteral implements SetOfNodes {
 		this.language = language;
 		this.type = type;
 	}
-	
+		
 	@Override
 	public boolean contains(Value node) {
 		if (! (node instanceof Literal))
@@ -54,7 +54,7 @@ public class ObjectLiteral implements SetOfNodes {
 			if (! lang.get().equals(language))
 				return false;	
 		}
-		if (type != null && l.getDatatype().equals(type))
+		if (type != null && !l.getDatatype().equals(type))
 			return false;
 		
 		return true;

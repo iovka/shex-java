@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-*/
+ */
 
 package fr.univLille.cristal.shex.schema.parsing;
 
@@ -93,66 +93,60 @@ public class JsonldParser {
 	private static final Pattern STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^"); 
 
 	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
-			
+
 	private Object schemaObject; 
 	private Path path;
 	private boolean semActsWarning = false;
 	private boolean annotationsWarning = false;
-	private Map<ShapeExprLabel, ShapeExpr> rules = new HashMap<>();
-	public static final ShapeExprLabel SL_ALL = createShapeLabel("http://a.ex/Slall",false);
-	private ShapeExpr ALL_NODES = new NodeConstraint(SetOfNodes.AllNodes);
 
-	
 	public JsonldParser(Path path) throws IOException, JsonLdError {
 		this.path = path;
 		InputStream inputStream = new FileInputStream(path.toFile());
 		schemaObject = JsonUtils.fromInputStream(inputStream);
 	}
-	
+
 	// --------------------------------------------------------------------
 	// 	PARSING
 	// --------------------------------------------------------------------
-	
-	
+
+
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
 	public ShexSchema parseSchema() throws ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException  {
 		Map map = (Map) schemaObject;
-		
+
 		if (! "Schema".equals(getType(map))) {
 			throw new ParseException("The type of a schema should be a schema",-1);	
 		}
-		
+
 		if (map.containsKey("startActs")) {
 			warningSemanticActions();
 		}
-		
+
 		if (map.containsKey("start")) {
 			throw new UnsupportedOperationException(path + ": Start action not supported");
 		}
-		
+
 		List shapes = (List) (map.get("shapes"));
-		
+
 		// TODO: what happens if neither start not shapes ?
-		
+
 		Map<ShapeExprLabel,ShapeExpr> rules = new HashMap<ShapeExprLabel,ShapeExpr>();
-		// FIXME: to remove eventually
-		addAcceptsAllRule();
-		
+
 		for (Object shapeObj : shapes) {
 			Map shape = (Map) shapeObj;
 			String label = getId(shape);
 			ShapeExpr shexpr = parseShapeExpression(shape);
 			rules.put(createShapeLabel(label,false), shexpr);
 		}
-		
+
 		ShexSchema schema = new ShexSchema(rules);
 		return schema;
 	}
-	
+
+
 	//-------------------------------------------
 	// Parsing shape
 	//-------------------------------------------
-
 
 	// shapeExpr 	= 	ShapeOr | ShapeAnd | ShapeNot | NodeConstraint | Shape | ShapeExternal | shapeExprRef
 	// shapeExprRef = shapeExprLabel
@@ -169,34 +163,34 @@ public class JsonldParser {
 			setShapeId(resultExpr, Collections.EMPTY_MAP);
 			return resultExpr;
 		}
-		
+
 		Map exprMap = (Map) exprObj;
 
 		String type = getType(exprMap);		
-		
+
 		switch(type){
-			case "ShapeOr":
-				resultExpr = parseShapeOr(exprMap);
-				break;
-				
-			case "ShapeAnd":
-				resultExpr = parseShapeAnd(exprMap);
-				break;
-				
-			case "ShapeNot":
-				resultExpr = parseShapeNot(exprMap);
-				break;
-				
-			case "NodeConstraint":
-				resultExpr = parseNodeConstraint(exprMap);
-				break;		
-	
-			case "Shape":
-				resultExpr = parseShape(exprMap);
-				break;
-	
-			case "ShapeExternal":
-				throw new UnsupportedOperationException(String.format("Type %s not supported.", "ShapeExternal"));
+		case "ShapeOr":
+			resultExpr = parseShapeOr(exprMap);
+			break;
+
+		case "ShapeAnd":
+			resultExpr = parseShapeAnd(exprMap);
+			break;
+
+		case "ShapeNot":
+			resultExpr = parseShapeNot(exprMap);
+			break;
+
+		case "NodeConstraint":
+			resultExpr = parseNodeConstraint(exprMap);
+			break;		
+
+		case "Shape":
+			resultExpr = parseShape(exprMap);
+			break;
+
+		case "ShapeExternal":
+			throw new UnsupportedOperationException(String.format("Type %s not supported.", "ShapeExternal"));
 		}
 
 		return resultExpr;
@@ -210,7 +204,7 @@ public class JsonldParser {
 		setShapeId(res, map);
 		return res;
 	}
-	
+
 	// ShapeAnd 	{ 	id:shapeExprLabel? shapeExprs:[shapeExpr] }
 	protected ShapeExpr parseShapeAnd (Map map) {
 		List shapeExprs = (List) (map.get("shapeExprs"));
@@ -219,7 +213,7 @@ public class JsonldParser {
 		setShapeId(res, map);
 		return res;
 	}
-	
+
 	// ShapeNot 	{ 	id:shapeExprLabel? shapeExpr:shapeExpr }
 	protected ShapeExpr parseShapeNot (Map map) {
 		Map shapeExpr = (Map) map.get("shapeExpr");
@@ -237,31 +231,31 @@ public class JsonldParser {
 		}
 		return list;
 	}
-	
+
 	// Shape 	{ 	id:shapeExprLabel? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
 	protected Shape parseShape(Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
 		//
-		
+
 		Boolean closed = (Boolean) (map.get("closed"));
 		if (closed == null)
 			closed = false;
-		
+
 		List<IRI> extra;
 		List extraList = (List) (map.get("extra"));
 		if (extraList != null) 
 			extra = parseListOfIri(extraList);
 		else
 			extra = Collections.EMPTY_LIST;
-		
+
 		Set<TCProperty> extraProps = new HashSet<>();
 		for (IRI iri: extra) {
 			extraProps.add(TCProperty.createFwProperty(iri));
 		}
-		
+
 		TripleExpr texpr;
-		
+
 		Object texprObj = map.get("expression");
 		if (texprObj == null) {
 			texpr = new EmptyTripleExpression();
@@ -269,65 +263,29 @@ public class JsonldParser {
 		}else {
 			texpr = parseTripleExpression(texprObj);
 		}
-		
+
 		Shape res = createNeighbourhoodConstraint(texpr, closed, extraProps);
-		
+
 		setShapeId(res, map);
-		
+
 		return res;
 	}
-	
-	
-	//-------------------------------------------
-	// Parsing triple expression
-	//-------------------------------------------
 
-		
-	// tripleExpr 	= 	EachOf | OneOf | TripleConstraint | tripleExprRef ;
-	protected TripleExpr parseTripleExpression (Object obj) {
-		TripleExpr resultExpr = null;
-		
-		if (obj instanceof String) {
-			resultExpr = new TripleExprRef(createTripleLabel((String) obj,false));
-			setTripleId(resultExpr, Collections.EMPTY_MAP);
-			return resultExpr;
-		}
-		
-		Map map = (Map) obj;
-			
-		String type = getType(map);
-				
-		switch (type) {
-		case "EachOf" : 
-			resultExpr = parseEachOf(map); 
-			break;
-			
-		case "OneOf" :
-			resultExpr = parseOneOf(map);
-			break;
-			
-		case "TripleConstraint" :
-			resultExpr = parseTripleConstraint(map);
-			break;
-		}
-		return resultExpr;
-	}
-	
 	// NodeConstraint 	{ 	id:shapeExprLabel? nodeKind:("iri" | "bnode" | "nonliteral" | "literal")? datatype:IRI? xsFacet* values:[valueSetValue]? }
 	// xsFacet = stringFacet | numericFacet
-	
+
 	protected NodeConstraint parseNodeConstraint(Map map) {
 		List<SetOfNodes> constraints = new ArrayList<>();
-		
+
 		String nodeKind = (String) (map.get("nodeKind"));
 		if (nodeKind != null)
 			switch (nodeKind) {
-				case "iri"  : constraints.add(SetOfNodes.AllIRI); break;
-				case "bnode": constraints.add(SetOfNodes.Blank); break;
-				case "literal": constraints.add(SetOfNodes.AllLiteral); break;
-				case "nonliteral": constraints.add(SetOfNodes.complement(SetOfNodes.AllLiteral)); break;
+			case "iri"  : constraints.add(SetOfNodes.AllIRI); break;
+			case "bnode": constraints.add(SetOfNodes.Blank); break;
+			case "literal": constraints.add(SetOfNodes.AllLiteral); break;
+			case "nonliteral": constraints.add(SetOfNodes.complement(SetOfNodes.AllLiteral)); break;
 			}
-		
+
 		String datatype = (String) (map.get("datatype"));
 		if (datatype != null)
 			constraints.add(createDatatypeSet(datatype));
@@ -335,16 +293,16 @@ public class JsonldParser {
 		SetOfNodes num = getNumericFacet(map);
 		if (num != null) 
 			constraints.add(num);
-		
+
 		SetOfNodes str = getStringFacet(map);
 		if (str != null) 
 			constraints.add(str);
-		
+
 		List values = (List) (map.get("values"));
 		if (values != null) {
 			constraints.addAll(parseValueSetValueList(values));
 		}
-		
+
 		NodeConstraint res;
 		if (constraints.size() == 1)
 			res = new NodeConstraint(constraints.get(0));
@@ -355,18 +313,17 @@ public class JsonldParser {
 
 		return res;
 	}
-	
-	
+
+
 	// List of
 	// valueSetValue 	= 	objectValue | IriStem | IriStemRange | LiteralStem | LiteralStemRange | Language | LanguageStem | LanguageStemRange ;
 	// objectValue 	= 	IRI | ObjectLiteral ;
 	// Language 	{ 	langTag:ObjectLiteral }
 	// _Stem_ contains stem as key
 	private List<SetOfNodes> parseValueSetValueList (List values) {
-		
 		List<Value> explicitValuesList = new ArrayList<>();
 		List<SetOfNodes> nodeConstraintsList = new ArrayList<>();
-		
+
 		for (Object o : values) {
 			if (o instanceof String) {
 				// IRI
@@ -390,56 +347,93 @@ public class JsonldParser {
 			nodeConstraintsList.add(new ExplictValuesSetOfNodes(explicitValuesList));
 		return nodeConstraintsList;
 	}
-	
-	
+
+
 	// ObjectLiteral 	{ 	value:STRING language:STRING? type: STRING? }
 	private SetOfNodes parseObjectLiteral (Map m) {
 		IRI type = null;
 		String typeString = (String) m.get("type");
 		if (typeString != null)
 			type = RDF_FACTORY.createIRI(typeString);
-		
+
 		return new ObjectLiteral((String) m.get("value"), (String) m.get("language"), type);
 	}
-		
-	
+
+
 	/*if (m.containsKey("language") || m.containsKey("type"))
-			throw new UnsupportedOperationException("language and tag not supported");
-		
-		String s = (String) m.get("value");
-		if (isIriString(s)) {
-			return RDF_FACTORY.createIRI(s);
+				throw new UnsupportedOperationException("language and tag not supported");
+
+			String s = (String) m.get("value");
+			if (isIriString(s)) {
+				return RDF_FACTORY.createIRI(s);
+			}
+			if (isLangString(s)){
+				String[] litLang = s.split("@");
+				String valueString = litLang[0].substring(1, litLang[0].length()-1); 
+				return RDF_FACTORY.createLiteral(valueString, litLang[1]);
+			} else if (isDatatypeString(s)) {
+				String[] valueType = s.split("\\^\\^");
+				String valueString = valueType[0].substring(1, valueType[0].length()-1);
+				String typeString = valueType[1];
+				IRI type = RDF_FACTORY.createIRI(typeString);
+				return RDF_FACTORY.createLiteral(valueString, type);
+			} else {
+				throw new UnsupportedOperationException("unsupported literal type");
+			}
 		}
-		if (isLangString(s)){
-			String[] litLang = s.split("@");
-			String valueString = litLang[0].substring(1, litLang[0].length()-1); 
-			return RDF_FACTORY.createLiteral(valueString, litLang[1]);
-		} else if (isDatatypeString(s)) {
-			String[] valueType = s.split("\\^\\^");
-			String valueString = valueType[0].substring(1, valueType[0].length()-1);
-			String typeString = valueType[1];
-			IRI type = RDF_FACTORY.createIRI(typeString);
-			return RDF_FACTORY.createLiteral(valueString, type);
-		} else {
-			throw new UnsupportedOperationException("unsupported literal type");
-		}
-	}
 	 */
 	protected SetOfNodes parseStem (Map m) {
 		throw new UnsupportedOperationException("stems not supported");
 	}
-	
-	
+
+
 	protected SetOfNodes parseLanguage (Map m) {
 		throw new UnsupportedOperationException("language tag not yet implemented");
 	}
-	
-	
 
-	
-	
 
-	
+
+
+
+
+	//-------------------------------------------
+	// Parsing triple expression
+	//-------------------------------------------
+
+	// tripleExpr 	= 	EachOf | OneOf | TripleConstraint | tripleExprRef ;
+	protected TripleExpr parseTripleExpression (Object obj) {
+		TripleExpr resultExpr = null;
+
+		if (obj instanceof String) {
+			resultExpr = new TripleExprRef(createTripleLabel((String) obj,false));
+			setTripleId(resultExpr, Collections.EMPTY_MAP);
+			return resultExpr;
+		}
+
+		Map map = (Map) obj;
+
+		String type = getType(map);
+
+		switch (type) {
+		case "EachOf" : 
+			resultExpr = parseEachOf(map); 
+			break;
+
+		case "OneOf" :
+			resultExpr = parseOneOf(map);
+			break;
+
+		case "TripleConstraint" :
+			resultExpr = parseTripleConstraint(map);
+			break;
+		}
+		return resultExpr;
+	}
+
+
+
+
+
 
 	// EachOf 	{ 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	protected TripleExpr parseEachOf (Map map) {
@@ -447,24 +441,24 @@ public class JsonldParser {
 		Object semActs = getSemActs(map);
 		Object annotations = getAnnotations(map);
 		// 
-		
+
 		List list = (List) (map.get("expressions"));
 		List<TripleExpr> subExpressions = parseListOfTripleExprs(list);
-	
+
 		Interval card = getCardinality(map);
-		
+
 		TripleExpr res;
 		if (card == null)
 			res = new EachOf(subExpressions);
 		else 
 			res = new RepeatedTripleExpression(new EachOf(subExpressions), card);
-		
+
 		setTripleId(res, map);
 
 		return res;
 	}
-	
-	
+
+
 	// OneOf { 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }	
 	@SuppressWarnings("rawtypes")
 	protected TripleExpr parseOneOf (Map map) {
@@ -472,13 +466,13 @@ public class JsonldParser {
 		Object semActs = getSemActs(map);
 		Object annotations = getAnnotations(map);
 		//
-		
-		
+
+
 		List list = (List) (map.get("expressions"));
 		List<TripleExpr> subExpressions = parseListOfTripleExprs(list);
-	
+
 		Interval card = getCardinality(map);
-		
+
 		TripleExpr res;
 		if (card == null)
 			res = new EachOf(subExpressions);
@@ -486,25 +480,25 @@ public class JsonldParser {
 			res = new RepeatedTripleExpression(new OneOf(subExpressions), card);	
 
 		setTripleId(res, map);
-		
+
 		return res;
-	
+
 	}
-	
-	
+
+
 	// TripleConstraint 	{ 	id:tripleExprLabel? inverse:BOOL? predicate:IRI valueExpr: shapeExpr? min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	protected TripleExpr parseTripleConstraint(Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
 		Object annotations = getAnnotations(map);
 		//
-				
+
 		Boolean inv = (Boolean) (map.get("inverse"));
 		if (inv == null)
 			inv = false;
 		IRI predicate = createIri((String) (map.get("predicate")));
 		TCProperty property = createTCProperty(predicate, !inv);
-		
+
 		ShapeExpr shexpr = null;
 		Object valueExpr = map.get("valueExpr");
 		if (valueExpr != null)
@@ -515,7 +509,7 @@ public class JsonldParser {
 			shexpr = new Shape(tmp, Collections.EMPTY_SET, false);
 			setShapeId(shexpr, Collections.EMPTY_MAP);
 		}
-				
+
 		Interval card = getCardinality(map);	
 		TripleExpr res ;
 		if (card == null)
@@ -523,22 +517,22 @@ public class JsonldParser {
 		else 
 			res = new RepeatedTripleExpression(TripleConstraint.newSingleton(property, shexpr), card); 
 		setTripleId(res, map);
-		
+
 		return res;
 	}
-	
-	
+
+
 	// --------------------------------------------------------------------
 	// 	PARSING PART OF JSON OBJECT
 	// --------------------------------------------------------------------
-	 
+
 	// numericFacet = (mininclusive|minexclusive|maxinclusive|maxeclusive):numericLiteral | (totaldigits|fractiondigits):INTEGER
 
 	private static SetOfNodes getNumericFacet (Map map) {
 		BigDecimal minincl = null, minexcl = null, maxincl = null, maxexcl = null;
 		Number n;
-		
-		
+
+
 		n = (Number)(map.get("mininclusive"));
 		if (n != null)
 			minincl = new BigDecimal(n.toString());
@@ -551,7 +545,7 @@ public class JsonldParser {
 		n = (Number)(map.get("maxexclusive"));
 		if (n != null)
 			maxexcl = new BigDecimal(n.toString());
-		
+
 		Integer totalDigits = (Integer) (map.get("totaldigits"));
 		Integer fractionDigits = (Integer) (map.get("fractiondigits"));
 
@@ -567,9 +561,9 @@ public class JsonldParser {
 		} 
 		return null;
 	}
-	
+
 	// stringFacet = (length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING?
-	
+
 	private static SetOfNodes getStringFacet (Map map) {		
 		Integer length = (Integer) (map.get("length"));
 		Integer minlength = (Integer) (map.get("minlength"));
@@ -577,7 +571,7 @@ public class JsonldParser {
 		String patternString = (String) (map.get("pattern"));
 		String flags = (String) (map.get("flags"));
 		// TODO: flags is not used
-		
+
 		if (length != null || minlength != null || maxlength != null || patternString != null) {
 			StringFacetSetOfNodes facet = new StringFacetSetOfNodes();
 			facet.setLength(length);
@@ -588,7 +582,7 @@ public class JsonldParser {
 		} 
 		else return null;
 	}
-	
+
 	protected List<IRI> parseListOfIri (List list) {
 		List<IRI> res = new ArrayList<>(list.size());
 		for (Object o: list) {
@@ -596,7 +590,7 @@ public class JsonldParser {
 		}
 		return res;
 	}
-	
+
 	private List<TripleExpr> parseListOfTripleExprs (List list) {
 		ArrayList<TripleExpr> resultList = new ArrayList<>();
 		for(Object o : list){
@@ -606,57 +600,57 @@ public class JsonldParser {
 		}
 		return resultList;
 	}
-	
 
 
-	
+
+
 	private Interval getCardinality (Map map)  {	
 		Integer min = (Integer) (map.get("min"));
 		Integer max = (Integer) (map.get("max"));
-		
+
 		if (min == null && max == null)
 			return null;
 		if (min == null)
 			min = 0;
 		if (max == null || max == -1)
 			max = Interval.UNBOUND;
-			
+
 		return new Interval(min, max);
 	}
-	
-	
+
+
 	private Object getSemActs (Map map) {
 		Object semActs = map.get("semActs");
 		if (semActs != null)
 			warningSemanticActions();
 		return semActs;
 	}
-	 
+
 	private Object getAnnotations (Map map) {
 		Object annotations = map.get("annotations");
 		if (annotations != null)
 			warningAnnotations();
 		return annotations;
 	}
-	
+
 	// ----------------------------------------------------------------------
 	// FACTORY METHODS
 	// ----------------------------------------------------------------------
 	private static IRI createIri (String s) {
 		return RDF_FACTORY.createIRI(s);
 	}
-	
+
 	private static SetOfNodes createDatatypeSet (String datatypeIri) {
 		return new DatatypeSetOfNodes(createIri(datatypeIri));
 	}
-	
+
 	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
 			return new ShapeExprLabel(createIri(string),generated);
 		else 
 			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
 	}
-	
+
 	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
 			return new TripleExprLabel(createIri(string),generated);
@@ -675,12 +669,12 @@ public class JsonldParser {
 	private Shape createNeighbourhoodConstraint (TripleExpr expr, boolean isClosed, Set<TCProperty> extraProps) {
 		return new Shape(expr, extraProps, isClosed);	
 	}
-	
-//	public static ShapeExprLabel createFreshExtraLabel () {
-//		return createShapeLabel(EXTRA_SHAPE_LABEL_PREFIX+(shapeLabelNb++));
-//	}
-// 
-	
+
+	//	public static ShapeExprLabel createFreshExtraLabel () {
+	//		return createShapeLabel(EXTRA_SHAPE_LABEL_PREFIX+(shapeLabelNb++));
+	//	}
+	// 
+
 	// ----------------------------------------------------------------------
 	// UTILITY METHODS
 	// ----------------------------------------------------------------------
@@ -690,19 +684,19 @@ public class JsonldParser {
 			this.semActsWarning = true;
 		}
 	}
-	
+
 	private void warningAnnotations () {
 		if (! this.annotationsWarning) {
 			System.out.println("Annotations not supported.");
 			this.annotationsWarning = true;
 		}
 	}
-	
-	
+
+
 	private String getType (Map map) {
 		return (String) (map.get("type"));
 	}
-	
+
 	private String getId (Map map) {
 		return (String) (map.get("id"));
 	}
@@ -712,22 +706,22 @@ public class JsonldParser {
 			shape.setId(createShapeLabel(getId(map),false));
 		}
 	}
-	
+
 	private void setTripleId (TripleExpr triple, Map map) {
 		if (map.containsKey("id")) {
 			triple.setId(createTripleLabel(getId(map),false));
 		}
 	}
-	
-	
+
+
 	private boolean isLangString (String s) {
 		return LANG_STRING_PATTERN.matcher(s).matches();
 	}
-	
+
 	private boolean isDatatypeString (String s) {
 		return DATATYPE_STRING_PATTERN.matcher(s).matches();
 	}
-	
+
 	private static boolean isIriString (String s) {
 		if (s.indexOf(':') < 0) {
 			return false;
@@ -738,11 +732,8 @@ public class JsonldParser {
 	private boolean isString (String s) {
 		return STRING_PATTERN.matcher(s).matches();
 	}
-	*/
-	private void addAcceptsAllRule () {
-		if (! rules.containsKey(SL_ALL))
-			rules.put(SL_ALL, ALL_NODES);
-	}
-	
-	
+	 */
+
+
+
 }

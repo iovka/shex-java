@@ -87,6 +87,7 @@ public class RefineValidation implements ValidationAlgorithm {
 
 		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
+			//System.out.println("Stratum: "+schema.getStratum(stratum));
 						
 			boolean changed;
 			do {
@@ -171,7 +172,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	
 	private boolean isLocallyValid (Value node, Shape shape) {
-		//System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
+	//	System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
 
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 //		System.out.println(tripleExpression);
