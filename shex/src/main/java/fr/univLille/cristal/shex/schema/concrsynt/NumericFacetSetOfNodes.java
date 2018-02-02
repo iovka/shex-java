@@ -80,18 +80,17 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 			this.fractionDigits = fractionDigits;
 		else throw new IllegalStateException("fraction digits already set");
 	}
-	
+
 	@Override
 	public boolean contains(Value node) {
 		if (! (node instanceof Literal)) return false;
 		Literal lnode = (Literal) node;
-		
 		IRI datatype = lnode.getDatatype();
 		if (decimalTypes.contains(datatype))
 			return containsDecimal(lnode);	
 		if (doubleTypes.contains(datatype))
 			return containsDouble(lnode);
-		
+
 		return false;
 	}
 	
@@ -106,10 +105,10 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 		if (! satisfiesMinMax(dv))
 			return false;
 		
-
-		if (totalDigits != null && totalDigits <= dv.precision())
+		if (totalDigits != null && totalDigits <= dv.precision()) 
 			return false;
-		if (fractionDigits != null && fractionDigits <= dv.scale())
+		
+		if (fractionDigits != null && fractionDigits < dv.scale()) 
 			return false;
 		
 		return true;

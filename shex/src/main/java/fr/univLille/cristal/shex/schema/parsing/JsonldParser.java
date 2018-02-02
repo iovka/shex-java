@@ -527,7 +527,6 @@ public class JsonldParser {
 	// --------------------------------------------------------------------
 
 	// numericFacet = (mininclusive|minexclusive|maxinclusive|maxeclusive):numericLiteral | (totaldigits|fractiondigits):INTEGER
-
 	private static SetOfNodes getNumericFacet (Map map) {
 		BigDecimal minincl = null, minexcl = null, maxincl = null, maxexcl = null;
 		Number n;

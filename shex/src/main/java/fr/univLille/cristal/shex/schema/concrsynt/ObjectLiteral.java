@@ -42,6 +42,7 @@ public class ObjectLiteral implements SetOfNodes {
 		
 	@Override
 	public boolean contains(Value node) {
+		System.out.println();
 		if (! (node instanceof Literal))
 			return false;
 		Literal l = (Literal) node;
