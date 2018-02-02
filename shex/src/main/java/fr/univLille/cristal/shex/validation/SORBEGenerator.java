@@ -104,8 +104,7 @@ public class SORBEGenerator {
 			return result;
 		}else {
 			Interval card = expr.getCardinality();
-			int nbClones = 0;
-			int nbOptClones = 0;
+			int nbClones = 0, nbOptClones = 0;
 			List<TripleExpr> clones = new ArrayList<TripleExpr>();
 
 			if (card.max == Interval.UNBOUND) {

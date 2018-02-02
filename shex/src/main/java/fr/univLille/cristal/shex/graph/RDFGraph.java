@@ -46,7 +46,7 @@ public interface RDFGraph {
 	 * @param focusNode
 	 * @return
 	 */
-	public List<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates);
+	public List<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 	
 	/** A list of all the forward triples that have the given node as focus node.
 	 * 
@@ -60,7 +60,7 @@ public interface RDFGraph {
 	 * @param focusNode
 	 * @return
 	 */
-	public List<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates);
+	public List<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 	
 	/** A list of all the backward triples that have the given node as focus node.
 	 * 
@@ -74,7 +74,7 @@ public interface RDFGraph {
 	 * @param focusNode
 	 * @return
 	 */
-	public List<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates);
+	public List<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 
 
 	/** The set of all object nodes in the graph.

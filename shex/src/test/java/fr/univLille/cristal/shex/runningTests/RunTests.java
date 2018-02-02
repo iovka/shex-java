@@ -188,7 +188,7 @@ public class RunTests {
 
 			return new TestResultForTestReport(testName, false, message, "validation");
 		}
-
+		System.out.println("Starting test: "+testName);
 		TestCase testCase = parseTestCase(manifest, testNode);
 		if (! testCase.isWellDefined()) {
 			errorLog.println(logMessage(testCase, null, null, "Incorrect test definition\nERROR"));
@@ -203,16 +203,16 @@ public class RunTests {
 			JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
 			schema = parser.parseSchema(); // exception possible
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString());
-			System.out.println(schema.getShapeMap());
-			for (Statement st:data) {
-				System.out.println(st);
-			}
+//			System.out.println(schema.getShapeMap());
+//			for (Statement st:data) {
+//				System.out.println(st);
+//			}
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
 			
 			RefineValidation validation = new RefineValidation(schema, dataGraph);
 
 			validation.validate(testCase.focusNode, null);
-			System.out.println(validation.getTyping().asSet());
+//			System.out.println(validation.getTyping().asSet());
 			if (testCase.testKind.equals(VALIDATION_TEST_CLASS) &&
 					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel)
 					||

@@ -40,11 +40,14 @@ import fr.univLille.cristal.shex.util.Interval;
  * @author Iovka Boneva
  *
  */
-public class IntervalComputation extends TripleExpressionVisitor<Interval>{
-	
-
-	
+public class IntervalComputation extends TripleExpressionVisitor<Interval>{	
 	private Interval result;
+	private DynamicCollectorOfTripleConstraint collectorTC;
+	
+	public IntervalComputation(DynamicCollectorOfTripleConstraint collectorTC) {
+		super();
+		this.collectorTC=collectorTC;
+	}
 	
 	@Override
 	public Interval getResult() {
@@ -144,20 +147,14 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 		expr.getTripleExp().accept(this, arguments);		
 	}
 	
-	// I believe this is here that i am checking the empty in the plus
-	//private Object listTripleConstraintsAttributeKey = InstrumentationListsOfTripleConstraintsOnTripleExpressions.getInstance().getKey();
 	
-	// TODO: Fix the next function
 	private boolean isEmptySubbag(Bag bag, TripleExpr expression){
-//
-//		@SuppressWarnings("unchecked")
-//		List<TripleConstraint> list = (List<TripleConstraint>) expression.getDynamicAttributes().get(listTripleConstraintsAttributeKey);
-//		for(TripleConstraint tripleConstraint : list){
-//			if(!(bag.getMult(tripleConstraint) == 0))
-//				return false;
-//		}
-//		
-		return false;
+		List<TripleConstraint> list = this.collectorTC.getResult(expression);
+		for(TripleConstraint tripleConstraint : list){
+			if(!(bag.getMult(tripleConstraint) == 0))
+				return false;
+		}
+		return true;
 	}
 		
 

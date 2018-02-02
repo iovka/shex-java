@@ -44,10 +44,6 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
-import fr.univLille.cristal.shex.schema.analysis.CollectElementsFromShape;
-import fr.univLille.cristal.shex.schema.analysis.CollectElementsFromTriple;
-import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 import fr.univLille.cristal.shex.util.Pair;
 
@@ -66,7 +62,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	private ShexSchema schema;
 	private RefinementTyping typing;
 	
-	private Map<TripleExpr,List<TripleConstraint>> collectionTripleConstraints;
+	private DynamicCollectorOfTripleConstraint collectorTC;
 	
 
 	public RefineValidation(ShexSchema schema, RDFGraph graph) {
@@ -74,7 +70,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		this.graph = graph;
 		this.sorbeGenerator = new SORBEGenerator();
 		this.schema = schema;
-		this.collectionTripleConstraints = new HashMap<TripleExpr,List<TripleConstraint>>();
+		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 	}
 	
 	
@@ -175,11 +171,12 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	
 	private boolean isLocallyValid (Value node, Shape shape) {
-		System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
+		//System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
 
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-		
-		List<TripleConstraint> constraints = this.getAllTripleConstraints(tripleExpression);
+//		System.out.println(tripleExpression);
+		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
+		//System.out.println(constraints);
 		if (constraints.size() == 0) {
 			if (!shape.isClosed()) {
 				return true;
@@ -192,8 +189,8 @@ public class RefineValidation implements ValidationAlgorithm {
 			}
 		}
 		
-		List<IRI> inversePredicate = new ArrayList<IRI>();
-		List<IRI> forwardPredicate = new ArrayList<IRI>();
+		Set<IRI> inversePredicate = new HashSet<IRI>();
+		Set<IRI> forwardPredicate = new HashSet<IRI>();
 		for (TripleConstraint tc:constraints) {
 			if (tc.getProperty().isForward()) {
 				forwardPredicate.add(tc.getProperty().getIri());
@@ -209,12 +206,10 @@ public class RefineValidation implements ValidationAlgorithm {
 			neighbourhood.addAll(graph.listOutNeighboursWithPredicate(node,forwardPredicate));
 		}
 		
-//		System.out.println("Neighbourhood: "+neighbourhood);
+//		System.out.println("Neighbourhood ("+neighbourhood.size()+"): "+neighbourhood);
 //		System.out.println("List of TC("+constraints.size()+"): "+constraints);
 
 		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
-//		Matcher matcher = new PredicateOnlyMatcher(); 
-//		Matcher matcher = new PredicateAndShapeRefAndNodeConstraintsOnLiteralsMatcher(typing); 		
 		
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
 		
@@ -234,43 +229,20 @@ public class RefineValidation implements ValidationAlgorithm {
 		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>(matchingTC.values());
 		BagIterator bagIt = new BagIterator(listMatchingTC);
 //		System.out.println("Here MatchingTC:"+listMatchingTC);
-		System.out.println(shape);
-		System.out.println(tripleExpression);
-		IntervalComputation intervalComputation = new IntervalComputation();
+//		System.out.println(shape);
+//		System.out.println(tripleExpression);
+		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 		
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
-			System.out.println("Bag: "+bag);
 			tripleExpression.accept(intervalComputation, bag, this);
-			System.out.println("Bag result:"+intervalComputation.getResult());
-			if (intervalComputation.getResult().contains(1))
+			//System.out.println("Bag result:"+intervalComputation.getResult());
+			if (intervalComputation.getResult().contains(1)) {
 				return true;
+			}
 		}
 		//System.out.println();
 		return false;
-	}
-	
-	
-
-	// collect all triple constraint in a triple expression and store it to reuse later
-	private List<TripleConstraint> getAllTripleConstraints (TripleExpr tripleExpression) {
-		if (this.collectionTripleConstraints.containsKey(tripleExpression))
-			return this.collectionTripleConstraints.get(tripleExpression);
-		
-		Set<TripleConstraint> set = new HashSet<TripleConstraint>();
-		CollectElementsFromTriple<TripleConstraint> collector = 
-				new CollectElementsFromTriple<TripleConstraint>((Object ast) -> (ast instanceof TripleConstraint), 
-						                   set,
-						                   true);
-		tripleExpression.accept(collector);
-		
-		List<TripleConstraint> result = new ArrayList<TripleConstraint>();
-		for (TripleExpr trexpr:set)
-			result.add((TripleConstraint) trexpr);
-		
-		this.collectionTripleConstraints.put(tripleExpression,result);
-		return result;
-	}
-	
+	}	
 
 }

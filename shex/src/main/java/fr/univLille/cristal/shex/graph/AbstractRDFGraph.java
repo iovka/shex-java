@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
@@ -39,7 +40,7 @@ abstract class AbstractRDFGraph implements RDFGraph {
 		return listNeighbours(itAllNeighbours(focusNode,null));
 	}
 	
-	public List<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates){
+	public List<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
 		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
 		for (IRI predicate:allowedPredicates) {
 			result.addAll(listNeighbours(itAllNeighbours(focusNode,predicate)));
@@ -55,7 +56,7 @@ abstract class AbstractRDFGraph implements RDFGraph {
 	}
 	
 
-	public List<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates){
+	public List<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
 		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
 		for (IRI predicate:allowedPredicates) {
 			result.addAll(listNeighbours(itOutNeighbours(focusNode,predicate)));
@@ -69,7 +70,7 @@ abstract class AbstractRDFGraph implements RDFGraph {
 	}
 	
 	
-	public List<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,List<IRI> allowedPredicates){
+	public List<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
 		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
 		for (IRI predicate:allowedPredicates) {
 			result.addAll(listNeighbours(itInNeighbours(focusNode,predicate)));
