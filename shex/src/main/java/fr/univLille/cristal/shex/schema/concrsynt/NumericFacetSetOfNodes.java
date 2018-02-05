@@ -92,12 +92,32 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 			return false;
 		if (maxexcl != null && dv.compareTo(maxexcl) >= 0)
 			return false;
-		if (totalDigits != null && totalDigits < dv.precision()) 
+
+		String normalizeValue = XMLDatatypeUtil.normalize(lnode.stringValue(), lnode.getDatatype());
+		
+		if (totalDigits != null && totalDigits < computeTotalDigit(normalizeValue)) 
 			return false;
-		if (fractionDigits != null && fractionDigits < dv.scale()) 
+		
+		if (fractionDigits != null && fractionDigits < computeFractionDigit(normalizeValue)) 
 			return false;
 		
 		return true;
+	}
+	
+	private int computeTotalDigit(String value) {
+		if (! value.contains("."))
+			return (value.length());
+		
+		String entier = value.substring( 0, value.indexOf("."));	
+	
+		return String.valueOf(entier).length()+computeFractionDigit(value);
+	}
+	
+	private int computeFractionDigit(String value) {
+		if (! value.contains("."))
+			return 0;
+		String decim = value.substring( value.indexOf(".")+1,value.length());
+		return String.valueOf(decim).length();
 	}
 	
 	@Override
