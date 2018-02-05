@@ -17,9 +17,15 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.concrsynt;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 /**
  * 
@@ -27,7 +33,7 @@ import org.eclipse.rdf4j.model.Value;
  * 10 oct. 2017
  */
 public class DatatypeSetOfNodes implements SetOfNodes {
-
+	
 	private IRI datatypeIri;
 	
 	public DatatypeSetOfNodes(IRI datatypeIri) {
@@ -37,7 +43,13 @@ public class DatatypeSetOfNodes implements SetOfNodes {
 	@Override
 	public boolean contains(Value node) {
 		if (! (node instanceof Literal)) return false;
-		return datatypeIri.equals(((Literal)node).getDatatype());
+		Literal lnode = (Literal) node;
+		if (!(datatypeIri.equals(lnode.getDatatype()))) return false;
+		if ((XMLDatatypeUtil.isBuiltInDatatype(lnode.getDatatype()))) {
+			return XMLDatatypeUtil.isValidValue(lnode.stringValue(), lnode.getDatatype());
+		}
+
+		return true;
 	}
 	
 	@Override

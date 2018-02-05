@@ -569,7 +569,6 @@ public class JsonldParser {
 		Integer maxlength = (Integer) (map.get("maxlength"));
 		String patternString = (String) (map.get("pattern"));
 		String flags = (String) (map.get("flags"));
-		// TODO: flags is not used
 
 		if (length != null || minlength != null || maxlength != null || patternString != null) {
 			StringFacetSetOfNodes facet = new StringFacetSetOfNodes();
@@ -577,6 +576,7 @@ public class JsonldParser {
 			facet.setMinLength(minlength);
 			facet.setMaxLength(maxlength);
 			facet.setPattern(patternString);
+			facet.setFlags(flags);
 			return facet;
 		} 
 		else return null;

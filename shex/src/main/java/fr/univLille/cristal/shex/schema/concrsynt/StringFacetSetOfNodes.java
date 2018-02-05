@@ -22,7 +22,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
-import fr.univLille.cristal.shex.validation.Configuration;
+import fr.univLille.cristal.shex.util.XPath;
 
 /**
  * 
@@ -32,8 +32,14 @@ import fr.univLille.cristal.shex.validation.Configuration;
 public class StringFacetSetOfNodes implements SetOfNodes {
 	
 	private Integer length, minlength, maxlength;
-	//private Pattern pattern;
 	private String patternString;
+	private String flags;
+	
+	public void setFlags(String flags) {
+		if (this.flags == null)
+			this.flags = flags;
+		else throw new IllegalStateException("flags already set");
+	}
 		
 	public void setLength(Integer length) {
 		if (this.length == null)
@@ -67,7 +73,7 @@ public class StringFacetSetOfNodes implements SetOfNodes {
 		else if (node instanceof BNode)
 			lex = ((BNode)node).getID();
 		
-		if (patternString != null && ! Configuration.getXMLSchemaRegexMatcher().matches(lex, patternString))
+		if (patternString != null && ! XPath.matches(lex, patternString,flags))
 			return false;
 		if (length != null && lex.length() != length)
 			return false;
@@ -78,7 +84,7 @@ public class StringFacetSetOfNodes implements SetOfNodes {
 		
 		return true;
 	}
-
+	
 	@Override
 	public String toString() {
 		String len = length == null ? ""    :  " length: " + length.toString();

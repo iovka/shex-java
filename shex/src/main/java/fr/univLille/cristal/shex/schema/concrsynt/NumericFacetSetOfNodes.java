@@ -25,6 +25,7 @@ import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 /**
@@ -33,15 +34,6 @@ import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
  * 10 oct. 2017
  */
 public class NumericFacetSetOfNodes implements SetOfNodes {
-
-	// FIXME: complete the xsd datatypes
-	private static final Set<IRI> decimalTypes = new HashSet<>(Arrays.asList(new IRI[] {
-			XMLSchema.DECIMAL, 	XMLSchema.INT, XMLSchema.INTEGER, XMLSchema.BYTE
-	}));
-	private static final Set<IRI> doubleTypes = new HashSet<>(Arrays.asList(new IRI[] {
-			XMLSchema.DOUBLE, XMLSchema.FLOAT
-	}));
-	
 	private BigDecimal minincl, minexcl, maxincl, maxexcl;
 	private Integer totalDigits, fractionDigits;
 	
@@ -85,55 +77,26 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 	public boolean contains(Value node) {
 		if (! (node instanceof Literal)) return false;
 		Literal lnode = (Literal) node;
-		IRI datatype = lnode.getDatatype();
-		if (decimalTypes.contains(datatype))
-			return containsDecimal(lnode);	
-		if (doubleTypes.contains(datatype))
-			return containsDouble(lnode);
-		System.out.println("here:"+node);
-		return false;
-	}
-	
-	private boolean containsDecimal (Literal lnode) {
-		BigDecimal dv;
-		try {
-			dv = lnode.decimalValue().stripTrailingZeros();
-		} catch (NumberFormatException e) {
-			return false;
-		}
 		
-		if (! satisfiesMinMax(dv))
+		if (!XMLDatatypeUtil.isValidDouble(lnode.stringValue()))
 			return false;
-
+		if (!XMLDatatypeUtil.isValidValue(lnode.stringValue(), lnode.getDatatype()))
+			return false;
+		BigDecimal dv = lnode.decimalValue().stripTrailingZeros();
+		
+		if (minincl != null && dv.compareTo(minincl) < 0)
+			return false;
+		if (minexcl != null && dv.compareTo(minexcl) <= 0)
+			return false;
+		if (maxincl != null && dv.compareTo(maxincl) > 0)
+			return false;
+		if (maxexcl != null && dv.compareTo(maxexcl) >= 0)
+			return false;
 		if (totalDigits != null && totalDigits < dv.precision()) 
 			return false;
-		
 		if (fractionDigits != null && fractionDigits < dv.scale()) 
 			return false;
 		
-		return true;
-	}
-	
-	private boolean containsDouble (Literal lnode) {
-		double d;
-		try {
-			d = lnode.doubleValue();
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		return satisfiesMinMax(BigDecimal.valueOf(d));
-	}
-	
-	
-	private boolean satisfiesMinMax (BigDecimal val) {
-		if (minincl != null && val.compareTo(minincl) < 0)
-			return false;
-		if (minexcl != null && val.compareTo(minexcl) <= 0)
-			return false;
-		if (maxincl != null && val.compareTo(maxincl) > 0)
-			return false;
-		if (maxexcl != null && val.compareTo(maxexcl) >= 0)
-			return false;
 		return true;
 	}
 	

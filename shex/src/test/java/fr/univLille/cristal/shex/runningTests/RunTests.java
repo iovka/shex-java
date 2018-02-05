@@ -51,8 +51,7 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
-import fr.univLille.cristal.shex.validation.Configuration;
-import fr.univLille.cristal.shex.validation.PartialXMLSchemaRegexMatcher;
+import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 
 /**
@@ -89,7 +88,7 @@ public class RunTests {
 
 
 	public static void main(String[] args) throws IOException, ParseException {
-		Configuration.setXMLSchemaRegexMatcher(new PartialXMLSchemaRegexMatcher());
+		//XPath.setXMLSchemaRegexMatcher(new PartialXMLSchemaRegexMatcher());
 
 		Model manifest = loadManifest();
 		if (args.length == 0) {
@@ -183,12 +182,11 @@ public class RunTests {
 			for (int i = 1; i < shouldRun.length; i++)
 				message += "(" + shouldRun[i].toString() + ") ";
 			message += ": " + testName;
-			System.out.println(message);
+			//System.out.println(message);
 			nbSkip++;
 
 			return new TestResultForTestReport(testName, false, message, "validation");
 		}
-		System.out.println("Starting test: "+testName);
 		TestCase testCase = parseTestCase(manifest, testNode);
 		if (! testCase.isWellDefined()) {
 			errorLog.println(logMessage(testCase, null, null, "Incorrect test definition\nERROR"));
@@ -203,16 +201,24 @@ public class RunTests {
 			JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
 			schema = parser.parseSchema(); // exception possible
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString());
+//			System.out.println("Data:"+data);			
 //			System.out.println(schema.getShapeMap());
 //			for (Statement st:data) {
-//				System.out.println(st);
+//				System.out.println(st.getObject().stringValue().length());
 //			}
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
 			
 			RefineValidation validation = new RefineValidation(schema, dataGraph);
 
 			validation.validate(testCase.focusNode, null);
-//			System.out.println(validation.getTyping().asSet());
+//			System.out.println(testCase.focusNode);
+//			System.out.println(dataGraph.listAllNeighbours(testCase.focusNode));
+//			System.out.println(schema.getRules().get(testCase.shapeLabel));
+//			System.out.println(testCase.shapeLabel);
+//			System.out.println(testCase.testKind);
+//			System.out.println(validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel));
+//			for (Pair<Value, ShapeExprLabel> entry:validation.getTyping().asSet())
+//				System.out.println(entry);
 			if (testCase.testKind.equals(VALIDATION_TEST_CLASS) &&
 					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel)
 					||
@@ -225,6 +231,7 @@ public class RunTests {
 			}
 			else {
 				failLog.println(logMessage(testCase, schema, data, "FAIL"));
+				System.out.println("Fail:"+testName);
 				nbFail++;
 				return new TestResultForTestReport(testName, false, null, "validation");
 			}			

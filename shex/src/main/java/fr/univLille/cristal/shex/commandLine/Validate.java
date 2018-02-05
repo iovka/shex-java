@@ -39,8 +39,6 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
-import fr.univLille.cristal.shex.validation.Configuration;
-import fr.univLille.cristal.shex.validation.PartialXMLSchemaRegexMatcher;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
@@ -72,7 +70,7 @@ public class Validate {
 	public static void main(String[] args) {
 		System.out.println(COPYRIGHT);
 		
-		Configuration.setXMLSchemaRegexMatcher(new PartialXMLSchemaRegexMatcher());
+		//XPath.setXMLSchemaRegexMatcher(new PartialXMLSchemaRegexMatcher());
 		
 		if (args.length == 0) {
 			System.out.println(USAGE);
