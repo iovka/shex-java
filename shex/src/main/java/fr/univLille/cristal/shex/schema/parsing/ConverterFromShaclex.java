@@ -1,6 +1,7 @@
 package fr.univLille.cristal.shex.schema.parsing;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,9 +11,13 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
+import es.weso.shex.IRILabel;
+import es.weso.shex.IRIValue;
+import es.weso.shex.ShapeLabel;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
@@ -28,11 +33,13 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.concrsynt.ConjunctiveSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.ExplictValuesSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.NumericFacetSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
@@ -47,13 +54,6 @@ public class ConverterFromShaclex {
 
 	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
 	
-	// TODO: would it be preferable to have blank node identifiers ?
-	private static int shapeLabelNb = 0;
-	private static String SHAPE_LABEL_PREFIX = "SLGEN";
-	private static int tripleLabelNb = 0;
-	private static String TRIPLE_LABEL_PREFIX = "TLGEN";
-	//private static String EXTRA_SHAPE_LABEL_PREFIX = "SL_EXTRA";
-
 	private boolean semActsWarning = false;
 	private boolean annotationsWarning = false;
 	
@@ -78,6 +78,7 @@ public class ConverterFromShaclex {
 			System.out.println(newLabel+" : "+newShape);
 			rules.put(newLabel, newShape);
 		}
+		//System.out.println(rules);
 		ShexSchema shexSchema = new ShexSchema(rules);
 		return shexSchema;
 	}
@@ -128,7 +129,7 @@ public class ConverterFromShaclex {
 			resShapeExprs.add(convertShapeExpr(llite.next()));
 		}
 		
-		ShapeAnd result = new ShapeAnd(resShapeExprs);
+		ShapeOr result = new ShapeOr(resShapeExprs);
 		setShapeId(result, shape);
 		return result;
 	}
@@ -141,12 +142,13 @@ public class ConverterFromShaclex {
 	
 	private ShapeExpr convertShapeRef(es.weso.shex.ShapeRef shape) {
 		ShapeExprRef result = new ShapeExprRef(createShapeLabel(shape.reference().toString(), false));
-		setShapeId(result);
 		return result;
 	}
 
 	private NodeConstraint convertNodeConstraint(es.weso.shex.NodeConstraint node) {
 		List<SetOfNodes> constraints = new LinkedList<SetOfNodes>();
+		
+		//System.err.println(node.xsFacets().isEmpty());
 		
 		if (node.nodeKind().nonEmpty()) {
 			if (node.nodeKind().get() instanceof es.weso.shex.BNodeKind$) 
@@ -162,8 +164,8 @@ public class ConverterFromShaclex {
 		
 		//TODO: finish converting nodeconstraint
 		if (node.datatype().nonEmpty()) {
-			//constraints.add(createDatatypeSet(node.datatype().get().));
-			System.err.println("Implementation of nodekind datatype..");
+			constraints.add(new DatatypeSetOfNodes(RDF_FACTORY.createIRI(node.datatype().get().getLexicalForm())));
+			//System.err.println("Implementation of nodekind datatype.."+node.datatype());
 		}
 
 		scala.collection.immutable.List<es.weso.shex.XsFacet> facets = node.xsFacets();
@@ -178,12 +180,22 @@ public class ConverterFromShaclex {
 		}
 		
 		if(node.values().nonEmpty()) {
+			List<Value> explicitValuesList = new ArrayList<>();
+			
 			scala.collection.immutable.List<es.weso.shex.ValueSetValue> listValues = node.values().get();
 			scala.collection.Iterator<es.weso.shex.ValueSetValue> valite = listValues.iterator();
 			while (valite.hasNext()) {
 				es.weso.shex.ValueSetValue val = valite.next();
-				System.err.println("Implementation of value:"+val);
+				if (val instanceof es.weso.shex.IRIValue) {
+					es.weso.shex.IRIValue value = (IRIValue) val;
+					explicitValuesList.add(RDF_FACTORY.createIRI(((es.weso.shex.IRIValue) val).i().getLexicalForm()));
+				}else {
+					System.err.println("Implementation of value:"+val+" ("+val.getClass()+")");
+
+				}
 			}
+			if (! explicitValuesList.isEmpty())
+				constraints.add(new ExplictValuesSetOfNodes(explicitValuesList));
 		}
 //		List values = (List) (map.get("values"));
 //		if (values != null) {
@@ -389,17 +401,11 @@ public class ConverterFromShaclex {
 		shapeRes.setId(createShapeLabel(id, false));
 	}
 	
-	private void setShapeId (ShapeExpr shapeRes) {
-		String id = String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb);
-		shapeLabelNb++;
-		shapeRes.setId(createShapeLabel(id, false));
-	}
 
 	private void setShapeId (ShapeExpr shapeRes, es.weso.shex.ShapeExpr shape) {
 		if (shape.id().nonEmpty()) {
-			setShapeId(shapeRes,shape.id().get().toString());
-		}else {
-			setShapeId(shapeRes);
+			es.weso.shex.IRILabel id = (IRILabel) shape.id().get();
+			setShapeId(shapeRes,id.iri().getLexicalForm());
 		}
 	}
 		
@@ -415,27 +421,18 @@ public class ConverterFromShaclex {
 			es.weso.shex.EachOf  trExp = (es.weso.shex.EachOf) triple;
 			if (trExp.id().nonEmpty()) {
 				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
-			}else {
-				tripleRes.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
-				tripleLabelNb++;
 			}	
 		}
 		if (triple instanceof es.weso.shex.OneOf) {
 			es.weso.shex.OneOf  trExp = (es.weso.shex.OneOf) triple;
 			if (trExp.id().nonEmpty()) {
 				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
-			}else {
-				tripleRes.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
-				tripleLabelNb++;
-			}		
+			}	
 		}
 		if (triple instanceof es.weso.shex.TripleConstraint) {
 			es.weso.shex.TripleConstraint  trExp = (es.weso.shex.TripleConstraint) triple;
 			if (trExp.id().nonEmpty()) {
 				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
-			}else {
-				tripleRes.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
-				tripleLabelNb++;
 			}
 		}
 	}

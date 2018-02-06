@@ -64,9 +64,14 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.concrsynt.ConjunctiveSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.ExplictValuesSetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.IRIStemSetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageSetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemSetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.NumericFacetSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.ObjectLiteral;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
 import fr.univLille.cristal.shex.util.Interval;
 
@@ -82,22 +87,12 @@ import fr.univLille.cristal.shex.util.Interval;
  *
  */
 @SuppressWarnings("rawtypes")
-public class JsonldParser {
-	// ----------------------------------------------------------------------
-	// CONSTANTS
-	// ----------------------------------------------------------------------
-	private final static Pattern LANG_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*(\")(@[a-zA-Z]+)(-[a-zA-Z0-9]+)*");
-	private final static Pattern DATATYPE_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^" + "([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
-	private final static Pattern IRI_PATTERN = Pattern.compile("([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
-	// TODO is this correct ?
-	private static final Pattern STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^"); 
-
+public class JsonldParser implements Parser{
 	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
 
 	private Object schemaObject; 
 	private Path path;
-	private boolean semActsWarning = false;
-	private boolean annotationsWarning = false;
+
 
 	public JsonldParser(Path path) throws IOException, JsonLdError {
 		this.path = path;
@@ -109,7 +104,6 @@ public class JsonldParser {
 	// 	PARSING
 	// --------------------------------------------------------------------
 
-
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
 	public ShexSchema parseSchema() throws ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException  {
 		Map map = (Map) schemaObject;
@@ -119,7 +113,7 @@ public class JsonldParser {
 		}
 
 		if (map.containsKey("startActs")) {
-			warningSemanticActions();
+			System.err.println("startActs not supported.");
 		}
 
 		if (map.containsKey("start")) {
@@ -134,9 +128,8 @@ public class JsonldParser {
 
 		for (Object shapeObj : shapes) {
 			Map shape = (Map) shapeObj;
-			String label = getId(shape);
 			ShapeExpr shexpr = parseShapeExpression(shape);
-			rules.put(createShapeLabel(label,false), shexpr);
+			rules.put(shexpr.getId(), shexpr);
 		}
 
 		ShexSchema schema = new ShexSchema(rules);
@@ -288,7 +281,7 @@ public class JsonldParser {
 
 		String datatype = (String) (map.get("datatype"));
 		if (datatype != null)
-			constraints.add(createDatatypeSet(datatype));
+			constraints.add(new DatatypeSetOfNodes(RDF_FACTORY.createIRI(datatype)));
 
 		SetOfNodes num = getNumericFacet(map);
 		if (num != null) 
@@ -314,88 +307,7 @@ public class JsonldParser {
 		return res;
 	}
 
-
-	// List of
-	// valueSetValue 	= 	objectValue | IriStem | IriStemRange | LiteralStem | LiteralStemRange | Language | LanguageStem | LanguageStemRange ;
-	// objectValue 	= 	IRI | ObjectLiteral ;
-	// Language 	{ 	langTag:ObjectLiteral }
-	// _Stem_ contains stem as key
-	private List<SetOfNodes> parseValueSetValueList (List values) {
-		List<Value> explicitValuesList = new ArrayList<>();
-		List<SetOfNodes> nodeConstraintsList = new ArrayList<>();
-
-		for (Object o : values) {
-			if (o instanceof String) {
-				// IRI
-				explicitValuesList.add(RDF_FACTORY.createIRI((String)o));
-			} else {
-				Map m = (Map) o;
-				if (m.containsKey("stem"))
-					nodeConstraintsList.add(parseStem(m));
-				else if (m.containsKey("langTag")) {
-					nodeConstraintsList.add(parseLanguage(m));
-				}
-				else if (m.containsKey("value")) {
-					nodeConstraintsList.add(parseObjectLiteral(m));
-				} else {
-
-				}
-			}
-		}
-
-		if (! explicitValuesList.isEmpty())
-			nodeConstraintsList.add(new ExplictValuesSetOfNodes(explicitValuesList));
-		return nodeConstraintsList;
-	}
-
-
-	// ObjectLiteral 	{ 	value:STRING language:STRING? type: STRING? }
-	private SetOfNodes parseObjectLiteral (Map m) {
-		IRI type = null;
-		String typeString = (String) m.get("type");
-		if (typeString != null)
-			type = RDF_FACTORY.createIRI(typeString);
-
-		return new ObjectLiteral((String) m.get("value"), (String) m.get("language"), type);
-	}
-
-
-	/*if (m.containsKey("language") || m.containsKey("type"))
-				throw new UnsupportedOperationException("language and tag not supported");
-
-			String s = (String) m.get("value");
-			if (isIriString(s)) {
-				return RDF_FACTORY.createIRI(s);
-			}
-			if (isLangString(s)){
-				String[] litLang = s.split("@");
-				String valueString = litLang[0].substring(1, litLang[0].length()-1); 
-				return RDF_FACTORY.createLiteral(valueString, litLang[1]);
-			} else if (isDatatypeString(s)) {
-				String[] valueType = s.split("\\^\\^");
-				String valueString = valueType[0].substring(1, valueType[0].length()-1);
-				String typeString = valueType[1];
-				IRI type = RDF_FACTORY.createIRI(typeString);
-				return RDF_FACTORY.createLiteral(valueString, type);
-			} else {
-				throw new UnsupportedOperationException("unsupported literal type");
-			}
-		}
-	 */
-	protected SetOfNodes parseStem (Map m) {
-		throw new UnsupportedOperationException("stems not supported");
-	}
-
-
-	protected SetOfNodes parseLanguage (Map m) {
-		throw new UnsupportedOperationException("language tag not yet implemented");
-	}
-
-
-
-
-
-
+	
 	//-------------------------------------------
 	// Parsing triple expression
 	//-------------------------------------------
@@ -430,11 +342,6 @@ public class JsonldParser {
 		return resultExpr;
 	}
 
-
-
-
-
-
 	// EachOf 	{ 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	protected TripleExpr parseEachOf (Map map) {
 		// TODO not used or not supported
@@ -457,7 +364,6 @@ public class JsonldParser {
 
 		return res;
 	}
-
 
 	// OneOf { 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }	
 	@SuppressWarnings("rawtypes")
@@ -482,9 +388,7 @@ public class JsonldParser {
 		setTripleId(res, map);
 
 		return res;
-
 	}
-
 
 	// TripleConstraint 	{ 	id:tripleExprLabel? inverse:BOOL? predicate:IRI valueExpr: shapeExpr? min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	protected TripleExpr parseTripleConstraint(Map map) {
@@ -496,7 +400,7 @@ public class JsonldParser {
 		Boolean inv = (Boolean) (map.get("inverse"));
 		if (inv == null)
 			inv = false;
-		IRI predicate = createIri((String) (map.get("predicate")));
+		IRI predicate = RDF_FACTORY.createIRI((String) (map.get("predicate")));
 		TCProperty property = createTCProperty(predicate, !inv);
 
 		ShapeExpr shexpr = null;
@@ -526,11 +430,131 @@ public class JsonldParser {
 	// 	PARSING PART OF JSON OBJECT
 	// --------------------------------------------------------------------
 
+	// List of
+	// valueSetValue 	= 	objectValue | IriStem | IriStemRange | LiteralStem | LiteralStemRange | Language | LanguageStem | LanguageStemRange ;
+	// objectValue 	= 	IRI | ObjectLiteral ;
+	// Language 	{ 	langTag:ObjectLiteral }
+	// _Stem_ contains stem as key
+	private List<SetOfNodes> parseValueSetValueList (List values) {
+		List<Value> explicitValuesList = new ArrayList<>();
+		List<SetOfNodes> nodeConstraintsList = new ArrayList<>();
+
+		for (Object o : values) {
+			if (o instanceof String) {
+				explicitValuesList.add(RDF_FACTORY.createIRI((String)o));
+			} else {
+				Map m = (Map) o;
+				String type = (String) m.get("type");
+				if (type!=null) {
+					switch (type) {
+					case "Language" : 
+						nodeConstraintsList.add(parseLanguage(m));
+						break;
+					case "IriStem":
+						nodeConstraintsList.add(parseIRIStem(m));
+						break;
+					case "IriStemRange":
+						nodeConstraintsList.add(parseIRIStemRange(m));
+						break;
+					case "LiteralStem":
+						nodeConstraintsList.add(parseLiteralStem(m));
+						break;
+					case "LiteralStemRange":
+						break;
+					case "LanguageStem":
+						nodeConstraintsList.add(parseLanguageStem(m));
+						break;
+					case "LanguageStemRange":
+						break;
+
+					}
+				} else {
+					if (m.containsKey("value")) {
+						nodeConstraintsList.add(parseObjectLiteral(m));
+					}else {
+						System.err.println("Node constraint not recognize:"+m);
+					}			
+				}
+			}
+		}
+		if (! explicitValuesList.isEmpty())
+			nodeConstraintsList.add(new ExplictValuesSetOfNodes(explicitValuesList));
+
+		return nodeConstraintsList;
+	}
+	
+	// ObjectLiteral 	{ 	value:STRING language:STRING? type: STRING? }
+	private SetOfNodes parseObjectLiteral (Map m) {
+		IRI type = null;
+		String typeString = (String) m.get("type");
+		if (typeString != null)
+			type = RDF_FACTORY.createIRI(typeString);
+
+		return new ObjectLiteral((String) m.get("value"), (String) m.get("language"), type);
+	}
+	
+	//IriStem { stem:IRI }
+	protected SetOfNodes parseIRIStem (Map m) {
+		//TODO: error if stem not present
+		String stem = (String) m.get("stem");
+		return new IRIStemSetOfNodes(stem);
+	}
+	
+	//LiteralStem 	{ 	stem:ObjectLiteral }
+	protected SetOfNodes parseLiteralStem (Map m) {
+		//TODO: error if stem not present
+		String stem = (String) m.get("stem");
+		return new LiteralStemSetOfNodes(stem);
+	}
+
+	//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
+	protected SetOfNodes parseIRIStemRange (Map m) {
+		//TODO: error if stem not present
+		Set<SetOfNodes> exclusions = new HashSet<SetOfNodes>();
+		Set<Value> forbidenValue = new HashSet<Value>();
+		if (m.containsKey("exclusions")) {
+			List<Object> exclu = (List<Object>) m.get("exclusions");
+			for (Object o:exclu) {
+				if (o instanceof String) {
+					System.err.println(m);
+				}else {
+					exclusions.add(parseIRIStem((Map) o));
+				}
+			}
+		}
+		
+		SetOfNodes stem = null;
+		if (m.get("stem") instanceof String) {
+			stem = new IRIStemSetOfNodes((String) m.get("stem"));
+		}
+		
+		return new StemRangeSetOfNodes(stem,exclusions);
+	}
+
+	//Language 	{ 	langTag:ObjectLiteral }
+	protected SetOfNodes parseLanguageStem (Map m) {
+		//TODO: error if stem not present
+		String stem = (String) m.get("stem");
+		return new LanguageStemSetOfNodes(stem);
+	}
+
+	protected SetOfNodes parseStem (Map m) {
+		throw new UnsupportedOperationException("stems not supported");
+	}
+
+	//Language 	{ 	langTag:ObjectLiteral }
+	protected SetOfNodes parseLanguage (Map m) {
+		if (m.containsKey("languageTag"))
+			return new LanguageSetOfNodes((String) m.get("languageTag"));
+		if (m.containsKey("langTag"))
+			return new LanguageSetOfNodes((String) m.get("langTag"));
+		throw new UnsupportedOperationException("Langtag not found");
+	}
+
 	// numericFacet = (mininclusive|minexclusive|maxinclusive|maxeclusive):numericLiteral | (totaldigits|fractiondigits):INTEGER
 	private static SetOfNodes getNumericFacet (Map map) {
 		BigDecimal minincl = null, minexcl = null, maxincl = null, maxexcl = null;
 		Number n;
-
 
 		n = (Number)(map.get("mininclusive"));
 		if (n != null)
@@ -561,8 +585,8 @@ public class JsonldParser {
 		return null;
 	}
 
+	
 	// stringFacet = (length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING?
-
 	private static SetOfNodes getStringFacet (Map map) {		
 		Integer length = (Integer) (map.get("length"));
 		Integer minlength = (Integer) (map.get("minlength"));
@@ -582,14 +606,16 @@ public class JsonldParser {
 		else return null;
 	}
 
+	
 	protected List<IRI> parseListOfIri (List list) {
 		List<IRI> res = new ArrayList<>(list.size());
 		for (Object o: list) {
-			res.add(createIri((String)o));
+			res.add(RDF_FACTORY.createIRI((String)o));
 		}
 		return res;
 	}
 
+	
 	private List<TripleExpr> parseListOfTripleExprs (List list) {
 		ArrayList<TripleExpr> resultList = new ArrayList<>();
 		for(Object o : list){
@@ -599,8 +625,6 @@ public class JsonldParser {
 		}
 		return resultList;
 	}
-
-
 
 
 	private Interval getCardinality (Map map)  {	
@@ -621,38 +645,31 @@ public class JsonldParser {
 	private Object getSemActs (Map map) {
 		Object semActs = map.get("semActs");
 		if (semActs != null)
-			warningSemanticActions();
+			System.err.println("Semantic actions not supported.");
 		return semActs;
 	}
 
 	private Object getAnnotations (Map map) {
 		Object annotations = map.get("annotations");
 		if (annotations != null)
-			warningAnnotations();
+			System.err.println("Annotations not supported.");
 		return annotations;
 	}
 
 	// ----------------------------------------------------------------------
 	// FACTORY METHODS
 	// ----------------------------------------------------------------------
-	private static IRI createIri (String s) {
-		return RDF_FACTORY.createIRI(s);
-	}
-
-	private static SetOfNodes createDatatypeSet (String datatypeIri) {
-		return new DatatypeSetOfNodes(createIri(datatypeIri));
-	}
 
 	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new ShapeExprLabel(createIri(string),generated);
+			return new ShapeExprLabel(RDF_FACTORY.createIRI(string),generated);
 		else 
 			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
 	}
 
 	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new TripleExprLabel(createIri(string),generated);
+			return new TripleExprLabel(RDF_FACTORY.createIRI(string),generated);
 		else 
 			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
 	}
@@ -669,29 +686,9 @@ public class JsonldParser {
 		return new Shape(expr, extraProps, isClosed);	
 	}
 
-	//	public static ShapeExprLabel createFreshExtraLabel () {
-	//		return createShapeLabel(EXTRA_SHAPE_LABEL_PREFIX+(shapeLabelNb++));
-	//	}
-	// 
-
 	// ----------------------------------------------------------------------
 	// UTILITY METHODS
 	// ----------------------------------------------------------------------
-	private void warningSemanticActions () {
-		if (! this.semActsWarning) {
-			System.out.println("Semantic actions not supported.");
-			this.semActsWarning = true;
-		}
-	}
-
-	private void warningAnnotations () {
-		if (! this.annotationsWarning) {
-			System.out.println("Annotations not supported.");
-			this.annotationsWarning = true;
-		}
-	}
-
-
 	private String getType (Map map) {
 		return (String) (map.get("type"));
 	}
@@ -712,27 +709,11 @@ public class JsonldParser {
 		}
 	}
 
-
-	private boolean isLangString (String s) {
-		return LANG_STRING_PATTERN.matcher(s).matches();
-	}
-
-	private boolean isDatatypeString (String s) {
-		return DATATYPE_STRING_PATTERN.matcher(s).matches();
-	}
-
 	private static boolean isIriString (String s) {
 		if (s.indexOf(':') < 0) {
 			return false;
 		}
-		return true;//IRI_PATTERN.matcher(s).matches();
+		return true;
 	}
-	/*
-	private boolean isString (String s) {
-		return STRING_PATTERN.matcher(s).matches();
-	}
-	 */
-
-
 
 }

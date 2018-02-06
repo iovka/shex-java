@@ -3,25 +3,34 @@ package fr.univLille.cristal.shex.schema.parsing;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.text.ParseException;
 
 import es.weso.shex.Schema;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
+import fr.univLille.cristal.shex.schema.ShexSchema;
 import scala.util.Try;
 
-public class ShExCParser {
-	static String readFile(String path) throws IOException 	{
-		byte[] encoded = Files.readAllBytes(Paths.get(path));
-		return new String(encoded, Charset.defaultCharset());
+public class ShExCParser implements Parser{
+	private Path path;
+
+	public ShExCParser(Path path) {
+		this.path = path;
 	}
-	
-	public static void main(String[] args) throws IOException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		String fileContent = readFile("../../shexTest/schemas/1bnodeRef1.shex");
+
+
+	@Override
+	public ShexSchema parseSchema() throws IOException, ParseException, UndefinedReferenceException,
+	CyclicReferencesException, NotStratifiedException {
+		byte[] encoded = Files.readAllBytes(this.path);
+		String fileContent = new String(encoded, Charset.defaultCharset());
 		Try<Schema> trySchema = Schema.fromString(fileContent, "SHEXC",null);
 		Schema sh = trySchema.get();
 		ConverterFromShaclex converter = new ConverterFromShaclex(sh);
 		converter.convert();
+		ShexSchema result = converter.convert();
+		return result;
 	}
 }

@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleBNode;
 
 import fr.univLille.cristal.shex.util.XPath;
 
@@ -72,7 +73,9 @@ public class StringFacetSetOfNodes implements SetOfNodes {
 			lex = ((IRI)node).stringValue();
 		else if (node instanceof BNode)
 			lex = ((BNode)node).getID();
-		
+//		SimpleBNode bnode = (SimpleBNode) node;
+//		System.err.println(bnode);
+//		System.err.println(lex);
 		if (patternString != null && ! XPath.matches(lex, patternString,flags))
 			return false;
 		if (length != null && lex.length() != length)

@@ -71,6 +71,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		this.sorbeGenerator = new SORBEGenerator();
 		this.schema = schema;
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		this.typing = new RefinementTyping(schema, graph);
 	}
 	
 	
@@ -82,9 +83,9 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
-		//System.out.println(schemaSorbe.getShapeMap());
-		this.typing = new RefinementTyping(schema, graph);
-
+//		if (! this.graph.getAllNodes().contains(focusNode))
+//			return ;
+		
 		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
 			//System.out.println("Stratum: "+schema.getStratum(stratum));

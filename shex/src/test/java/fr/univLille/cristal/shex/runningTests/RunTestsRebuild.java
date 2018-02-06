@@ -48,10 +48,15 @@ import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
+import fr.univLille.cristal.shex.exception.CyclicReferencesException;
+import fr.univLille.cristal.shex.exception.NotStratifiedException;
+import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
+import fr.univLille.cristal.shex.schema.parsing.Parser;
+import fr.univLille.cristal.shex.schema.parsing.ShExCParser;
 import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 
@@ -60,23 +65,20 @@ import fr.univLille.cristal.shex.validation.RefineValidation;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class RunTests {
+public class RunTestsRebuild {
+	private static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
 
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
-	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/validation/";
+	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
 	protected static final String MANIFEST_FILE = TEST_DIR + "validation/manifest.ttl";
 	private static final String SCHEMAS_DIR = TEST_DIR + "schemas/";
 	private static final String DATA_DIR = TEST_DIR + "validation/";
-
-	private static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
 
 	private static final Resource VALIDATION_FAILURE_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationFailure");
 	private static final Resource VALIDATION_TEST_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationTest");
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	private static final IRI TEST_TRAIT_IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#trait");
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
-
-
 
 	private static int nbPass = 0;
 	private static int nbFail = 0;
@@ -90,8 +92,6 @@ public class RunTests {
 
 
 	public static void main(String[] args) throws IOException, ParseException {
-		//XPath.setXMLSchemaRegexMatcher(new PartialXMLSchemaRegexMatcher());
-
 		Model manifest = loadManifest();
 		if (args.length == 0) {
 			runAllTests(manifest);
@@ -100,24 +100,24 @@ public class RunTests {
 			System.out.println("FAILS  : " + nbFail);
 			System.out.println("ERRORS : " + nbError);
 			System.out.println("SKIPS  : " + nbSkip);
-		}
-		else
+		} else {
 			for (String arg: args)
-				runTestByName(arg, manifest);		
+				runTestByName(arg, manifest);
+		}
 	}
 
+	
 	//--------------------------------------------------
 	// Tests functions
 	//--------------------------------------------------
-
+	
 	public static Object[] shouldRunTest (Resource testNode, Model manifest) {
 		boolean shouldRun = true;
 		List<String> reasons = new ArrayList<>();
 
 		Set<String> skippedIris = new HashSet<>(Arrays.asList(new String[] {
-				 "ToldBNode", "Include", 
-				"Start", "ExternalShape", "SemanticAction", "LiteralFocus", "ShapeMap", "IncorrectSyntax",
-		"MissingFile"}));
+				 "ToldBNode", "Stem", "Include", "Start", "ExternalShape", 
+				 "SemanticAction", "LiteralFocus", "ShapeMap", "IncorrectSyntax" }));
 
 		for (Value object: manifest.filter(testNode, TEST_TRAIT_IRI, null).objects()) {
 			for (String reason : skippedIris) {
@@ -128,9 +128,10 @@ public class RunTests {
 				}
 			}
 		}
-		if (shouldRun)
+		
+		if (shouldRun) {
 			return new Object[]{true};
-		else {
+		} else {
 			Object[] result = new Object[1 + reasons.size()];
 			result[0] = false;
 			for (int i = 0; i < reasons.size(); i++)
@@ -143,11 +144,10 @@ public class RunTests {
 	protected static List<TestResultForTestReport> runAllTests (Model manifest) throws IOException, ParseException {
 		List<TestResultForTestReport> report = new ArrayList<>();
 		try (
-				PrintStream passLog = new PrintStream(Files.newOutputStream(Paths.get("report/PASS"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
-				PrintStream failLog = new PrintStream(Files.newOutputStream(Paths.get("report/FAIL"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
-				PrintStream errorLog = new PrintStream(Files.newOutputStream(Paths.get("report/ERROR"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));)
-		{
-
+			PrintStream passLog = new PrintStream(Files.newOutputStream(Paths.get("report/PASS"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
+			PrintStream failLog = new PrintStream(Files.newOutputStream(Paths.get("report/FAIL"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
+			PrintStream errorLog = new PrintStream(Files.newOutputStream(Paths.get("report/ERROR"), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
+		){
 			for (Resource testNode : getValidationTestsList(manifest)) {
 				TestResultForTestReport r = runTest(testNode, manifest, passLog, failLog, errorLog);
 				report.add(r);
@@ -161,6 +161,7 @@ public class RunTests {
 		return report;
 	}
 
+	
 
 	private static void runTestByName (String testName, Model manifest) throws IOException, ParseException {
 		Value testNameString = RDF_FACTORY.createLiteral(testName);
@@ -174,75 +175,60 @@ public class RunTests {
 	}
 	
 	
-
 	private static TestResultForTestReport runTest(Resource testNode, Model manifest, PrintStream passLog, PrintStream failLog, PrintStream errorLog) throws IOException {
 		String testName = getTestName(manifest, testNode);
-
 		Object[] shouldRun = shouldRunTest(testNode, manifest);
+		
 		if (! (Boolean) shouldRun[0]) {
 			String message = "Skipping test ";
 			for (int i = 1; i < shouldRun.length; i++)
 				message += "(" + shouldRun[i].toString() + ") ";
 			message += ": " + testName;
-			//System.out.println(message);
 			nbSkip++;
-
 			return new TestResultForTestReport(testName, false, message, "validation");
 		}
+		
 		TestCase testCase = parseTestCase(manifest, testNode);
 		if (! testCase.isWellDefined()) {
 			errorLog.println(logMessage(testCase, null, null, "Incorrect test definition\nERROR"));
 			nbError++;
 			return new TestResultForTestReport(testName, false, "Incorrect test definition.", "validation");
 		}
-
 		ShexSchema schema = null;
 		Model data = null;
 		try {
-			// Run the test case, exception possible
-			JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
+			//JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
+			Parser parser = new ShExCParser(Paths.get(testCase.schemaFileName));
 			schema = parser.parseSchema(); // exception possible
-			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString());
-//			System.out.println("Data:"+data);			
-//			System.out.println(schema.getShapeMap());
-//			for (Statement st:data) {
-//				System.out.println(st);
-//			}
+			
+			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString(),GITHUB_URL+"validation/");
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
 			
 			RefineValidation validation = new RefineValidation(schema, dataGraph);
-
 			validation.validate(testCase.focusNode, null);
-//			System.out.println(testCase.focusNode);
-//			System.out.println(dataGraph.listAllNeighbours(testCase.focusNode));
-//			System.out.println(schema.getRules().get(testCase.shapeLabel));
-//			System.out.println(testCase.shapeLabel);
-//			System.out.println(testCase.testKind);
-//			System.out.println(validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel));
-//			for (Pair<Value, ShapeExprLabel> entry:validation.getTyping().asSet())
-//				System.out.println(entry);
-//			System.out.println();
-			if (testCase.testKind.equals(VALIDATION_TEST_CLASS) &&
-					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel)
+
+			if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
+					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
 					||
-					testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-					! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
-			{
+					(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
+					! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))){
 				passLog.println(logMessage(testCase, schema, data, "PASS"));
 				nbPass++;
 				return new TestResultForTestReport(testName, true, null, "validation");
-			}
-			else {
+			} else {
 				failLog.println(logMessage(testCase, schema, data, "FAIL"));
-				System.out.println("Failing:"+testName);
+				System.err.println("Failling: "+testName);
 				nbFail++;
 				return new TestResultForTestReport(testName, false, null, "validation");
 			}			
-		} catch (Exception e) {
+//		} catch(CyclicReferencesException e) {
+//		} catch(UndefinedReferenceException e) {
+//		} catch(NotStratifiedException e) {
+		}catch (Exception e) {
 			errorLog.println(logMessage(testCase, schema, data, "ERROR"));
 			e.printStackTrace(errorLog);
-			System.out.println("Exception:"+testName);
 			nbError++;
+			System.err.println("Exception: "+testName);
 			return new TestResultForTestReport(testName, false, null, "validation");
 		}
 	}
@@ -268,17 +254,14 @@ public class RunTests {
 	}
 
 	private static String getSchemaFileName (Resource res) {
-		String s = res.toString();
-		int idxLastSlash = s.lastIndexOf('/');
-		String fileName = s.substring(idxLastSlash, s.length()-5);
-		String filePath = SCHEMAS_DIR + fileName + ".json";
-		return filePath;
+		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
+		//fp = fp.substring(0, fp.length()-5)+".json";
+		return TEST_DIR+fp;
 	}
 
 	private static String getDataFileName (Resource res) {
 		String[] parts = res.toString().split("/");
 		return parts[parts.length-1];
-
 	}
 
 	private static Resource getTestKind (Model manifest, Resource testNode) {
@@ -286,15 +269,16 @@ public class RunTests {
 	}
 
 	static Model loadManifest () throws IOException {
-		return parseTurtleFile(MANIFEST_FILE);
+		return parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	}
+	
 
-	protected static Model parseTurtleFile(String filename) throws IOException{
+	protected static Model parseTurtleFile(String filename,String baseURI) throws IOException{
 
 		java.net.URL documentUrl = new URL("file://"+filename);
 		InputStream inputStream = documentUrl.openStream();
-		
-		return Rio.parse(inputStream, GITHUB_URL, RDFFormat.TURTLE);
+				
+		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE);
 	}
 
 	private static String logMessage (TestCase testCase, ShexSchema schema, Model data, String customMessage) {
@@ -314,45 +298,6 @@ public class RunTests {
 	//--------------------------------------------------
 	// Test Case class
 	//--------------------------------------------------
-
-
-	class TestCase {
-		public final Resource testKind;
-		public final String testName;
-		public final String schemaFileName;
-		public final String dataFileName;
-		public final ShapeExprLabel shapeLabel;
-		public final Value focusNode;
-		public final String testComment;
-
-		public TestCase(String testName, String schemaFileName, String dataFileName, ShapeExprLabel shapeLabel, Value focusNode, String testComment, Resource testKind) {
-			super();
-			this.testName = testName;
-			this.schemaFileName = schemaFileName;
-			this.dataFileName = dataFileName;
-			this.shapeLabel = shapeLabel;
-			this.focusNode = focusNode;
-			this.testComment = testComment;
-			this.testKind = testKind;
-		}
-
-		@Override
-		public String toString() {
-			String info = "";
-			info += testName + "\n";
-			info += testKind.toString() + "\n";
-			info += "Comment    : " + testComment + "\n";
-			info += "Schema file: " + schemaFileName + "\n";
-			info += "Data file  : " + dataFileName + "\n";
-			info += "Focus : " + focusNode + "\n";
-			info += "Shape : " + shapeLabel + "\n";
-			return info;
-		}		
-
-		boolean isWellDefined () {
-			return schemaFileName != null && dataFileName != null && shapeLabel != null && focusNode != null;
-		}
-	}
 
 	protected static TestCase parseTestCase (Model manifest, Resource testNode) {
 		final IRI ACTION_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action");
@@ -379,7 +324,7 @@ public class RunTests {
 
 			Resource testKind = getTestKind(manifest, testNode);
 
-			return new RunTests().new TestCase(testName, schemaFileName, dataFileName, label, focus, testComment, testKind);
+			return new TestCase(testName, schemaFileName, dataFileName, label, focus, testComment, testKind);
 		} catch (Exception e) {
 			System.out.println("Error on test case " + testNode);
 			throw e;

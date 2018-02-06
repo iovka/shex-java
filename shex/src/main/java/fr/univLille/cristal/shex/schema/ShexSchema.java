@@ -107,6 +107,7 @@ public class ShexSchema {
 		for (TripleExpr tcexp:allTriples) {
 			checkTripleID(tcexp);
 			tripleMapTmp.put(tcexp.getId(),tcexp);
+			//System.out.println("ID:"+tcexp.getId()+" : "+tcexp+ "("+tcexp.getClass()+")");
 		}
 		tripleMap = Collections.unmodifiableMap(new HashMap<TripleExprLabel,TripleExpr>(tripleMapTmp));
 		
@@ -366,6 +367,7 @@ public class ShexSchema {
 		// Visit the schema to collect the references
 		CollectGraphReferencesFromShape collector = new CollectGraphReferencesFromShape();
 		for (ShapeExpr expr: this.rules.values()) {
+			//System.out.println("Rule: "+expr.getId().toString());
 			expr.accept(collector);
 		}
 		
@@ -382,6 +384,7 @@ public class ShexSchema {
 
 		for (Pair<Label,Label> edge : collector.getResult()) {
 			builder.addEdge(edge.one, edge.two);
+			//System.out.println(edge.one +" -> "+edge.two);
 		}
 		return builder.build();
 	}

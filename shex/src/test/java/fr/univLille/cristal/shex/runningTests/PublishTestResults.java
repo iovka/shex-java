@@ -49,8 +49,6 @@ public class PublishTestResults {
 	
 	
 	public static void main(String[] args) throws IOException, ParseException {
-		 
-		
 		PublishTestResults t = new PublishTestResults("/tmp/shexlille-earl.ttl");
 		t.printHeader();
 		
