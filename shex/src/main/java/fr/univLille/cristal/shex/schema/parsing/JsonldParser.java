@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.eclipse.rdf4j.model.IRI;
@@ -460,13 +461,20 @@ public class JsonldParser implements Parser{
 						nodeConstraintsList.add(parseLiteralStem(m));
 						break;
 					case "LiteralStemRange":
+						nodeConstraintsList.add(parseLiteralStemRange(m));
 						break;
 					case "LanguageStem":
 						nodeConstraintsList.add(parseLanguageStem(m));
 						break;
 					case "LanguageStemRange":
+						nodeConstraintsList.add(parseLanguageStemRange(m));
 						break;
-
+					default:
+						if (m.containsKey("value")) {
+							nodeConstraintsList.add(parseObjectLiteral(m));
+						}else {
+							System.err.println("Node constraint not recognize:"+m);
+						}
 					}
 				} else {
 					if (m.containsKey("value")) {
@@ -492,19 +500,12 @@ public class JsonldParser implements Parser{
 
 		return new ObjectLiteral((String) m.get("value"), (String) m.get("language"), type);
 	}
-	
+
 	//IriStem { stem:IRI }
 	protected SetOfNodes parseIRIStem (Map m) {
 		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new IRIStemSetOfNodes(stem);
-	}
-	
-	//LiteralStem 	{ 	stem:ObjectLiteral }
-	protected SetOfNodes parseLiteralStem (Map m) {
-		//TODO: error if stem not present
-		String stem = (String) m.get("stem");
-		return new LiteralStemSetOfNodes(stem);
 	}
 
 	//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
@@ -516,18 +517,68 @@ public class JsonldParser implements Parser{
 			List<Object> exclu = (List<Object>) m.get("exclusions");
 			for (Object o:exclu) {
 				if (o instanceof String) {
-					System.err.println(m);
+					forbidenValue.add(RDF_FACTORY.createIRI((String) o));
 				}else {
-					exclusions.add(parseIRIStem((Map) o));
+					String type = (String) ((Map) o).get("type");
+					if (type != null & type.equals("IriStem")) {
+						exclusions.add(parseIRIStem((Map) o));
+					}else {
+						exclusions.add(parseObjectLiteral((Map) o));
+					}
+
 				}
 			}
 		}
-		
+
 		SetOfNodes stem = null;
 		if (m.get("stem") instanceof String) {
-			stem = new IRIStemSetOfNodes((String) m.get("stem"));
+			stem = parseIRIStem(m);
 		}
 		
+		if (! forbidenValue.isEmpty())
+			exclusions.add(new ExplictValuesSetOfNodes(forbidenValue));
+
+		return new StemRangeSetOfNodes(stem,exclusions);
+	}
+
+
+	//LiteralStem 	{ 	stem:ObjectLiteral }
+	protected SetOfNodes parseLiteralStem (Map m) {
+		//TODO: error if stem not present
+		String stem = (String) m.get("stem");
+		return new LiteralStemSetOfNodes(stem);
+	}
+
+	//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
+	protected SetOfNodes parseLiteralStemRange (Map m) {
+		//TODO: error if stem not present
+		Set<SetOfNodes> exclusions = new HashSet<SetOfNodes>();
+		Set<Value> forbidenValue = new HashSet<Value>();
+		if (m.containsKey("exclusions")) {
+			List<Object> exclu = (List<Object>) m.get("exclusions");
+			for (Object o:exclu) {
+				if (o instanceof String) {
+					forbidenValue.add(RDF_FACTORY.createIRI((String) o));
+				}else {
+					String type = (String) ((Map) o).get("type");
+					if (type != null & type.equals("LiteralStem")) {
+						exclusions.add(parseLiteralStem((Map) o));
+					}else {
+						exclusions.add(parseObjectLiteral((Map) o));
+					}
+
+				}
+			}
+		}
+
+		SetOfNodes stem = null;
+		if (m.get("stem") instanceof String) {
+			stem = parseLiteralStem(m);
+		}
+		
+		if (! forbidenValue.isEmpty())
+			exclusions.add(new ExplictValuesSetOfNodes(forbidenValue));
+
 		return new StemRangeSetOfNodes(stem,exclusions);
 	}
 
@@ -536,6 +587,42 @@ public class JsonldParser implements Parser{
 		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new LanguageStemSetOfNodes(stem);
+	}
+	
+	protected SetOfNodes parseLanguageStemRange (Map m) {
+		//TODO: error if stem not present
+		Set<SetOfNodes> exclusions = new HashSet<SetOfNodes>();
+		Set<Value> forbidenValue = new HashSet<Value>();
+		if (m.containsKey("exclusions")) {
+			List<Object> exclu = (List<Object>) m.get("exclusions");
+			for (Object o:exclu) {
+				if (o instanceof String) {
+					String tmp = (String) o;
+					if (isIriString(tmp))
+						forbidenValue.add(RDF_FACTORY.createIRI((String) o));
+					else
+						exclusions.add(new LanguageSetOfNodes(tmp));
+				}else {
+					String type = (String) ((Map) o).get("type");
+					if (type != null & type.equals("LanguageStem")) {
+						exclusions.add(parseLanguageStem((Map) o));
+					}else {
+						exclusions.add(parseObjectLiteral((Map) o));
+					}
+
+				}
+			}
+		}
+
+		SetOfNodes stem = null;
+		if (m.get("stem") instanceof String) {
+			stem = parseLanguageStem(m);
+		}
+		
+		if (! forbidenValue.isEmpty())
+			exclusions.add(new ExplictValuesSetOfNodes(forbidenValue));
+		
+		return new StemRangeSetOfNodes(stem,exclusions);
 	}
 
 	protected SetOfNodes parseStem (Map m) {

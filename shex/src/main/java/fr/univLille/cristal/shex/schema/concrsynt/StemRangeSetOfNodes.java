@@ -22,7 +22,7 @@ public class StemRangeSetOfNodes implements SetOfNodes {
 		for (SetOfNodes sn:exclusions)
 			if (sn.contains(node))
 				return false;
-		
+
 		return true;
 	}
 

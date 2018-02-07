@@ -115,9 +115,8 @@ public class RunTests {
 		List<String> reasons = new ArrayList<>();
 
 		Set<String> skippedIris = new HashSet<>(Arrays.asList(new String[] {
-				 "ToldBNode", "Include", 
-				"Start", "ExternalShape", "SemanticAction", "LiteralFocus", "ShapeMap", "IncorrectSyntax",
-		"MissingFile"}));
+				 "Include", "Start", "ExternalShape", "SemanticAction", 
+				 "LiteralFocus", "ShapeMap", "IncorrectSyntax",	"MissingFile"}));
 
 		for (Value object: manifest.filter(testNode, TEST_TRAIT_IRI, null).objects()) {
 			for (String reason : skippedIris) {
