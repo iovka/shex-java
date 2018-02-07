@@ -87,6 +87,8 @@ public class RunTestsRebuild {
 	private static int nbPass = 0;
 	private static int nbFail = 0;
 	private static int nbError = 0;
+	private static int nbError_on_Success = 0;
+	private static int nbError_on_Fail = 0;
 	private static int nbSkip = 0;
 
 
@@ -103,6 +105,8 @@ public class RunTestsRebuild {
 			System.out.println("PASSES : " + nbPass);
 			System.out.println("FAILS  : " + nbFail);
 			System.out.println("ERRORS : " + nbError);
+			System.out.println("ERRORS ON FAIL : " + nbError_on_Fail);
+			System.out.println("ERRORS ON SUCCESS : " + nbError_on_Success);
 			System.out.println("SKIPS  : " + nbSkip);
 		} else {
 			for (String arg: args)
@@ -213,11 +217,11 @@ public class RunTestsRebuild {
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString(),GITHUB_URL+"validation/");
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
 			
-			RefineValidation validation = new RefineValidation(schema, dataGraph);
-			validation.validate(testCase.focusNode, null);
+			//RefineValidation validation = new RefineValidation(schema, dataGraph);
+			//validation.validate(testCase.focusNode, null);
 			
-			//RecursiveValidation validation = new RecursiveValidation(schema, dataGraph);
-			//validation.validate(testCase.focusNode, testCase.shapeLabel);
+			RecursiveValidation validation = new RecursiveValidation(schema, dataGraph);
+			validation.validate(testCase.focusNode, testCase.shapeLabel);
 
 			if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
 					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
@@ -239,7 +243,10 @@ public class RunTestsRebuild {
 		}catch (Exception e) {
 			errorLog.println(logMessage(testCase, schema, data, "ERROR"));
 			e.printStackTrace(errorLog);
-			nbError++;
+			if (testCase.testKind.equals(VALIDATION_TEST_CLASS))
+				nbError_on_Success++;
+			else
+				nbError_on_Fail++;
 			System.err.println("Exception: "+testName);
 			System.err.println(e.getClass());
 			return new TestResultForTestReport(testName, false, null, "validation");

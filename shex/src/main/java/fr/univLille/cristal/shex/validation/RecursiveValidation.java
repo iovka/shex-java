@@ -47,9 +47,10 @@ import fr.univLille.cristal.shex.validation.RefineValidation.EvaluateShapeExpres
 
 /**
  * 
- * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
+ * 7 feb. 2018
  */
+
 public class RecursiveValidation implements ValidationAlgorithm {
 	private RDFGraph graph;
 	private SORBEGenerator sorbeGenerator;
@@ -75,6 +76,10 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
+		if (!this.graph.getAllNodes().contains(focusNode)) {
+			System.err.println("!!/?. "+focusNode+" not in the graph.");
+			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
+		}
 		recursiveValidation(focusNode,label);
 		if (typing.contains(focusNode, label)) {
 			typing.keepLastSessionOfHypothesis();
@@ -151,11 +156,9 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	
 	
 	private boolean isLocallyValid (Value node, Shape shape) {
-		//System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-		//				System.out.println(tripleExpression);
+
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
-		//System.out.println(constraints);
 		if (constraints.size() == 0) {
 			if (!shape.isClosed()) {
 				return true;
@@ -185,7 +188,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			neighbourhood.addAll(graph.listOutNeighboursWithPredicate(node,forwardPredicate));
 		}
 
-		// Match using oly predicate and recursive test
+		// Match using only predicate and recursive test. The following line are the only difference with refine validation
 		Matcher matcher1 = new PredicateMatcher();
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC1 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher1);
 
@@ -220,20 +223,17 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
 		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>(matchingTC2.values());
 		BagIterator bagIt = new BagIterator(listMatchingTC);
-//		System.out.println("Here MatchingTC:"+listMatchingTC);
-//		System.out.println(shape);
-//		System.out.println(tripleExpression);
+
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 		
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
 			tripleExpression.accept(intervalComputation, bag, this);
-			//System.out.println("Bag result:"+intervalComputation.getResult());
 			if (intervalComputation.getResult().contains(1)) {
 				return true;
 			}
 		}
-		//System.out.println();
+
 		return false;
 	}	
 

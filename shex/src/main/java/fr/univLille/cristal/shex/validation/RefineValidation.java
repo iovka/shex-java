@@ -50,6 +50,7 @@ import fr.univLille.cristal.shex.util.Pair;
  * Refine validation systematically constructs a complete typing for all nodes in the graph and for all shape labels in the schema.
  * It is therefore suited for cases when a complete typing is needed.
  * 
+ * @author Jérémie Dusart
  * @author Iovka Boneva
  * @author Antonin Durey
  * 
@@ -81,12 +82,11 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
-//		if (! this.graph.getAllNodes().contains(focusNode))
-//			return ;
+		if (!this.graph.getAllNodes().contains(focusNode))
+			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
 		
 		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
-			//System.out.println("Stratum: "+schema.getStratum(stratum));
 						
 			boolean changed;
 			do {
@@ -171,12 +171,9 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	
 	private boolean isLocallyValid (Value node, Shape shape) {
-		//System.out.println("IsLocallyValid: ("+node+','+shape.getId()+")");
-
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-//		System.out.println(tripleExpression);
+		
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
-		//System.out.println(constraints);
 		if (constraints.size() == 0) {
 			if (!shape.isClosed()) {
 				return true;
@@ -206,11 +203,8 @@ public class RefineValidation implements ValidationAlgorithm {
 			neighbourhood.addAll(graph.listOutNeighboursWithPredicate(node,forwardPredicate));
 		}
 		
-//		System.out.println("Neighbourhood ("+neighbourhood.size()+"): "+neighbourhood);
-//		System.out.println("List of TC("+constraints.size()+"): "+constraints);
-
-		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
 		
+		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
 		
 		// Check that the neighbor that cannot be match to a constraint are in extra
@@ -228,20 +222,17 @@ public class RefineValidation implements ValidationAlgorithm {
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
 		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>(matchingTC.values());
 		BagIterator bagIt = new BagIterator(listMatchingTC);
-//		System.out.println("Here MatchingTC:"+listMatchingTC);
-//		System.out.println(shape);
-//		System.out.println(tripleExpression);
+
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 		
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
 			tripleExpression.accept(intervalComputation, bag, this);
-			//System.out.println("Bag result:"+intervalComputation.getResult());
 			if (intervalComputation.getResult().contains(1)) {
 				return true;
 			}
 		}
-		//System.out.println();
+
 		return false;
 	}	
 
