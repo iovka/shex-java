@@ -61,6 +61,7 @@ import fr.univLille.cristal.shex.schema.parsing.Parser;
 import fr.univLille.cristal.shex.schema.parsing.ShExCParser;
 import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.util.RDFFactory;
+import fr.univLille.cristal.shex.validation.RecursiveValidation;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 
 /**
@@ -214,6 +215,9 @@ public class RunTestsRebuild {
 			
 			RefineValidation validation = new RefineValidation(schema, dataGraph);
 			validation.validate(testCase.focusNode, null);
+			
+			//RecursiveValidation validation = new RecursiveValidation(schema, dataGraph);
+			//validation.validate(testCase.focusNode, testCase.shapeLabel);
 
 			if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
 					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
