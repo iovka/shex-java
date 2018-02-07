@@ -155,8 +155,8 @@ public class Validate {
 	private static ShexSchema getSchema (String schemaFileName) {
 		ShexSchema schema;
 		try {
-			JsonldParser parser = new JsonldParser(Paths.get(schemaFileName));
-			schema = parser.parseSchema();
+			JsonldParser parser = new JsonldParser();
+			schema = parser.parseSchema(Paths.get(schemaFileName));
 		} catch (IOException e) {
 			System.err.println("Error reading the schema file.");
 			System.err.println("Caused by: ");

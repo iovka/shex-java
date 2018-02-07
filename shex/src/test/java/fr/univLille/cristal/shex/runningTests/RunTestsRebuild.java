@@ -119,8 +119,13 @@ public class RunTestsRebuild {
 		List<String> reasons = new ArrayList<>();
 
 		Set<String> skippedIris = new HashSet<>(Arrays.asList(new String[] {
-				 "Include", "Start", "ExternalShape", 
-				 "SemanticAction", "LiteralFocus", "ShapeMap", "IncorrectSyntax" }));
+				 "Start", // average number of test
+				 "SemanticAction", // lot of test
+				 "ExternalShape",  // 4 tests
+				 "LiteralFocus", //no test
+				 "ShapeMap", // few test
+				 "IncorrectSyntax" //no test
+				 }));
 
 		for (Value object: manifest.filter(testNode, TEST_TRAIT_IRI, null).objects()) {
 			for (String reason : skippedIris) {
@@ -200,9 +205,9 @@ public class RunTestsRebuild {
 		ShexSchema schema = null;
 		Model data = null;
 		try {
-			Parser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
+			JsonldParser parser = new JsonldParser();
 			//Parser parser = new ShExCParser(Paths.get(testCase.schemaFileName));
-			schema = parser.parseSchema(); // exception possible
+			schema = parser.parseSchema(Paths.get(testCase.schemaFileName)); // exception possible
 			
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString(),GITHUB_URL+"validation/");
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
@@ -232,6 +237,7 @@ public class RunTestsRebuild {
 			e.printStackTrace(errorLog);
 			nbError++;
 			System.err.println("Exception: "+testName);
+			System.err.println(e.getClass());
 			return new TestResultForTestReport(testName, false, null, "validation");
 		}
 	}

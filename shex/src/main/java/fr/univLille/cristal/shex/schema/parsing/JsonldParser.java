@@ -85,25 +85,19 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  *
  */
 @SuppressWarnings("rawtypes")
-public class JsonldParser implements Parser{
+public class JsonldParser{
 	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
-	private Object schemaObject; 
-	private Path path;
-
-
-	public JsonldParser(Path path) throws IOException, JsonLdError {
-		this.path = path;
-		InputStream inputStream = new FileInputStream(path.toFile());
-		schemaObject = JsonUtils.fromInputStream(inputStream);
-	}
 
 	// --------------------------------------------------------------------
 	// 	PARSING
 	// --------------------------------------------------------------------
 
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
-	public ShexSchema parseSchema() throws ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException  {
+	public ShexSchema parseSchema(Path path) throws IOException, JsonLdError, ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException  {
+		InputStream inputStream = new FileInputStream(path.toFile());
+		Object schemaObject = JsonUtils.fromInputStream(inputStream);
+		
 		Map map = (Map) schemaObject;
 
 		if (! "Schema".equals(getType(map))) {
@@ -119,8 +113,6 @@ public class JsonldParser implements Parser{
 		}
 
 		List shapes = (List) (map.get("shapes"));
-
-		// TODO: what happens if neither start not shapes ?
 
 		Map<ShapeExprLabel,ShapeExpr> rules = new HashMap<ShapeExprLabel,ShapeExpr>();
 

@@ -43,8 +43,8 @@ public class OneTest {
 		//Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"failure","CyclicReferences","TripleReferences.json");;
 		int status = 0;
 		try {
-			JsonldParser parser = new JsonldParser(schemaFile);
-			ShexSchema schema = parser.parseSchema();
+			JsonldParser parser = new JsonldParser();
+			ShexSchema schema = parser.parseSchema(schemaFile);
 			if (status==1) {
 				fail("Error : test success but it should fail.");
 			}

@@ -108,8 +108,8 @@ public class TestJsonldParser {
 	@Test
 	public void parse (){
 		try {
-			JsonldParser parser = new JsonldParser(schemaFile);
-			ShexSchema schema = parser.parseSchema();
+			JsonldParser parser = new JsonldParser();
+			ShexSchema schema = parser.parseSchema(schemaFile);
 			if (status!=0) {
 				fail("Error: test success but it should fail.");
 			}

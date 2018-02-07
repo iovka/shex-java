@@ -200,8 +200,8 @@ public class RunTests {
 		Model data = null;
 		try {
 			// Run the test case, exception possible
-			JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
-			schema = parser.parseSchema(); // exception possible
+			JsonldParser parser = new JsonldParser();
+			schema = parser.parseSchema(Paths.get(testCase.schemaFileName)); // exception possible
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString());
 //			System.out.println("Data:"+data);			
 //			System.out.println(schema.getShapeMap());

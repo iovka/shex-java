@@ -40,9 +40,9 @@ public class OneTest {
 		
 		RDF4JGraph graph = new RDF4JGraph(model);
 		
-		JsonldParser parser = new JsonldParser(Paths.get(".","User.json"));
+		JsonldParser parser = new JsonldParser();
 		
-		ShexSchema schema = parser.parseSchema();
+		ShexSchema schema = parser.parseSchema(Paths.get(".","User.json"));
 
 		Value focusNode = RDF_FACTORY.createBNode("JD");
 		ShapeExprLabel label = new ShapeExprLabel(RDF_FACTORY.createIRI("http://a.example/USER")); 
