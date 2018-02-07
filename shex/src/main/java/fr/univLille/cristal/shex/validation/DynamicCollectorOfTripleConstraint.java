@@ -19,8 +19,8 @@ package fr.univLille.cristal.shex.validation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;

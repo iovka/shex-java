@@ -17,14 +17,14 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema.analysis;
 
-import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExternal;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 
 /**
  * 

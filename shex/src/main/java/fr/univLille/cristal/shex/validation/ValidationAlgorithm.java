@@ -20,6 +20,7 @@ package fr.univLille.cristal.shex.validation;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 
+import es.weso.shex.ShapeLabel;
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;

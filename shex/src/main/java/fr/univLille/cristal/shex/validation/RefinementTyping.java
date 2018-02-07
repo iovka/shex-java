@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;

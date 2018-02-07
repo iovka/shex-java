@@ -45,8 +45,10 @@ import org.eclipse.rdf4j.model.impl.SimpleLiteral;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.rio.ParserConfig;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
@@ -58,6 +60,7 @@ import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.schema.parsing.Parser;
 import fr.univLille.cristal.shex.schema.parsing.ShExCParser;
 import fr.univLille.cristal.shex.util.Pair;
+import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 
 /**
@@ -66,7 +69,7 @@ import fr.univLille.cristal.shex.validation.RefineValidation;
  * 10 oct. 2017
  */
 public class RunTestsRebuild {
-	private static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
@@ -116,7 +119,7 @@ public class RunTestsRebuild {
 		List<String> reasons = new ArrayList<>();
 
 		Set<String> skippedIris = new HashSet<>(Arrays.asList(new String[] {
-				 "ToldBNode", "Stem", "Include", "Start", "ExternalShape", 
+				 "Include", "Start", "ExternalShape", 
 				 "SemanticAction", "LiteralFocus", "ShapeMap", "IncorrectSyntax" }));
 
 		for (Value object: manifest.filter(testNode, TEST_TRAIT_IRI, null).objects()) {
@@ -197,8 +200,8 @@ public class RunTestsRebuild {
 		ShexSchema schema = null;
 		Model data = null;
 		try {
-			//JsonldParser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
-			Parser parser = new ShExCParser(Paths.get(testCase.schemaFileName));
+			Parser parser = new JsonldParser(Paths.get(testCase.schemaFileName));
+			//Parser parser = new ShExCParser(Paths.get(testCase.schemaFileName));
 			schema = parser.parseSchema(); // exception possible
 			
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString(),GITHUB_URL+"validation/");
@@ -255,7 +258,7 @@ public class RunTestsRebuild {
 
 	private static String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
-		//fp = fp.substring(0, fp.length()-5)+".json";
+		fp = fp.substring(0, fp.length()-5)+".json";
 		return TEST_DIR+fp;
 	}
 
@@ -278,7 +281,7 @@ public class RunTestsRebuild {
 		java.net.URL documentUrl = new URL("file://"+filename);
 		InputStream inputStream = documentUrl.openStream();
 				
-		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE);
+		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
 	}
 
 	private static String logMessage (TestCase testCase, ShexSchema schema, Model data, String customMessage) {

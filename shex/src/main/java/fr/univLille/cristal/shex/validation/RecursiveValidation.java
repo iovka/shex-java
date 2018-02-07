@@ -17,7 +17,6 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.validation;
 
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.RDFGraph;

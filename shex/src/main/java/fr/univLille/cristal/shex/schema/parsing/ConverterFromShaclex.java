@@ -12,12 +12,9 @@ import java.util.regex.Pattern;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 import es.weso.shex.IRILabel;
 import es.weso.shex.IRIValue;
-import es.weso.shex.ShapeLabel;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
@@ -30,12 +27,10 @@ import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.concrsynt.ConjunctiveSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
@@ -43,16 +38,15 @@ import fr.univLille.cristal.shex.schema.concrsynt.ExplictValuesSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.NumericFacetSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
+import fr.univLille.cristal.shex.util.RDFFactory;
 
 
 public class ConverterFromShaclex {
 	private final static Pattern LANG_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*(\")(@[a-zA-Z]+)(-[a-zA-Z0-9]+)*");
 	private final static Pattern DATATYPE_STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^" + "([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
-	private final static Pattern IRI_PATTERN = Pattern.compile("([^#x[00-20]<>\"\\{\\}|^`\\\\]|.)*");
-	// TODO is this correct ?
-	private static final Pattern STRING_PATTERN = Pattern.compile("\"([^\"]|\\\")*\"\\^\\^"); 
 
-	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+
+	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	private boolean semActsWarning = false;
 	private boolean annotationsWarning = false;

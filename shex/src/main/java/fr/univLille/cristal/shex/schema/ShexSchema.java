@@ -17,17 +17,13 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.schema;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
@@ -61,6 +57,7 @@ import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 import fr.univLille.cristal.shex.util.Pair;
+import fr.univLille.cristal.shex.util.RDFFactory;
 
 /** A ShEx schema.
  * 
@@ -208,7 +205,7 @@ public class ShexSchema {
 	//--------------------------------------------------------------------------------
 	// ID  function
 	//--------------------------------------------------------------------------------
-	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	private static int shapeLabelNb = 0;
 	private static String SHAPE_LABEL_PREFIX = "SLGEN";

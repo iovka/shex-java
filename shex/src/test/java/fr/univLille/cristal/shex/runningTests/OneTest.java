@@ -22,11 +22,12 @@ import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.util.Pair;
+import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 import fr.univLille.cristal.shex.validation.Typing;
 
 public class OneTest {
-	private static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	public static void main(String[] args) throws IOException, JsonLdError, ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		Model model = new TreeModel();

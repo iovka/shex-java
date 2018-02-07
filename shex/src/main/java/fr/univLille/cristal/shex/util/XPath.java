@@ -21,16 +21,8 @@ import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.functions.Matches;
 import net.sf.saxon.s9api.Processor;
-import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.XPathCompiler;
-import net.sf.saxon.s9api.XPathExecutable;
-import net.sf.saxon.s9api.XPathSelector;
 import net.sf.saxon.s9api.XdmAtomicValue;
-import net.sf.saxon.s9api.XdmNode;
-import net.sf.saxon.s9api.XdmValue;
-import net.sf.saxon.sxpath.XPathEvaluator;
 import net.sf.saxon.trans.XPathException;
-import net.sf.saxon.tree.linked.TextImpl;
 import net.sf.saxon.value.AtomicValue;
 
 /**

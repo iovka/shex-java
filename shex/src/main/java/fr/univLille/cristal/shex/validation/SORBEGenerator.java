@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
@@ -15,14 +12,14 @@ import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.util.Interval;
+import fr.univLille.cristal.shex.util.RDFFactory;
 
 public class SORBEGenerator {
-	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	private static int tripleLabelNb = 0;
 	private static String TRIPLE_LABEL_PREFIX = "LABEL_FOR_SORBE_GENERATED";
 	

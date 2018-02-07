@@ -15,11 +15,12 @@ import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.util.Interval;
+import fr.univLille.cristal.shex.util.RDFFactory;
 
 import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.*;
 
 class TestGenerateSORBE {
-	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	@Test
 	void testTripleConstraint() {

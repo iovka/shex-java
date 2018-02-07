@@ -30,13 +30,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.regex.Pattern;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.utils.JsonUtils;
@@ -50,15 +46,15 @@ import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
-import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
+import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
-import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
@@ -75,6 +71,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
 import fr.univLille.cristal.shex.util.Interval;
+import fr.univLille.cristal.shex.util.RDFFactory;
 
 /** Parses a {@link ShexSchema} from its jsonld representation. 
  * 
@@ -89,7 +86,7 @@ import fr.univLille.cristal.shex.util.Interval;
  */
 @SuppressWarnings("rawtypes")
 public class JsonldParser implements Parser{
-	private final static ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	private Object schemaObject; 
 	private Path path;

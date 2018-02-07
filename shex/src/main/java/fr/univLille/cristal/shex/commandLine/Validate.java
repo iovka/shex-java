@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -39,6 +38,7 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
+import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
@@ -52,7 +52,7 @@ public class Validate {
 	
 	// FIXME not tested
 	
-	private static ValueFactory factory = SimpleValueFactory.getInstance();
+	private static RDFFactory factory = RDFFactory.getInstance();
 	
 	/** Validates a graph against a schema.
 	 * 

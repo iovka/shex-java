@@ -19,7 +19,6 @@ package fr.univLille.cristal.shex.validation;
 
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;

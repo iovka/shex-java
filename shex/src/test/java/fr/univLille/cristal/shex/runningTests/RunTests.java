@@ -53,6 +53,7 @@ import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.util.Pair;
+import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 
 /**
@@ -68,7 +69,7 @@ public class RunTests {
 	private static final String SCHEMAS_DIR = TEST_DIR + "schemas/";
 	private static final String DATA_DIR = TEST_DIR + "validation/";
 
-	private static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
+	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	private static final Resource VALIDATION_FAILURE_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationFailure");
 	private static final Resource VALIDATION_TEST_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationTest");
