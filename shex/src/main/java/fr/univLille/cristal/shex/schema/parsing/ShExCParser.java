@@ -14,17 +14,10 @@ import fr.univLille.cristal.shex.schema.ShexSchema;
 import scala.util.Try;
 
 public class ShExCParser implements Parser{
-	private Path path;
 
-	public ShExCParser(Path path) {
-		this.path = path;
-	}
-
-
-	@Override
-	public ShexSchema parseSchema() throws IOException, ParseException, UndefinedReferenceException,
+	public ShexSchema parseSchema(Path path) throws IOException, ParseException, UndefinedReferenceException,
 	CyclicReferencesException, NotStratifiedException {
-		byte[] encoded = Files.readAllBytes(this.path);
+		byte[] encoded = Files.readAllBytes(path);
 		String fileContent = new String(encoded, Charset.defaultCharset());
 		Try<Schema> trySchema = Schema.fromString(fileContent, "SHEXC",null);
 		Schema sh = trySchema.get();

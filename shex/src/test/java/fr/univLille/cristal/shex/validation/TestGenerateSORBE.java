@@ -1,11 +1,10 @@
 package fr.univLille.cristal.shex.validation;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.eachof;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.tc;
 
 import java.util.Collections;
 
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.Test;
 
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
@@ -16,8 +15,6 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
-
-import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.*;
 
 class TestGenerateSORBE {
 	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();

@@ -74,6 +74,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 	
 	
+	
 	@Override
 	public Typing getTyping () {
 		return typing;

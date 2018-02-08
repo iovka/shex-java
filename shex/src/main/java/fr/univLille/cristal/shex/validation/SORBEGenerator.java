@@ -15,6 +15,7 @@ import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
+import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
 
@@ -29,7 +30,8 @@ public class SORBEGenerator {
 		this.sorbeMap=new HashMap<ShapeExprLabel,TripleExpr>();
 	}
 	
-	// Get ride of the tripleExprRef by copying 
+	// Get ride of the tripleExprRef by copying
+	// Check that empty is not under a plus
 	public TripleExpr getSORBETripleExpr(Shape shape) {
 		if (this.sorbeMap.containsKey(shape.getId()))
 			return this.sorbeMap.get(shape.getId());
@@ -93,9 +95,15 @@ public class SORBEGenerator {
 	
 
 	private TripleExpr generateRepeatedTripleExpression(RepeatedTripleExpression expr) {
-		if (expr.getCardinality().equals(Interval.PLUS) 
-				|| expr.getCardinality().equals(Interval.STAR)
-				|| expr.getCardinality().equals(Interval.ONE)){
+		CheckIfContainsEmpty visitor = new CheckIfContainsEmpty();
+		expr.accept(visitor);
+		if (expr.getCardinality().equals(Interval.PLUS) & visitor.result) {
+			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),Interval.STAR);
+			setTripleLabel(result);
+			return result;
+		} else if(expr.getCardinality().equals(Interval.PLUS)
+				  || expr.getCardinality().equals(Interval.STAR)
+				  || expr.getCardinality().equals(Interval.ONE)){
 			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),expr.getCardinality());
 			setTripleLabel(result);
 			return result;
@@ -133,5 +141,59 @@ public class SORBEGenerator {
 		triple.setId(new TripleExprLabel(RDF_FACTORY.createBNode(TRIPLE_LABEL_PREFIX+"_"+tripleLabelNb),true));
 		tripleLabelNb++;
 	}
+	
+	class CheckIfContainsEmpty extends TripleExpressionVisitor<Boolean>{
 
+		private boolean result ;
+
+		public CheckIfContainsEmpty() {
+		}
+
+		@Override
+		public Boolean getResult() {
+			return result;
+		}
+
+		@Override
+		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
+			result = false;
+		}
+
+		@Override
+		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
+			result = false;
+		}
+
+		@Override
+		public void visitEachOf(EachOf expr, Object... arguments) {
+			for (TripleExpr subExpr : expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				if (!result) 
+					return;
+			}
+		}
+
+		@Override
+		public void visitOneOf(OneOf expr, Object... arguments) {
+			for (TripleExpr subExpr : expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				if (result) 
+					return;
+			}
+		}
+
+		@Override
+		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
+			if (expr.getCardinality().min == 0) {
+				result = true;
+			} else {
+				expr.getSubExpression().accept(this, arguments);
+			}
+		}
+
+		@Override
+		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
+			expr.getTripleExp().accept(this, arguments);
+		}
+	}
 }

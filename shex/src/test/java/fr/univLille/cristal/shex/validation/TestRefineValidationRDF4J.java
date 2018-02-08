@@ -17,7 +17,6 @@ limitations under the License.
 
 package fr.univLille.cristal.shex.validation;
 
-import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.eachof;
 import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.not;
 import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.se;
 import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.tc;
@@ -26,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 
-import org.apache.xerces.impl.xs.traversers.XSAttributeChecker;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -44,8 +42,6 @@ import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor;
 import fr.univLille.cristal.shex.util.Pair;
-import fr.univLille.cristal.shex.validation.RefineValidation;
-import fr.univLille.cristal.shex.validation.Typing;
 
 /**
  * 

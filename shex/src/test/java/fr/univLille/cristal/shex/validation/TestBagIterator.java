@@ -16,8 +16,10 @@ limitations under the License.
 */
 package fr.univLille.cristal.shex.validation;
 
-import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.*;
-import static org.junit.Assert.*;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.tc;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +27,6 @@ import java.util.List;
 import org.junit.Test;
 
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.validation.Bag;
-import fr.univLille.cristal.shex.validation.BagIterator;
 
 /**
  * 

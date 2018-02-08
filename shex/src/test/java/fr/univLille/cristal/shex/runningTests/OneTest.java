@@ -1,14 +1,11 @@
 package fr.univLille.cristal.shex.runningTests;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.impl.TreeModel;
 import org.eclipse.rdf4j.model.vocabulary.FOAF;
 
@@ -24,6 +21,7 @@ import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RefineValidation;
+import fr.univLille.cristal.shex.validation.RefinementTyping;
 import fr.univLille.cristal.shex.validation.Typing;
 
 public class OneTest {
@@ -49,7 +47,7 @@ public class OneTest {
 		
 		RefineValidation valid = new RefineValidation(schema, graph);
 		valid.validate(focusNode, label);
-		Typing res = valid.getTyping();
+		RefinementTyping res = (RefinementTyping) valid.getTyping();
 		
 		for( Pair<Value, ShapeExprLabel> element: res.asSet()) {
 			System.out.println(element);

@@ -16,7 +16,11 @@ limitations under the License.
 
 */
 
-import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.*;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.not;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.se;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.shapeAnd;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.someof;
+import static fr.univLille.cristal.shex.schema.abstrsynt.SimpleSchemaConstructor.tc;
 
 import org.junit.Test;
 
@@ -24,7 +28,6 @@ import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 
 /**
  * 

@@ -22,12 +22,10 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,16 +33,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
-
-import com.github.jsonldjava.core.JsonLdError;
-import com.github.jsonldjava.utils.JsonUtils;
-
-import fr.univLille.cristal.shex.ConfigurationTest;
-import fr.univLille.cristal.shex.schema.ShexSchema;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import com.github.jsonldjava.utils.JsonUtils;
+
+import fr.univLille.cristal.shex.ConfigurationTest;
+import fr.univLille.cristal.shex.schema.ShexSchema;
 
 
 /**

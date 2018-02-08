@@ -30,19 +30,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleLiteral;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.rio.ParserConfig;
@@ -50,19 +44,13 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
-import fr.univLille.cristal.shex.exception.CyclicReferencesException;
-import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
-import fr.univLille.cristal.shex.schema.parsing.Parser;
 import fr.univLille.cristal.shex.schema.parsing.ShExCParser;
-import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
-import fr.univLille.cristal.shex.validation.RefineValidation;
 
 /**
  * 
@@ -211,7 +199,8 @@ public class RunTestsRebuild {
 		Model data = null;
 		try {
 			JsonldParser parser = new JsonldParser();
-			//Parser parser = new ShExCParser(Paths.get(testCase.schemaFileName));
+			//ShExCParser parser = new ShExCParser();
+			//ShExRParser parser = new ShExRParser();
 			schema = parser.parseSchema(Paths.get(testCase.schemaFileName)); // exception possible
 			
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString(),GITHUB_URL+"validation/");
@@ -276,6 +265,7 @@ public class RunTestsRebuild {
 	private static String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
 		fp = fp.substring(0, fp.length()-5)+".json";
+		//fp = fp.substring(0, fp.length()-5)+".ttl";
 		return TEST_DIR+fp;
 	}
 

@@ -85,7 +85,7 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  *
  */
 @SuppressWarnings("rawtypes")
-public class JsonldParser{
+public class JsonldParser implements Parser{
 	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 

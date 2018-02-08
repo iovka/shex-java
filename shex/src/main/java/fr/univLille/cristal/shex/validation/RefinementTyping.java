@@ -30,6 +30,10 @@ import org.eclipse.rdf4j.model.Value;
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.util.Pair;
 
 /**
@@ -42,6 +46,7 @@ public class RefinementTyping implements Typing {
 	private ShexSchema schema;
 	private RDFGraph graph;
 	private List<Set<Pair<Value, ShapeExprLabel>>> theTyping;
+	private Set<ShapeExprLabel> selectedShape;
 	
 	public RefinementTyping(ShexSchema schema, RDFGraph graph) {
 		this.schema = schema;
@@ -50,17 +55,32 @@ public class RefinementTyping implements Typing {
 		for (int i = 0; i < schema.getNbStratums(); i++) {
 			theTyping.add(new HashSet<>());
 		}
+		
+		this.selectedShape = new HashSet<ShapeExprLabel>();
+		this.selectedShape.addAll(schema.getRules().keySet());
+		for (ShapeExpr expr:schema.getShapeMap().values())
+			if (expr instanceof ShapeExprRef) 
+				selectedShape.add(((ShapeExprRef) expr).getShapeDefinition().getId());
+		for (TripleExpr expr:schema.getTripleMap().values())
+			if (expr instanceof TripleConstraint)
+				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
+	}
+	
+	public Set<ShapeExprLabel> getSelectedShape(){
+		return this.selectedShape;
 	}
 
 	public void addAllLabelsFrom(int stratum, Value focusNode) {
 		Set<ShapeExprLabel> labels = schema.getStratum(stratum);
 		Set<Pair<Value, ShapeExprLabel>> set = theTyping.get(stratum);
 		for (ShapeExprLabel label: labels) {
-			for (Value res : graph.getAllNodes()) {
-				set.add(new Pair<>(res, label));
+			if (selectedShape.contains(label)) {
+				for (Value res : graph.getAllNodes()) {
+					set.add(new Pair<>(res, label));
+				}
+				if (focusNode != null)
+					set.add(new Pair<>(focusNode, label));
 			}
-			if (focusNode != null)
-				set.add(new Pair<>(focusNode, label));
 		}
 	}
 	

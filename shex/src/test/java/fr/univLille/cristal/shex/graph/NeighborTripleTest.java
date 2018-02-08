@@ -1,15 +1,12 @@
 package fr.univLille.cristal.shex.graph;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import fr.univLille.cristal.shex.graph.NeighborTriple;
-import fr.univLille.cristal.shex.graph.TCProperty;
 
 class NeighborTripleTest {
 	private ValueFactory vf;
