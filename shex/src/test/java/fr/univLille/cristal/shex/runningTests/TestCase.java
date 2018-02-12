@@ -1,29 +1,72 @@
 package fr.univLille.cristal.shex.runningTests;
 
+import java.util.Set;
+
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.util.Models;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.util.RDFFactory;
 
 public 	class TestCase {
+	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
+	private static final IRI ACTION_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action");
+	private static final IRI SCHEMA_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#schema");
+	private static final IRI DATA_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#data");
+	private static final IRI SHAPE_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#shape");
+	private static final IRI FOCUS_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#focus");
+	private static final IRI TEST_TRAIT_IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#trait");
+
 	public final Resource testKind;
 	public final String testName;
-	public final String schemaFileName;
-	public final String dataFileName;
-	public final ShapeExprLabel shapeLabel;
-	public final Value focusNode;
+	public final Resource schemaFileName;
+	public final Resource dataFileName;
+	public ShapeExprLabel shapeLabel;
+	public Value focusNode;
 	public final String testComment;
+	public final Set<Value> traits;
 
-	public TestCase(String testName, String schemaFileName, String dataFileName, ShapeExprLabel shapeLabel, Value focusNode, String testComment, Resource testKind) {
-		super();
-		this.testName = testName;
-		this.schemaFileName = schemaFileName;
-		this.dataFileName = dataFileName;
-		this.shapeLabel = shapeLabel;
-		this.focusNode = focusNode;
-		this.testComment = testComment;
-		this.testKind = testKind;
+	public TestCase(Model manifest, Resource testNode) {
+		try {
+			Resource actionNode = Models.getPropertyResource(manifest, testNode, ACTION_PROPERTY).get();
+			traits = manifest.filter(testNode, TEST_TRAIT_IRI, null).objects();
+			schemaFileName = Models.getPropertyIRI(manifest, actionNode, SCHEMA_PROPERTY).get();  
+			dataFileName = Models.getPropertyIRI(manifest, actionNode, DATA_PROPERTY).get();
+			if (Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).isPresent()) {
+				Resource labelRes = Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).get();
+				if (labelRes instanceof BNode)
+					shapeLabel = new ShapeExprLabel((BNode)labelRes);
+				else
+					shapeLabel = new ShapeExprLabel((IRI)labelRes);
+
+				focusNode = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
+			}
+			testComment = Models.getPropertyString(manifest, testNode, RDFS.COMMENT).get();
+			testName = Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();
+			testKind = Models.getPropertyIRI(manifest, testNode, RDF_TYPE).get();
+		} catch (Exception e) {
+			System.out.println(" Error on test case " + testNode);
+			throw e;
+		}
 	}
+		
+//	public TestCase(String testName, Resource schemaFileName, Resource dataFileName, ShapeExprLabel shapeLabel, Value focusNode, String testComment, Resource testKind) {
+//		super();
+//		this.testName = testName;
+//		this.schemaFileName = schemaFileName;
+//		this.dataFileName = dataFileName;
+//		this.shapeLabel = shapeLabel;
+//		this.focusNode = focusNode;
+//		this.testComment = testComment;
+//		this.testKind = testKind;
+//	}
 
 	@Override
 	public String toString() {

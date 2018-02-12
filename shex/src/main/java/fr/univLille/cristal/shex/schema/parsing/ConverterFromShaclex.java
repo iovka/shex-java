@@ -2,6 +2,7 @@ package fr.univLille.cristal.shex.schema.parsing;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,7 +15,11 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
 import es.weso.shex.IRILabel;
+import es.weso.shex.IRIStem;
+import es.weso.shex.BNodeLabel;
 import es.weso.shex.IRIValue;
+import es.weso.shex.IntMax;
+import es.weso.shex.Max;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
@@ -23,7 +28,10 @@ import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
+import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
+import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
+import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeAnd;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
@@ -32,13 +40,18 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeNot;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.concrsynt.ConjunctiveSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.ExplictValuesSetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.IRIStemSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.NumericFacetSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
+import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
+import scala.tools.nsc.typechecker.ContextErrors.SymbolTypeError;
 
 
 public class ConverterFromShaclex {
@@ -69,7 +82,7 @@ public class ConverterFromShaclex {
 			
 			ShapeExpr newShape = this.convertShapeExpr(shapeEx);
 			ShapeExprLabel newLabel = newShape.getId();
-			System.out.println(newLabel+" : "+newShape);
+			//System.out.println(newLabel+" : "+newShape);
 			rules.put(newLabel, newShape);
 		}
 		//System.out.println(rules);
@@ -135,15 +148,12 @@ public class ConverterFromShaclex {
 	}
 	
 	private ShapeExpr convertShapeRef(es.weso.shex.ShapeRef shape) {
-		ShapeExprRef result = new ShapeExprRef(createShapeLabel(shape.reference().toString(), false));
-		return result;
+		return new ShapeExprRef(getShapeLabel(shape.reference()));
 	}
 
-	private NodeConstraint convertNodeConstraint(es.weso.shex.NodeConstraint node) {
-		List<SetOfNodes> constraints = new LinkedList<SetOfNodes>();
-		
-		//System.err.println(node.xsFacets().isEmpty());
-		
+	private ShapeExpr convertNodeConstraint(es.weso.shex.NodeConstraint node) {
+		List<SetOfNodes> constraints = new ArrayList<SetOfNodes>();
+				
 		if (node.nodeKind().nonEmpty()) {
 			if (node.nodeKind().get() instanceof es.weso.shex.BNodeKind$) 
 				constraints.add(SetOfNodes.Blank);
@@ -156,22 +166,27 @@ public class ConverterFromShaclex {
 		}
 		
 		
-		//TODO: finish converting nodeconstraint
 		if (node.datatype().nonEmpty()) {
 			constraints.add(new DatatypeSetOfNodes(RDF_FACTORY.createIRI(node.datatype().get().getLexicalForm())));
-			//System.err.println("Implementation of nodekind datatype.."+node.datatype());
 		}
 
+		NumericFacetSetOfNodes num = null;
+		StringFacetSetOfNodes string = null;
 		scala.collection.immutable.List<es.weso.shex.XsFacet> facets = node.xsFacets();
 		scala.collection.Iterator<es.weso.shex.XsFacet> facite = facets.iterator();
 		while (facite.hasNext()) {
 			es.weso.shex.XsFacet facet = facite.next();
 			if (facet instanceof es.weso.shex.StringFacet) {
-				es.weso.shex.StringFacet stFacet = (es.weso.shex.StringFacet) facet;
-				
+				if (string == null) string = new StringFacetSetOfNodes();
+				updateStringFacet(string, (es.weso.shex.StringFacet) facet);
 			}
-			System.err.println("Implementation of nodekind facet..");
+			if (facet instanceof es.weso.shex.NumericFacet) {
+				if (num == null) num = new NumericFacetSetOfNodes();
+				updateNumericFacet(num, (es.weso.shex.NumericFacet) facet);
+			}
 		}
+		if (num!=null) constraints.add(num);
+		if (string!=null) constraints.add(string);
 		
 		if(node.values().nonEmpty()) {
 			List<Value> explicitValuesList = new ArrayList<>();
@@ -180,27 +195,23 @@ public class ConverterFromShaclex {
 			scala.collection.Iterator<es.weso.shex.ValueSetValue> valite = listValues.iterator();
 			while (valite.hasNext()) {
 				es.weso.shex.ValueSetValue val = valite.next();
-				if (val instanceof es.weso.shex.IRIValue) {
-					es.weso.shex.IRIValue value = (IRIValue) val;
+				if (val instanceof es.weso.shex.ObjectValue) {
 					explicitValuesList.add(RDF_FACTORY.createIRI(((es.weso.shex.IRIValue) val).i().getLexicalForm()));
 				}else {
-					System.err.println("Implementation of value:"+val+" ("+val.getClass()+")");
-
+					constraints.add(getStem(val));
 				}
 			}
 			if (! explicitValuesList.isEmpty())
 				constraints.add(new ExplictValuesSetOfNodes(explicitValuesList));
 		}
-//		List values = (List) (map.get("values"));
-//		if (values != null) {
-//			constraints.addAll(parseValueSetValueList(values));
-//		}
-//		
-		NodeConstraint result;
-		if (constraints.size() == 1)
-			result = new NodeConstraint(constraints.get(0));
-		else 
-			result = new NodeConstraint(new ConjunctiveSetOfNodes(constraints)); 
+	
+		ShapeExpr result;
+		if (constraints.size()>0)
+			result = new NodeConstraint(new ConjunctiveSetOfNodes(constraints));
+		else {
+			TripleExpr tmp = new EmptyTripleExpression();
+			result = new Shape(tmp, Collections.EMPTY_SET, false);
+		}
 
 		setShapeId(result, node);
 
@@ -247,91 +258,196 @@ public class ConverterFromShaclex {
 			resTripleExprs.add(convertTripleExpr(llite.next()));
 		}
 		
-		EachOf result = new EachOf(resTripleExprs);
+		TripleExpr result = new EachOf(resTripleExprs);
 		setTripleId(result, triple);
+		
+		if (triple.optMin().nonEmpty() || triple.optMax().nonEmpty())
+			result = createRepeatedTripleExpr(result, triple);
 		
 		return result;
 	}
 	
 	private TripleExpr convertOneOf(es.weso.shex.OneOf triple) {
-		return null;
+		List<TripleExpr> resTripleExprs = new LinkedList<TripleExpr>();
+		
+		scala.collection.immutable.List<es.weso.shex.TripleExpr> tripleExprs = triple.expressions();
+		scala.collection.Iterator<es.weso.shex.TripleExpr> llite = tripleExprs.iterator();
+		while (llite.hasNext()) {
+			resTripleExprs.add(convertTripleExpr(llite.next()));
+		}
+		
+		TripleExpr result = new OneOf(resTripleExprs);
+		setTripleId(result, triple);
+		
+		if (triple.optMin().nonEmpty() || triple.optMax().nonEmpty())
+			result = createRepeatedTripleExpr(result, triple);
+		
+		return result;	
 	}
 	
 	private TripleExpr convertInclusion(es.weso.shex.Inclusion triple) {
-		return null;
+		return new TripleExprRef(getTripleLabel(triple.include()));
 	}
 	
 	private TripleExpr convertTripleConstraint(es.weso.shex.TripleConstraint triple) {
 		TCProperty property;
 		if (triple.inverse()) {
-			property = TCProperty.createInvProperty(createIri(triple.predicate().toString()));
+			property = TCProperty.createInvProperty(createIri(triple.predicate().getLexicalForm()));
 		}else {
-			property = TCProperty.createFwProperty(createIri(triple.predicate().toString()));
+			property = TCProperty.createFwProperty(createIri(triple.predicate().getLexicalForm()));
 		}
 		ShapeExpr valueExpr = convertShapeExpr(triple.valueExpr().get());
 		
-		// TODO: deal with cardinality
-		//System.out.println(triple.min());
-		//System.out.println(triple.max());
 		
-		TripleConstraint result;
-		result = TripleConstraint.newSingleton(property,valueExpr);
+		TripleExpr result = new TripleConstraint(property,valueExpr);
+		setTripleId(result, triple);
+		
+		if (triple.optMin().nonEmpty() || triple.optMax().nonEmpty())
+			result = createRepeatedTripleExpr(result, triple);
+		
 		return result;
 	}
 	
+	private TripleExpr createRepeatedTripleExpr(TripleExpr subExpr,es.weso.shex.TripleExpr triple) {
+		Integer min=null,max=null;
+		Max intmax=null;
+		if (triple instanceof es.weso.shex.TripleConstraint) {
+			min =(int) ((es.weso.shex.TripleConstraint) triple).optMin().get();
+			intmax =(Max) ((es.weso.shex.TripleConstraint) triple).optMax().get();
+		}
+		if (triple instanceof es.weso.shex.OneOf) {
+			min =(int) ((es.weso.shex.TripleConstraint) triple).optMin().get();
+			intmax =(Max) ((es.weso.shex.TripleConstraint) triple).optMax().get();
+		}
+		if (triple instanceof es.weso.shex.EachOf) {
+			min =(int) ((es.weso.shex.TripleConstraint) triple).optMin().get();
+			intmax =(Max) ((es.weso.shex.TripleConstraint) triple).optMax().get();
+		}
+		if (intmax instanceof es.weso.shex.Star$)
+			max = Interval.UNBOUND;
+		else
+			max = ((IntMax) intmax).v();
+		
+		return new RepeatedTripleExpression(subExpr, new Interval(min,max));
+	}
 	
-	private static SetOfNodes getNumericFacet (Map map) {
-		BigDecimal minincl = null, minexcl = null, maxincl = null, maxexcl = null;
-		Number n;
+	
+	//----------------------------------------------------------
+	// Node Constraint methods
+	//----------------------------------------------------------
+	
+	private void getObjectValue(es.weso.shex.ObjectValue val) {
 		
-		n = (Number)(map.get("mininclusive"));
-		if (n != null)
-			minincl = new BigDecimal(n.toString());
-		n = (Number)(map.get("minexclusive"));
-		if (n != null)
-			minexcl = new BigDecimal(n.toString());
-		n = (Number)(map.get("maxinclusive"));
-		if (n != null) 
-			maxincl = new BigDecimal(n.toString());
-		n = (Number)(map.get("maxexclusive"));
-		if (n != null)
-			maxexcl = new BigDecimal(n.toString());
-		
-		Integer totalDigits = (Integer) (map.get("totaldigits"));
-		Integer fractionDigits = (Integer) (map.get("fractiondigits"));
-
-		if (minincl != null || minexcl != null || maxincl != null || maxexcl != null || totalDigits != null || fractionDigits != null) {
-			NumericFacetSetOfNodes facet = new NumericFacetSetOfNodes();
-			facet.setMinincl(minincl);
-			facet.setMinexcl(minexcl);
-			facet.setMaxincl(maxincl);
-			facet.setMaxexcl(maxexcl);
-			facet.setTotalDigits(totalDigits);
-			facet.setFractionDigits(fractionDigits);
-			return facet;
-		} 
+	}
+	
+	private SetOfNodes getStem(es.weso.shex.ValueSetValue val) {
+		if (val instanceof es.weso.shex.IRIStem)
+			return getStemValue((es.weso.shex.IRIStem) val); 
+		if (val instanceof es.weso.shex.StemRange)
+			return getStemRange((es.weso.shex.StemRange) val); 
+		System.err.println("<<<## Unknown stem: "+val.getClass());
 		return null;
 	}
 	
-	// stringFacet = (length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING?
-	
-	private static SetOfNodes getStringFacet (Map map) {		
-		Integer length = (Integer) (map.get("length"));
-		Integer minlength = (Integer) (map.get("minlength"));
-		Integer maxlength = (Integer) (map.get("maxlength"));
-		String patternString = (String) (map.get("pattern"));
-		String flags = (String) (map.get("flags"));
-		// TODO: flags is not used
+	private SetOfNodes getStemValue(es.weso.shex.StemValue val) {
+		if (val instanceof es.weso.shex.IRIStem)
+			return new IRIStemSetOfNodes(((es.weso.shex.IRIStem) val).iri().getLexicalForm());
+		if (val instanceof es.weso.shex.StemRange)
+			return getStemRange((es.weso.shex.StemRange) val); 
+		System.err.println("<<<## Unknown stem: "+val.getClass());
+		return null;
+	}
 		
-		if (length != null || minlength != null || maxlength != null || patternString != null) {
-			StringFacetSetOfNodes facet = new StringFacetSetOfNodes();
-			facet.setLength(length);
-			facet.setMinLength(minlength);
-			facet.setMaxLength(maxlength);
-			facet.setPattern(patternString);
-			return facet;
-		} 
-		else return null;
+	private SetOfNodes getStemRange(es.weso.shex.StemRange stem) {
+		SetOfNodes valStem = getStemValue(stem.stem());
+		
+		Set<SetOfNodes> exclusions = new HashSet<>();
+		List<Value> explicitValuesList = new ArrayList<>();
+		scala.collection.immutable.List<es.weso.shex.ValueSetValue> listValues = stem.exclusions().get();
+		scala.collection.Iterator<es.weso.shex.ValueSetValue> valite = listValues.iterator();
+		while (valite.hasNext()) {
+			es.weso.shex.ValueSetValue val = valite.next();
+			if (val instanceof es.weso.shex.IRIValue) {
+				explicitValuesList.add(RDF_FACTORY.createIRI(((es.weso.shex.IRIValue) val).i().getLexicalForm()));
+			}else {
+				exclusions.add(getStem(val));
+			}
+		}
+		if (! explicitValuesList.isEmpty())
+			exclusions.add(new ExplictValuesSetOfNodes(explicitValuesList));
+		return new StemRangeSetOfNodes(valStem, exclusions);
+	}
+	
+	private void updateNumericFacet (NumericFacetSetOfNodes num, es.weso.shex.NumericFacet facet) {
+		if (facet instanceof es.weso.shex.MaxExclusive) {
+			double maxexcl = 0;
+			es.weso.shex.MaxExclusive mfacet = ((es.weso.shex.MaxExclusive) facet);
+			if (mfacet.n() instanceof es.weso.shex.NumericDecimal)
+				 maxexcl = ((es.weso.shex.NumericDecimal) mfacet.n()).n().toDouble();
+			if (mfacet.n() instanceof es.weso.shex.NumericInt)
+				 maxexcl = ((es.weso.shex.NumericInt) mfacet.n()).n();
+			if (mfacet.n() instanceof es.weso.shex.NumericDouble)
+				 maxexcl = ((es.weso.shex.NumericDouble) mfacet.n()).n();
+			num.setMaxexcl(new BigDecimal(maxexcl));
+		}
+		if (facet instanceof es.weso.shex.MinExclusive) {
+			double maxexcl = 0;
+			es.weso.shex.MinExclusive mfacet = ((es.weso.shex.MinExclusive) facet);
+			if (mfacet.n() instanceof es.weso.shex.NumericDecimal)
+				 maxexcl = ((es.weso.shex.NumericDecimal) mfacet.n()).n().toDouble();
+			if (mfacet.n() instanceof es.weso.shex.NumericInt)
+				 maxexcl = ((es.weso.shex.NumericInt) mfacet.n()).n();
+			if (mfacet.n() instanceof es.weso.shex.NumericDouble)
+				 maxexcl = ((es.weso.shex.NumericDouble) mfacet.n()).n();
+			num.setMinexcl(new BigDecimal(maxexcl));
+		}
+		if (facet instanceof es.weso.shex.MaxInclusive) {
+			double maxexcl = 0;
+			es.weso.shex.MaxInclusive mfacet = ((es.weso.shex.MaxInclusive) facet);
+			if (mfacet.n() instanceof es.weso.shex.NumericDecimal)
+				 maxexcl = ((es.weso.shex.NumericDecimal) mfacet.n()).n().toDouble();
+			if (mfacet.n() instanceof es.weso.shex.NumericInt)
+				 maxexcl = ((es.weso.shex.NumericInt) mfacet.n()).n();
+			if (mfacet.n() instanceof es.weso.shex.NumericDouble)
+				 maxexcl = ((es.weso.shex.NumericDouble) mfacet.n()).n();
+			num.setMaxincl(new BigDecimal(maxexcl));
+		}
+		if (facet instanceof es.weso.shex.MinInclusive) {
+			double maxexcl = 0;
+			es.weso.shex.MinInclusive mfacet = ((es.weso.shex.MinInclusive) facet);
+			if (mfacet.n() instanceof es.weso.shex.NumericDecimal)
+				 maxexcl = ((es.weso.shex.NumericDecimal) mfacet.n()).n().toDouble();
+			if (mfacet.n() instanceof es.weso.shex.NumericInt)
+				 maxexcl = ((es.weso.shex.NumericInt) mfacet.n()).n();
+			if (mfacet.n() instanceof es.weso.shex.NumericDouble)
+				 maxexcl = ((es.weso.shex.NumericDouble) mfacet.n()).n();
+			num.setMinincl(new BigDecimal(maxexcl));
+		}
+		if (facet instanceof es.weso.shex.TotalDigits) {
+			num.setTotalDigits(((es.weso.shex.TotalDigits) facet).n());
+		}
+		if (facet instanceof es.weso.shex.FractionDigits) {
+			num.setFractionDigits(((es.weso.shex.FractionDigits) facet).n());
+		}
+	}
+	
+	
+	// stringFacet = (length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING?
+	private  void updateStringFacet (StringFacetSetOfNodes string, es.weso.shex.StringFacet facet) {	
+		if (facet instanceof  es.weso.shex.Length) {
+			string.setLength(((es.weso.shex.Length) facet).v());
+		}
+		if (facet instanceof  es.weso.shex.MinLength) {
+			string.setMinLength(((es.weso.shex.MinLength) facet).v());
+		}
+		if (facet instanceof  es.weso.shex.MaxLength) {
+			string.setMaxLength(((es.weso.shex.MaxLength) facet).v());
+		}
+		if (facet instanceof  es.weso.shex.Pattern) {
+			string.setPattern(((es.weso.shex.Pattern) facet).p());
+			if (((es.weso.shex.Pattern) facet).flags().nonEmpty())
+				string.setFlags(((es.weso.shex.Pattern) facet).flags().get());
+		}
 	}
 	
 	
@@ -384,49 +500,68 @@ public class ConverterFromShaclex {
 	// Id functions
 	//--------------------------------------
 	
-	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
-		if (isIriString(string))
-			return new ShapeExprLabel(createIri(string),generated);
-		else 
-			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
-	}
-		
-	private void setShapeId (ShapeExpr shapeRes, String id) {
-		shapeRes.setId(createShapeLabel(id, false));
+//	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
+//		if (isIriString(string))
+//			return new ShapeExprLabel(createIri(string),generated);
+//		else 
+//			return 
+//	}
+//		
+//	private void setShapeId (ShapeExpr shapeRes, String id) {
+//		shapeRes.setId(createShapeLabel(id, false));
+//	}
+	
+	private ShapeExprLabel getShapeLabel (es.weso.shex.ShapeLabel label) {
+		if (label instanceof es.weso.shex.IRILabel) {
+			String iri = ((es.weso.shex.IRILabel) label).iri().getLexicalForm();
+			return new ShapeExprLabel(RDF_FACTORY.createBNode(iri),false);
+		}
+		if (label instanceof es.weso.shex.BNodeLabel) {
+			String bnode = ((es.weso.shex.BNodeLabel) label).bnode().getLexicalForm();
+			return new ShapeExprLabel(RDF_FACTORY.createBNode(bnode),false);
+		}
+		return null;
 	}
 	
 
 	private void setShapeId (ShapeExpr shapeRes, es.weso.shex.ShapeExpr shape) {
 		if (shape.id().nonEmpty()) {
-			es.weso.shex.IRILabel id = (IRILabel) shape.id().get();
-			setShapeId(shapeRes,id.iri().getLexicalForm());
+			shapeRes.setId(getShapeLabel(shape.id().get()));
+	
 		}
 	}
 		
-	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
-		if (isIriString(string))
-			return new TripleExprLabel(createIri(string),generated);
-		else 
-			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
+
+	private TripleExprLabel getTripleLabel(es.weso.shex.ShapeLabel label) {
+		if (label instanceof es.weso.shex.IRILabel) {
+			String iri = ((es.weso.shex.IRILabel) label).iri().getLexicalForm();
+			return new TripleExprLabel(createIri(iri),false);
+		}
+		if (label instanceof es.weso.shex.BNodeLabel) {
+			String bnode = ((es.weso.shex.BNodeLabel) label).bnode().getLexicalForm();
+			return new TripleExprLabel(RDF_FACTORY.createBNode(bnode),false);
+		}
+		return null;
 	}
 	
 	private void setTripleId (TripleExpr tripleRes,  es.weso.shex.TripleExpr triple) {
 		if (triple instanceof es.weso.shex.EachOf) {
 			es.weso.shex.EachOf  trExp = (es.weso.shex.EachOf) triple;
 			if (trExp.id().nonEmpty()) {
-				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
+				tripleRes.setId(getTripleLabel(trExp.id().get()));
 			}	
 		}
 		if (triple instanceof es.weso.shex.OneOf) {
 			es.weso.shex.OneOf  trExp = (es.weso.shex.OneOf) triple;
 			if (trExp.id().nonEmpty()) {
-				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
+				tripleRes.setId(getTripleLabel(trExp.id().get()));
 			}	
 		}
 		if (triple instanceof es.weso.shex.TripleConstraint) {
 			es.weso.shex.TripleConstraint  trExp = (es.weso.shex.TripleConstraint) triple;
+			System.err.println(trExp.id());
 			if (trExp.id().nonEmpty()) {
-				tripleRes.setId(createTripleLabel(trExp.id().get().toString(),false));
+				tripleRes.setId(getTripleLabel(trExp.id().get()));
 			}
 		}
 	}

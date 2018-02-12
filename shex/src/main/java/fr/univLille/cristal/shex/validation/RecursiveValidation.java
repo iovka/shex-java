@@ -43,6 +43,7 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
+import scala.tools.nsc.typechecker.ContextErrors.SymbolTypeError;
 
 /**
  * 
@@ -169,7 +170,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 				}
 			}
 		}
-
+		
 		Set<IRI> inversePredicate = new HashSet<IRI>();
 		Set<IRI> forwardPredicate = new HashSet<IRI>();
 		for (TripleConstraint tc:constraints) {
@@ -179,14 +180,14 @@ public class RecursiveValidation implements ValidationAlgorithm {
 				inversePredicate.add(tc.getProperty().getIri());
 			}
 		}
-
+		
 		List<NeighborTriple> neighbourhood = graph.listInNeighboursWithPredicate(node, inversePredicate);
 		if (shape.isClosed()) {
 			neighbourhood.addAll(graph.listOutNeighbours(node));
 		} else {
 			neighbourhood.addAll(graph.listOutNeighboursWithPredicate(node,forwardPredicate));
 		}
-
+		
 		// Match using only predicate and recursive test. The following line are the only difference with refine validation
 		Matcher matcher1 = new PredicateMatcher();
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC1 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher1);

@@ -106,7 +106,7 @@ public class SimpleSchemaConstructor {
 		String propString = s[0];
 		prop = TCProperty.createFwProperty(SimpleValueFactory.getInstance().createIRI(PREFIX+propString));
 
-		return TripleConstraint.newSingleton(prop, ref);
+		return new TripleConstraint(prop, ref);
 	}
 	
 	static RepeatedTripleExpression reptc (String x) {

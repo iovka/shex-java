@@ -70,8 +70,6 @@ public class Validate {
 	public static void main(String[] args) {
 		System.out.println(COPYRIGHT);
 		
-		//XPath.setXMLSchemaRegexMatcher(new PartialXMLSchemaRegexMatcher());
-		
 		if (args.length == 0) {
 			System.out.println(USAGE);
 			return;

@@ -17,7 +17,7 @@ public class CreateShapeExpression {
 		
 		ShapeExprRef ref = new ShapeExprRef(new ShapeExprLabel(RDF_FACTORY.createIRI("http://example.org/S")));
 		TCProperty prop = TCProperty.createFwProperty(RDF_FACTORY.createIRI("http://example.org/p"));
-		TripleConstraint tc =  TripleConstraint.newSingleton(prop, ref);
+		TripleConstraint tc =  new TripleConstraint(prop, ref);
 		RepeatedTripleExpression expr = new RepeatedTripleExpression(tc, Interval.PLUS);
 		
 		System.out.println(expr);

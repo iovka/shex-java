@@ -399,17 +399,15 @@ public class JsonldParser implements Parser{
 			shexpr = parseShapeExpression(valueExpr);
 		else {
 			TripleExpr tmp = new EmptyTripleExpression();
-			//setTripleId(tmp,Collections.EMPTY_MAP);
 			shexpr = new Shape(tmp, Collections.EMPTY_SET, false);
-			//setShapeId(shexpr, Collections.EMPTY_MAP);
 		}
 
 		Interval card = getCardinality(map);	
 		TripleExpr res ;
 		if (card == null)
-			res = TripleConstraint.newSingleton(property, shexpr);
+			res = new TripleConstraint(property, shexpr);
 		else 
-			res = new RepeatedTripleExpression(TripleConstraint.newSingleton(property, shexpr), card); 
+			res = new RepeatedTripleExpression(new TripleConstraint(property, shexpr), card); 
 		setTripleId(res, map);
 
 		return res;

@@ -6,8 +6,8 @@ import org.eclipse.rdf4j.model.Value;
 public class IRIStemSetOfNodes implements SetOfNodes {
 	private String iriStem;
 	
-	public IRIStemSetOfNodes(String langTag) {
-		this.iriStem = langTag;
+	public IRIStemSetOfNodes(String iriStem) {
+		this.iriStem = iriStem;
 	}
 
 	@Override

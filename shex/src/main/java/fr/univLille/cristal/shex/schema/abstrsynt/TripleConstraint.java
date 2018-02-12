@@ -26,20 +26,17 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * 10 oct. 2017
  */
 public class TripleConstraint extends TripleExpr {
-	
 	private TCProperty property;	
 	private ShapeExpr shapeExpr;
-	private boolean isSingleton;
 		
 	
-	public static TripleConstraint newSingleton (TCProperty property, ShapeExpr shapeExpr) {
-		return new TripleConstraint(property, shapeExpr, true);
-	}
+//	public static TripleConstraint newSingleton (TCProperty property, ShapeExpr shapeExpr) {
+//		return new TripleConstraint(property, shapeExpr);
+//	}
 	
-	private TripleConstraint (TCProperty property, ShapeExpr shapeExpr, boolean isSingleton) {
+	public TripleConstraint (TCProperty property, ShapeExpr shapeExpr ) {
 		this.property = property;
 		this.shapeExpr = shapeExpr;
-		this.isSingleton = isSingleton;
 	}	
 
 	public TCProperty getProperty(){
@@ -58,7 +55,7 @@ public class TripleConstraint extends TripleExpr {
 	
 	@Override
 	public TripleConstraint clone() {
-		return new TripleConstraint(this.property, this.shapeExpr, this.isSingleton);
+		return new TripleConstraint(this.property, this.shapeExpr);
 	}
 	
 
