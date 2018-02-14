@@ -13,6 +13,6 @@ import fr.univLille.cristal.shex.schema.ShexSchema;
 
 public interface Parser {
 	
-	public ShexSchema parseSchema(Path path) throws IOException, JsonLdError, ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException;
+	public ShexSchema parseSchema(Path path) throws Exception;
 
 }

@@ -59,5 +59,9 @@ public class ObjectLiteral implements SetOfNodes {
 		
 		return true;
 	}
+	
+	public String toString(){
+		return "Literal=("+value+","+language+","+type+")";
+	}
 
 }

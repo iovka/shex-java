@@ -19,4 +19,7 @@ public class IRIStemSetOfNodes implements SetOfNodes {
 		return inode.stringValue().startsWith(iriStem);
 	}
 
+	public String toString() {
+		return "IRIstem="+iriStem;
+	}
 }

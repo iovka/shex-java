@@ -20,7 +20,11 @@ public class LanguageStemSetOfNodes implements SetOfNodes {
 			return false;
 
 		String lang = lnode.getLanguage().get();
+		
 		return lang.startsWith(langStem);
 	}
-
+	
+	public String toString() {
+		return "Langstem="+langStem;
+	}
 }

@@ -18,12 +18,15 @@ public class StemRangeSetOfNodes implements SetOfNodes {
 		if (stem!=null)
 			if (!stem.contains(node))
 			 return false;
-		
 		for (SetOfNodes sn:exclusions)
 			if (sn.contains(node))
 				return false;
 
 		return true;
+	}
+	
+	public String toString() {
+		return "StemRange=("+stem+" exclusions="+exclusions+")";
 	}
 
 }

@@ -186,7 +186,7 @@ public class RunTestsRebuild {
 		ShexSchema schema = null;
 		Model data = null;
 		try {
-			System.err.println("Test: "+testName);
+			//System.err.println("Test: "+testName);
 			//JsonldParser parser = new JsonldParser();
 			ShExCParser parser = new ShExCParser();
 			//ShExRParser parser = new ShExRParser();

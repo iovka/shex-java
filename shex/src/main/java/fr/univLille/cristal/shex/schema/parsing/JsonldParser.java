@@ -398,8 +398,9 @@ public class JsonldParser implements Parser{
 		if (valueExpr != null)
 			shexpr = parseShapeExpression(valueExpr);
 		else {
-			TripleExpr tmp = new EmptyTripleExpression();
-			shexpr = new Shape(tmp, Collections.EMPTY_SET, false);
+//			TripleExpr tmp = new EmptyTripleExpression();
+//			shexpr = new Shape(tmp, Collections.EMPTY_SET, false);
+			shexpr = new NodeConstraint(new ConjunctiveSetOfNodes(Collections.EMPTY_LIST));
 		}
 
 		Interval card = getCardinality(map);	

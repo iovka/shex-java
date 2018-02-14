@@ -6,7 +6,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="sandbox/TestJenaRelated.java|sandbox/TestMisc.java|sandbox/TestRDFNode.java|fr/univLille/cristal/shex/validation/TestIntervalComputation.java|fr/univLille/cristal/shex/validation/TestRefineValidationJena.java" kind="src" output="target/test-classes" path="src/test/java">
+	<classpathentry excluding="fr/univLille/cristal/shex/validation/TestIntervalComputation.java|fr/univLille/cristal/shex/validation/TestRefineValidationJena.java|sandbox/TestJenaRelated.java|sandbox/TestMisc.java|sandbox/TestRDFNode.java" kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
