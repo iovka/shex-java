@@ -100,7 +100,7 @@ public abstract class Label {
 	
 	@Override
 	public String toString() {
-		if (iri != null) return iri.toString();
-		else return bnode.toString();
+		if (iri != null) return "IRI:"+iri.toString();
+		else return "BNODE:"+bnode.toString();
 	}
 }

@@ -85,7 +85,7 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  *
  */
 @SuppressWarnings("rawtypes")
-public class JsonldParser implements Parser{
+public class ShexJParser implements Parser{
 	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	private List<String> imports;
 
@@ -95,6 +95,7 @@ public class JsonldParser implements Parser{
 
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
 	public Map<ShapeExprLabel,ShapeExpr> getRules(Path path) throws Exception  {
+		imports = new ArrayList<>();
 		InputStream inputStream = new FileInputStream(path.toFile());
 		Object schemaObject = JsonUtils.fromInputStream(inputStream);
 		
@@ -111,7 +112,14 @@ public class JsonldParser implements Parser{
 		if (map.containsKey("start")) {
 			throw new UnsupportedOperationException(path + ": Start action not supported");
 		}
-
+		
+		if (map.containsKey("imports")){
+			if (map.get("imports") instanceof String) {
+				imports.add((String) map.get("imports"));
+			}else {
+				imports.addAll((List<String>) map.get("imports"));
+			}
+		}
 		List shapes = (List) (map.get("shapes"));
 
 		Map<ShapeExprLabel,ShapeExpr> rules = new HashMap<ShapeExprLabel,ShapeExpr>();
@@ -288,11 +296,7 @@ public class JsonldParser implements Parser{
 			constraints.addAll(parseValueSetValueList(values));
 		}
 
-		NodeConstraint res;
-		if (constraints.size() == 1)
-			res = new NodeConstraint(constraints.get(0));
-		else 
-			res = new NodeConstraint(new ConjunctiveSetOfNodes(constraints)); 
+		NodeConstraint res = new NodeConstraint(new ConjunctiveSetOfNodes(constraints)); 
 
 		setShapeId(res, map);
 
@@ -373,7 +377,7 @@ public class JsonldParser implements Parser{
 
 		TripleExpr res;
 		if (card == null)
-			res = new EachOf(subExpressions);
+			res = new OneOf(subExpressions);
 		else 
 			res = new RepeatedTripleExpression(new OneOf(subExpressions), card);	
 
@@ -548,7 +552,8 @@ public class JsonldParser implements Parser{
 			List<Object> exclu = (List<Object>) m.get("exclusions");
 			for (Object o:exclu) {
 				if (o instanceof String) {
-					forbidenValue.add(RDF_FACTORY.createIRI((String) o));
+					//forbidenValue.add(RDF_FACTORY.createIRI((String) o));
+					exclusions.add(new ObjectLiteral((String) o, null,null));
 				}else {
 					String type = (String) ((Map) o).get("type");
 					if (type != null & type.equals("LiteralStem")) {
@@ -740,15 +745,21 @@ public class JsonldParser implements Parser{
 	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
 			return new ShapeExprLabel(RDF_FACTORY.createIRI(string),generated);
-		else 
+		else {
+			if (string.startsWith("_:"))
+				string = string.substring(2);
 			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
+		}
 	}
 
 	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
 			return new TripleExprLabel(RDF_FACTORY.createIRI(string),generated);
-		else 
+		else {
+			if (string.startsWith("_:"))
+				string = string.substring(2);
 			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
+		}
 	}
 
 	private static TCProperty createTCProperty(IRI iri, boolean isFwd){
@@ -787,7 +798,7 @@ public class JsonldParser implements Parser{
 	}
 
 	private static boolean isIriString (String s) {
-		if (s.indexOf(':') < 0) {
+		if (s.indexOf(':') < 0 | s.startsWith("_:")) {
 			return false;
 		}
 		return true;

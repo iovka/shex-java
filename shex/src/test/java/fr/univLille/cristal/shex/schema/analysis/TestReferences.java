@@ -35,7 +35,7 @@ import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
-import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
+import fr.univLille.cristal.shex.schema.parsing.ShexJParser;
 
 /**
  * 

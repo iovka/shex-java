@@ -83,9 +83,9 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
-		if (!this.graph.getAllNodes().contains(focusNode))
-			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
-		
+//		if (!this.graph.getAllNodes().contains(focusNode))
+//			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
+//		
 		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
 						

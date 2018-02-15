@@ -50,7 +50,7 @@ import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
-import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
+import fr.univLille.cristal.shex.schema.parsing.ShexJParser;
 import fr.univLille.cristal.shex.schema.parsing.ShExCParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
@@ -78,6 +78,8 @@ public class RunTestsRebuild {
 	private static int nbPass = 0;
 	private static int nbFail = 0;
 	private static int nbError = 0;
+	private static int nbError_pass = 0;
+	private static int nbError_fail = 0;
 	private static int nbSkip = 0;
 
 
@@ -93,7 +95,9 @@ public class RunTestsRebuild {
 			System.out.println(new Date(System.currentTimeMillis()));
 			System.out.println("PASSES : " + nbPass);
 			System.out.println("FAILS  : " + nbFail);
-			System.out.println("ERRORS : " + nbError);
+			System.out.println("ERRORS PASS: " + nbError_pass);
+			System.out.println("ERRORS FAIL: " + nbError_fail);
+			System.out.println("ERRORS: " + nbError);
 			System.out.println("SKIPS  : " + nbSkip);
 		} else {
 			for (String arg: args)
@@ -193,7 +197,10 @@ public class RunTestsRebuild {
 
 			data = parseTurtleFile(Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName)).toString(),GITHUB_URL+"validation/");
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
-			
+
+//			for (Value obj:dataGraph.getAllSubjectNodes())
+//				System.err.println(dataGraph.listAllNeighbours(obj));
+//			
 //			System.out.println(schema.getShapeMap());
 //			for (ShapeExpr expr:schema.getShapeMap().values())
 //				System.err.println(expr+" : "+expr.getClass());
@@ -225,9 +232,10 @@ public class RunTestsRebuild {
 			errorLog.println(logMessage(testCase, schema, data, "ERROR"));
 			e.printStackTrace(errorLog);
 			if (testCase.testKind.equals(VALIDATION_TEST_CLASS))
-				nbError++;
+				nbError_pass++;
 			else
-				nbError++;
+				nbError_fail++;
+			nbError++;
 			System.err.println("Exception: "+testName);
 			System.err.println(e.getClass());
 			return new TestResultForTestReport(testName, false, null, "validation");

@@ -35,9 +35,9 @@ import org.eclipse.rdf4j.model.Value;
 public class RDF4JGraph extends AbstractRDFGraph {
 	
 	private Model rdf4jModel;
-	private Set<Value> allSubjects;
-	private Set<Value> allObjects;
-	private Set<Value> allResources;
+	private Set<Value> allSubjects=null;
+	private Set<Value> allObjects=null;
+	private Set<Value> allResources=null;
 	
 	public RDF4JGraph(Model rdf4jModel) {
 		super();
@@ -61,7 +61,7 @@ public class RDF4JGraph extends AbstractRDFGraph {
 		
 		allObjects = new HashSet<Value>();
 		allObjects.addAll(rdf4jModel.objects());
-		return allResources;
+		return allObjects;
 	}
 	
 	@Override

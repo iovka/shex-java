@@ -76,10 +76,10 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, ShapeExprLabel label) {
-		if (!this.graph.getAllNodes().contains(focusNode)) {
-			System.err.println("!!/?. "+focusNode+" not in the graph.");
-			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
-		}
+//		if (!this.graph.getAllNodes().contains(focusNode)) {
+//			System.err.println("!!/?. "+focusNode+" not in the graph.");
+//			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
+//		}
 		recursiveValidation(focusNode,label);
 		if (typing.contains(focusNode, label)) {
 			typing.keepLastSessionOfHypothesis();

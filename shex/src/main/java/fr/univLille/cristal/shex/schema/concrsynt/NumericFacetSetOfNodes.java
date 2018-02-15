@@ -87,9 +87,15 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 			return false;
 		if (maxexcl != null && dv.compareTo(maxexcl) >= 0)
 			return false;
-
-		String normalizeValue = XMLDatatypeUtil.normalize(lnode.stringValue(), lnode.getDatatype());
 		
+		if (totalDigits==null & fractionDigits==null)
+			return true;
+		
+		if (!XMLDatatypeUtil.isDecimalDatatype(lnode.getDatatype())){
+			return false;
+		}
+		
+		String normalizeValue = XMLDatatypeUtil.normalize(lnode.stringValue(), lnode.getDatatype());		
 		if (totalDigits != null && totalDigits < computeTotalDigit(normalizeValue)) 
 			return false;
 		

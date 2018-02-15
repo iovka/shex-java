@@ -40,10 +40,10 @@ public class GenParser {
 			Path selectedPath = toload.get(0);
 			loaded.add(selectedPath);
 			toload.remove(0);
-			
+
 			Parser parser;			
 			if (selectedPath.toString().endsWith(".json")) {
-				parser = new JsonldParser();
+				parser = new ShexJParser();
 			} else {
 				parser = new ShExCParser();
 			}

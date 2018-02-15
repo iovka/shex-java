@@ -83,7 +83,6 @@ public class ShexSchema {
 		for(ShapeExpr shexp:allShapes) {
 			checkShapeID(shexp);
 			shapeMapTmp.put(shexp.getId(),shexp);
-			//System.out.println(shexp.getId()+" : "+shexp+ "("+shexp.getClass()+")");
 		}
 		this.shapeMap = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(shapeMapTmp));
 		// Check that all the shape references are defined

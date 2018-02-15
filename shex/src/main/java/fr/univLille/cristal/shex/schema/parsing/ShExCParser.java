@@ -18,12 +18,14 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.URI;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.eclipse.rdf4j.query.algebra.Datatype;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
@@ -73,7 +75,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	private Map<ShapeExprLabel,ShapeExpr> rules;
 	private Map<String,String> prefixes;
 	private List<String> imports;
-	protected Path filename;
+	private String base;
+	private Path filename;
 	
 	public Map<ShapeExprLabel,ShapeExpr> getRules(Path path) throws Exception{
 		this.filename=path;
@@ -86,6 +89,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
         rules = new HashMap<ShapeExprLabel,ShapeExpr>();
         prefixes = new HashMap<String,String>();
         imports = new ArrayList<String>();
+        base = null;
         this.visit(context);
         return rules;
 	}
@@ -99,7 +103,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	//--------------------------------------------
 	public Object visitDirective(ShExDocParser.DirectiveContext ctx) { return visitChildren(ctx); 	}
 	
-	public Object visitBaseDecl(ShExDocParser.BaseDeclContext ctx) { return visitChildren(ctx); }
+	public Object visitBaseDecl(ShExDocParser.BaseDeclContext ctx) { 
+		this.base = ctx.IRIREF().getText();
+		base = base.substring(1, base.length()-1);
+		return null; 
+	}
 	
 	public Object visitPrefixDecl(ShExDocParser.PrefixDeclContext ctx) { 
 		String values = ctx.IRIREF().getText();
@@ -209,14 +217,13 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 
 	@Override 
 	public Object visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx) {
-
-		Set<TCProperty> extra = Collections.EMPTY_SET;
+		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
 		for (QualifierContext qua:ctx.qualifier()) {
 			if (qua.KW_CLOSED()!=null)
 				closed= true;
 			else if (qua.extraPropertySet()!=null){
-				extra = (Set<TCProperty>) qua.extraPropertySet().accept(this);
+				extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));
 			} else {
 				System.err.println("Qualifier: "+qua.getText());
 				System.err.println(this.filename);
@@ -232,13 +239,13 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override
 	public Object visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx) {
 		//TODO annotations semact
-		Set<TCProperty> extra = Collections.EMPTY_SET;
+		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
 		for (QualifierContext qua:ctx.qualifier()) {
 			if (qua.KW_CLOSED()!=null)
 				closed= true;
 			else if (qua.extraPropertySet()!=null){
-				extra = (Set<TCProperty>) qua.extraPropertySet().accept(this);
+				extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));
 			} else {
 				System.err.println("Qualifier: "+qua.getText());
 				System.err.println(this.filename);
@@ -489,6 +496,22 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 
 	@Override 
 	public Object visitValueSetValue(ShExDocParser.ValueSetValueContext ctx) {
+		if(ctx.children.get(0).getText().equals(".")) {
+			List<Value> explicitValues = new ArrayList<Value>();
+			Set<SetOfNodes> exclusions = new HashSet<SetOfNodes>();
+			for (ParseTree child:ctx.children){
+				if (! (child instanceof TerminalNodeImpl)) {
+					Object res = child.accept(this);
+					if (res instanceof IRI)
+						explicitValues.add((Value) res);
+					else
+						exclusions.add((SetOfNodes) res);
+				}
+			}
+			if (explicitValues.size()>0)
+				exclusions.add(new ExplictValuesSetOfNodes(explicitValues));
+			return new StemRangeSetOfNodes(null, exclusions);
+		}
 		return visitChildren(ctx);
 	}
 		
@@ -523,8 +546,9 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitLiteralRange(ShExDocParser.LiteralRangeContext ctx) {
 		Literal val = (Literal) ctx.literal().accept(this);
-		if (ctx.STEM_MARK()==null)
+		if (ctx.STEM_MARK()==null) {
 			return val;
+		}
 		LiteralStemSetOfNodes stem = new LiteralStemSetOfNodes(val.stringValue());
 		if (ctx.literalExclusion()==null)
 			return stem;
@@ -720,7 +744,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitPredicate(ShExDocParser.PredicateContext ctx) { 
 		if (ctx.iri() != null)
 			return ctx.iri().accept(this);
-		return RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#"); 
+		return RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"); 
 	}
 
 	//--------------------------------------------
@@ -746,7 +770,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitIri(ShExDocParser.IriContext ctx) {
 		TerminalNode iri = ctx.IRIREF();
 		if (iri != null) {
-			IRI result = RDF_FACTORY.createIRI(iri.getText().substring(1,iri.getText().length()-1));
+			String iris = iri.getText();
+			iris = iris.substring(1,iris.length()-1);
+			if (base!=null)
+				iris = base+iris;
+			IRI result = RDF_FACTORY.createIRI(iris);
 			return result;
 		}
 		return ctx.prefixedName().accept(this); 
@@ -766,10 +794,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitNumericLiteral(@NotNull ShExDocParser.NumericLiteralContext ctx) { 
 		if (ctx.INTEGER()!=null)
-			return  RDF_FACTORY.createLiteral(Integer.parseInt(ctx.INTEGER().getText()));
+			return  RDF_FACTORY.createLiteral(ctx.INTEGER().getText(),XMLSchema.INTEGER);
 		if (ctx.DOUBLE()!=null)
-			return  RDF_FACTORY.createLiteral(Double.parseDouble(ctx.DOUBLE().getText()));
-		return RDF_FACTORY.createLiteral(new BigDecimal(ctx.DECIMAL().getText()));
+			return  RDF_FACTORY.createLiteral(ctx.DOUBLE().getText(),XMLSchema.DOUBLE);
+		return RDF_FACTORY.createLiteral(ctx.DECIMAL().getText(),XMLSchema.DECIMAL);
 	}
 	
 	@Override 
