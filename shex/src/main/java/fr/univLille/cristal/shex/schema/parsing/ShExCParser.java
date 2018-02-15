@@ -72,22 +72,26 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	private Map<ShapeExprLabel,ShapeExpr> rules;
 	private Map<String,String> prefixes;
-	private Path filename;
+	private List<String> imports;
+	protected Path filename;
 	
-	
-	public ShexSchema parseSchema(Path path) throws Exception{
+	public Map<ShapeExprLabel,ShapeExpr> getRules(Path path) throws Exception{
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
 		ANTLRInputStream inputStream = new ANTLRInputStream(is);
         ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(ShExDocLexer);
         ShExDocParser ShExDocParser = new ShExDocParser(commonTokenStream);        
-        ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();
+        ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();      
         rules = new HashMap<ShapeExprLabel,ShapeExpr>();
         prefixes = new HashMap<String,String>();
+        imports = new ArrayList<String>();
         this.visit(context);
-        ShexSchema schema = new ShexSchema(rules);
-		return schema;
+        return rules;
+	}
+	
+	public List<String> getImports(){
+		return imports;
 	}
 	
 	//--------------------------------------------
@@ -105,8 +109,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 	
 	public Object visitImportDecl(ShExDocParser.ImportDeclContext ctx) { 
-		System.err.println("Import");
-		return visitChildren(ctx); 
+		String imp = (String) ctx.iri().getText();
+		imp = imp.substring(1, imp.length()-1);
+		imports.add(imp);
+		return null;
 	}
 	
 	@Override 

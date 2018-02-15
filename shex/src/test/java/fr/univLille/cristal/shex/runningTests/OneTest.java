@@ -17,6 +17,7 @@ import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.util.RDFFactory;
@@ -27,7 +28,7 @@ import fr.univLille.cristal.shex.validation.Typing;
 public class OneTest {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
-	public static void main(String[] args) throws IOException, JsonLdError, ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	public static void main(String[] args) throws Exception {
 		Model model = new TreeModel();
 		model.add(RDF_FACTORY.createBNode("JD"), FOAF.AGE, RDF_FACTORY.createLiteral(29));
 		model.add(RDF_FACTORY.createBNode("JD"), FOAF.MBOX, RDF_FACTORY.createLiteral("test@test.org"));
@@ -38,9 +39,7 @@ public class OneTest {
 		
 		RDF4JGraph graph = new RDF4JGraph(model);
 		
-		JsonldParser parser = new JsonldParser();
-		
-		ShexSchema schema = parser.parseSchema(Paths.get(".","User.json"));
+		ShexSchema schema = GenParser.parseSchema(Paths.get(".","User.json"));
 
 		Value focusNode = RDF_FACTORY.createBNode("JD");
 		ShapeExprLabel label = new ShapeExprLabel(RDF_FACTORY.createIRI("http://a.example/USER")); 

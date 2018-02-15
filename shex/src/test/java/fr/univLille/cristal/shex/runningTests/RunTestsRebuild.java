@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
@@ -48,6 +49,7 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.schema.parsing.ShExCParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
@@ -72,9 +74,7 @@ public class RunTestsRebuild {
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	private static final IRI TEST_TRAIT_IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#trait");
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
-	
-
-	
+		
 	private static int nbPass = 0;
 	private static int nbFail = 0;
 	private static int nbError = 0;
@@ -188,9 +188,8 @@ public class RunTestsRebuild {
 		try {
 			//System.err.println("Test: "+testName);
 			//JsonldParser parser = new JsonldParser();
-			ShExCParser parser = new ShExCParser();
-			//ShExRParser parser = new ShExRParser();
-			schema = parser.parseSchema(Paths.get(getSchemaFileName(testCase.schemaFileName))); // exception possible
+			schema = GenParser.parseSchema(Paths.get(getSchemaFileName(testCase.schemaFileName)),
+											Paths.get(SCHEMAS_DIR)); // exception possible
 
 			data = parseTurtleFile(Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName)).toString(),GITHUB_URL+"validation/");
 			RDF4JGraph dataGraph = new RDF4JGraph(data);

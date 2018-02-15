@@ -87,14 +87,14 @@ import fr.univLille.cristal.shex.util.RDFFactory;
 @SuppressWarnings("rawtypes")
 public class JsonldParser implements Parser{
 	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
-
+	private List<String> imports;
 
 	// --------------------------------------------------------------------
 	// 	PARSING
 	// --------------------------------------------------------------------
 
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
-	public ShexSchema parseSchema(Path path) throws IOException, JsonLdError, ParseException, UndefinedReferenceException, CyclicReferencesException, NotStratifiedException  {
+	public Map<ShapeExprLabel,ShapeExpr> getRules(Path path) throws Exception  {
 		InputStream inputStream = new FileInputStream(path.toFile());
 		Object schemaObject = JsonUtils.fromInputStream(inputStream);
 		
@@ -122,10 +122,12 @@ public class JsonldParser implements Parser{
 			rules.put(shexpr.getId(), shexpr);
 		}
 
-		ShexSchema schema = new ShexSchema(rules);
-		return schema;
+		return rules;
 	}
 
+	public List<String> getImports(){
+		return imports;
+	}
 
 	//-------------------------------------------
 	// Parsing shape

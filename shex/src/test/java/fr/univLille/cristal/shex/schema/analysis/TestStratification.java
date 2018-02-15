@@ -33,6 +33,7 @@ import org.junit.runners.Parameterized.Parameters;
 import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 
 /**
@@ -67,8 +68,7 @@ public class TestStratification {
 	@Test
 	public void parse (){
 		try {
-			JsonldParser parser = new JsonldParser();
-			ShexSchema schema = parser.parseSchema(schemaFile);
+			ShexSchema schema = GenParser.parseSchema(schemaFile);
 		}catch(NotStratifiedException e) {
 			if (status!=1) {
 				fail("Error: schema not stratified for test: "+schemaFile+".");

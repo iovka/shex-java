@@ -45,6 +45,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RefineValidation;
@@ -193,8 +194,7 @@ public class RunTests {
 		Model data = null;
 		try {
 			// Run the test case, exception possible
-			JsonldParser parser = new JsonldParser();
-			schema = parser.parseSchema(Paths.get(testCase.schemaFileName)); // exception possible
+			schema = GenParser.parseSchema(Paths.get(testCase.schemaFileName)); // exception possible
 			data = parseTurtleFile(Paths.get(DATA_DIR, testCase.dataFileName).toString());
 //			System.out.println("Data:"+data);			
 //			System.out.println(schema.getShapeMap());

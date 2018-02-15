@@ -1,18 +1,16 @@
 package fr.univLille.cristal.shex.schema.parsing;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
 
-import com.github.jsonldjava.core.JsonLdError;
-
-import fr.univLille.cristal.shex.exception.CyclicReferencesException;
-import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
-import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 
 public interface Parser {
 	
-	public ShexSchema parseSchema(Path path) throws Exception;
+	public Map<ShapeExprLabel,ShapeExpr> getRules(Path path) throws Exception;
+	
+	public List<String> getImports();
 
 }

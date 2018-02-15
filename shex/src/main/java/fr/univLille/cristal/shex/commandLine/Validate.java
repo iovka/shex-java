@@ -37,6 +37,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
@@ -153,8 +154,7 @@ public class Validate {
 	private static ShexSchema getSchema (String schemaFileName) {
 		ShexSchema schema;
 		try {
-			JsonldParser parser = new JsonldParser();
-			schema = parser.parseSchema(Paths.get(schemaFileName));
+			schema = GenParser.parseSchema(Paths.get(schemaFileName));
 		} catch (IOException e) {
 			System.err.println("Error reading the schema file.");
 			System.err.println("Caused by: ");

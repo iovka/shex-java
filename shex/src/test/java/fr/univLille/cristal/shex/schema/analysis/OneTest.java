@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 
 
@@ -43,8 +44,7 @@ public class OneTest {
 		//Path schemaFile = Paths.get(Configuration.shexTestPath.toString(),"failure","CyclicReferences","TripleReferences.json");;
 		int status = 0;
 		try {
-			JsonldParser parser = new JsonldParser();
-			ShexSchema schema = parser.parseSchema(schemaFile);
+			ShexSchema schema = GenParser.parseSchema(schemaFile);
 			if (status==1) {
 				fail("Error : test success but it should fail.");
 			}

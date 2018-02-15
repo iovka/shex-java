@@ -34,6 +34,7 @@ import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.schema.parsing.JsonldParser;
 
 /**
@@ -71,8 +72,7 @@ public class TestReferences {
 	@Test
 	public void parse (){
 		try {
-			JsonldParser parser = new JsonldParser();
-			ShexSchema schema = parser.parseSchema(schemaFile);
+			ShexSchema schema = GenParser.parseSchema(schemaFile);
 		}catch(UndefinedReferenceException e) {
 			if (status!=1) {
 				fail("Error: undefined reference catch on test ("+schemaFile+")");

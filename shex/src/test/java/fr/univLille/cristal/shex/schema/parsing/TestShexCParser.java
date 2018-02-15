@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
+import fr.univLille.cristal.shex.schema.ShexSchema;
 
 class TestShexCParser {
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -21,9 +22,8 @@ class TestShexCParser {
 	void importTest() { 
 		Path schema = Paths.get(SCHEMAS_DIR,"2EachInclude1-IS2.shex");
 		System.err.println("Parsing schema: "+schema);
-		ShExCParser parser = new ShExCParser();
 		try {
-			parser.parseSchema(schema);
+			GenParser.parseSchema(schema);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -49,9 +49,8 @@ class TestShexCParser {
 	void focusPatternTest() { 
 		Path schema = Paths.get(SCHEMAS_DIR,"1focusPatternB-dot.shex");
 		System.err.println("Parsing schema: "+schema);
-		ShExCParser parser = new ShExCParser();
 		try {
-			parser.parseSchema(schema);
+			GenParser.parseSchema(schema);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -76,9 +75,8 @@ class TestShexCParser {
 	void focusPatternTest2() { 
 		Path schema = Paths.get(SCHEMAS_DIR,"1focusPattern-dot.shex");
 		System.err.println("Parsing schema: "+schema);
-		ShExCParser parser = new ShExCParser();
 		try {
-			parser.parseSchema(schema);
+			GenParser.parseSchema(schema);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -104,9 +102,8 @@ class TestShexCParser {
 	void patternTest() { 
 		Path schema = Paths.get(SCHEMAS_DIR,"1val1vExprRefOR3.shex");
 		System.err.println("Parsing schema: "+schema);
-		ShExCParser parser = new ShExCParser();
 		try {
-			parser.parseSchema(schema);
+			GenParser.parseSchema(schema);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
