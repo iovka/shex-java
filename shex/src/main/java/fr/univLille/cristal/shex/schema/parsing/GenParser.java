@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.rdf4j.rio.RDFFormat;
+
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
@@ -29,8 +31,10 @@ public class GenParser {
 	
 	
 	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{
-		Set<Path> loaded = new HashSet<Path>();
+		if (!filepath.toFile().exists())
+			throw new FileNotFoundException("File "+filepath+" not found.");
 		
+		Set<Path> loaded = new HashSet<Path>();
 		Map<ShapeExprLabel,ShapeExpr> allRules = new HashMap<ShapeExprLabel,ShapeExpr>();
 		
 		List<Path> toload = new ArrayList<Path>();
@@ -43,9 +47,11 @@ public class GenParser {
 
 			Parser parser;			
 			if (selectedPath.toString().endsWith(".json")) {
-				parser = new ShexJParser();
-			} else {
+				parser = new ShExJParser();
+			} else if (selectedPath.toString().endsWith(".shex")) {
 				parser = new ShExCParser();
+			}else {
+				parser = new ShExRParser();
 			}
 			allRules.putAll(parser.getRules(selectedPath));
 			List<String> imports = parser.getImports();
@@ -59,6 +65,14 @@ public class GenParser {
 					} else if (Paths.get(p.toString(),imp+".json").toFile().exists()) {
 						res = Paths.get(p.toString(),imp+".json");
 						break;
+					} else {
+						for (RDFFormat format:ShExRParser.RDFFormats) {
+							for (String ext:format.getFileExtensions()) {
+								if (Paths.get(p.toString(),imp+"."+ext).toFile().exists()) {
+									res = Paths.get(p.toString(),imp+"."+ext);
+								}
+							}
+						}
 					}
 				}	
 				if (res == null){

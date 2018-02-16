@@ -33,14 +33,12 @@ public class Shape extends ShapeExpr {
 	private boolean closed;
 	private Set<TCProperty> extra;
 	private TripleExpr tripleExpr;
+
 	/** Creates a {@link Shape} that is forward closed, inverse open, and has no extra properties.
 	 * 
 	 * @param tripleExpression
 	 */
-	protected Shape (TripleExpr tripleExpression) {
-		this(tripleExpression, Collections.emptySet(), true);
-	}
-	
+
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
 		this.tripleExpr = tripleExpression;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));

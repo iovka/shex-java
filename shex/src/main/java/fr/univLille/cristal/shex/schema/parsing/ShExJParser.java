@@ -18,7 +18,6 @@ limitations under the License.
 package fr.univLille.cristal.shex.schema.parsing;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.file.Path;
@@ -34,12 +33,8 @@ import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
-import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.utils.JsonUtils;
 
-import fr.univLille.cristal.shex.exception.CyclicReferencesException;
-import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
@@ -85,7 +80,7 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  *
  */
 @SuppressWarnings("rawtypes")
-public class ShexJParser implements Parser{
+public class ShExJParser implements Parser{
 	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	private List<String> imports;
 

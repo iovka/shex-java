@@ -23,6 +23,8 @@ import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
+
+import es.weso.rdf.nodes.RDFNode;
  
 /** Defines the operations on an RDF graph that are needed for validation.
  * 

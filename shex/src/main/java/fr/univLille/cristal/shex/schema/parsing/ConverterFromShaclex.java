@@ -14,10 +14,6 @@ import java.util.regex.Pattern;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
-import es.weso.shex.IRILabel;
-import es.weso.shex.IRIStem;
-import es.weso.shex.BNodeLabel;
-import es.weso.shex.IRIValue;
 import es.weso.shex.IntMax;
 import es.weso.shex.Max;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
@@ -51,7 +47,6 @@ import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
-import scala.tools.nsc.typechecker.ContextErrors.SymbolTypeError;
 
 
 public class ConverterFromShaclex {

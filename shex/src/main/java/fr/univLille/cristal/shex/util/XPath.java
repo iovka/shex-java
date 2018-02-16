@@ -20,7 +20,6 @@ package fr.univLille.cristal.shex.util;
 import net.sf.saxon.expr.EarlyEvaluationContext;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.functions.Matches;
-import net.sf.saxon.query.XQueryParser.Unescaper;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.trans.XPathException;

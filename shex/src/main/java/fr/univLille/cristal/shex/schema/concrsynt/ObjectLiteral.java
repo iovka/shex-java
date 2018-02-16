@@ -54,8 +54,6 @@ public class ObjectLiteral implements SetOfNodes {
 			if (! lang.get().equals(language))
 				return false;	
 		}
-		System.err.println(type);
-		System.err.println(l.getDatatype());;
 		if (type != null && !l.getDatatype().equals(type))
 			return false;
 		

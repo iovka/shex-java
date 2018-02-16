@@ -36,7 +36,7 @@ public class OneOf extends AbstractNaryTripleExpr {
 	
 	@Override
 	public String toString() {
-		return CollectionToString.collectionToString(getSubExpressions(), " | ", "SomeOf(", ")");
+		return CollectionToString.collectionToString(getSubExpressions(), " | ", "OneOf(", ")");
 	}
 
 	@Override

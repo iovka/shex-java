@@ -1,7 +1,5 @@
 package fr.univLille.cristal.shex.schema.parsing;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
-import fr.univLille.cristal.shex.schema.ShexSchema;
 
 class TestShexCParser {
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";

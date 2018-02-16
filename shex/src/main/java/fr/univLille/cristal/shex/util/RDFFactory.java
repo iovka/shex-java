@@ -15,6 +15,13 @@ public class RDFFactory extends AbstractValueFactory {
 		return super.createBNode(nodeID);
 	}
 
+	public static String MyBnodePrefix = "GENERATEDLABELFORBNODE#^§%*$";
+	@Override
+	public synchronized BNode createBNode() {
+		BNode result = super.createBNode();
+		//System.err.println(result.stringValue());
+		return createBNode(MyBnodePrefix+result.stringValue());
+}
 	
 	private static final RDFFactory sharedInstance = new RDFFactory();
 

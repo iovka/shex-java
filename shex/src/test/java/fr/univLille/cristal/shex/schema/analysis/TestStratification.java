@@ -34,7 +34,6 @@ import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
-import fr.univLille.cristal.shex.schema.parsing.ShexJParser;
 
 /**
  * 

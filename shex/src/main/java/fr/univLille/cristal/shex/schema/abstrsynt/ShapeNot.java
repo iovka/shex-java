@@ -47,7 +47,7 @@ public class ShapeNot extends ShapeExpr {
 
 	@Override
 	public String toString() {
-		return String.format("(NOT %s)", subExpression.toString());
+		return "(NOT "+subExpression+")";
 	}
 	
 }

@@ -33,25 +33,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Models;
-import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.rio.ParserConfig;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
-import fr.univLille.cristal.shex.schema.parsing.ShexJParser;
-import fr.univLille.cristal.shex.schema.parsing.ShExCParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
 
@@ -172,7 +166,7 @@ public class RunTestsRebuild {
 		String testName = getTestName(manifest, testNode);
 		Object[] shouldRun = shouldRunTest(testNode, manifest);
 		
-		if (! (Boolean) shouldRun[0]) {
+		if ( (! (Boolean) shouldRun[0]) ){
 			String message = "Skipping test ";
 			for (int i = 1; i < shouldRun.length; i++)
 				message += "(" + shouldRun[i].toString() + ") ";
@@ -190,12 +184,24 @@ public class RunTestsRebuild {
 		ShexSchema schema = null;
 		Model data = null;
 		try {
+			Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
+			Path dataFile = Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName));
+			if(schemaFile.toString().equals(dataFile.toString())) {
+				String message = "Skipping test because schema file is same as data file.";
+				nbSkip++;
+				return new TestResultForTestReport(testName, false, message, "validation");	
+			}
+			if(! schemaFile.toFile().exists()) {
+				String message = "Skipping test because schema file does not exists.";
+				nbSkip++;
+				return new TestResultForTestReport(testName, false, message, "validation");	
+			}
 			//System.err.println("Test: "+testName);
 			//JsonldParser parser = new JsonldParser();
-			schema = GenParser.parseSchema(Paths.get(getSchemaFileName(testCase.schemaFileName)),
-											Paths.get(SCHEMAS_DIR)); // exception possible
-
-			data = parseTurtleFile(Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName)).toString(),GITHUB_URL+"validation/");
+			schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			
+			
+			data = parseTurtleFile(dataFile.toString(),GITHUB_URL+"validation/");
 			RDF4JGraph dataGraph = new RDF4JGraph(data);
 
 //			for (Value obj:dataGraph.getAllSubjectNodes())
@@ -254,7 +260,7 @@ public class RunTestsRebuild {
 	private static String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
 		//fp = fp.substring(0, fp.length()-5)+".json";
-		//fp = fp.substring(0, fp.length()-5)+".ttl";
+		fp = fp.substring(0, fp.length()-5)+".ttl";
 		return TEST_DIR+fp;
 	}
 

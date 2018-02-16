@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,18 +18,14 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.URI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
-import org.eclipse.rdf4j.query.algebra.Datatype;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
-import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
@@ -54,7 +49,6 @@ import fr.univLille.cristal.shex.schema.concrsynt.LanguageSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.NumericFacetSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.ObjectLiteral;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
@@ -67,11 +61,10 @@ import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocParser.XsFacetConte
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.util.XPath;
-import scala.reflect.api.Internals.ReificationSupportApi.SyntacticSelectTermExtractor;
 
 
 public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
-	public static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	private Map<ShapeExprLabel,ShapeExpr> rules;
 	private Map<String,String> prefixes;
 	private List<String> imports;
@@ -773,9 +766,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			String iris = iri.getText();
 			iris = iris.substring(1,iris.length()-1);
 			if (base!=null)
-				iris = base+iris;
-			IRI result = RDF_FACTORY.createIRI(iris);
-			return result;
+				return RDF_FACTORY.createIRI(base,iris);
+			return RDF_FACTORY.createIRI(iris);
 		}
 		return ctx.prefixedName().accept(this); 
 	}

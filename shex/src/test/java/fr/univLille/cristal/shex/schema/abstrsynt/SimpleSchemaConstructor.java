@@ -19,6 +19,7 @@ limitations under the License.
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,7 +175,7 @@ public class SimpleSchemaConstructor {
 
 	public static ShapeExpr se (Object o) {
 		if (o instanceof TripleExpr)
-			return new Shape((TripleExpr)o);
+			return new Shape((TripleExpr)o, Collections.EMPTY_SET,true);
 		else if (o instanceof ShapeExpr)
 			return (ShapeExpr) o;
 		else 
