@@ -28,8 +28,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 
-import es.weso.rdf.nodes.RDFNode;
-
 /** Helper implementation of {@link RDF}.
  * Implementing classes need to implement only the methods {@link RDFGraph#getAllNodes()}, {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)}.
  * 

@@ -73,7 +73,6 @@ import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
-import scala.tools.nsc.typechecker.ContextErrors.SymbolTypeError;
 
 public class ShExRParser implements Parser {
 	public static final List<RDFFormat> RDFFormats = Arrays.asList(new RDFFormat[] {
