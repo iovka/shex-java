@@ -45,6 +45,7 @@ import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
@@ -138,7 +139,7 @@ public class ShExRParser implements Parser {
 	public List<String> getImports() {
 		return imports;
 	}
-
+	
 	//---------------------------------------------------------
 	// Schema
 	//---------------------------------------------------------
@@ -231,6 +232,8 @@ public class ShExRParser implements Parser {
 	private static IRI EXTRA = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#extra");
 	
 	private ShapeExpr parseShape(Value value) {
+		List<Annotation> annotations = parseAnnotations(value);
+
 		if (model.filter((Resource) value, TRIPLE_EXPRESSION,null).size()==0) {
 			ShapeExpr shtmp = new Shape(new EmptyTripleExpression(),Collections.emptySet(),false);
 			setShapeExprLabel(shtmp,value);
@@ -251,7 +254,7 @@ public class ShExRParser implements Parser {
 		}	
 		Value val = (Value) model.filter((Resource) value, TRIPLE_EXPRESSION, null).objects().toArray()[0];
 		
-		Shape res = new Shape(parseTripleExpr(val),extras,closed);
+		Shape res = new Shape(parseTripleExpr(val),extras,closed,annotations);
 		setShapeExprLabel(res,value);	
 		return res;
 	}
@@ -583,12 +586,14 @@ public class ShExRParser implements Parser {
 	private static IRI EXPRESSIONS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#expressions");
 	
 	private TripleExpr parseEachOf(Value value) {
+		List<Annotation> annotations = parseAnnotations(value);
+
 		Value val = (Value) model.filter((Resource) value, EXPRESSIONS, null).objects().toArray()[0];
 		List<TripleExpr> subExpr = new ArrayList<TripleExpr>();
 		for (Object obj:computeListOfObject(val))
 			subExpr.add(parseTripleExpr((Value) obj));
 		
-		TripleExpr res = new EachOf(subExpr);
+		TripleExpr res = new EachOf(subExpr,annotations);
 		setTripleExprLabel(res,value);
 
 		Interval card = getInterval(value);
@@ -599,12 +604,14 @@ public class ShExRParser implements Parser {
 	}
 	
 	private TripleExpr parseOneOf(Value value) {
+		List<Annotation> annotations = parseAnnotations(value);
+
 		Value val = (Value) model.filter((Resource) value, EXPRESSIONS, null).objects().toArray()[0];
 		List<TripleExpr> subExpr = new ArrayList<TripleExpr>();
 		for (Object obj:computeListOfObject(val))
 			subExpr.add(parseTripleExpr((Value) obj));
 		
-		TripleExpr res = new OneOf(subExpr);
+		TripleExpr res = new OneOf(subExpr,annotations);
 		setTripleExprLabel(res,value);
 
 		Interval card = getInterval(value);
@@ -614,10 +621,14 @@ public class ShExRParser implements Parser {
 		return res;
 	}
 	
+
+	
 	private static IRI PREDICATE = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#predicate");
 	private static IRI VALUE_EXPR = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#valueExpr");
 	private static IRI INVERSE = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#inverse");
 	private TripleExpr parseTripleConstraint(Value value) {
+		List<Annotation> annotations = parseAnnotations(value);
+		
 		boolean inverse = false;
 		if (model.filter((Resource) value, INVERSE, null).size()>0) {
 			Literal inv = (Literal) model.filter((Resource) value, INVERSE, null).objects().toArray()[0];
@@ -639,7 +650,7 @@ public class ShExRParser implements Parser {
 			valueExpr = new NodeConstraint(new ConjunctiveSetOfNodes(Collections.emptySet()));
 		}
 		
-		TripleExpr res = new TripleConstraint(predicate,valueExpr);
+		TripleExpr res = new TripleConstraint(predicate,valueExpr,annotations);
 		setTripleExprLabel(res,value);
 		
 		Interval card = getInterval(value);
@@ -647,6 +658,24 @@ public class ShExRParser implements Parser {
 			res = new RepeatedTripleExpression(res, card);
 		
 		return res;
+	}
+	
+	private static IRI ANNOTATION = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#annotation");
+	private static IRI OBJECT = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#object");
+	private List<Annotation> parseAnnotations(Value value){
+		List<Annotation> annotations = null;
+		if (model.filter((Resource) value, ANNOTATION, null).size()>0) {
+			Value ann = (Value) model.filter((Resource) value, ANNOTATION, null).objects().toArray()[0];
+			List<Object> lannot = computeListOfObject(ann);
+			annotations = new ArrayList<Annotation>();
+			for (Object obj:lannot) {
+				IRI predicate = (IRI) model.filter((Resource) obj, PREDICATE, null).objects().toArray()[0];
+				Value object = (Value) model.filter((Resource) obj, OBJECT, null).objects().toArray()[0];
+				annotations.add(new Annotation(predicate,object));
+			}
+		}
+		return annotations;
+		
 	}
 	
 	private static IRI MIN = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#min");

@@ -43,6 +43,8 @@ import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
+import fr.univLille.cristal.shex.schema.abstrsynt.AnnotedObject;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
@@ -223,7 +225,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		}
 		return new ShapeNot((ShapeExpr) ctx.inlineShapeAtom().accept(this)); 
 	}
-
+	
 	@Override 
 	public Object visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx) {
 		Set<TCProperty> extra = new HashSet<TCProperty>();
@@ -239,15 +241,31 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 
 			}
 		}
-		for (QualifierContext qua:ctx.qualifier()) {
-		}
 		TripleExpr triple = (TripleExpr) ctx.tripleExpression().accept(this);
 		return new Shape(triple, extra, closed);
 	}
 
+	@Override 
+	public Object visitAnnotation(ShExDocParser.AnnotationContext ctx) {
+		IRI predicate = (IRI) ctx.predicate().accept(this);
+		Value obj;
+		if (ctx.iri() != null)
+			obj = (Value) ctx.iri().accept(this);
+		else
+			obj = (Value) ctx.literal().accept(this);
+		return new Annotation(predicate,obj); 
+	}
+	
 	@Override
 	public Object visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx) {
-		//TODO annotations semact
+		//TODO semact
+		List<Annotation> annotations = null;
+		if (ctx.annotation()!=null) {
+			annotations = new ArrayList<Annotation>();
+			for (ShExDocParser.AnnotationContext annotContext:ctx.annotation())
+				annotations.add((Annotation) annotContext.accept(this));
+		}
+				
 		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
 		for (QualifierContext qua:ctx.qualifier()) {
@@ -260,12 +278,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 				System.err.println(this.filename);
 			}
 		}
+		
 		TripleExpr triple;
 		if (ctx.tripleExpression()!=null)
 			triple = (TripleExpr) ctx.tripleExpression().accept(this);
 		else
 			triple = new EmptyTripleExpression();
-		return new Shape(triple, extra, closed);
+		
+		return new Shape(triple, extra, closed,annotations);
 	}
 	
 	@Override 
@@ -687,8 +707,18 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	//bracketedTripleExpr  : '(' innerTripleExpr ')' cardinality? annotation* semanticActions ;
 	@Override 
 	public Object visitBracketedTripleExpr(ShExDocParser.BracketedTripleExprContext ctx) {
-		//TODO: annotrations semacts
+		//TODO: semacts
 		TripleExpr result = (TripleExpr) ctx.innerTripleExpr().accept(this);
+		
+		List<Annotation> annotations = null;
+		if (ctx.annotation()!=null) {
+			annotations = new ArrayList<Annotation>();
+			for (ShExDocParser.AnnotationContext annotContext:ctx.annotation())
+				annotations.add((Annotation) annotContext.accept(this));
+		}
+		
+		((AnnotedObject) result).setAnnotations(annotations);
+		
 		if (ctx.cardinality()!=null){
 			result = new RepeatedTripleExpression(result, (Interval) ctx.cardinality().accept(this));
 		}

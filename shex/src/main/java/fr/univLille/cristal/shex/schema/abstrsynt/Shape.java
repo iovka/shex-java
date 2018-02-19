@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Set;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
+import fr.univLille.cristal.shex.util.CollectionToString;
 
 /**
  * 
@@ -39,7 +41,7 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 		this.tripleExpr = tripleExpression;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
 		this.closed = closed;
-		this.annotations = Collections.emptyList();
+		this.annotations = null;
 	}
 	
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed, List<Annotation> annotations) {
@@ -48,6 +50,13 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 		this.closed = closed;
 		this.annotations = annotations;
 	}
+	
+	public void setAnnotations (List<Annotation> annotations) {
+		if (this.annotations == null)
+			this.annotations = annotations;
+		else throw new IllegalStateException("Annotations already set");
+	}	
+
 	
 	public TripleExpr getTripleExpression () {
 		return tripleExpr;
@@ -74,7 +83,8 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	public String toString() {
 		String closed = isClosed() ? "CLOSED" : "";
 		String extraP = extra.isEmpty() ? "" : "EXTRA" + extra.toString();
-		return String.format("(%s %s %s)", closed, extraP, tripleExpr);
+		String annot=annotations==null?"":CollectionToString.collectionToString(annotations," ; ","// [", "]");
+		return String.format("(%s %s %s %s)", closed, extraP, tripleExpr,annot);
 	}
 
 	

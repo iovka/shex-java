@@ -38,6 +38,7 @@ import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
@@ -222,8 +223,7 @@ public class ShExJParser implements Parser{
 	protected Shape parseShape(Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
-		//
-
+		//		
 		Boolean closed = (Boolean) (map.get("closed"));
 		if (closed == null)
 			closed = false;
@@ -249,8 +249,10 @@ public class ShExJParser implements Parser{
 		}else {
 			texpr = parseTripleExpression(texprObj);
 		}
+		
+		List<Annotation> annotations = getAnnotations(map);
 
-		Shape res = createNeighbourhoodConstraint(texpr, closed, extraProps);
+		Shape res = new Shape(texpr, extraProps, closed, annotations);
 
 		setShapeId(res, map);
 
@@ -335,20 +337,17 @@ public class ShExJParser implements Parser{
 	protected TripleExpr parseEachOf (Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
-		Object annotations = getAnnotations(map);
 		// 
-
+		List<Annotation> annotations = getAnnotations(map);
+		
 		List list = (List) (map.get("expressions"));
 		List<TripleExpr> subExpressions = parseListOfTripleExprs(list);
 
 		Interval card = getCardinality(map);
 
-		TripleExpr res;
-		if (card == null)
-			res = new EachOf(subExpressions);
-		else 
-			res = new RepeatedTripleExpression(new EachOf(subExpressions), card);
-
+		TripleExpr res = new EachOf(subExpressions,annotations);
+		if (card != null)
+			res = new RepeatedTripleExpression(res, card);
 		setTripleId(res, map);
 
 		return res;
@@ -359,20 +358,18 @@ public class ShExJParser implements Parser{
 	protected TripleExpr parseOneOf (Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
-		Object annotations = getAnnotations(map);
 		//
-
+		
+		List<Annotation> annotations = getAnnotations(map);
 
 		List list = (List) (map.get("expressions"));
 		List<TripleExpr> subExpressions = parseListOfTripleExprs(list);
 
 		Interval card = getCardinality(map);
 
-		TripleExpr res;
-		if (card == null)
-			res = new OneOf(subExpressions);
-		else 
-			res = new RepeatedTripleExpression(new OneOf(subExpressions), card);	
+		TripleExpr res = new OneOf(subExpressions, annotations);
+		if (card != null)
+			res = new RepeatedTripleExpression(res, card);	
 
 		setTripleId(res, map);
 
@@ -383,8 +380,8 @@ public class ShExJParser implements Parser{
 	protected TripleExpr parseTripleConstraint(Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
-		Object annotations = getAnnotations(map);
 		//
+		List<Annotation> annotations = getAnnotations(map);
 
 		Boolean inv = (Boolean) (map.get("inverse"));
 		if (inv == null)
@@ -397,17 +394,14 @@ public class ShExJParser implements Parser{
 		if (valueExpr != null)
 			shexpr = parseShapeExpression(valueExpr);
 		else {
-//			TripleExpr tmp = new EmptyTripleExpression();
-//			shexpr = new Shape(tmp, Collections.EMPTY_SET, false);
 			shexpr = new NodeConstraint(new ConjunctiveSetOfNodes(Collections.EMPTY_LIST));
 		}
 
-		Interval card = getCardinality(map);	
-		TripleExpr res ;
-		if (card == null)
-			res = new TripleConstraint(property, shexpr);
-		else 
-			res = new RepeatedTripleExpression(new TripleConstraint(property, shexpr), card); 
+		Interval card = getCardinality(map);
+		
+		TripleExpr res = new TripleConstraint(property, shexpr, annotations);
+		if (card != null) 
+			res = new RepeatedTripleExpression(res, card); 
 		setTripleId(res, map);
 
 		return res;
@@ -728,11 +722,24 @@ public class ShExJParser implements Parser{
 		return semActs;
 	}
 
-	private Object getAnnotations (Map map) {
+	private List<Annotation> getAnnotations (Map map) {
 		Object annotations = map.get("annotations");
-		if (annotations != null)
-			System.err.println("Annotations not supported.");
-		return annotations;
+		if (annotations != null) {
+			List<Annotation> result = new ArrayList<Annotation>();
+			List<Object> lannot = (List<Object>) annotations;
+			for (Object annot:lannot) {
+				Map<String,Object> mannot = (Map<String,Object>) annot;
+				IRI pred = RDF_FACTORY.createIRI((String) mannot.get("predicate"));
+				Value obj = null;
+				if (mannot.get("object") instanceof String)
+					obj = RDF_FACTORY.createIRI((String) mannot.get("object"));
+				else
+					obj = parseObjectLiteral((Map) mannot.get("object"));
+				result.add(new Annotation(pred,obj));
+			}
+			return result;
+		}
+		return null;
 	}
 
 	// ----------------------------------------------------------------------
@@ -765,10 +772,6 @@ public class ShExJParser implements Parser{
 		} else {
 			return TCProperty.createInvProperty(iri);
 		}
-	}
-
-	private Shape createNeighbourhoodConstraint (TripleExpr expr, boolean isClosed, Set<TCProperty> extraProps) {
-		return new Shape(expr, extraProps, isClosed);	
 	}
 
 	// ----------------------------------------------------------------------

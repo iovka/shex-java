@@ -31,6 +31,7 @@ public class EachOf extends AbstractNaryTripleExpr implements AnnotedObject{
 
 	public EachOf(List<TripleExpr> subExpressions) {
 		super(subExpressions);
+		this.annotations = null;
 	}
 	
 	public EachOf(List<TripleExpr> subExpressions, List<Annotation> annotations) {
@@ -38,13 +39,20 @@ public class EachOf extends AbstractNaryTripleExpr implements AnnotedObject{
 		this.annotations = annotations;
 	}
 	
+	public void setAnnotations (List<Annotation> annotations) {
+		if (this.annotations == null)
+			this.annotations = annotations;
+		else throw new IllegalStateException("Annotations already set");
+	}	
+	
 	public List<Annotation> getAnnotations() {
 		return annotations;
 	}
 	
 	@Override
 	public String toString() {
-		return CollectionToString.collectionToString(getSubExpressions(), " ; ", "EachOf(", ")");
+		String annot=annotations==null?"":CollectionToString.collectionToString(annotations," ; ","// [", "]");
+		return CollectionToString.collectionToString(getSubExpressions(), " ; ", "EachOf(", annot+" )");
 	}
 
 	@Override

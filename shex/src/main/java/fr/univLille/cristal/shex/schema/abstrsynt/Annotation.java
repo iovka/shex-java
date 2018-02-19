@@ -22,5 +22,9 @@ public class Annotation {
 	public Value getObjectValue() {
 		return objectValue;
 	}
+	
+	public String toString() {
+		return predicate+" "+objectValue;
+	}
 
 }

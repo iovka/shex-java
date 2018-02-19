@@ -20,6 +20,7 @@ import java.util.List;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
+import fr.univLille.cristal.shex.util.CollectionToString;
 
 /**
  * 
@@ -34,6 +35,7 @@ public class TripleConstraint extends TripleExpr implements AnnotedObject {
 	public TripleConstraint (TCProperty property, ShapeExpr shapeExpr ) {
 		this.property = property;
 		this.shapeExpr = shapeExpr;
+		this.annotations = null;
 	}
 	
 	public TripleConstraint (TCProperty property, ShapeExpr shapeExpr, List<Annotation> annotations) {
@@ -41,7 +43,13 @@ public class TripleConstraint extends TripleExpr implements AnnotedObject {
 		this.shapeExpr = shapeExpr;
 		this.annotations = annotations;
 	}
-
+	
+	public void setAnnotations (List<Annotation> annotations) {
+		if (this.annotations == null)
+			this.annotations = annotations;
+		else throw new IllegalStateException("Annotations already set");
+	}
+	
 	public TCProperty getProperty(){
 		return property;
 	}
@@ -67,9 +75,8 @@ public class TripleConstraint extends TripleExpr implements AnnotedObject {
 
 	@Override
 	public String toString() {
-		return String.format("%s::%s",
-				property.toString(),
-				shapeExpr.toString());
+		String annot=annotations==null?"":CollectionToString.collectionToString(annotations," ; ","// [", "]");
+		return String.format("%s::%s %s",property.toString(),shapeExpr.toString(),annot);
 	}
 
 }
