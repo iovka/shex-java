@@ -60,7 +60,6 @@ import fr.univLille.cristal.shex.schema.concrsynt.LanguageSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.NumericFacetSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.ObjectLiteral;
 import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
 import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
@@ -459,14 +458,14 @@ public class ShExJParser implements Parser{
 						break;
 					default:
 						if (m.containsKey("value")) {
-							nodeConstraintsList.add(parseObjectLiteral(m));
+							explicitValuesList.add(parseObjectLiteral(m));
 						}else {
 							System.err.println("Node constraint not recognize:"+m);
 						}
 					}
 				} else {
 					if (m.containsKey("value")) {
-						nodeConstraintsList.add(parseObjectLiteral(m));
+						explicitValuesList.add(parseObjectLiteral(m));
 					}else {
 						System.err.println("Node constraint not recognize:"+m);
 					}			
@@ -480,13 +479,17 @@ public class ShExJParser implements Parser{
 	}
 	
 	// ObjectLiteral 	{ 	value:STRING language:STRING? type: STRING? }
-	private SetOfNodes parseObjectLiteral (Map m) {
-		IRI type = null;
-		String typeString = (String) m.get("type");
-		if (typeString != null)
-			type = RDF_FACTORY.createIRI(typeString);
-
-		return new ObjectLiteral((String) m.get("value"), (String) m.get("language"), type);
+	private Value parseObjectLiteral (Map m) {
+		String value = (String) m.get("value");
+		if (m.get("type") == null & m.get("language")==null)
+			return RDF_FACTORY.createLiteral(value);
+		
+		if (m.get("type") != null) {
+			IRI type = RDF_FACTORY.createIRI((String) m.get("type"));
+			return RDF_FACTORY.createLiteral(value,type);
+		}
+		String lang = (String) m.get("language");
+		return RDF_FACTORY.createLiteral(value, lang);
 	}
 
 	//IriStem { stem:IRI }
@@ -511,7 +514,7 @@ public class ShExJParser implements Parser{
 					if (type != null & type.equals("IriStem")) {
 						exclusions.add(parseIRIStem((Map) o));
 					}else {
-						exclusions.add(parseObjectLiteral((Map) o));
+						forbidenValue.add(parseObjectLiteral((Map) o));
 					}
 
 				}
@@ -546,14 +549,14 @@ public class ShExJParser implements Parser{
 			List<Object> exclu = (List<Object>) m.get("exclusions");
 			for (Object o:exclu) {
 				if (o instanceof String) {
-					//forbidenValue.add(RDF_FACTORY.createIRI((String) o));
-					exclusions.add(new ObjectLiteral((String) o, null,null));
+					forbidenValue.add(RDF_FACTORY.createLiteral((String) o));
+					//exclusions.add(new ObjectLiteral((String) o, null,null));
 				}else {
 					String type = (String) ((Map) o).get("type");
 					if (type != null & type.equals("LiteralStem")) {
 						exclusions.add(parseLiteralStem((Map) o));
 					}else {
-						exclusions.add(parseObjectLiteral((Map) o));
+						forbidenValue.add(parseObjectLiteral((Map) o));
 					}
 
 				}
@@ -596,7 +599,7 @@ public class ShExJParser implements Parser{
 					if (type != null & type.equals("LanguageStem")) {
 						exclusions.add(parseLanguageStem((Map) o));
 					}else {
-						exclusions.add(parseObjectLiteral((Map) o));
+						forbidenValue.add(parseObjectLiteral((Map) o));
 					}
 
 				}
