@@ -55,18 +55,5 @@ public class RepeatedTripleExpression extends TripleExpr {
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitRepeated (this, arguments);
-	}
-
-	private TripleExpr unfoldedVersion;
-	
-	public TripleExpr getUnfoldedVersion() {
-		return this.unfoldedVersion;
-	}
-	
-	public void setUnfoldedVersion (TripleExpr expr) {
-		if (this.unfoldedVersion != null)
-			throw new IllegalStateException("Unfolded version can be set at most once.");
-		this.unfoldedVersion = expr;
-	}
-	
+	}	
 }

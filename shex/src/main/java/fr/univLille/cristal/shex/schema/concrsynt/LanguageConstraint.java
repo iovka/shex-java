@@ -16,39 +16,28 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.concrsynt;
 
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 
-/**
- * 
- * @author Iovka Boneva
- * 10 oct. 2017
- */
-public class DatatypeSetOfNodes implements SetOfNodes {
+public class LanguageConstraint implements Constraint {
+	private String langTag;
 	
-	private IRI datatypeIri;
-	
-	public DatatypeSetOfNodes(IRI datatypeIri) {
-		this.datatypeIri = datatypeIri;
+	public LanguageConstraint(String langTag) {
+		this.langTag = langTag;
 	}
 
 	@Override
 	public boolean contains(Value node) {
-		if (! (node instanceof Literal)) return false;
+		if (! (node instanceof Literal))
+			return false;
+		
 		Literal lnode = (Literal) node;
-		if (!(datatypeIri.equals(lnode.getDatatype()))) return false;
-		if ((XMLDatatypeUtil.isBuiltInDatatype(lnode.getDatatype()))) {
-			return XMLDatatypeUtil.isValidValue(lnode.stringValue(), lnode.getDatatype());
-		}
+		if (!lnode.getLanguage().isPresent())
+			return false;
 
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		return datatypeIri.toString();
+		String lang = lnode.getLanguage().get();
+		
+		return lang.toLowerCase().equals(langTag);
 	}
 
 }

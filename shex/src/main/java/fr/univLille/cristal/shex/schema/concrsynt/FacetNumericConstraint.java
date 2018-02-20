@@ -27,7 +27,7 @@ import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class NumericFacetSetOfNodes implements SetOfNodes {
+public class FacetNumericConstraint implements Constraint {
 	private BigDecimal minincl, minexcl, maxincl, maxexcl;
 	private Integer totalDigits, fractionDigits;
 	
@@ -130,6 +130,30 @@ public class NumericFacetSetOfNodes implements SetOfNodes {
 		String frac = fractionDigits == null ? "" : "fracdigits: " + fractionDigits.toString();
 		return mini + maxi + mine + maxe + tot + frac;
 	}
-	
 
+	public BigDecimal getMinincl() {
+		return minincl;
+	}
+
+	public BigDecimal getMinexcl() {
+		return minexcl;
+	}
+
+	public BigDecimal getMaxincl() {
+		return maxincl;
+	}
+
+	public BigDecimal getMaxexcl() {
+		return maxexcl;
+	}
+
+	public Integer getTotalDigits() {
+		return totalDigits;
+	}
+
+	public Integer getFractionDigits() {
+		return fractionDigits;
+	}
+	
+	
 }

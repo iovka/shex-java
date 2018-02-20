@@ -16,10 +16,12 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
+import java.util.List;
+
 import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
-import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.Constraint;
 
 /**
  * 
@@ -29,15 +31,19 @@ import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
  */
 public class NodeConstraint extends ShapeExpr {
 
-	private SetOfNodes setOfNodes;
+	private List<Constraint> constraints;
 	
-	public NodeConstraint (SetOfNodes setOfNodes) {
-		this.setOfNodes = setOfNodes;
+	public NodeConstraint (List<Constraint> constraints) {
+		this.constraints = constraints;
 	}
 	
 	public boolean contains(Value node) {
-		return setOfNodes.contains(node);
+		for (Constraint s : constraints)
+			if (! s.contains(node))
+				return false;
+		return true;
 	}
+
 
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
@@ -46,6 +52,6 @@ public class NodeConstraint extends ShapeExpr {
 	
 	@Override
 	public String toString() {
-		return setOfNodes+"";
+		return "NodeConstraint : "+constraints;
 	}
 }

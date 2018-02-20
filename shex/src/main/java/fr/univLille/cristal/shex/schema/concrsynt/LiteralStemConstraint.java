@@ -19,25 +19,23 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
-public class LanguageSetOfNodes implements SetOfNodes {
-	private String langTag;
+public class LiteralStemConstraint implements Constraint {
+	private String litStem;
 	
-	public LanguageSetOfNodes(String langTag) {
-		this.langTag = langTag;
+	public LiteralStemConstraint(String litStem) {
+		this.litStem = litStem;
 	}
 
 	@Override
 	public boolean contains(Value node) {
 		if (! (node instanceof Literal))
 			return false;
-		
 		Literal lnode = (Literal) node;
-		if (!lnode.getLanguage().isPresent())
-			return false;
-
-		String lang = lnode.getLanguage().get();
-		
-		return lang.toLowerCase().equals(langTag);
+		return lnode.stringValue().startsWith(litStem);
+	}
+	
+	public String toString() {
+		return "Literalstem="+litStem;
 	}
 
 }

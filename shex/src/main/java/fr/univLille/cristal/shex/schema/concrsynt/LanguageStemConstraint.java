@@ -19,10 +19,10 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
-public class LanguageStemSetOfNodes implements SetOfNodes {
+public class LanguageStemConstraint implements Constraint {
 	private String langStem;
 	
-	public LanguageStemSetOfNodes(String langTag) {
+	public LanguageStemConstraint(String langTag) {
 		this.langStem = langTag;
 	}
 

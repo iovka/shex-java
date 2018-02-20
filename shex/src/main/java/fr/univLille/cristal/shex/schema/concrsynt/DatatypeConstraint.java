@@ -16,34 +16,43 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.concrsynt;
 
-import java.util.Set;
-
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 
-public class StemRangeSetOfNodes implements SetOfNodes {
-	private SetOfNodes stem;
-	private Set<SetOfNodes> exclusions;
+/**
+ * 
+ * @author Iovka Boneva
+ * 10 oct. 2017
+ */
+public class DatatypeConstraint implements Constraint {
 	
-	public StemRangeSetOfNodes(SetOfNodes stem,Set<SetOfNodes> exclusions) {
-		this.stem = stem;
-		this.exclusions = exclusions;
+	private IRI datatypeIri;
+	
+	public DatatypeConstraint(IRI datatypeIri) {
+		this.datatypeIri = datatypeIri;
+	}
+
+	public IRI getDatatypeIri() {
+		return datatypeIri;
 	}
 
 	@Override
 	public boolean contains(Value node) {
-		if (stem!=null)
-			if (!stem.contains(node))
-			 return false;
-
-		for (SetOfNodes sn:exclusions) {
-			if (sn.contains(node))
-				return false;
+		if (! (node instanceof Literal)) return false;
+		Literal lnode = (Literal) node;
+		if (!(datatypeIri.equals(lnode.getDatatype()))) return false;
+		if ((XMLDatatypeUtil.isBuiltInDatatype(lnode.getDatatype()))) {
+			return XMLDatatypeUtil.isValidValue(lnode.stringValue(), lnode.getDatatype());
 		}
+
 		return true;
 	}
 	
+	@Override
 	public String toString() {
-		return "StemRange=("+stem+" exclusions="+exclusions+")";
+		return datatypeIri.toString();
 	}
 
 }

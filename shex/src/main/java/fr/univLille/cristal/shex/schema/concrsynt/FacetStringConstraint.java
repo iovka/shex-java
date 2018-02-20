@@ -28,7 +28,7 @@ import fr.univLille.cristal.shex.util.XPath;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class StringFacetSetOfNodes implements SetOfNodes {
+public class FacetStringConstraint implements Constraint {
 	
 	private Integer length, minlength, maxlength;
 	private String patternString;

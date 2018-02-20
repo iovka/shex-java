@@ -27,11 +27,9 @@ import org.eclipse.rdf4j.model.Value;
  * @author Antonin Durey
  *
  */
-public interface SetOfNodes {
-
-	public boolean contains (Value node);
+public class NodeKindConstraint implements Constraint {
 	
-	public static final SetOfNodes Blank = new SetOfNodes(){
+	public static final NodeKindConstraint Blank = new NodeKindConstraint(){
 
 		@Override
 		public boolean contains(Value node) {
@@ -44,7 +42,7 @@ public interface SetOfNodes {
 		}		
 	};
 	
-	public static final SetOfNodes AllIRI = new SetOfNodes() {
+	public static final NodeKindConstraint AllIRI = new NodeKindConstraint() {
 
 		@Override
 		public boolean contains(Value node) {
@@ -57,22 +55,8 @@ public interface SetOfNodes {
 		};
 				
 	};
-	
-	public static final SetOfNodes AllNodes = new SetOfNodes() {
 
-		@Override
-		public boolean contains(Value node) {
-			return true;
-		}
-		
-		@Override
-		public String toString() {
-			return "ALL_NODES";
-		}
-		
-	};
-
-	public static final SetOfNodes AllLiteral = new SetOfNodes() {
+	public static final NodeKindConstraint AllLiteral = new NodeKindConstraint() {
 		
 		@Override
 		public boolean contains(Value node) {
@@ -83,24 +67,22 @@ public interface SetOfNodes {
 			return "ALL_LITERALS";
 		}
 	};
-
-	public static SetOfNodes complement(SetOfNodes s) {
-		return new SetOfNodes () {
-
-			@Override
-			public boolean contains(Value node) {
-				return ! s.contains(node);
-			}
-			
-			@Override
-			public String toString() {
-				return "COMPL(" + s.toString() + ")";
-			}
-		};
-		
-		
-	}
-		
 	
+	public static final NodeKindConstraint AllNonLiteral = new NodeKindConstraint() {
+		
+		@Override
+		public boolean contains(Value node) {
+			return !(node instanceof Literal);
+		}
+		
+		public String toString() {
+			return "ALL_NON_LITERALS";
+		}
+	};
+
+	@Override
+	public boolean contains(Value node) {
+		return false;
+	}	
 	
 }

@@ -65,6 +65,12 @@ public abstract class Label {
 	public boolean isGenerated() {
 		return this.generated;
 	}
+	
+	public String stringValue() {
+		if (bnode!=null)
+			return bnode.stringValue();
+		return iri.stringValue();
+	}
 
 	@Override
 	public int hashCode() {

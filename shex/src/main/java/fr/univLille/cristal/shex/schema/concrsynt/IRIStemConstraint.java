@@ -16,37 +16,26 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.concrsynt;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
-/**
- * 
- * @author Iovka Boneva
- * 10 oct. 2017
- */
-public class ConjunctiveSetOfNodes implements SetOfNodes {
-
-	private List<SetOfNodes> conjuncts;
+public class IRIStemConstraint implements Constraint {
+	private String iriStem;
 	
-	public ConjunctiveSetOfNodes(Collection<SetOfNodes> conjuncts) {
-		this.conjuncts = new ArrayList<>();
-		this.conjuncts.addAll(conjuncts);
+	public IRIStemConstraint(String iriStem) {
+		this.iriStem = iriStem;
 	}
-	
+
 	@Override
 	public boolean contains(Value node) {
-		for (SetOfNodes s : conjuncts)
-			if (! s.contains(node))
-				return false;
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		return "CONJ" + conjuncts.toString();
+		if (! (node instanceof IRI))
+			return false;
+		
+		IRI inode = (IRI) node;		
+		return inode.stringValue().startsWith(iriStem);
 	}
 
+	public String toString() {
+		return "IRIstem="+iriStem;
+	}
 }

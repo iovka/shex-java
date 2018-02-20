@@ -261,7 +261,7 @@ public class RunTestsRebuild {
 	private static String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
 		//fp = fp.substring(0, fp.length()-5)+".json";
-		fp = fp.substring(0, fp.length()-5)+".ttl";
+		//fp = fp.substring(0, fp.length()-5)+".ttl";
 		return TEST_DIR+fp;
 	}
 

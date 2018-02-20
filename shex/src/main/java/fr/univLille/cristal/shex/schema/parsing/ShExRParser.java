@@ -18,9 +18,7 @@ package fr.univLille.cristal.shex.schema.parsing;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,6 +45,7 @@ import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.TripleExprLabel;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
+import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
@@ -60,17 +59,19 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
-import fr.univLille.cristal.shex.schema.concrsynt.ConjunctiveSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.ExplictValuesSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.IRIStemSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.LanguageSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.NumericFacetSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.StemRangeSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.StringFacetSetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.Constraint;
+import fr.univLille.cristal.shex.schema.concrsynt.DatatypeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.FacetNumericConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.FacetStringConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.IRIStemConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.IRIStemRangeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemRangeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemRangeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
 
@@ -262,30 +263,30 @@ public class ShExRParser implements Parser {
 	private static IRI DATATYPE = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#datatype");
 	
 	private ShapeExpr parseNodeConstraint(Value value) {
-		List<SetOfNodes> constraints = new ArrayList<SetOfNodes>();
+		List<Constraint> constraints = new ArrayList<Constraint>();
 		
-		SetOfNodes constraint = parseNodeKind(value);
+		Constraint constraint = parseNodeKind(value);
 		if (constraint != null)
 			constraints.add(constraint);
+		
+		if (model.filter((Resource) value,DATATYPE,null).size()>0) {
+			Value val = (Value) model.filter((Resource) value, DATATYPE, null).objects().toArray()[0];
+			constraints.add(new DatatypeConstraint((IRI) val));
+		}
 		
 		constraint = parseStringFacet(value);
 		if (constraint!=null)
 			constraints.add(constraint);
 		
-		if (model.filter((Resource) value,DATATYPE,null).size()>0) {
-			Value val = (Value) model.filter((Resource) value, DATATYPE, null).objects().toArray()[0];
-			constraints.add(new DatatypeSetOfNodes((IRI) val));
-		}
-		
-		List<SetOfNodes> values = parseValues(value);
-		if (values!=null)
-			constraints.addAll(values);
-		
 		constraint = parseNumericFacet(value);
 		if (constraint!=null)
 			constraints.add(constraint);
-		
-		ShapeExpr res = new NodeConstraint(new ConjunctiveSetOfNodes(constraints));
+				
+		constraint = parseValues(value);
+		if (constraint!=null)
+			constraints.add(constraint);
+				
+		ShapeExpr res = new NodeConstraint(constraints);
 		setShapeExprLabel(res,value);
 		return res;
 	}
@@ -293,21 +294,21 @@ public class ShExRParser implements Parser {
 	
 	private static IRI VALUES = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#values");
 	
-	private List<SetOfNodes> parseValues(Value value) {
+	private Constraint parseValues(Value value) {
 		if (model.filter((Resource) value,VALUES,null).size()==0)
 			return null;
 		
 		Value val = (Value) model.filter((Resource) value, VALUES, null).objects().toArray()[0];
 		
 		List<Object> values_tmp = computeListOfObject(val);
-		List<Value> explicitValues = new ArrayList<Value>();
-		List<SetOfNodes> constraints = new ArrayList<SetOfNodes>();
+		Set<Value> explicitValues = new HashSet<Value>();
+		Set<Constraint> constraints = new HashSet<Constraint>();
 		for (Object obj:values_tmp) {
 			if (obj instanceof Literal | obj instanceof IRI) {
 				explicitValues.add((Value) obj);
 				continue;
 			} else {
-				SetOfNodes tmp = parseLanguage((Value) obj);
+				Constraint tmp = parseLanguage((Value) obj);
 				if (tmp!=null)
 					constraints.add(tmp);
 				tmp = parseLiteralStem((Value) obj);
@@ -318,30 +319,28 @@ public class ShExRParser implements Parser {
 					constraints.add(tmp);
 			}
 		}
-		
-		if (explicitValues.size()>0)
-			constraints.add(new ExplictValuesSetOfNodes(explicitValues));
-		return constraints;
+				
+		return new ValueSetValueConstraint(explicitValues, constraints);
 	}
 	
 	private static IRI IRI_STEM = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#IriStem");
 	private static IRI IRI_STEM_RANGE = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#IriStemRange");
-	private SetOfNodes parseIRIStem(Value value) {
+	private Constraint parseIRIStem(Value value) {
 		Value type = (Value) model.filter((Resource) value,TYPE_IRI,null).objects().toArray()[0];
 		if (type.equals(IRI_STEM)) {
 			Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-			return new IRIStemSetOfNodes(tmp.stringValue());
+			return new IRIStemConstraint(tmp.stringValue());
 		}
 		if (type.equals(IRI_STEM_RANGE)) {
-			SetOfNodes stem = null;
+			Constraint stem = null;
 			if (model.filter((Resource) value, STEM, null).size()>0) {
 				Value tmp = (Value) model.filter((Resource) value, STEM, null).objects().toArray()[0];
 				if (tmp instanceof Literal)
-					stem = new IRIStemSetOfNodes(tmp.stringValue());
+					stem = new IRIStemConstraint(tmp.stringValue());
 			}
 			
-			List<Value> explicitValues = new ArrayList<Value>();
-			Set<SetOfNodes> constraints = new HashSet<SetOfNodes>();
+			Set<Value> explicitValues = new HashSet<Value>();
+			Set<Constraint> constraints = new HashSet<Constraint>();
 			
 			Value exclu = (Value) model.filter((Resource) value, EXCLUSION, null).objects().toArray()[0];
 			List<Object> exclusions = computeListOfObject(exclu);
@@ -350,34 +349,32 @@ public class ShExRParser implements Parser {
 					explicitValues.add((IRI) excl);
 				} else {
 					Literal tmp = (Literal) model.filter((Resource) excl, STEM, null).objects().toArray()[0];
-					constraints.add(new IRIStemSetOfNodes(tmp.stringValue()));
+					constraints.add(new IRIStemConstraint(tmp.stringValue()));
 				}
 			}
 
-			if (explicitValues.size()>0)
-				constraints.add(new ExplictValuesSetOfNodes(explicitValues));
-			return new StemRangeSetOfNodes(stem, constraints);
+			return new LanguageStemRangeConstraint(stem, explicitValues, constraints);
 		}
 		return null;
 	}
 	
 	private static IRI LITERAL_STEM = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#LiteralStem");
 	private static IRI LITERAL_STEM_RANGE = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#LiteralStemRange");
-	private SetOfNodes parseLiteralStem(Value value) {
+	private Constraint parseLiteralStem(Value value) {
 		Value type = (Value) model.filter((Resource) value,TYPE_IRI,null).objects().toArray()[0];
 		if (type.equals(LITERAL_STEM)) {
 			Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-			return new LiteralStemSetOfNodes(tmp.stringValue());
+			return new LiteralStemConstraint(tmp.stringValue());
 		}
 		if (type.equals(LITERAL_STEM_RANGE)) {
-			SetOfNodes stem = null;
+			Constraint stem = null;
 			if (model.filter((Resource) value, STEM, null).size()>0) {
 				Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-				stem = new LiteralStemSetOfNodes(tmp.stringValue());
+				stem = new LiteralStemConstraint(tmp.stringValue());
 			}
 			
-			List<Value> explicitValues = new ArrayList<Value>();
-			Set<SetOfNodes> constraints = new HashSet<SetOfNodes>();
+			Set<Value> explicitValues = new HashSet<Value>();
+			Set<Constraint> constraints = new HashSet<Constraint>();
 			
 			Value exclu = (Value) model.filter((Resource) value, EXCLUSION, null).objects().toArray()[0];
 			List<Object> exclusions = computeListOfObject(exclu);
@@ -387,13 +384,10 @@ public class ShExRParser implements Parser {
 					//constraints.add(new LanguageSetOfNodes(((Literal)excl).stringValue()));
 				} else {
 					Literal tmp = (Literal) model.filter((Resource) excl, STEM, null).objects().toArray()[0];
-					constraints.add(new LiteralStemSetOfNodes(tmp.stringValue()));
+					constraints.add(new LiteralStemConstraint(tmp.stringValue()));
 				}
 			}
-
-			if (explicitValues.size()>0)
-				constraints.add(new ExplictValuesSetOfNodes(explicitValues));
-			return new StemRangeSetOfNodes(stem, constraints);
+			return new LiteralStemRangeConstraint(stem, explicitValues, constraints);
 		}
 		return null;
 	}
@@ -404,38 +398,38 @@ public class ShExRParser implements Parser {
 	private static IRI LANGUAGE_TAG = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#languageTag");
 	private static IRI LANGUAGE_STEM = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#LanguageStem");
 	private static IRI LANGUAGE_STEM_RANGE = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#LanguageStemRange");
-	private SetOfNodes parseLanguage(Value value) {
+	private Constraint parseLanguage(Value value) {
 		//System.err.println(model.filter((Resource) value,null,null));
 		Value type = (Value) model.filter((Resource) value,TYPE_IRI,null).objects().toArray()[0];
 		if (type.equals(LANGUAGE)) {
 			Literal tmp = (Literal) model.filter((Resource) value, LANGUAGE_TAG, null).objects().toArray()[0];
-			return new LanguageSetOfNodes(tmp.stringValue());
+			return new LanguageConstraint(tmp.stringValue());
 		}
 		if (type.equals(LANGUAGE_STEM)) {
 			Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-			return new LanguageStemSetOfNodes(tmp.stringValue());
+			return new LanguageStemConstraint(tmp.stringValue());
 		}
 		if (type.equals(LANGUAGE_STEM_RANGE)) {
-			SetOfNodes stem = null;
+			Constraint stem = null;
 			if (model.filter((Resource) value, STEM, null).size()>0) {
 				Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-				stem = new LanguageStemSetOfNodes(tmp.stringValue());
+				stem = new LanguageStemConstraint(tmp.stringValue());
 			}
 			
-			List<Value> explicitValues = new ArrayList<Value>();
-			Set<SetOfNodes> constraints = new HashSet<SetOfNodes>();
+			Set<Value> explicitValues = new HashSet<Value>();
+			Set<Constraint> constraints = new HashSet<Constraint>();
 			
 			Value exclu = (Value) model.filter((Resource) value, EXCLUSION, null).objects().toArray()[0];
 			List<Object> exclusions = computeListOfObject(exclu);
 			for (Object excl:exclusions) {
 				if (excl instanceof Literal) {
-					constraints.add(new LanguageSetOfNodes(((Literal)excl).stringValue()));
+					constraints.add(new LanguageConstraint(((Literal)excl).stringValue()));
 				} else {
 					Literal tmp = (Literal) model.filter((Resource) excl, STEM, null).objects().toArray()[0];
-					constraints.add(new LanguageStemSetOfNodes(tmp.stringValue()));
+					constraints.add(new LanguageStemConstraint(tmp.stringValue()));
 				}
 			}
-			return new StemRangeSetOfNodes(stem, constraints);
+			return new IRIStemRangeConstraint(stem, explicitValues, constraints);
 		}
 		return null;
 	}
@@ -446,19 +440,19 @@ public class ShExRParser implements Parser {
 	private static IRI IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#iri");
 	private static IRI LITERAL = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#literal");
 	private static IRI NONLITERAL = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#nonliteral");
-	private SetOfNodes parseNodeKind(Value value) {
+	private Constraint parseNodeKind(Value value) {
 		if (model.filter((Resource) value,NODEKIND,null).size()==0)
 			return null;
 		
 		Value val = (Value) model.filter((Resource) value, NODEKIND, null).objects().toArray()[0];
 		if (val.equals(BNODE))
-			return SetOfNodes.Blank;
+			return NodeKindConstraint.Blank;
 		if (val.equals(IRI))
-			return SetOfNodes.AllIRI;
+			return NodeKindConstraint.AllIRI;
 		if (val.equals(LITERAL))
-			return SetOfNodes.AllLiteral;
+			return NodeKindConstraint.AllLiteral;
 		if (val.equals(NONLITERAL))
-			return SetOfNodes.complement(SetOfNodes.AllLiteral);
+			return NodeKindConstraint.AllNonLiteral;
 		System.err.println("Unknown nodekind: "+val);
 		return null;
 	}
@@ -469,8 +463,8 @@ public class ShExRParser implements Parser {
 	private static IRI PATTERN = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#pattern");
 	private static IRI FLAGS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#flags");
 	
-	private SetOfNodes parseStringFacet(Value value) {
-		StringFacetSetOfNodes facet = new StringFacetSetOfNodes();
+	private Constraint parseStringFacet(Value value) {
+		FacetStringConstraint facet = new FacetStringConstraint();
 		boolean changed = false;
 		
 		if (model.filter((Resource) value, LENGTH,null).size()>0) {
@@ -510,8 +504,8 @@ public class ShExRParser implements Parser {
 	private static IRI MAXEXCLUSIVE = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#maxexclusive");
 	private static IRI FRACTIONDIGITS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#fractiondigits");
 	private static IRI TOTALDIGITS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#totaldigits");
-	private SetOfNodes parseNumericFacet(Value value) {
-		NumericFacetSetOfNodes facet = new NumericFacetSetOfNodes();
+	private Constraint parseNumericFacet(Value value) {
+		FacetNumericConstraint facet = new FacetNumericConstraint();
 		boolean changed = false;
 				
 		if (model.filter((Resource) value, MININCLUSIVE,null).size()>0) {
@@ -646,7 +640,7 @@ public class ShExRParser implements Parser {
 			Value val = (Value) model.filter((Resource) value, VALUE_EXPR, null).objects().toArray()[0];
 			valueExpr = parseShapeExpr(val);
 		} else {
-			valueExpr = new NodeConstraint(new ConjunctiveSetOfNodes(Collections.emptySet()));
+			valueExpr = EmptyShape.Shape;
 		}
 		
 		TripleExpr res = new TripleConstraint(predicate,valueExpr,annotations);
