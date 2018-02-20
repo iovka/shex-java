@@ -40,4 +40,8 @@ public class LanguageConstraint implements Constraint {
 		return lang.toLowerCase().equals(langTag);
 	}
 
+	public String getLangTag() {
+		return langTag;
+	}
+
 }

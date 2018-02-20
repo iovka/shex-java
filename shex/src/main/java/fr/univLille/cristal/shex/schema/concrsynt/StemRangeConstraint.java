@@ -45,4 +45,13 @@ public abstract class StemRangeConstraint implements Constraint {
 		return "StemRange=("+stem+" exclusions="+exclusions+")";
 	}
 
+	public Constraint getStem() {
+		return stem;
+	}
+
+	public ValueSetValueConstraint getExclusions() {
+		return exclusions;
+	}
+	
+	
 }

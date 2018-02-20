@@ -445,6 +445,14 @@ public class ShExJParser implements Parser{
 		}
 
 		//Language 	{ 	langTag:ObjectLiteral }
+		protected Constraint parseLanguage (Map m) {
+			if (m.containsKey("languageTag"))
+				return new LanguageConstraint((String) m.get("languageTag"));
+			if (m.containsKey("langTag"))
+				return new LanguageConstraint((String) m.get("langTag"));
+			throw new UnsupportedOperationException("Langtag not found");
+		}
+		
 		protected Constraint parseLanguageStem (Map m) {
 			//TODO: error if stem not present
 			String stem = (String) m.get("stem");
@@ -484,15 +492,6 @@ public class ShExJParser implements Parser{
 
 		protected Constraint parseStem (Map m) {
 			throw new UnsupportedOperationException("stems not supported");
-		}
-
-		//Language 	{ 	langTag:ObjectLiteral }
-		protected Constraint parseLanguage (Map m) {
-			if (m.containsKey("languageTag"))
-				return new LanguageConstraint((String) m.get("languageTag"));
-			if (m.containsKey("langTag"))
-				return new LanguageConstraint((String) m.get("langTag"));
-			throw new UnsupportedOperationException("Langtag not found");
 		}
 
 		// numericFacet = (mininclusive|minexclusive|maxinclusive|maxeclusive):numericLiteral | (totaldigits|fractiondigits):INTEGER

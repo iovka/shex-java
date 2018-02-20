@@ -1,17 +1,18 @@
 package fr.univLille.cristal.shex.schema.parsing;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
+import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
@@ -25,6 +26,19 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
+import fr.univLille.cristal.shex.schema.concrsynt.Constraint;
+import fr.univLille.cristal.shex.schema.concrsynt.DatatypeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.FacetNumericConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.FacetStringConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.IRIStemConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.IRIStemRangeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LanguageStemRangeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemRangeConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
 import fr.univLille.cristal.shex.util.Interval;
 
 
@@ -126,23 +140,25 @@ public class ShExJSerializer {
 			result.put("id", shape.getId().stringValue());
 		result.put("type", "NodeConstraint");
 		
-		ConjunctiveSetOfNodes constraints = (ConjunctiveSetOfNodes) shape.getSetOfNodes();
-		for (SetOfNodes constraint:constraints.getConjuncts()) {
-			if (constraint.equals(SetOfNodes.Blank))
+		List<Constraint> constraints = shape.getConstraints();
+		for (Constraint constraint:constraints) {
+			if (constraint.equals(NodeKindConstraint.Blank))
 				result.put("nodeKind", "bnode");
-			if (constraint.equals(SetOfNodes.AllIRI))
+			if (constraint.equals(NodeKindConstraint.AllIRI))
 				result.put("nodeKind", "iri");
-			if (constraint.equals(SetOfNodes.AllLiteral))
+			if (constraint.equals(NodeKindConstraint.AllLiteral))
 				result.put("nodeKind", "literal");
-			if (constraint.equals(SetOfNodes.AllNonLiteral))
+			if (constraint.equals(NodeKindConstraint.AllNonLiteral))
 				result.put("nodeKind", "nonliteral");
-			if (constraint instanceof DatatypeSetOfNodes)
-				result.put("datatype",((DatatypeSetOfNodes) constraint).getDatatypeIri().stringValue());
-			if (constraint instanceof NumericFacetSetOfNodes)
-				convertNumericFacet((NumericFacetSetOfNodes) constraint, result);
-			if (constraint instanceof StringFacetSetOfNodes)
-				convertStringFacet((StringFacetSetOfNodes) constraint, result);
-				
+			if (constraint instanceof DatatypeConstraint)
+				result.put("datatype",((DatatypeConstraint) constraint).getDatatypeIri().stringValue());
+			if (constraint instanceof FacetNumericConstraint)
+				convertNumericFacet((FacetNumericConstraint) constraint, result);
+			if (constraint instanceof FacetStringConstraint)
+				convertStringFacet((FacetStringConstraint) constraint, result);
+			if (constraint instanceof ValueSetValueConstraint)
+				result.put("values", convertValueSetValueConstraint((ValueSetValueConstraint) constraint));
+			
 		}
 		
 		return result;
@@ -152,7 +168,7 @@ public class ShExJSerializer {
 	// Constraint conversion
 	//--------------------------------------------------
 	
-	public void convertNumericFacet(NumericFacetSetOfNodes facet, Map<String,Object> res) {
+	public void convertNumericFacet(FacetNumericConstraint facet, Map<String,Object> res) {
 		if (facet.getMinincl() != null)
 			res.put("mininclusive", facet.getMinincl());
 		if (facet.getMinexcl() != null)
@@ -167,10 +183,120 @@ public class ShExJSerializer {
 			res.put("fractiondigits", facet.getFractionDigits());
 	}
 		
-	//convertStringFacet
-	public Object convertStringFacet(StringFacetSetOfNodes facet, Map<String,Object> res) {
-		return null;
+	public void convertStringFacet(FacetStringConstraint facet, Map<String,Object> res) {
+		if (facet.getLength()!=null)
+			res.put("length", facet.getLength());
+		if (facet.getMinlength()!=null)
+			res.put("minlength", facet.getMinlength());
+		if (facet.getMaxlength()!=null)
+			res.put("maxlength", facet.getMinlength());
+		if (facet.getPatternString()!=null)
+			res.put("pattern", facet.getPatternString());
+		if (facet.getFlags()!=null)
+			res.put("flags", facet.getFlags());
 	}
+	
+	private Object convertValueSetValueConstraint(ValueSetValueConstraint constraint) {
+		List<Object> result = new ArrayList<Object>();
+		for (Value val:constraint.getExplicitValues())
+			result.add(val.stringValue());
+		
+		for (Constraint cons:constraint.getConstraintsValue()) {
+			if (cons instanceof LanguageConstraint)
+				result.add(convertLanguageConstraint((LanguageConstraint) cons));
+			if (cons instanceof LanguageStemConstraint)
+				result.add(convertLanguageStemConstraint((LanguageStemConstraint) cons));
+			if (cons instanceof LanguageStemRangeConstraint)
+				result.add(convertLanguageStemRangeConstraint((LanguageStemRangeConstraint) cons));
+			if (cons instanceof IRIStemConstraint)
+				result.add(convertIRIStemConstraint((IRIStemConstraint) cons));
+			if (cons instanceof IRIStemRangeConstraint)
+				result.add(convertIRIStemRangeConstraint((IRIStemRangeConstraint) cons));
+			if (cons instanceof LiteralStemConstraint)
+				result.add(convertLiteralStemConstraint((LiteralStemConstraint) cons));
+			if (cons instanceof LiteralStemRangeConstraint)
+				result.add(convertLiteralStemRangeConstraint((LiteralStemRangeConstraint) cons));
+		}
+
+		return result;
+	}
+
+	private Object convertLanguageConstraint(LanguageConstraint cons) {
+		Map<String,String> result = new LinkedHashMap<>();
+		result.put("type", "Language");
+		result.put("langTag", cons.getLangTag());
+		return result;
+	}
+
+	private Object convertLanguageStemConstraint(LanguageStemConstraint cons) {
+		Map<String,String> result = new LinkedHashMap<>();
+		result.put("type", "LanguageStem");
+		result.put("stem", cons.getLangStem());
+		return result;
+	}
+
+	private Object convertLanguageStemRangeConstraint(LanguageStemRangeConstraint cons) {
+		Map<String,Object> result = new LinkedHashMap<>();
+		result.put("type", "LanguageStemRange");
+		if (cons.getStem()!=null)
+			result.put("stem", ((LanguageStemConstraint) cons.getStem()).getLangStem());
+		else {
+			Map<String,Object> tmp = new LinkedHashMap<>();
+			tmp.put("type", "Wildcard");
+			result.put("stem",tmp);
+		}
+		List<Object> exclusions = (List) convertValueSetValueConstraint(cons.getExclusions());
+		if (exclusions.size()>0)
+			result.put("exclusions", exclusions);
+		return result;
+	}
+
+	private Object convertIRIStemConstraint(IRIStemConstraint cons) {
+		Map<String,String> result = new LinkedHashMap<>();
+		result.put("type", "IRIStem");
+		result.put("stem", cons.getIriStem());
+		return result;
+	}
+
+	private Object convertIRIStemRangeConstraint(IRIStemRangeConstraint cons) {
+		Map<String,Object> result = new LinkedHashMap<>();
+		result.put("type", "IRIStemRange");
+		if (cons.getStem()!=null)
+			result.put("stem", ((IRIStemConstraint) cons.getStem()).getIriStem());
+		else {
+			Map<String,Object> tmp = new LinkedHashMap<>();
+			tmp.put("type", "Wildcard");
+			result.put("stem",tmp);
+		}
+		List<Object> exclusions = (List) convertValueSetValueConstraint(cons.getExclusions());
+		if (exclusions.size()>0)
+			result.put("exclusions", exclusions);
+		return result;
+	}
+
+	private Object convertLiteralStemConstraint(LiteralStemConstraint cons) {
+		Map<String,String> result = new LinkedHashMap<>();
+		result.put("type", "LiteralStem");
+		result.put("stem", cons.getLitStem());
+		return result;
+	}
+
+	private Object convertLiteralStemRangeConstraint(LiteralStemRangeConstraint cons) {
+		Map<String,Object> result = new LinkedHashMap<>();
+		result.put("type", "LiteralStemRange");
+		if (cons.getStem()!=null)
+			result.put("stem", ((LiteralStemConstraint) cons.getStem()).getLitStem());
+		else {
+			Map<String,Object> tmp = new LinkedHashMap<>();
+			tmp.put("type", "Wildcard");
+			result.put("stem",tmp);
+		}
+		List<Object> exclusions = (List) convertValueSetValueConstraint(cons.getExclusions());
+		if (exclusions.size()>0)
+			result.put("exclusions", exclusions);
+		return result;
+	}
+
 	
 	//--------------------------------------------------
 	// Triple conversion
@@ -239,26 +365,22 @@ public class ShExJSerializer {
 	
 	private Object convertTripleConstraint(TripleConstraint triple) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
+		
 		if (! triple.getId().isGenerated())
 			result.put("id", triple.getId().stringValue());
+		
 		result.put("type", "TripleConstraint");
+		
 		if (! triple.getProperty().isForward())
 			result.put("inverse", "true");
 		result.put("predicate", triple.getProperty().getIri().stringValue());
-		boolean addValueExpr = true;
-		if (triple.getShapeExpr() instanceof NodeConstraint) {
-			SetOfNodes tmp = ((NodeConstraint) triple.getShapeExpr()).getSetOfNodes();
-			if (tmp instanceof ConjunctiveSetOfNodes) {
-				ConjunctiveSetOfNodes tmp2 = (ConjunctiveSetOfNodes) tmp;
-				if (tmp2.getConjuncts().size()==0)
-					addValueExpr=false;
-			}
 		
-		}
-		if (addValueExpr)
+		if (! triple.getShapeExpr().equals(EmptyShape.Shape)) 
 			result.put("valueExpr", convertShapeExpr(triple.getShapeExpr()));
+		
 		if (triple.getAnnotations()!=null) 
 			result.put("annotations", convertAnnotations(triple.getAnnotations()));
+		
 		return result;
 	}
 	

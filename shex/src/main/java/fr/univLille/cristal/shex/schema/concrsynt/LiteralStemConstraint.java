@@ -38,4 +38,9 @@ public class LiteralStemConstraint implements Constraint {
 		return "Literalstem="+litStem;
 	}
 
+	public String getLitStem() {
+		return litStem;
+	}
+
+	
 }

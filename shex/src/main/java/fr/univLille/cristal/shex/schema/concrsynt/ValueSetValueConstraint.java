@@ -12,6 +12,14 @@ public class ValueSetValueConstraint implements Constraint {
 		this.explicitValues = explicitValues;
 		this.constraintsValue = constraintsValue;
 	}
+	
+	public Set<Value> getExplicitValues() {
+		return explicitValues;
+	}
+
+	public Set<Constraint> getConstraintsValue() {
+		return constraintsValue;
+	}
 
 	@Override
 	public boolean contains(Value node) {
@@ -29,6 +37,7 @@ public class ValueSetValueConstraint implements Constraint {
 	public String toString() {
 		return "values:"+explicitValues+ " U "+constraintsValue;
 	}
+	
 	
 	
 }

@@ -43,4 +43,8 @@ public class LanguageStemConstraint implements Constraint {
 	public String toString() {
 		return "Langstem="+langStem;
 	}
+
+	public String getLangStem() {
+		return langStem;
+	}
 }

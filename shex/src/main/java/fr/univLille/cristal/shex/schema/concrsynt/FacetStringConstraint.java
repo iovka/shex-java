@@ -94,4 +94,38 @@ public class FacetStringConstraint implements Constraint {
 		String pat = patternString == null ? ""   :  " pattern: " + patternString.toString();
 		return len + min + max + pat;
 	}
+
+	public Integer getMinlength() {
+		return minlength;
+	}
+
+	public void setMinlength(Integer minlength) {
+		this.minlength = minlength;
+	}
+
+	public Integer getMaxlength() {
+		return maxlength;
+	}
+
+	public void setMaxlength(Integer maxlength) {
+		this.maxlength = maxlength;
+	}
+
+	public String getPatternString() {
+		return patternString;
+	}
+
+	public void setPatternString(String patternString) {
+		this.patternString = patternString;
+	}
+
+	public Integer getLength() {
+		return length;
+	}
+
+	public String getFlags() {
+		return flags;
+	}
+	
+	
 }

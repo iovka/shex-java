@@ -38,4 +38,9 @@ public class IRIStemConstraint implements Constraint {
 	public String toString() {
 		return "IRIstem="+iriStem;
 	}
+
+	public String getIriStem() {
+		return iriStem;
+	}
+	
 }

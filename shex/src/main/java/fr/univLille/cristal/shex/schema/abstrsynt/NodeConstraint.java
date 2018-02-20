@@ -44,6 +44,9 @@ public class NodeConstraint extends ShapeExpr {
 		return true;
 	}
 
+	public List<Constraint> getConstraints() {
+		return constraints;
+	}
 
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
