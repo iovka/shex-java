@@ -73,6 +73,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocBaseVisitor;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocLexer;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocParser;
@@ -528,11 +529,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 				}
 			}
 			if (ctx.iriExclusion()!=null)
-				return new IRIStemRangeConstraint(null, explicitValues, exclusions);
+				return new IRIStemRangeConstraint(new WildcardConstraint(), explicitValues, exclusions);
 			if (ctx.literalExclusion()!=null)
-				return new LiteralStemRangeConstraint(null, explicitValues, exclusions);
+				return new LiteralStemRangeConstraint(new WildcardConstraint(), explicitValues, exclusions);
 			if (ctx.languageExclusion()!=null)
-				return new LanguageStemRangeConstraint(null, explicitValues, exclusions);
+				return new LanguageStemRangeConstraint(new WildcardConstraint(), explicitValues, exclusions);
 		}
 		return visitChildren(ctx);
 	}

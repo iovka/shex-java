@@ -47,7 +47,7 @@ public class SORBEGenerator {
 	}
 	
 	// Get ride of the tripleExprRef by copying
-	// Check that empty is not under a plus
+	// Also check that empty is not under a plus
 	public TripleExpr getSORBETripleExpr(Shape shape) {
 		if (this.sorbeMap.containsKey(shape.getId()))
 			return this.sorbeMap.get(shape.getId());
@@ -159,7 +159,6 @@ public class SORBEGenerator {
 	}
 	
 	class CheckIfContainsEmpty extends TripleExpressionVisitor<Boolean>{
-
 		private boolean result ;
 
 		public CheckIfContainsEmpty() {

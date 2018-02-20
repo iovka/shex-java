@@ -26,4 +26,7 @@ public class IRIStemRangeConstraint extends StemRangeConstraint {
 		super(stem, new ValueSetValueConstraint (exclusionsValues,exclusionsConstraints));
 	}
 
+	public String toString() {
+		return "IRIStemRange=("+stem+" exclusions="+exclusions+")";
+	}
 }

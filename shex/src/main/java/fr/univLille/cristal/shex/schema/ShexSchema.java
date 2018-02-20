@@ -52,7 +52,7 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
-import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
+import fr.univLille.cristal.shex.schema.analysis.SchemaCollectors;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 import fr.univLille.cristal.shex.util.Pair;
@@ -77,7 +77,7 @@ public class ShexSchema {
 	public ShexSchema(Map<ShapeExprLabel, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		this.rules = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(rules));
 		// Collect all the ShapeExpr
-		Set<ShapeExpr> allShapes = SchemaRulesStaticAnalysis.collectAllShapes(this.rules);
+		Set<ShapeExpr> allShapes = SchemaCollectors.collectAllShapes(this.rules);
 		Map<ShapeExprLabel,ShapeExpr> shapeMapTmp = new HashMap<ShapeExprLabel,ShapeExpr>();
 		for(ShapeExpr shexp:allShapes) {
 			checkShapeID(shexp);
@@ -97,7 +97,7 @@ public class ShexSchema {
 		}
 		
 		// Collect all TripleExpr
-		Set<TripleExpr> allTriples = SchemaRulesStaticAnalysis.collectAllTriples(this.rules);
+		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(this.rules);
 		Map<TripleExprLabel,TripleExpr> tripleMapTmp = new HashMap<TripleExprLabel,TripleExpr>();
 		for (TripleExpr tcexp:allTriples) {
 			checkTripleID(tcexp);

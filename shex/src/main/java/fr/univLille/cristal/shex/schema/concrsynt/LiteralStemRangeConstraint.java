@@ -26,4 +26,7 @@ public class LiteralStemRangeConstraint extends StemRangeConstraint {
 		super(stem, new ValueSetValueConstraint (exclusionsValues,exclusionsConstraints));
 	}
 
+	public String toString() {
+		return "LiteralStemRange=("+stem+" exclusions="+exclusions+")";
+	}
 }

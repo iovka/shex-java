@@ -44,10 +44,10 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class SchemaRulesStaticAnalysis {
+public class SchemaCollectors {
 
-	private static SchemaRulesStaticAnalysis staticInstance = new SchemaRulesStaticAnalysis();
-	public static SchemaRulesStaticAnalysis getInstance () {
+	private static SchemaCollectors staticInstance = new SchemaCollectors();
+	public static SchemaCollectors getInstance () {
 		return staticInstance;
 	}
 

@@ -72,6 +72,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
 
@@ -332,11 +333,15 @@ public class ShExRParser implements Parser {
 			return new IRIStemConstraint(tmp.stringValue());
 		}
 		if (type.equals(IRI_STEM_RANGE)) {
-			Constraint stem = null;
+			Constraint stem;
 			if (model.filter((Resource) value, STEM, null).size()>0) {
 				Value tmp = (Value) model.filter((Resource) value, STEM, null).objects().toArray()[0];
 				if (tmp instanceof Literal)
 					stem = new IRIStemConstraint(tmp.stringValue());
+				else
+					stem = new WildcardConstraint();
+			} else {
+				stem = new WildcardConstraint();
 			}
 			
 			Set<Value> explicitValues = new HashSet<Value>();
@@ -367,10 +372,12 @@ public class ShExRParser implements Parser {
 			return new LiteralStemConstraint(tmp.stringValue());
 		}
 		if (type.equals(LITERAL_STEM_RANGE)) {
-			Constraint stem = null;
+			Constraint stem;
 			if (model.filter((Resource) value, STEM, null).size()>0) {
 				Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
 				stem = new LiteralStemConstraint(tmp.stringValue());
+			} else {
+				stem = new WildcardConstraint();
 			}
 			
 			Set<Value> explicitValues = new HashSet<Value>();
@@ -410,10 +417,12 @@ public class ShExRParser implements Parser {
 			return new LanguageStemConstraint(tmp.stringValue());
 		}
 		if (type.equals(LANGUAGE_STEM_RANGE)) {
-			Constraint stem = null;
+			Constraint stem ;
 			if (model.filter((Resource) value, STEM, null).size()>0) {
 				Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
 				stem = new LanguageStemConstraint(tmp.stringValue());
+			} else {
+				stem = new WildcardConstraint();
 			}
 			
 			Set<Value> explicitValues = new HashSet<Value>();

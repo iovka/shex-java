@@ -66,8 +66,8 @@ public class RefineValidation implements ValidationAlgorithm {
 	public RefineValidation(ShexSchema schema, RDFGraph graph) {
 		super();
 		this.graph = graph;
-		this.sorbeGenerator = new SORBEGenerator();
 		this.schema = schema;
+		this.sorbeGenerator = new SORBEGenerator();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.typing = new RefinementTyping(schema, graph);
 	}
@@ -204,7 +204,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		}
 		
 		
-		Matcher matcher = new PredicateAndValueMatcher(this.getTyping()); 
+		Matcher matcher = new MatcherPredicateAndValue(this.getTyping()); 
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
 		
 		// Check that the neighbor that cannot be match to a constraint are in extra

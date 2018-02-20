@@ -67,6 +67,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
 
@@ -400,9 +401,11 @@ public class ShExJParser implements Parser{
 				}
 			}
 
-			Constraint stem = null;
+			Constraint stem;
 			if (m.get("stem") instanceof String) {
 				stem = parseIRIStem(m);
+			} else {
+				stem = new WildcardConstraint();
 			}
 
 			return new IRIStemRangeConstraint(stem,forbidenValue,exclusions);
@@ -437,9 +440,11 @@ public class ShExJParser implements Parser{
 				}
 			}
 
-			Constraint stem = null;
+			Constraint stem;
 			if (m.get("stem") instanceof String) {
 				stem = parseLiteralStem(m);
+			} else {
+				stem = new WildcardConstraint();
 			}
 			return new LiteralStemRangeConstraint(stem,forbidenValue,exclusions);
 		}
@@ -482,9 +487,11 @@ public class ShExJParser implements Parser{
 				}
 			}
 
-			Constraint stem = null;
+			Constraint stem;
 			if (m.get("stem") instanceof String) {
 				stem = parseLanguageStem(m);
+			} else {
+				stem = new WildcardConstraint();
 			}
 
 			return new LanguageStemRangeConstraint(stem,forbidenValue,exclusions);

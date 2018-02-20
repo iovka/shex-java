@@ -26,5 +26,8 @@ public class LanguageStemRangeConstraint extends StemRangeConstraint {
 		super(stem, new ValueSetValueConstraint (exclusionsValues,exclusionsConstraints));
 	}
 
+	public String toString() {
+		return "LanguageStemRange=("+stem+" exclusions="+exclusions+")";
+	}
 
 }

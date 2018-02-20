@@ -187,7 +187,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		}
 		
 		// Match using only predicate and recursive test. The following line are the only difference with refine validation
-		Matcher matcher1 = new PredicateMatcher();
+		Matcher matcher1 = new MatcherPredicateOnly();
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC1 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher1);
 
 		for(Entry<NeighborTriple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
@@ -203,7 +203,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		}
 
 
-		Matcher matcher2 = new PredicateAndValueMatcher(this.getTyping()); 
+		Matcher matcher2 = new MatcherPredicateAndValue(this.getTyping()); 
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC2 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher2);
 
 		// Check that the neighbor that cannot be match to a constraint are in extra

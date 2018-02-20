@@ -19,8 +19,8 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 import org.eclipse.rdf4j.model.Value;
 
 public abstract class StemRangeConstraint implements Constraint {
-	private Constraint stem;
-	private ValueSetValueConstraint exclusions;
+	protected Constraint stem;
+	protected ValueSetValueConstraint exclusions;
 	
 	public StemRangeConstraint(Constraint stem,ValueSetValueConstraint exclusions) {
 		this.stem = stem;
@@ -39,10 +39,6 @@ public abstract class StemRangeConstraint implements Constraint {
 		return true;
 	}
 	
-	public String toString() {
-		return "StemRange=("+stem+" exclusions="+exclusions+")";
-	}
-
 	public Constraint getStem() {
 		return stem;
 	}

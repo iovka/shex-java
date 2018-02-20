@@ -24,11 +24,18 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class PredicateMatcher implements Matcher {
+public class MatcherPredicateAndValue implements Matcher {
+	private Typing typing;
+	
+	public MatcherPredicateAndValue(Typing typing) {
+		this.typing = typing;
+	}
 	
 	@Override
 	public Boolean apply(NeighborTriple triple, TripleConstraint tc) {
-		return tc.getProperty().equals(triple.getPredicate());
+		if (tc.getProperty().equals(triple.getPredicate())) 
+			return typing.contains(triple.getOpposite(), tc.getShapeExpr().getId());
+		return false;
 	}
 
 
