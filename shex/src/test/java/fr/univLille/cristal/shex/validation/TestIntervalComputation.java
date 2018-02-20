@@ -30,8 +30,6 @@ import org.junit.Test;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
-import fr.univLille.cristal.shex.schema.abstrsynt.NonRefTripleExpr;
-import fr.univLille.cristal.shex.schema.analysis.InstrumentationListsOfTripleConstraintsOnTripleExpressions;
 import fr.univLille.cristal.shex.schema.analysis.SchemaRulesStaticAnalysis;
 import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.validation.Bag;
@@ -47,7 +45,7 @@ public class TestIntervalComputation {
 	@Test
 	public void testEmptyExpression() {
 		IntervalComputation ic = new IntervalComputation();
-		NonRefTripleExpr expr = new EmptyTripleExpression();
+		TripleExpr expr = new EmptyTripleExpression();
 		expr.accept(ic);
 		assertEquals(Interval.STAR, ic.getResult());
 	}

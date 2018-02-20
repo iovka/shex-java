@@ -16,8 +16,6 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.concrsynt;
 
-import java.util.Set;
-
 import org.eclipse.rdf4j.model.Value;
 
 public abstract class StemRangeConstraint implements Constraint {

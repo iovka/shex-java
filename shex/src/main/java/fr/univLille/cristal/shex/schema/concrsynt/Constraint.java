@@ -16,9 +16,6 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.concrsynt;
 
-import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
 /**

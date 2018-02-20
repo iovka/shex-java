@@ -31,8 +31,8 @@ import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.concrsynt.DatatypeSetOfNodes;
-import fr.univLille.cristal.shex.schema.concrsynt.SetOfNodes;
+import fr.univLille.cristal.shex.schema.concrsynt.Constraint;
+import fr.univLille.cristal.shex.schema.concrsynt.DatatypeConstraint;
 import fr.univLille.cristal.shex.util.Interval;
 
 /**
@@ -66,15 +66,21 @@ public class SimpleSchemaConstructor {
 	
 	public void addSlallRule () {
 		if (! rules.containsKey(slAll))
-			rules.put(slAll, new NodeConstraint(SetOfNodes.AllNodes));
+			rules.put(slAll, EmptyShape.Shape);
 	}
 	public void addSlintRule () {
-		if (! rules.containsKey(slInt))
-			rules.put(slInt, new NodeConstraint(new DatatypeSetOfNodes(XMLSchema.INT)));
+		if (! rules.containsKey(slInt)) {
+			List<Constraint> consts = new ArrayList<Constraint>();
+			consts.add(new DatatypeConstraint(XMLSchema.INT));
+			rules.put(slInt, new NodeConstraint(consts));
+			}
 	}
 	public void addSlstringRule () {
-		if (! rules.containsKey(slString))
-			rules.put(slString, new NodeConstraint(new DatatypeSetOfNodes(XMLSchema.STRING)));
+		if (! rules.containsKey(slString)) {
+			List<Constraint> consts = new ArrayList<Constraint>();
+			consts.add(new DatatypeConstraint(XMLSchema.STRING));
+			rules.put(slString, new NodeConstraint(consts));
+		}
 	}
 
 	
