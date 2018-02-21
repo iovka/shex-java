@@ -166,6 +166,8 @@ public class FacetNumericConstraint implements Constraint {
 		FacetNumericConstraint other = (FacetNumericConstraint) obj;
 		
 		if (getFractionDigits()!=null) {
+			if (other.getFractionDigits()==null)
+				return false;
 			if (getFractionDigits().compareTo(other.getFractionDigits()) != 0)
 				return false;
 		} else
@@ -173,6 +175,8 @@ public class FacetNumericConstraint implements Constraint {
 				return false;
 		
 		if (getMaxexcl()!=null) {
+			if (other.getMaxexcl()==null)
+				return false;
 			if (getMaxexcl().compareTo(other.getMaxexcl()) != 0)
 				return false;
 		} else
@@ -180,6 +184,8 @@ public class FacetNumericConstraint implements Constraint {
 				return false;
 	
 		if (getMaxincl()!=null) {
+			if (other.getMaxincl()==null)
+				return false;
 			if (getMaxincl().compareTo(other.getMaxincl()) != 0)
 				return false;
 		} else
@@ -187,6 +193,8 @@ public class FacetNumericConstraint implements Constraint {
 				return false;
 	
 		if (getMinexcl()!=null) {
+			if (other.getMinexcl()==null)
+				return false;
 			if (getMinexcl().compareTo(other.getMinexcl()) != 0)
 				return false;
 		} else
@@ -194,6 +202,8 @@ public class FacetNumericConstraint implements Constraint {
 				return false;
 
 		if (getMinincl()!=null) {
+			if (other.getMinincl()==null)
+				return false;
 			if (getMinincl().compareTo(other.getMinincl()) != 0)
 				return false;
 		} else
@@ -201,6 +211,8 @@ public class FacetNumericConstraint implements Constraint {
 				return false;
 
 		if (getTotalDigits()!=null) {
+			if (other.getTotalDigits()==null)
+				return false;
 			if (getTotalDigits().compareTo(other.getTotalDigits()) != 0)
 				return false;
 		} else

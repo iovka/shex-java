@@ -219,7 +219,7 @@ public class ShExJParser implements Parser{
 	}
 
 	// Shape 	{ 	id:shapeExprLabel? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
-	protected Shape parseShape(Map map) {
+	protected ShapeExpr parseShape(Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
 		//		
@@ -249,7 +249,7 @@ public class ShExJParser implements Parser{
 		}
 		
 		List<Annotation> annotations = getAnnotations(map);
-
+		
 		Shape res = new Shape(texpr, extraProps, closed, annotations);
 
 		setShapeId(res, map);

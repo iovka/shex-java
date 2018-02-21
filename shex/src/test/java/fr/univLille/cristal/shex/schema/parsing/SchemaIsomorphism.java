@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (C) 2018 Université de Lille - Inria
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package fr.univLille.cristal.shex.schema.parsing;
 
 import java.util.ArrayList;
@@ -55,29 +71,29 @@ public class SchemaIsomorphism {
 				return false;
 		}
 
-		if ((shape1 instanceof ShapeAnd) & (shape2 instanceof ShapeAnd))
+		if ((shape1 instanceof ShapeAnd) && (shape2 instanceof ShapeAnd))
 			return areIsomorphicListShapeExpr(((ShapeAnd) shape1).getSubExpressions(),
 											  ((ShapeAnd) shape2).getSubExpressions());
 		
-		if ((shape1 instanceof ShapeOr) & (shape2 instanceof ShapeOr))
+		if ((shape1 instanceof ShapeOr) && (shape2 instanceof ShapeOr))
 			return areIsomorphicListShapeExpr(((ShapeOr) shape1).getSubExpressions(),
 											  ((ShapeOr) shape2).getSubExpressions());
 		
-		if ((shape1 instanceof ShapeNot) & (shape2 instanceof ShapeNot))
+		if ((shape1 instanceof ShapeNot) && (shape2 instanceof ShapeNot))
 			return areIsomorphicShapeExpr(((ShapeNot) shape1).getSubExpression(), 
 										  ((ShapeNot) shape2).getSubExpression());
 		
-		if ((shape1 instanceof Shape) & (shape2 instanceof Shape))
+		if ((shape1 instanceof Shape) && (shape2 instanceof Shape))
 			return areIsomorphicShape((Shape) shape1, (Shape) shape2);
 		
-		if ((shape1 instanceof NodeConstraint) & (shape2 instanceof NodeConstraint))
+		if ((shape1 instanceof NodeConstraint) && (shape2 instanceof NodeConstraint))
 			return areIsomorphicListConstraint(((NodeConstraint) shape1).getConstraints(), 
 											   ((NodeConstraint) shape2).getConstraints());
 		
-		if ((shape1 instanceof ShapeExprRef) & (shape2 instanceof ShapeExprRef))
+		if ((shape1 instanceof ShapeExprRef) && (shape2 instanceof ShapeExprRef))
 			return areIsomorphicShapeExprRef((ShapeExprRef) shape1, (ShapeExprRef) shape2);
 		
-		if (shape1.equals(EmptyShape.Shape) & shape2.equals(EmptyShape.Shape))
+		if (shape1.equals(EmptyShape.Shape) && shape2.equals(EmptyShape.Shape))
 			return true;
 		
 		return false;
@@ -90,7 +106,7 @@ public class SchemaIsomorphism {
 		for (ShapeExpr sh2:list2) {
 			List<ShapeExpr> tmp = new ArrayList<ShapeExpr>(list2);
 			tmp.remove(sh2);
-			if (areIsomorphicShapeExpr(list1.get(0),sh2) & areIsomorphicListShapeExpr(list1.subList(1, list1.size()),tmp)){
+			if (areIsomorphicShapeExpr(list1.get(0),sh2) && areIsomorphicListShapeExpr(list1.subList(1, list1.size()),tmp)){
 				return true;				
 			}
 		}
@@ -124,7 +140,7 @@ public class SchemaIsomorphism {
 		for (Constraint sh2:list2) {
 			List<Constraint> tmp = new ArrayList<Constraint>(list2);
 			tmp.remove(sh2);
-			if (areIsomorphicConstraint(list1.get(0),sh2) & areIsomorphicListConstraint(list1.subList(1, list1.size()),tmp)){
+			if (areIsomorphicConstraint(list1.get(0),sh2) && areIsomorphicListConstraint(list1.subList(1, list1.size()),tmp)){
 				return true;				
 			}
 		}
@@ -136,6 +152,8 @@ public class SchemaIsomorphism {
 		// Allow to deal with nodekinnd, datatype constraint, facet, stem, Language. Need to deal with StemRange and ValueSetValue
 		if (ct1.equals(ct2)) 
 			return true;
+		
+
 		
 		if (ct1 instanceof ValueSetValueConstraint & ct2 instanceof ValueSetValueConstraint) {
 			ValueSetValueConstraint vst1 = (ValueSetValueConstraint) ct1;

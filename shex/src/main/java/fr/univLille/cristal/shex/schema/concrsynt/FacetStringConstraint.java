@@ -136,7 +136,7 @@ public class FacetStringConstraint implements Constraint {
 		if (getClass() != obj.getClass())
 			return false;
 		FacetStringConstraint other = (FacetStringConstraint) obj;
-		
+
 		if (getPatternString()!=null) {
 			if (! getPatternString().equals(other.getPatternString()))
 				return false;
@@ -152,13 +152,17 @@ public class FacetStringConstraint implements Constraint {
 				return false;
 		
 		if (getLength()!=null) {
+			if (other.getLength()==null)
+				return false;
 			if (getLength().compareTo(other.getLength()) != 0)
 				return false;
 		} else
 			if (other.getLength()!=null)
 				return false;
-
+		
 		if (getMaxlength()!=null) {
+			if (other.getMaxlength()==null)
+				return false;
 			if (getMaxlength().compareTo(other.getMaxlength()) != 0)
 				return false;
 		} else
@@ -166,6 +170,8 @@ public class FacetStringConstraint implements Constraint {
 				return false;
 	
 		if (getMinlength()!=null) {
+			if (other.getMinlength()==null)
+				return false;
 			if (getMinlength().compareTo(other.getMinlength()) != 0)
 				return false;
 		} else

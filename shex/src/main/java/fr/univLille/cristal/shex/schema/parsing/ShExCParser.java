@@ -316,7 +316,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitShapeAtomAny(ShExDocParser.ShapeAtomAnyContext ctx) { 
-		return new NodeConstraint(Collections.emptyList()); 
+		return EmptyShape.Shape; 
 	}
 	
 	
@@ -358,7 +358,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitInlineShapeAtomAny(ShExDocParser.InlineShapeAtomAnyContext ctx) { 
-		return new NodeConstraint(Collections.EMPTY_LIST); 
+		return EmptyShape.Shape;
 	}
 	
 	@Override 
@@ -446,10 +446,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitStringFacet(ShExDocParser.StringFacetContext ctx) {
 		FacetStringConstraint result = new FacetStringConstraint();
 		if (ctx.REGEXP()!=null) {
-			String flags = "";
 			if (ctx.REGEXP_FLAGS()!=null)
-				flags = ctx.REGEXP_FLAGS().getText();
-			result.setFlags(flags);
+				result.setFlags(ctx.REGEXP_FLAGS().getText());
 			String pattern = ctx.REGEXP().getText();
 			pattern = pattern.substring(1,pattern.length()-1);
 			pattern = XPath.normalizeRegex(pattern);
@@ -554,6 +552,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			else
 				exclusions.add((Constraint) res);
 		}
+		if (exclusions.size()==0 && explicitValues.size()==0)
+			return stem;
 		return new IRIStemRangeConstraint(stem, explicitValues, exclusions); 
 	}
 	
@@ -582,6 +582,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			else
 				exclusions.add((Constraint) res);
 		}
+		if (exclusions.size()==0 && explicitValues.size()==0)
+			return stem;
 		return new LiteralStemRangeConstraint(stem, explicitValues, exclusions); 
 	}
 	
@@ -610,6 +612,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			else
 				exclusions.add((Constraint) res);
 		}
+		if (exclusions.size()==0 && explicitValues.size()==0)
+			return stem;
 		return new LanguageStemRangeConstraint(stem, explicitValues, exclusions); 
 	}
 	

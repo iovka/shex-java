@@ -55,7 +55,7 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class ParserSerialiserTest {
+public class IsomorphismShExCShExJ {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -184,8 +184,10 @@ public class ParserSerialiserTest {
 			nbError++;
 			return new TestResultForTestReport(testName, false, "Incorrect test definition.", "validation");
 		}
+
 		ShexSchema fromJson = null;
-		ShexSchema toJson = null;
+		ShexSchema fromShex = null;
+
 		try {
 			Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
 			Path jsonSchemaFile = Paths.get(getJsonSchemaFileName(testCase.schemaFileName));
@@ -204,24 +206,22 @@ public class ParserSerialiserTest {
 				return new TestResultForTestReport(testName, false, message, "validation");	
 			}
 			
-			fromJson = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-			Path tmp = Paths.get("/tmp/fromjson.json");
-			ShExJSerializer.ToJson(fromJson, tmp);
-			toJson = GenParser.parseSchema(tmp);
+			fromJson = GenParser.parseSchema(jsonSchemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			fromShex = GenParser.parseSchema(shexSchemaFile,Paths.get(SCHEMAS_DIR));
 			
-			if (SchemaIsomorphism.areIsomorphic(fromJson, toJson)){
-				passLog.println(logMessage(testCase, fromJson, toJson, "PASS"));
+			if (SchemaIsomorphism.areIsomorphic(fromJson, fromShex)){
+				passLog.println(logMessage(testCase, fromJson, fromShex, "PASS"));
 				nbPass++;
 				return new TestResultForTestReport(testName, true, null, "validation");
 			} else {
-				failLog.println(logMessage(testCase, fromJson, toJson, "FAIL"));
+				failLog.println(logMessage(testCase, fromJson, fromShex, "FAIL"));
 				System.err.println("Failling: "+testName);
 				nbFail++;
 				return new TestResultForTestReport(testName, false, null, "validation");
 			}
 
 		} catch (Exception e) {
-			errorLog.println(logMessage(testCase, fromJson, toJson, "ERROR"));
+			errorLog.println(logMessage(testCase, fromJson, fromShex, "ERROR"));
 			e.printStackTrace(errorLog);
 			nbError++;
 			System.err.println("Exception: "+testName);
@@ -275,9 +275,9 @@ public class ParserSerialiserTest {
 		result += ">>----------------------------\n";
 		result += testCase.toString();
 		if (schema1 != null)
-			result += "Schema from Json : " + schema1.toString() + "\n";
+			result += "Schema1 : " + schema1.toString() + "\n";
 		if (schema2 != null)
-			result += "Schema from Shex : " + schema2.toString() + "\n";
+			result += "Schema2 : " + schema2.toString() + "\n";
 		result += customMessage + "\n"; 
 		result += "<<----------------------------";
 		return result;

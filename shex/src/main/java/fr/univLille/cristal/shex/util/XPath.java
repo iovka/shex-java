@@ -87,15 +87,6 @@ public class XPath {
 	            case 'f':
 	                ch = '\f';
 	                break;
-	            case 'n':
-	                ch = '\n';
-	                break;
-	            case 'r':
-	                ch = '\r';
-	                break;
-	            case 't':
-	                ch = '\t';
-	                break;
 	            case '\"':
 	                ch = '\"';
 	                break;
