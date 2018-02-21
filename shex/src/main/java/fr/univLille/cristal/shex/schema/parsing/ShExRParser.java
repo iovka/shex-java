@@ -129,7 +129,8 @@ public class ShExRParser implements Parser {
 		
 		for (Statement stat: model.filter(root, RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#shapes"), null)) {
 			ShapeExpr shape = parseShapeExpr(stat.getObject());
-			rules.put(shape.getId(), shape);
+			if (!(shape instanceof ShapeExprRef))
+				rules.put(shape.getId(), shape);
 		}
 		parseImports(root);
 		
@@ -172,7 +173,7 @@ public class ShExRParser implements Parser {
 	private static IRI NODE_CONSTRAINT = RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#NodeConstraint");
 	
 	private ShapeExpr parseShapeExpr(Value value) {
-		if (shapeSeen.contains(value) | model.filter((Resource) value,null,null).size()==0 )
+		if (shapeSeen.contains(value) |  model.filter((Resource) value,null,null).size()==0 )
 			return new ShapeExprRef(createShapeExprLabel(value));
 		
 		Value type = (Value) model.filter((Resource) value,TYPE_IRI,null).objects().toArray()[0];
@@ -358,7 +359,7 @@ public class ShExRParser implements Parser {
 				}
 			}
 
-			return new LanguageStemRangeConstraint(stem, explicitValues, constraints);
+			return new IRIStemRangeConstraint(stem, explicitValues, constraints);
 		}
 		return null;
 	}
@@ -438,7 +439,7 @@ public class ShExRParser implements Parser {
 					constraints.add(new LanguageStemConstraint(tmp.stringValue()));
 				}
 			}
-			return new IRIStemRangeConstraint(stem, explicitValues, constraints);
+			return new LanguageStemRangeConstraint(stem, explicitValues, constraints);
 		}
 		return null;
 	}
