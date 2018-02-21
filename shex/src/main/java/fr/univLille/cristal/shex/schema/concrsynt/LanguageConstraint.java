@@ -43,6 +43,11 @@ public class LanguageConstraint implements Constraint {
 	public String getLangTag() {
 		return langTag;
 	}
+	
+	@Override
+	public String toString(){
+		return "LangTag="+langTag;
+	}
 
 	@Override
 	public boolean equals(Object obj) {

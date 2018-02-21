@@ -82,7 +82,9 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	public String toString() {
 		String closed = isClosed() ? "CLOSED" : "";
 		String extraP = extra.isEmpty() ? "" : "EXTRA" + extra.toString();
-		String annot=annotations==null?"":CollectionToString.collectionToString(annotations," ; ","// [", "]");
+		String annot = "";
+		if (this.annotations!=null && this.annotations.size()>0)
+			annot =CollectionToString.collectionToString(annotations," ; ","// [", "]");
 		return String.format("(%s %s %s %s)", closed, extraP, tripleExpr,annot);
 	}
 

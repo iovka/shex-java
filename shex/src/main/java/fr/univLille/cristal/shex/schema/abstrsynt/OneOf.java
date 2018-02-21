@@ -51,8 +51,9 @@ public class OneOf extends AbstractNaryTripleExpr implements AnnotedObject {
 	
 	@Override
 	public String toString() {
-		String annot=annotations==null?"":CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		return CollectionToString.collectionToString(getSubExpressions(), " ; ", "EachOf(", annot+" )");
+		String annot = "";
+		if (this.annotations!=null && this.annotations.size()>0)
+			annot =CollectionToString.collectionToString(annotations," ; ","// [", "]");		return CollectionToString.collectionToString(getSubExpressions(), " ; ", "EachOf(", annot+" )");
 	}
 
 	@Override

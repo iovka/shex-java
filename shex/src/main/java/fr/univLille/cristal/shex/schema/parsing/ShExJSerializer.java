@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -62,18 +63,19 @@ import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
+import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
 import fr.univLille.cristal.shex.util.Interval;
 
 
 public class ShExJSerializer {
 	
-	public void ToJson(ShexSchema schema, Path destination) throws JsonGenerationException, IOException {
+	public static void ToJson(ShexSchema schema, Path destination) throws JsonGenerationException, IOException {
 		Object json = ToJson(schema.getRules());
 		FileWriter fw = new FileWriter(destination.toFile());
 		JsonUtils.writePrettyPrint(fw, json);
 	}
 
-	public Object ToJson(Map<ShapeExprLabel,ShapeExpr> rules) {
+	public static Object ToJson(Map<ShapeExprLabel,ShapeExpr> rules) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		result.put("@context","http://www.w3.org/ns/shex.jsonld");
 		result.put("type", "Schema");
@@ -88,7 +90,7 @@ public class ShExJSerializer {
 	// Shape conversion
 	//--------------------------------------------------
 
-	private Object convertShapeExpr(ShapeExpr shape) {
+	protected static Object convertShapeExpr(ShapeExpr shape) {
 		if (shape instanceof ShapeAnd)
 			return convertShapeAnd((ShapeAnd) shape);
 		if (shape instanceof ShapeOr)
@@ -104,7 +106,7 @@ public class ShExJSerializer {
 		return null;
 	}
 	
-	private Object convertShapeAnd(ShapeAnd shape) {
+	protected static Object convertShapeAnd(ShapeAnd shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		if (! shape.getId().isGenerated())
 			result.put("id", shape.getId().stringValue());
@@ -116,7 +118,7 @@ public class ShExJSerializer {
 		return result;
 	}
 	
-	private Object convertShapeOr(ShapeOr shape) {
+	protected static Object convertShapeOr(ShapeOr shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		if (! shape.getId().isGenerated())
 			result.put("id", shape.getId().stringValue());
@@ -128,7 +130,7 @@ public class ShExJSerializer {
 		return result;
 	}
 	
-	private Object convertShapeNot(ShapeNot shape) {
+	protected static Object convertShapeNot(ShapeNot shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		if (! shape.getId().isGenerated())
 			result.put("id", shape.getId().stringValue());
@@ -137,17 +139,17 @@ public class ShExJSerializer {
 		return result;
 	}
 	
-	private Object convertShapeExprRef(ShapeExprRef shape) {
+	protected static Object convertShapeExprRef(ShapeExprRef shape) {
 		return shape.getLabel().stringValue();
 	}
 	
-	private Object convertShape(Shape shape) {
+	protected static Object convertShape(Shape shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		if (! shape.getId().isGenerated())
 			result.put("id", shape.getId().stringValue());
 		result.put("type", "Shape");
 		if (shape.isClosed())
-			result.put("closed", "true");
+			result.put("closed", true);
 		if (shape.getExtraProperties().size()>0) {
 			List<Object> extra = new ArrayList<Object>();
 			for (TCProperty tcp:shape.getExtraProperties()) {
@@ -157,13 +159,13 @@ public class ShExJSerializer {
 		}
 		if (!(shape.getTripleExpression() instanceof EmptyTripleExpression))
 			result.put("expression", convertTripleExpr(shape.getTripleExpression()));
-		if (shape.getAnnotations()!=null) {
+		if (shape.getAnnotations()!=null && shape.getAnnotations().size()>0) {
 			result.put("annotations", convertAnnotations(shape.getAnnotations()));
 		}
 		return result;
 	}
 
-	private Object convertNodeConstraint(NodeConstraint shape) {
+	protected static Object convertNodeConstraint(NodeConstraint shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		if (! shape.getId().isGenerated())
 			result.put("id", shape.getId().stringValue());
@@ -197,7 +199,7 @@ public class ShExJSerializer {
 	// Constraint conversion
 	//--------------------------------------------------
 	
-	public void convertNumericFacet(FacetNumericConstraint facet, Map<String,Object> res) {
+	protected static void convertNumericFacet(FacetNumericConstraint facet, Map<String,Object> res) {
 		if (facet.getMinincl() != null)
 			res.put("mininclusive", facet.getMinincl());
 		if (facet.getMinexcl() != null)
@@ -212,23 +214,24 @@ public class ShExJSerializer {
 			res.put("fractiondigits", facet.getFractionDigits());
 	}
 		
-	public void convertStringFacet(FacetStringConstraint facet, Map<String,Object> res) {
+	protected static void convertStringFacet(FacetStringConstraint facet, Map<String,Object> res) {
 		if (facet.getLength()!=null)
 			res.put("length", facet.getLength());
 		if (facet.getMinlength()!=null)
 			res.put("minlength", facet.getMinlength());
 		if (facet.getMaxlength()!=null)
-			res.put("maxlength", facet.getMinlength());
+			res.put("maxlength", facet.getMaxlength());
 		if (facet.getPatternString()!=null)
 			res.put("pattern", facet.getPatternString());
 		if (facet.getFlags()!=null)
 			res.put("flags", facet.getFlags());
 	}
 	
-	private Object convertValueSetValueConstraint(ValueSetValueConstraint constraint) {
+	protected static Object convertValueSetValueConstraint(ValueSetValueConstraint constraint) {
 		List<Object> result = new ArrayList<Object>();
-		for (Value val:constraint.getExplicitValues())
-			result.add(val.stringValue());
+		for (Value val:constraint.getExplicitValues()) {
+			result.add(convertValue(val));
+		}
 		
 		for (Constraint cons:constraint.getConstraintsValue()) {
 			if (cons instanceof LanguageConstraint)
@@ -250,24 +253,24 @@ public class ShExJSerializer {
 		return result;
 	}
 
-	private Object convertLanguageConstraint(LanguageConstraint cons) {
+	protected static Object convertLanguageConstraint(LanguageConstraint cons) {
 		Map<String,String> result = new LinkedHashMap<>();
 		result.put("type", "Language");
 		result.put("langTag", cons.getLangTag());
 		return result;
 	}
 
-	private Object convertLanguageStemConstraint(LanguageStemConstraint cons) {
+	protected static Object convertLanguageStemConstraint(LanguageStemConstraint cons) {
 		Map<String,String> result = new LinkedHashMap<>();
 		result.put("type", "LanguageStem");
 		result.put("stem", cons.getLangStem());
 		return result;
 	}
 
-	private Object convertLanguageStemRangeConstraint(LanguageStemRangeConstraint cons) {
+	protected static Object convertLanguageStemRangeConstraint(LanguageStemRangeConstraint cons) {
 		Map<String,Object> result = new LinkedHashMap<>();
 		result.put("type", "LanguageStemRange");
-		if (cons.getStem()!=null)
+		if (!(cons.getStem() instanceof WildcardConstraint))
 			result.put("stem", ((LanguageStemConstraint) cons.getStem()).getLangStem());
 		else {
 			Map<String,Object> tmp = new LinkedHashMap<>();
@@ -280,17 +283,17 @@ public class ShExJSerializer {
 		return result;
 	}
 
-	private Object convertIRIStemConstraint(IRIStemConstraint cons) {
+	protected static Object convertIRIStemConstraint(IRIStemConstraint cons) {
 		Map<String,String> result = new LinkedHashMap<>();
-		result.put("type", "IRIStem");
+		result.put("type", "IriStem");
 		result.put("stem", cons.getIriStem());
 		return result;
 	}
 
-	private Object convertIRIStemRangeConstraint(IRIStemRangeConstraint cons) {
+	protected static Object convertIRIStemRangeConstraint(IRIStemRangeConstraint cons) {
 		Map<String,Object> result = new LinkedHashMap<>();
-		result.put("type", "IRIStemRange");
-		if (cons.getStem()!=null)
+		result.put("type", "IriStemRange");
+		if (!(cons.getStem() instanceof WildcardConstraint))
 			result.put("stem", ((IRIStemConstraint) cons.getStem()).getIriStem());
 		else {
 			Map<String,Object> tmp = new LinkedHashMap<>();
@@ -303,17 +306,17 @@ public class ShExJSerializer {
 		return result;
 	}
 
-	private Object convertLiteralStemConstraint(LiteralStemConstraint cons) {
+	protected static Object convertLiteralStemConstraint(LiteralStemConstraint cons) {
 		Map<String,String> result = new LinkedHashMap<>();
 		result.put("type", "LiteralStem");
 		result.put("stem", cons.getLitStem());
 		return result;
 	}
 
-	private Object convertLiteralStemRangeConstraint(LiteralStemRangeConstraint cons) {
+	protected static Object convertLiteralStemRangeConstraint(LiteralStemRangeConstraint cons) {
 		Map<String,Object> result = new LinkedHashMap<>();
 		result.put("type", "LiteralStemRange");
-		if (cons.getStem()!=null)
+		if (!(cons.getStem() instanceof WildcardConstraint))
 			result.put("stem", ((LiteralStemConstraint) cons.getStem()).getLitStem());
 		else {
 			Map<String,Object> tmp = new LinkedHashMap<>();
@@ -331,7 +334,7 @@ public class ShExJSerializer {
 	// Triple conversion
 	//--------------------------------------------------
 
-	private Object convertTripleExpr(TripleExpr triple) {
+	protected static Object convertTripleExpr(TripleExpr triple) {
 		if (triple instanceof EachOf)
 			return convertEachOf((EachOf) triple);
 		if (triple instanceof OneOf)
@@ -345,7 +348,7 @@ public class ShExJSerializer {
 		return null;
 	}
 	
-	private Object convertEachOf(EachOf triple) {
+	protected static Object convertEachOf(EachOf triple) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		if (! triple.getId().isGenerated())
 			result.put("id", triple.getId().stringValue());
@@ -355,13 +358,13 @@ public class ShExJSerializer {
 			subExprs.add(convertTripleExpr(sub));
 		}
 		result.put("expressions", subExprs);
-		if (triple.getAnnotations()!=null) {
+		if (triple.getAnnotations()!=null && triple.getAnnotations().size()>0) {
 			result.put("annotations", convertAnnotations(triple.getAnnotations()));
 		}
 		return result;		
 	}
 
-	private Object convertOneOf(OneOf triple) {
+	protected static Object convertOneOf(OneOf triple) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		if (! triple.getId().isGenerated())
 			result.put("id", triple.getId().stringValue());
@@ -371,17 +374,17 @@ public class ShExJSerializer {
 			subExprs.add(convertTripleExpr(sub));
 		}
 		result.put("expressions", subExprs);
-		if (triple.getAnnotations()!=null) {
+		if (triple.getAnnotations()!=null && triple.getAnnotations().size()>0) {
 			result.put("annotations", convertAnnotations(triple.getAnnotations()));
 		}
 		return result;	
 	}
 
-	private Object convertTripleExprRef(TripleExprRef triple) {
+	protected static Object convertTripleExprRef(TripleExprRef triple) {
 		return triple.getLabel().stringValue();
 	}
 	
-	private Object convertRepeatedTripleExpression(RepeatedTripleExpression triple) {
+	protected static Object convertRepeatedTripleExpression(RepeatedTripleExpression triple) {
 		Map<String,Object> conv = (Map<String, Object>) convertTripleExpr(triple.getSubExpression());
 		Interval card = triple.getCardinality();
 		conv.put("min", card.min);
@@ -392,7 +395,7 @@ public class ShExJSerializer {
 		return conv;
 	}
 	
-	private Object convertTripleConstraint(TripleConstraint triple) {
+	protected static Object convertTripleConstraint(TripleConstraint triple) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		
 		if (! triple.getId().isGenerated())
@@ -401,13 +404,13 @@ public class ShExJSerializer {
 		result.put("type", "TripleConstraint");
 		
 		if (! triple.getProperty().isForward())
-			result.put("inverse", "true");
+			result.put("inverse", true);
 		result.put("predicate", triple.getProperty().getIri().stringValue());
 		
 		if (! triple.getShapeExpr().equals(EmptyShape.Shape)) 
 			result.put("valueExpr", convertShapeExpr(triple.getShapeExpr()));
 		
-		if (triple.getAnnotations()!=null) 
+		if (triple.getAnnotations()!=null && triple.getAnnotations().size()>0) 
 			result.put("annotations", convertAnnotations(triple.getAnnotations()));
 		
 		return result;
@@ -417,7 +420,7 @@ public class ShExJSerializer {
 	// Utils conversion
 	//--------------------------------------------------
 
-	private Object convertAnnotations(List<Annotation> annotations) {
+	protected static Object convertAnnotations(List<Annotation> annotations) {
 		List<Object> result = new ArrayList<Object>();
 		for (Annotation ann:annotations){
 			Map<String,Object> tmp = new LinkedHashMap<>();
@@ -434,5 +437,19 @@ public class ShExJSerializer {
 		}
 		return result;
 	}
+	
+	protected static Object convertValue(Value v) {
+		if (v instanceof Literal) {
+			Literal lv = (Literal) v;
+			Map<String,Object> result = new LinkedHashMap<String, Object>();
+			result.put("value", lv.stringValue());
+			result.put("type", lv.getDatatype().toString());
+			if (lv.getLanguage().isPresent())
+				result.put("language", lv.getLanguage().get());
+			return result;
+		}
+		return v.stringValue();
+	}
+	
 	
 }

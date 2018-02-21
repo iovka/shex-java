@@ -21,7 +21,7 @@ package fr.univLille.cristal.shex.runningTests;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-class TestResultForTestReport {
+public class TestResultForTestReport {
 	String name;
 	boolean passed; // should be "passed" or "failed"
 	String description;

@@ -10,6 +10,7 @@ import fr.univLille.cristal.shex.schema.ShapeExprLabel;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
+import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
@@ -53,7 +54,7 @@ public class SchemaIsomorphism {
 			if (!shape1.getId().equals(shape2.getId()))
 				return false;
 		}
-		
+
 		if ((shape1 instanceof ShapeAnd) & (shape2 instanceof ShapeAnd))
 			return areIsomorphicListShapeExpr(((ShapeAnd) shape1).getSubExpressions(),
 											  ((ShapeAnd) shape2).getSubExpressions());
@@ -119,7 +120,7 @@ public class SchemaIsomorphism {
 	private static boolean areIsomorphicListConstraint(List<Constraint> list1, List<Constraint> list2) {
 		if (list1.isEmpty() & list2.isEmpty())
 			return true;
-		
+
 		for (Constraint sh2:list2) {
 			List<Constraint> tmp = new ArrayList<Constraint>(list2);
 			tmp.remove(sh2);
@@ -133,7 +134,7 @@ public class SchemaIsomorphism {
 
 	private static boolean areIsomorphicConstraint(Constraint ct1,Constraint ct2) {
 		// Allow to deal with nodekinnd, datatype constraint, facet, stem, Language. Need to deal with StemRange and ValueSetValue
-		if (ct1.equals(ct2))
+		if (ct1.equals(ct2)) 
 			return true;
 		
 		if (ct1 instanceof ValueSetValueConstraint & ct2 instanceof ValueSetValueConstraint) {
@@ -176,17 +177,19 @@ public class SchemaIsomorphism {
 			if (!triple1.getId().equals(triple2.getId()))
 				return false;
 		}
-		
+
 		if ((triple1 instanceof EachOf) & (triple2 instanceof EachOf))
 			return areIsomorphicListTripleExpr(((EachOf) triple1).getSubExpressions(),((EachOf) triple2).getSubExpressions());
 		if ((triple1 instanceof OneOf) & (triple2 instanceof OneOf))
 			return areIsomorphicListTripleExpr(((OneOf) triple1).getSubExpressions(),((OneOf) triple2).getSubExpressions());
 		if ((triple1 instanceof RepeatedTripleExpression) & (triple2 instanceof RepeatedTripleExpression))
-			areIsomorphicRepeatedTripleExpression((RepeatedTripleExpression) triple1,(RepeatedTripleExpression) triple2);
+			return areIsomorphicRepeatedTripleExpression((RepeatedTripleExpression) triple1,(RepeatedTripleExpression) triple2);
 		if ((triple1 instanceof TripleConstraint) & (triple2 instanceof TripleConstraint))
-			areIsomorphicTripleConstraint((TripleConstraint) triple1,(TripleConstraint) triple2);
+			return areIsomorphicTripleConstraint((TripleConstraint) triple1,(TripleConstraint) triple2);
 		if ((triple1 instanceof TripleExprRef) & (triple2 instanceof TripleExprRef))
-			areIsomorphicTripleExprRef((TripleExprRef) triple1,(TripleExprRef) triple2);
+			return areIsomorphicTripleExprRef((TripleExprRef) triple1,(TripleExprRef) triple2);
+		if (triple1 instanceof EmptyTripleExpression & triple2 instanceof EmptyTripleExpression)
+			return true;
 				
 		return false;
 	}

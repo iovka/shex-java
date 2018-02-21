@@ -366,12 +366,13 @@ public class ShExJParser implements Parser{
 			if (m.get("type") == null & m.get("language")==null)
 				return RDF_FACTORY.createLiteral(value);
 			
-			if (m.get("type") != null) {
-				IRI type = RDF_FACTORY.createIRI((String) m.get("type"));
-				return RDF_FACTORY.createLiteral(value,type);
+			if (m.get("language") != null) {
+				String lang = (String) m.get("language");
+				return RDF_FACTORY.createLiteral(value, lang);
 			}
-			String lang = (String) m.get("language");
-			return RDF_FACTORY.createLiteral(value, lang);
+			
+			IRI type = RDF_FACTORY.createIRI((String) m.get("type"));
+			return RDF_FACTORY.createLiteral(value,type);
 		}
 
 		//IriStem { stem:IRI }
@@ -479,9 +480,12 @@ public class ShExJParser implements Parser{
 							exclusions.add(new LanguageConstraint(tmp));
 					}else {
 						String type = (String) ((Map) o).get("type");
-						if (type != null & type.equals("LanguageStem"))
-							exclusions.add(parseLanguageStem((Map) o));
-						else 
+						if (type != null ) {
+							if (type.equals("LanguageStem"))
+								exclusions.add(parseLanguageStem((Map) o));
+							if (type.equals("Language"))
+								exclusions.add(parseLanguage((Map) o));
+						}else 
 							forbidenValue.add(parseObjectLiteral((Map) o));
 					}
 				}

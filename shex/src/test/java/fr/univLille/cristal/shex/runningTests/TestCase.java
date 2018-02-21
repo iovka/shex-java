@@ -72,17 +72,6 @@ public 	class TestCase {
 			throw e;
 		}
 	}
-		
-//	public TestCase(String testName, Resource schemaFileName, Resource dataFileName, ShapeExprLabel shapeLabel, Value focusNode, String testComment, Resource testKind) {
-//		super();
-//		this.testName = testName;
-//		this.schemaFileName = schemaFileName;
-//		this.dataFileName = dataFileName;
-//		this.shapeLabel = shapeLabel;
-//		this.focusNode = focusNode;
-//		this.testComment = testComment;
-//		this.testKind = testKind;
-//	}
 
 	@Override
 	public String toString() {
@@ -97,7 +86,7 @@ public 	class TestCase {
 		return info;
 	}		
 
-	boolean isWellDefined () {
+	public boolean isWellDefined () {
 		return schemaFileName != null && dataFileName != null && shapeLabel != null && focusNode != null;
 	}
 }

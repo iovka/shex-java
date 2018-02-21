@@ -164,18 +164,49 @@ public class FacetNumericConstraint implements Constraint {
 		if (getClass() != obj.getClass())
 			return false;
 		FacetNumericConstraint other = (FacetNumericConstraint) obj;
-		if (other.getFractionDigits()!=fractionDigits)
-			return false;
-		if (other.getMaxexcl()!=getMaxexcl())
-			return false;
-		if (other.getMaxincl()!=getMaxincl())
-			return false;
-		if (other.getMinexcl()!=getMinexcl())
-			return false;
-		if (other.getMinincl()!=getMinincl())
-			return false;
-		if (other.getTotalDigits()!=getTotalDigits())
-			return false;
+		
+		if (getFractionDigits()!=null) {
+			if (getFractionDigits().compareTo(other.getFractionDigits()) != 0)
+				return false;
+		} else
+			if (other.getFractionDigits()!=null)
+				return false;
+		
+		if (getMaxexcl()!=null) {
+			if (getMaxexcl().compareTo(other.getMaxexcl()) != 0)
+				return false;
+		} else
+			if (other.getMaxexcl()!=null)
+				return false;
+	
+		if (getMaxincl()!=null) {
+			if (getMaxincl().compareTo(other.getMaxincl()) != 0)
+				return false;
+		} else
+			if (other.getMaxincl()!=null)
+				return false;
+	
+		if (getMinexcl()!=null) {
+			if (getMinexcl().compareTo(other.getMinexcl()) != 0)
+				return false;
+		} else
+			if (other.getMinexcl()!=null)
+				return false;
+
+		if (getMinincl()!=null) {
+			if (getMinincl().compareTo(other.getMinincl()) != 0)
+				return false;
+		} else
+			if (other.getMinincl()!=null)
+				return false;
+
+		if (getTotalDigits()!=null) {
+			if (getTotalDigits().compareTo(other.getTotalDigits()) != 0)
+				return false;
+		} else
+			if (other.getTotalDigits()!=null)
+				return false;
+
 		return true;
 	}
 }
