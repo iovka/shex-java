@@ -80,6 +80,8 @@ public class NodeKindConstraint implements Constraint {
 		}
 	};
 
+	
+	
 	@Override
 	public boolean contains(Value node) {
 		return false;

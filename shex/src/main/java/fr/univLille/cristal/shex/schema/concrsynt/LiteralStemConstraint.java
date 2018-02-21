@@ -42,5 +42,20 @@ public class LiteralStemConstraint implements Constraint {
 		return litStem;
 	}
 
-	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LiteralStemConstraint other = (LiteralStemConstraint) obj;
+		
+		if (litStem==null)
+			if (other.getLitStem() != null)
+				return false;				
+		
+		return litStem.equals(other.getLitStem());
+	}
 }

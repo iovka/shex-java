@@ -54,6 +54,4 @@ public class ValueSetValueConstraint implements Constraint {
 		return "values:"+explicitValues+ " U "+constraintsValue;
 	}
 	
-	
-	
 }

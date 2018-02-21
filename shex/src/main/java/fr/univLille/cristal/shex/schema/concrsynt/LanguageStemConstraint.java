@@ -47,4 +47,21 @@ public class LanguageStemConstraint implements Constraint {
 	public String getLangStem() {
 		return langStem;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LanguageStemConstraint other = (LanguageStemConstraint) obj;
+		
+		if (langStem==null)
+			if (other.getLangStem() != null)
+				return false;				
+		
+		return langStem.equals(other.getLangStem());
+	}
 }

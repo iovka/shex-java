@@ -44,4 +44,21 @@ public class LanguageConstraint implements Constraint {
 		return langTag;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LanguageConstraint other = (LanguageConstraint) obj;
+			
+		if (langTag==null)
+			if (other.getLangTag() != null)
+				return false;				
+		
+		return langTag.equals(other.getLangTag());
+	}
+	
 }

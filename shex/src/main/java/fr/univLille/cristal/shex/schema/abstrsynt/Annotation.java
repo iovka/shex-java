@@ -19,6 +19,8 @@ package fr.univLille.cristal.shex.schema.abstrsynt;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
+import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
+
 public class Annotation {
 	private IRI predicate;
 	private Value objectValue;
@@ -43,4 +45,29 @@ public class Annotation {
 		return predicate+" "+objectValue;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Annotation other = (Annotation) obj;
+		if (predicate ==null)
+			if (other.getPredicate()!=null)
+				return false;
+		else
+			if (! predicate.equals(other.getPredicate()))
+				return false;
+		
+		if (objectValue ==null)
+			if (other.getObjectValue()!=null)
+				return false;
+		else
+			if (! objectValue.equals(other.getObjectValue()))
+				return false;
+		
+		return true;
+	}
 }

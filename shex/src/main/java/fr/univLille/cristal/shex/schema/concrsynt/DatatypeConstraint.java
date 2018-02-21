@@ -21,6 +21,8 @@ import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 
+import fr.univLille.cristal.shex.graph.TCProperty;
+
 /**
  * 
  * @author Iovka Boneva
@@ -53,6 +55,18 @@ public class DatatypeConstraint implements Constraint {
 	@Override
 	public String toString() {
 		return datatypeIri.toString();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DatatypeConstraint other = (DatatypeConstraint) obj;
+		return datatypeIri.equals(other.getDatatypeIri());
 	}
 
 }

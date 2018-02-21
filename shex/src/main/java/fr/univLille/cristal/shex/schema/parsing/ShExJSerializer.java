@@ -16,6 +16,9 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.parsing;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,8 +27,12 @@ import java.util.Map;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.github.jsonldjava.utils.JsonUtils;
+
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
@@ -59,6 +66,12 @@ import fr.univLille.cristal.shex.util.Interval;
 
 
 public class ShExJSerializer {
+	
+	public void ToJson(ShexSchema schema, Path destination) throws JsonGenerationException, IOException {
+		Object json = ToJson(schema.getRules());
+		FileWriter fw = new FileWriter(destination.toFile());
+		JsonUtils.writePrettyPrint(fw, json);
+	}
 
 	public Object ToJson(Map<ShapeExprLabel,ShapeExpr> rules) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();

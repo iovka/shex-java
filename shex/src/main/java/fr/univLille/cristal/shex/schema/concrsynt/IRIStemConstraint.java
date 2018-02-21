@@ -43,4 +43,20 @@ public class IRIStemConstraint implements Constraint {
 		return iriStem;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IRIStemConstraint other = (IRIStemConstraint) obj;
+		
+		if (iriStem==null)
+			if (other.getIriStem() != null)
+				return false;				
+		
+		return iriStem.equals(other.getIriStem());
+	}
 }

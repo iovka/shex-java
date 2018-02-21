@@ -127,5 +127,26 @@ public class FacetStringConstraint implements Constraint {
 		return flags;
 	}
 	
-	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FacetStringConstraint other = (FacetStringConstraint) obj;
+		if (! other.getPatternString().equals(getPatternString()))
+			return false;
+		if (! other.getFlags().equals(getFlags()))
+			return false;
+		if (other.getLength()!=getLength())
+			return false;
+		if (other.getMaxlength()!=getMaxlength())
+			return false;
+		if (other.getMinlength()!=getMinlength())
+			return false;		
+		
+		return true;
+	}
 }

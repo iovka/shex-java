@@ -155,5 +155,27 @@ public class FacetNumericConstraint implements Constraint {
 		return fractionDigits;
 	}
 	
-	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FacetNumericConstraint other = (FacetNumericConstraint) obj;
+		if (other.getFractionDigits()!=fractionDigits)
+			return false;
+		if (other.getMaxexcl()!=getMaxexcl())
+			return false;
+		if (other.getMaxincl()!=getMaxincl())
+			return false;
+		if (other.getMinexcl()!=getMinexcl())
+			return false;
+		if (other.getMinincl()!=getMinincl())
+			return false;
+		if (other.getTotalDigits()!=getTotalDigits())
+			return false;
+		return true;
+	}
 }
