@@ -54,7 +54,7 @@ public class DatatypeConstraint implements Constraint {
 	
 	@Override
 	public String toString() {
-		return datatypeIri.toString();
+		return "DT:"+datatypeIri.toString();
 	}
 	
 	@Override

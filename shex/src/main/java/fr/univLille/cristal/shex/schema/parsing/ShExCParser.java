@@ -29,8 +29,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
@@ -74,6 +76,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
+import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExCErrorListener;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocBaseVisitor;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocLexer;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocParser;
@@ -98,8 +101,13 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		InputStream is = new FileInputStream(path.toFile());
 		ANTLRInputStream inputStream = new ANTLRInputStream(is);
         ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
+        ShExDocLexer.removeErrorListeners();
+        ShExDocLexer.addErrorListener(new ShExCErrorListener());
         CommonTokenStream commonTokenStream = new CommonTokenStream(ShExDocLexer);
-        ShExDocParser ShExDocParser = new ShExDocParser(commonTokenStream);        
+        ShExDocParser ShExDocParser = new ShExDocParser(commonTokenStream);   
+        
+        ShExDocParser.setErrorHandler(new BailErrorStrategy());
+        
         ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();      
         rules = new HashMap<ShapeExprLabel,ShapeExpr>();
         prefixes = new HashMap<String,String>();
@@ -378,51 +386,51 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitNodeConstraintLiteral(ShExDocParser.NodeConstraintLiteralContext ctx) {
-		List<Constraint> constraint = new ArrayList<Constraint>() ;
-		constraint.add(NodeKindConstraint.AllLiteral);
+		List<Constraint> constraints = new ArrayList<Constraint>() ;
+		constraints.add(NodeKindConstraint.AllLiteral);
 		for (XsFacetContext facet : ctx.xsFacet()) {
-			constraint.add((Constraint) facet.accept(this));
+			constraints.add((Constraint) facet.accept(this));
 		}
-		return constraint;
+		return cleanConstraint(constraints);
 	}
 	
 	@Override 
 	public Object visitNodeConstraintNonLiteral(ShExDocParser.NodeConstraintNonLiteralContext ctx) {
-		List<Constraint> constraint = new ArrayList<Constraint>() ;
-		constraint.add((Constraint) ctx.nonLiteralKind().accept(this));
+		List<Constraint> constraints = new ArrayList<Constraint>() ;
+		constraints.add((Constraint) ctx.nonLiteralKind().accept(this));
 		for (ShExDocParser.StringFacetContext facet : ctx.stringFacet()) {
-			constraint.add((Constraint) facet.accept(this));
+			constraints.add((Constraint) facet.accept(this));
 		}
-		return constraint;
+		return cleanConstraint(constraints);
 	}
 	
 	@Override 
 	public Object visitNodeConstraintDatatype(ShExDocParser.NodeConstraintDatatypeContext ctx) { 
-		List<Constraint> constraint = new ArrayList<Constraint>() ;
-		constraint.add(new DatatypeConstraint((IRI) ctx.datatype().accept(this)));
+		List<Constraint> constraints = new ArrayList<Constraint>() ;
+		constraints.add(new DatatypeConstraint((IRI) ctx.datatype().accept(this)));
 		for (XsFacetContext facet : ctx.xsFacet()) {
-			constraint.add((Constraint) facet.accept(this));
+			constraints.add((Constraint) facet.accept(this));
 		}
-		return constraint;
+		return cleanConstraint(constraints);
 	}
 	
 	@Override 
 	public Object visitNodeConstraintValueSet(ShExDocParser.NodeConstraintValueSetContext ctx) { 
-		List<Constraint> constraint = new ArrayList<Constraint>() ;
-		constraint.add((Constraint) ctx.valueSet().accept(this));
+		List<Constraint> constraints = new ArrayList<Constraint>() ;
+		constraints.add((Constraint) ctx.valueSet().accept(this));
 		for (XsFacetContext facet : ctx.xsFacet()) {
-			constraint.add((Constraint) facet.accept(this));
+			constraints.add((Constraint) facet.accept(this));
 		}
-		return constraint;
-		}
+		return cleanConstraint(constraints);
+	}
 	
 	@Override 
 	public Object visitNodeConstraintFacet(ShExDocParser.NodeConstraintFacetContext ctx) {
-		List<Constraint> constraint = new ArrayList<Constraint>() ;
+		List<Constraint> constraints = new ArrayList<Constraint>() ;
 		for (XsFacetContext facet : ctx.xsFacet()) {
-			constraint.add((Constraint) facet.accept(this));
+			constraints.add((Constraint) facet.accept(this));
 		}
-		return constraint;
+		return cleanConstraint(constraints);
 	}
 	
 	@Override 
@@ -775,13 +783,66 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitInclude(ShExDocParser.IncludeContext ctx) { 
 		return new TripleExprRef((TripleExprLabel) ctx.tripleExprLabel().accept(this)); 
 	}
-	
-	
-	
+
+
+
 
 	//--------------------------------------------
 	// Utils
 	//--------------------------------------------
+
+	public Object cleanConstraint(List<Constraint> constraints) {
+		List<Constraint> result = new ArrayList<Constraint>();
+		
+		FacetNumericConstraint fn=null;
+		FacetStringConstraint sn=null;
+		NodeKindConstraint nk=null;
+		for (Constraint ct:constraints) {
+			boolean dealt = false;
+			if (ct instanceof FacetNumericConstraint) {
+				dealt=true;
+				if (fn==null) {
+					fn = (FacetNumericConstraint) ct;
+				}else{
+					fn.setFractionDigits(((FacetNumericConstraint) ct).getFractionDigits());
+					fn.setTotalDigits(((FacetNumericConstraint) ct).getTotalDigits());
+					fn.setMaxexcl(((FacetNumericConstraint) ct).getMaxexcl());
+					fn.setMaxincl(((FacetNumericConstraint) ct).getMaxincl());
+					fn.setMinexcl(((FacetNumericConstraint) ct).getMinexcl());
+					fn.setMinincl(((FacetNumericConstraint) ct).getMinincl());
+				}
+			}
+			if (ct instanceof FacetStringConstraint) {
+				dealt=true;
+				if (sn==null) {
+					sn = (FacetStringConstraint) ct;
+				}else{
+					sn.setFlags(((FacetStringConstraint) ct).getFlags());
+					sn.setPattern(((FacetStringConstraint) ct).getPatternString());
+					sn.setLength(((FacetStringConstraint) ct).getLength());
+					sn.setMaxlength(((FacetStringConstraint) ct).getMaxlength());
+					sn.setMinLength(((FacetStringConstraint) ct).getMinlength());
+				}
+			}
+			if (ct instanceof NodeKindConstraint) {
+				dealt=true;
+				if (nk == null) {
+					nk = (NodeKindConstraint) ct;
+				} else {
+					throw new ParseCancellationException("Multiple nodekind constraint found.");
+				}
+			}
+			if (!dealt)
+				result.add(ct);
+			
+		}
+		if (fn!=null) result.add(fn);
+		if (sn!=null) result.add(sn);
+		if (nk!=null) result.add(nk);
+		
+		return result;
+	}
+	
 	public Object visitPredicate(ShExDocParser.PredicateContext ctx) { 
 		if (ctx.iri() != null)
 			return ctx.iri().accept(this);
