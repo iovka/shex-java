@@ -47,6 +47,7 @@ import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
+import fr.univLille.cristal.shex.validation.RefineValidation;
 
 /**
  * 
@@ -261,7 +262,7 @@ public class RunTestsRebuild {
 	private static String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
 		//fp = fp.substring(0, fp.length()-5)+".json";
-		fp = fp.substring(0, fp.length()-5)+".ttl";
+		//fp = fp.substring(0, fp.length()-5)+".ttl";
 		return TEST_DIR+fp;
 	}
 

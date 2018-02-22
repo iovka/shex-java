@@ -172,13 +172,15 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	private boolean isLocallyValid (Value node, Shape shape) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-		
+		Iterator<NeighborTriple> tmp ;
+
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
 		if (constraints.size() == 0) {
 			if (!shape.isClosed()) {
 				return true;
 			} else {
-				if (graph.listOutNeighbours(node).size()==0) {
+				tmp = graph.listOutNeighbours(node);
+				if (! tmp.hasNext()) {
 					return true;
 				} else {
 					return false;
@@ -196,11 +198,15 @@ public class RefineValidation implements ValidationAlgorithm {
 			}
 		}
 		
-		List<NeighborTriple> neighbourhood = graph.listInNeighboursWithPredicate(node, inversePredicate);
+		List<NeighborTriple> neighbourhood = new ArrayList<NeighborTriple>();
+		tmp = graph.listInNeighboursWithPredicate(node, inversePredicate);
+		while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		if (shape.isClosed()) {
-			neighbourhood.addAll(graph.listOutNeighbours(node));
+			tmp = graph.listOutNeighbours(node);
+			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		} else {
-			neighbourhood.addAll(graph.listOutNeighboursWithPredicate(node,forwardPredicate));
+			tmp = graph.listOutNeighboursWithPredicate(node,forwardPredicate);
+			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		}
 		
 		

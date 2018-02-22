@@ -73,8 +73,9 @@ public class RefinementTyping implements Typing {
 		Set<Pair<Value, Label>> set = theTyping.get(stratum);
 		for (Label label: labels) {
 			if (selectedShape.contains(label)) {
-				for (Value res : graph.getAllNodes()) {
-					set.add(new Pair<>(res, label));
+				Iterator<Value> ite = graph.listAllNodes();
+				while(ite.hasNext()) {
+					set.add(new Pair<>(ite.next(), label));
 				}
 				if (focusNode != null)
 					set.add(new Pair<>(focusNode, label));

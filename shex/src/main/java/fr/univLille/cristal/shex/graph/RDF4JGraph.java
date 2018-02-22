@@ -34,9 +34,6 @@ import org.eclipse.rdf4j.model.Value;
 public class RDF4JGraph extends AbstractRDFGraph {
 	
 	private Model rdf4jModel;
-	private Set<Value> allSubjects=null;
-	private Set<Value> allObjects=null;
-	private Set<Value> allResources=null;
 	
 	public RDF4JGraph(Model rdf4jModel) {
 		super();
@@ -44,35 +41,28 @@ public class RDF4JGraph extends AbstractRDFGraph {
 	}
 	
 	@Override
-	public Set<Value> getAllSubjectNodes() {
-		if (allSubjects != null)
-			return allSubjects;
-		
-		allSubjects = new HashSet<Value>();
-		allSubjects.addAll(rdf4jModel.subjects());
-		return allSubjects;
+	public Iterator<Value> listAllSubjectNodes() {
+		return new Iterator<Value>() {
+			Iterator<Resource> it; { it = rdf4jModel.subjects().iterator();	}
+			
+			@Override
+			public boolean hasNext() {
+				return it.hasNext();
+			}
+
+			@Override
+			public Value next() {
+				return it.next();
+			}
+		};
 	}
 	
 	@Override
-	public Set<Value> getAllObjectNodes() {
-		if (allObjects != null)
-			return allObjects;
-		
-		allObjects = new HashSet<Value>();
-		allObjects.addAll(rdf4jModel.objects());
-		return allObjects;
+	public Iterator<Value> listAllObjectNodes() {
+		return rdf4jModel.objects().iterator();
 	}
 	
-	@Override
-	public Set<Value> getAllNodes() {
-		if (allResources != null)
-			return allResources;
-		
-		allResources = new HashSet<Value>();
-		allResources.addAll(rdf4jModel.objects());
-		allResources.addAll(rdf4jModel.subjects());
-		return allResources;
-	}
+	
 
 	@Override
 	protected Iterator<NeighborTriple> itOutNeighbours(Value focusNode,IRI predicate) {

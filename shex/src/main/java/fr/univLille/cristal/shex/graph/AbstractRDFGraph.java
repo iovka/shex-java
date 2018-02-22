@@ -17,7 +17,6 @@
 package fr.univLille.cristal.shex.graph;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,53 +28,65 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 /** Helper implementation of {@link RDF}.
- * Implementing classes need to implement only the methods {@link RDFGraph#getAllNodes()}, {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)}.
+ * Implementing classes need to implement only the methods {@link RDFGraph#listAllNodes()}, {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)}.
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
  * 
  */
 abstract class AbstractRDFGraph implements RDFGraph {
-	public List<NeighborTriple> listAllNeighbours (Value focusNode) {
-		return listNeighbours(itAllNeighbours(focusNode,null));
+	public Iterator<NeighborTriple> listAllNeighbours (Value focusNode) {
+		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
+		result.add(listInNeighbours(focusNode));
+		result.add(listOutNeighbours(focusNode));
+		return new ConcatIterator<NeighborTriple>(result);
 	}
 	
-	public List<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
-		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
+	public Iterator<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
+		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
 		for (IRI predicate:allowedPredicates) {
-			result.addAll(listNeighbours(itAllNeighbours(focusNode,predicate)));
+			result.add(itOutNeighbours(focusNode,predicate));
+			result.add(itInNeighbours(focusNode,predicate));
 		}
-		return result;
+		return new ConcatIterator<NeighborTriple>(result);
 	}
 
 	
-	public List<NeighborTriple> listOutNeighbours(Value focusNode) {
+	public Iterator<NeighborTriple> listOutNeighbours(Value focusNode) {
 		if (! (focusNode instanceof Resource))
-			return Collections.emptyList();
-		return listNeighbours(itOutNeighbours((Resource) focusNode,null));
+			return new EmptyIterator<NeighborTriple>();
+		return itOutNeighbours((Resource) focusNode,null);
 	}
 	
 
-	public List<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
-		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
+	public Iterator<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
+		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
 		for (IRI predicate:allowedPredicates) {
-			result.addAll(listNeighbours(itOutNeighbours(focusNode,predicate)));
+			result.add(itOutNeighbours(focusNode,predicate));
 		}
-		return result;
+		return new ConcatIterator<NeighborTriple>(result);
 	}
 	
 
-	public List<NeighborTriple> listInNeighbours(Value focusNode) {
-		return listNeighbours(itInNeighbours(focusNode,null));
+	public Iterator<NeighborTriple> listInNeighbours(Value focusNode) {
+		return itInNeighbours(focusNode,null);
 	}
 	
 	
-	public List<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
-		List<NeighborTriple> result = new ArrayList<NeighborTriple>();
+	public Iterator<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
+		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
 		for (IRI predicate:allowedPredicates) {
-			result.addAll(listNeighbours(itInNeighbours(focusNode,predicate)));
+			result.add(itInNeighbours(focusNode,predicate));
 		}
-		return result;
+		return new ConcatIterator<NeighborTriple>(result);
+	}
+	
+	@Override
+	public Iterator<Value> listAllNodes() {
+		List<Iterator<Value>> result = new ArrayList<Iterator<Value>>();
+		result.add(listAllObjectNodes());
+		result.add(listAllSubjectNodes());
+		return new ConcatIterator<Value>(result);
 	}
 	
 	
@@ -86,36 +97,32 @@ abstract class AbstractRDFGraph implements RDFGraph {
 	protected abstract Iterator<NeighborTriple> itOutNeighbours (Value focusNode, IRI predicate);
 	protected abstract Iterator<NeighborTriple> itInNeighbours (Value focusNode, IRI predicate);
 	
-	private Iterator<NeighborTriple> itAllNeighbours (final Value focusNode,IRI predicate) {
-		return new Iterator<NeighborTriple>() {
-			Iterator<NeighborTriple> itFw, itBw;
-			{
-				if (focusNode instanceof Resource)
-					itFw = itOutNeighbours((Resource) focusNode,predicate);
-				else 
-					itFw = new EmptyIterator<>();
+	protected class ConcatIterator<T> implements Iterator<T> {
+		private List<Iterator<T>> iterators;
 				
-				itBw = itInNeighbours(focusNode,predicate);
-			}
-			
-			@Override
-			public boolean hasNext() {
-				return itFw.hasNext() || itBw.hasNext();
-			}
+		public ConcatIterator(List<Iterator<T>> iterators) {
+			this.iterators = iterators;
+		}
 
-			@Override
-			public NeighborTriple next() {
-				if (itFw.hasNext()) 
-					return itFw.next();
-				else 
-					return itBw.next();
-			}
-			
-		};
-	}
+		@Override
+		public boolean hasNext() {
+			for (Iterator<T> it:iterators)
+				if (it.hasNext())
+					return true;							
+			return false;
+		}
+
+		@Override
+		public T next() {
+			for (Iterator<T> it:iterators)
+				if (it.hasNext())
+					return it.next();
+			throw new NoSuchElementException();
+		}
+	}	
 	
-	private class EmptyIterator<T> implements Iterator<T> {
-
+	
+	protected class EmptyIterator<T> implements Iterator<T> {
 		@Override
 		public boolean hasNext() {
 			return false;
@@ -126,19 +133,4 @@ abstract class AbstractRDFGraph implements RDFGraph {
 			throw new NoSuchElementException();
 		}
 	}
-	
-	
-	//---------------------------------------------------------------------------
-	// Utils
-	//---------------------------------------------------------------------------
-	
-	private List<NeighborTriple> listNeighbours (Iterator<NeighborTriple> it) {
-		ArrayList<NeighborTriple> result = new ArrayList<>();
-		while (it.hasNext()) {
-			result.add(it.next());
-		}
-		return result;
-	}
-
-
 }
