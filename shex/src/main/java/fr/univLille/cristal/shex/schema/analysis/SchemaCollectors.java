@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
@@ -56,7 +56,7 @@ public class SchemaCollectors {
 	// COMMON Shape
 	// -------------------------------------------------------------------------
 
-	public static Set<ShapeExpr> collectAllShapes (Map<ShapeExprLabel, ShapeExpr> rules) { 
+	public static Set<ShapeExpr> collectAllShapes (Map<Label, ShapeExpr> rules) { 
 		Set<ShapeExpr> set = new HashSet<>();
 		CollectElementsFromShape<ShapeExpr> collector = 
 				new CollectElementsFromShape<ShapeExpr>((Object ast) -> (ast instanceof ShapeExpr), 
@@ -69,7 +69,7 @@ public class SchemaCollectors {
 	}
 
 
-	public static Set<ShapeExprRef> collectAllShapeRefs (Map<ShapeExprLabel, ShapeExpr> rules) { 
+	public static Set<ShapeExprRef> collectAllShapeRefs (Map<Label, ShapeExpr> rules) { 
 		Set<ShapeExprRef> set = new HashSet<>();
 		CollectElementsFromShape<ShapeExprRef> collector = 
 				new CollectElementsFromShape<ShapeExprRef>((Object ast) -> (ast instanceof ShapeExprRef), 
@@ -88,7 +88,7 @@ public class SchemaCollectors {
 	// COMMON Triple
 	// -------------------------------------------------------------------------
 
-	public static Set<TripleExpr> collectAllTriples (Map<ShapeExprLabel, ShapeExpr> rules) { 
+	public static Set<TripleExpr> collectAllTriples (Map<Label, ShapeExpr> rules) { 
 		Set<TripleExpr> set = new HashSet<>();
 		CollectElementsFromShape<TripleExpr> collector = 
 				new CollectElementsFromShape<TripleExpr>((Object ast) -> (ast instanceof TripleExpr), 
@@ -100,7 +100,7 @@ public class SchemaCollectors {
 		return set;
 	}
 
-	public static Set<TripleExpr> collectAllTriplesRef (Map<ShapeExprLabel, ShapeExpr> rules) { 
+	public static Set<TripleExpr> collectAllTriplesRef (Map<Label, ShapeExpr> rules) { 
 		Set<TripleExpr> set = new HashSet<>();
 		CollectElementsFromShape<TripleExpr> collector = 
 				new CollectElementsFromShape<TripleExpr>((Object ast) -> (ast instanceof TripleExprRef), 

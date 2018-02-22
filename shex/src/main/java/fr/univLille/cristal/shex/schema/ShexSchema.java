@@ -68,24 +68,28 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  * @author Jérémie Dusart
  */
 public class ShexSchema {
-	private Map<Integer,Set<ShapeExprLabel>> stratification = null;
-	private Map<ShapeExprLabel, ShapeExpr> rules;
-	private Map<ShapeExprLabel,ShapeExpr> shapeMap;
-	private Map<TripleExprLabel,TripleExpr> tripleMap;
+	private Map<Integer,Set<Label>> stratification = null;
+	private Map<Label, ShapeExpr> rules;
+	private Map<Label,ShapeExpr> shapeMap;
+	private Map<Label,TripleExpr> tripleMap;
 
 	// generate ID, check cycle in reference and stratification
-	public ShexSchema(Map<ShapeExprLabel, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this.rules = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(rules));
+	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		//check that id are unique
+		
+		this.rules = Collections.unmodifiableMap(new HashMap<Label, ShapeExpr>(rules));
 		// Collect all the ShapeExpr
 		Set<ShapeExpr> allShapes = SchemaCollectors.collectAllShapes(this.rules);
-		Map<ShapeExprLabel,ShapeExpr> shapeMapTmp = new HashMap<ShapeExprLabel,ShapeExpr>();
+		Map<Label,ShapeExpr> shapeMapTmp = new HashMap<Label,ShapeExpr>();
 		for(ShapeExpr shexp:allShapes) {
 			checkShapeID(shexp);
+			if (shapeMapTmp.containsKey(shexp.getId()))
+				throw new IllegalArgumentException("Label "+shexp.getId()+" allready used.");
 			shapeMapTmp.put(shexp.getId(),shexp);
 		}
-		this.shapeMap = Collections.unmodifiableMap(new HashMap<ShapeExprLabel, ShapeExpr>(shapeMapTmp));
+		this.shapeMap = Collections.unmodifiableMap(new HashMap<Label, ShapeExpr>(shapeMapTmp));
 		// Check that all the shape references are defined
-		for (Map.Entry<ShapeExprLabel,ShapeExpr> entry:shapeMap.entrySet()){
+		for (Map.Entry<Label,ShapeExpr> entry:shapeMap.entrySet()){
 			if (entry.getValue() instanceof ShapeExprRef) {
 				ShapeExprRef ref = (ShapeExprRef) entry.getValue();
 				if (shapeMap.containsKey(ref.getLabel())) {
@@ -98,16 +102,19 @@ public class ShexSchema {
 		
 		// Collect all TripleExpr
 		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(this.rules);
-		Map<TripleExprLabel,TripleExpr> tripleMapTmp = new HashMap<TripleExprLabel,TripleExpr>();
+		Map<Label,TripleExpr> tripleMapTmp = new HashMap<Label,TripleExpr>();
 		for (TripleExpr tcexp:allTriples) {
 			checkTripleID(tcexp);
+			if (shapeMap.containsKey(tcexp.getId()) || tripleMapTmp.containsKey(tcexp.getId()))
+				throw new IllegalArgumentException("Label "+tcexp.getId()+" allready used.");
 			tripleMapTmp.put(tcexp.getId(),tcexp);
+			
 			//System.out.println("ID:"+tcexp.getId()+" : "+tcexp+ "("+tcexp.getClass()+")");
 		}
-		tripleMap = Collections.unmodifiableMap(new HashMap<TripleExprLabel,TripleExpr>(tripleMapTmp));
+		tripleMap = Collections.unmodifiableMap(new HashMap<Label,TripleExpr>(tripleMapTmp));
 		
 		// Check that all the triple references are defined
-		for (Map.Entry<TripleExprLabel,TripleExpr> entry:tripleMap.entrySet()){
+		for (Map.Entry<Label,TripleExpr> entry:tripleMap.entrySet()){
 			if (entry.getValue() instanceof TripleExprRef) {
 				TripleExprRef ref = (TripleExprRef) entry.getValue();
 				if (tripleMap.containsKey(ref.getLabel())) {
@@ -170,12 +177,12 @@ public class ShexSchema {
 		}
 		
 		// Compute Stratification using an iterator of the dag
-		stratification = new HashMap<Integer,Set<ShapeExprLabel>>();
+		stratification = new HashMap<Integer,Set<Label>>();
 		int counterStrat = dag.vertexSet().size()-1;
 		for (Label S:dag) {
-			Set<ShapeExprLabel> tmp = new HashSet<ShapeExprLabel>();
+			Set<Label> tmp = new HashSet<Label>();
 			for (Label l:revIndex.get(S))
-				tmp.add((ShapeExprLabel) l);
+				tmp.add((Label) l);
 			stratification.put(counterStrat,tmp);
 			counterStrat--;
 		}
@@ -183,15 +190,15 @@ public class ShexSchema {
 	}
 
 	
-	public Map<ShapeExprLabel, ShapeExpr> getRules() {
+	public Map<Label, ShapeExpr> getRules() {
 		return rules;
 	}
 
-	public Map<ShapeExprLabel, ShapeExpr> getShapeMap() {
+	public Map<Label, ShapeExpr> getShapeMap() {
 		return shapeMap;
 	}
 
-	public Map<TripleExprLabel, TripleExpr> getTripleMap() {
+	public Map<Label, TripleExpr> getTripleMap() {
 		return tripleMap;
 	}
 	
@@ -217,11 +224,11 @@ public class ShexSchema {
 		return true;
 	}
 	
-	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
+	private static Label createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new ShapeExprLabel(RDF_FACTORY.createIRI(string),generated);
+			return new Label(RDF_FACTORY.createIRI(string),generated);
 		else 
-			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
+			return new Label(RDF_FACTORY.createBNode(string),generated);
 	}
 	
 	private void checkShapeID(ShapeExpr shape) {
@@ -231,11 +238,11 @@ public class ShexSchema {
 		}
 	}
 	
-	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
+	private static Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new TripleExprLabel(RDF_FACTORY.createIRI(string),generated);
+			return new Label(RDF_FACTORY.createIRI(string),generated);
 		else 
-			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
+			return new Label(RDF_FACTORY.createBNode(string),generated);
 	}
 	
 	private void checkTripleID(TripleExpr triple) {
@@ -549,7 +556,7 @@ public class ShexSchema {
 	 * @param i
 	 * @return
 	 */
-	public Set<ShapeExprLabel> getStratum (int i) {
+	public Set<Label> getStratum (int i) {
 		if (i < 0 && i >= this.getStratification().size())
 			throw new IllegalArgumentException("Stratum " + i + " does not exist");
 		return Collections.unmodifiableSet(this.getStratification().get(i));
@@ -568,14 +575,14 @@ public class ShexSchema {
 	 * @param label
 	 * @return
 	 */
-	public int hasStratum (ShapeExprLabel label) {
+	public int hasStratum (Label label) {
 		for (int i = 0; i < getNbStratums(); i++)
 			if (getStratum(i).contains(label))
 				return i;
 		throw new IllegalArgumentException("Unknown shape label: " + label);
 	}
 	
-	public Map<Integer,Set<ShapeExprLabel>> getStratification() {
+	public Map<Integer,Set<Label>> getStratification() {
 		return this.stratification;
 	}
 

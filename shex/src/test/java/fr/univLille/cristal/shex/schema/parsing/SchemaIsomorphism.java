@@ -22,7 +22,7 @@ import java.util.List;
 import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
@@ -49,7 +49,7 @@ public class SchemaIsomorphism {
 		if (schema1.getRules().size()!=schema2.getRules().size())
 			return false;
 		
-		for (ShapeExprLabel label:schema1.getRules().keySet())
+		for (Label label:schema1.getRules().keySet())
 			if (!schema2.getRules().containsKey(label))
 				return false;
 			else

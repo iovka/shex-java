@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.rio.RDFFormat;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 
@@ -51,7 +51,7 @@ public class GenParser {
 			throw new FileNotFoundException("File "+filepath+" not found.");
 		
 		Set<Path> loaded = new HashSet<Path>();
-		Map<ShapeExprLabel,ShapeExpr> allRules = new HashMap<ShapeExprLabel,ShapeExpr>();
+		Map<Label,ShapeExpr> allRules = new HashMap<Label,ShapeExpr>();
 		
 		List<Path> toload = new ArrayList<Path>();
 		toload.add(filepath);

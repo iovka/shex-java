@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;
 
 /** A set of associations (resource, shape labels).
@@ -38,12 +38,12 @@ public interface Typing {
 	 * @param label
 	 * @return
 	 */
-	public boolean contains(Value node, ShapeExprLabel label);
+	public boolean contains(Value node, Label label);
 	
 	/** Returns the typing as a set of pairs (node, label).
 	 * 
 	 * @return
 	 */
-	public Set<Pair<Value, ShapeExprLabel>> asSet(); // For testing purposes
+	public Set<Pair<Value, Label>> asSet(); // For testing purposes
 
 }

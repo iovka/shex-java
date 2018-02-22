@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;
@@ -38,10 +38,10 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * @param <TripleConstraint>
  */
 public class DynamicCollectorOfTripleConstraint extends TripleExpressionVisitor<List<TripleConstraint>>{
-	private Map<TripleExprLabel,List<TripleConstraint>> dynamiqueRes;
+	private Map<Label,List<TripleConstraint>> dynamiqueRes;
 
 	public DynamicCollectorOfTripleConstraint() {
-		this.dynamiqueRes = new HashMap<TripleExprLabel,List<TripleConstraint>>();
+		this.dynamiqueRes = new HashMap<Label,List<TripleConstraint>>();
 	}
 	
 	public List<TripleConstraint> getResult(TripleExpr triple) {

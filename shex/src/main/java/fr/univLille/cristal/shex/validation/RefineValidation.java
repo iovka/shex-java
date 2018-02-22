@@ -29,7 +29,7 @@ import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.graph.RDFGraph;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
@@ -81,7 +81,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	
 	@Override
-	public void validate(Value focusNode, ShapeExprLabel label) {
+	public void validate(Value focusNode, Label label) {
 //		if (!this.graph.getAllNodes().contains(focusNode))
 //			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
 //		
@@ -91,9 +91,9 @@ public class RefineValidation implements ValidationAlgorithm {
 			boolean changed;
 			do {
 				changed = false;
-				Iterator<Pair<Value, ShapeExprLabel>> typesIt = typing.typesIterator(stratum);
+				Iterator<Pair<Value, Label>> typesIt = typing.typesIterator(stratum);
 				while (typesIt.hasNext()) {
-					Pair<Value, ShapeExprLabel> nl = typesIt.next();
+					Pair<Value, Label> nl = typesIt.next();
 					
 					if (! isLocallyValid(nl)) {
 						typesIt.remove();
@@ -105,7 +105,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 
 	
-	private boolean isLocallyValid(Pair<Value, ShapeExprLabel> nl) {
+	private boolean isLocallyValid(Pair<Value, Label> nl) {
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(nl.one);
 		schema.getShapeMap().get(nl.two).accept(visitor);
 		return visitor.getResult();

@@ -45,7 +45,7 @@ import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.runningTests.TestCase;
 import fr.univLille.cristal.shex.runningTests.TestResultForTestReport;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
@@ -242,7 +242,7 @@ public class IsomorphismShExCShExJ {
 	private static String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
 		//fp = fp.substring(0, fp.length()-5)+".json";
-		fp = fp.substring(0, fp.length()-5)+".ttl";
+		//fp = fp.substring(0, fp.length()-5)+".ttl";
 		return TEST_DIR+fp;
 	}
 	

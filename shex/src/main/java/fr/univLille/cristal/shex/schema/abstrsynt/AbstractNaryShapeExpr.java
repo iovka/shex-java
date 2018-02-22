@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 
 /**
  * 
@@ -36,7 +36,7 @@ public abstract class AbstractNaryShapeExpr extends ShapeExpr {
 		this(null, subExpressions);
 	}
 	
-	public AbstractNaryShapeExpr (ShapeExprLabel id, List<ShapeExpr> subExpressions) {
+	public AbstractNaryShapeExpr (Label id, List<ShapeExpr> subExpressions) {
 		super();
 		this.subExpressions = new ArrayList<>(subExpressions);
 	}

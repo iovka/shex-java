@@ -43,8 +43,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
-import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.AnnotedObject;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
@@ -90,13 +89,13 @@ import fr.univLille.cristal.shex.util.XPath;
 
 public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	private static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
-	private Map<ShapeExprLabel,ShapeExpr> rules;
+	private Map<Label,ShapeExpr> rules;
 	private Map<String,String> prefixes;
 	private List<String> imports;
 	private String base;
 	private Path filename;
 	
-	public Map<ShapeExprLabel,ShapeExpr> getRules(Path path) throws Exception{
+	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
 		ANTLRInputStream inputStream = new ANTLRInputStream(is);
@@ -109,7 +108,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
         ShExDocParser.setErrorHandler(new BailErrorStrategy());
         
         ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();      
-        rules = new HashMap<ShapeExprLabel,ShapeExpr>();
+        rules = new HashMap<Label,ShapeExpr>();
         prefixes = new HashMap<String,String>();
         imports = new ArrayList<String>();
         base = null;
@@ -164,9 +163,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitShapeExprDecl(ShExDocParser.ShapeExprDeclContext ctx) {
-		ShapeExprLabel label = (ShapeExprLabel) visitShapeExprLabel(ctx.shapeExprLabel());
+		Label label = (Label) visitShapeExprLabel(ctx.shapeExprLabel());
 		ShapeExpr expr = (ShapeExpr) visitShapeExpression(ctx.shapeExpression());
 		expr.setId(label);
+		if (rules.containsKey(label))
+			throw new IllegalArgumentException("Label "+label+" allready used.");
 		rules.put(label,expr);
 		return visitChildren(ctx); 
 	}
@@ -380,7 +381,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			return null;
 		}
 		
-		return new ShapeExprRef((ShapeExprLabel) ctx.shapeExprLabel().accept(this)); 
+		return new ShapeExprRef((Label) ctx.shapeExprLabel().accept(this)); 
 	}
 
 	
@@ -699,7 +700,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			result = (TripleExpr) ctx.include().accept(this);
 		}
 		if (ctx.tripleExprLabel() != null) {
-			result.setId((TripleExprLabel) ctx.tripleExprLabel().accept(this));
+			result.setId((Label) ctx.tripleExprLabel().accept(this));
 		}
 		return result; 
 	}
@@ -781,7 +782,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitInclude(ShExDocParser.IncludeContext ctx) { 
-		return new TripleExprRef((TripleExprLabel) ctx.tripleExprLabel().accept(this)); 
+		return new TripleExprRef((Label) ctx.tripleExprLabel().accept(this)); 
 	}
 
 
@@ -863,17 +864,17 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitShapeExprLabel(ShExDocParser.ShapeExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
 		if (result instanceof IRI) 
-			return new ShapeExprLabel((IRI) result);
+			return new Label((IRI) result);
 		else 
-			return new ShapeExprLabel((BNode) result);
+			return new Label((BNode) result);
 	}
 	
 	public Object visitTripleExprLabel(ShExDocParser.TripleExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
 		if (result instanceof IRI) 
-			return new TripleExprLabel((IRI) result);
+			return new Label((IRI) result);
 		else 
-			return new TripleExprLabel((BNode) result);
+			return new Label((BNode) result);
 	}
 		
 	public Object visitIri(ShExDocParser.IriContext ctx) {

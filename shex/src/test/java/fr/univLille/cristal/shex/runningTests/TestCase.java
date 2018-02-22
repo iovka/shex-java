@@ -26,7 +26,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.RDFFactory;
 
 public 	class TestCase {
@@ -44,7 +44,7 @@ public 	class TestCase {
 	public final String testName;
 	public final Resource schemaFileName;
 	public final Resource dataFileName;
-	public ShapeExprLabel shapeLabel;
+	public Label shapeLabel;
 	public Value focusNode;
 	public final String testComment;
 	public final Set<Value> traits;
@@ -58,9 +58,9 @@ public 	class TestCase {
 			if (Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).isPresent()) {
 				Resource labelRes = Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).get();
 				if (labelRes instanceof BNode)
-					shapeLabel = new ShapeExprLabel((BNode)labelRes);
+					shapeLabel = new Label((BNode)labelRes);
 				else
-					shapeLabel = new ShapeExprLabel((IRI)labelRes);
+					shapeLabel = new Label((IRI)labelRes);
 
 				focusNode = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
 			}

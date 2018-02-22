@@ -35,9 +35,9 @@ import org.eclipse.rdf4j.model.Value;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
@@ -92,7 +92,7 @@ public class ShExJParser implements Parser{
 	// --------------------------------------------------------------------
 
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
-	public Map<ShapeExprLabel,ShapeExpr> getRules(Path path) throws Exception  {
+	public Map<Label,ShapeExpr> getRules(Path path) throws Exception  {
 		imports = new ArrayList<>();
 		InputStream inputStream = new FileInputStream(path.toFile());
 		Object schemaObject = JsonUtils.fromInputStream(inputStream);
@@ -120,11 +120,13 @@ public class ShExJParser implements Parser{
 		}
 		List shapes = (List) (map.get("shapes"));
 
-		Map<ShapeExprLabel,ShapeExpr> rules = new HashMap<ShapeExprLabel,ShapeExpr>();
+		Map<Label,ShapeExpr> rules = new HashMap<Label,ShapeExpr>();
 
 		for (Object shapeObj : shapes) {
 			Map shape = (Map) shapeObj;
 			ShapeExpr shexpr = parseShapeExpression(shape);
+			if (rules.containsKey(shexpr.getId()))
+				throw new IllegalArgumentException("Label "+shexpr.getId()+" allready used.");
 			rules.put(shexpr.getId(), shexpr);
 		}
 
@@ -140,8 +142,8 @@ public class ShExJParser implements Parser{
 	//-------------------------------------------
 
 	// shapeExpr 	= 	ShapeOr | ShapeAnd | ShapeNot | NodeConstraint | Shape | ShapeExternal | shapeExprRef
-	// shapeExprRef = shapeExprLabel
-	// shapeExprLabel = IRI | BNode
+	// shapeExprRef = Label
+	// Label = IRI | BNode
 	protected ShapeExpr parseShapeExpression(Object exprObj) {
 
 		// TODO does not support shapeExprRef
@@ -182,7 +184,7 @@ public class ShExJParser implements Parser{
 		return resultExpr;
 	}
 
-	// ShapeOr 	{ 	id:shapeExprLabel? shapeExprs:[shapeExpr] }
+	// ShapeOr 	{ 	id:Label? shapeExprs:[shapeExpr] }
 	protected ShapeExpr parseShapeOr (Map map) {
 		List shapeExprs = (List) (map.get("shapeExprs"));
 		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
@@ -191,7 +193,7 @@ public class ShExJParser implements Parser{
 		return res;
 	}
 
-	// ShapeAnd 	{ 	id:shapeExprLabel? shapeExprs:[shapeExpr] }
+	// ShapeAnd 	{ 	id:Label? shapeExprs:[shapeExpr] }
 	protected ShapeExpr parseShapeAnd (Map map) {
 		List shapeExprs = (List) (map.get("shapeExprs"));
 		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
@@ -200,7 +202,7 @@ public class ShExJParser implements Parser{
 		return res;
 	}
 
-	// ShapeNot 	{ 	id:shapeExprLabel? shapeExpr:shapeExpr }
+	// ShapeNot 	{ 	id:Label? shapeExpr:shapeExpr }
 	protected ShapeExpr parseShapeNot (Map map) {
 		Map shapeExpr = (Map) map.get("shapeExpr");
 		ShapeExpr subExpr = parseShapeExpression(shapeExpr);
@@ -218,7 +220,7 @@ public class ShExJParser implements Parser{
 		return list;
 	}
 
-	// Shape 	{ 	id:shapeExprLabel? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
+	// Shape 	{ 	id:Label? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
 	protected ShapeExpr parseShape(Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
@@ -257,7 +259,7 @@ public class ShExJParser implements Parser{
 		return res;
 	}
 
-	// NodeConstraint 	{ 	id:shapeExprLabel? nodeKind:("iri" | "bnode" | "nonliteral" | "literal")? datatype:IRI? xsFacet* values:[valueSetValue]? }
+	// NodeConstraint 	{ 	id:Label? nodeKind:("iri" | "bnode" | "nonliteral" | "literal")? datatype:IRI? xsFacet* values:[valueSetValue]? }
 	// xsFacet = stringFacet | numericFacet
 
 	protected NodeConstraint parseNodeConstraint(Map map) {
@@ -615,7 +617,7 @@ public class ShExJParser implements Parser{
 		return resultExpr;
 	}
 
-	// EachOf 	{ 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
+	// EachOf 	{ 	id:Label? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	protected TripleExpr parseEachOf (Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
@@ -635,7 +637,7 @@ public class ShExJParser implements Parser{
 		return res;
 	}
 
-	// OneOf { 	id:tripleExprLabel? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }	
+	// OneOf { 	id:Label? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }	
 	@SuppressWarnings("rawtypes")
 	protected TripleExpr parseOneOf (Map map) {
 		// TODO not used or not supported
@@ -658,7 +660,7 @@ public class ShExJParser implements Parser{
 		return res;
 	}
 
-	// TripleConstraint 	{ 	id:tripleExprLabel? inverse:BOOL? predicate:IRI valueExpr: shapeExpr? min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
+	// TripleConstraint 	{ 	id:Label? inverse:BOOL? predicate:IRI valueExpr: shapeExpr? min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }
 	protected TripleExpr parseTripleConstraint(Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
@@ -742,23 +744,23 @@ public class ShExJParser implements Parser{
 	// FACTORY METHODS
 	// ----------------------------------------------------------------------
 
-	private static ShapeExprLabel createShapeLabel (String string,boolean generated) {
+	private static Label createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new ShapeExprLabel(RDF_FACTORY.createIRI(string),generated);
+			return new Label(RDF_FACTORY.createIRI(string),generated);
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new ShapeExprLabel(RDF_FACTORY.createBNode(string),generated);
+			return new Label(RDF_FACTORY.createBNode(string),generated);
 		}
 	}
 
-	private static TripleExprLabel createTripleLabel (String string,boolean generated) {
+	private static Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new TripleExprLabel(RDF_FACTORY.createIRI(string),generated);
+			return new Label(RDF_FACTORY.createIRI(string),generated);
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new TripleExprLabel(RDF_FACTORY.createBNode(string),generated);
+			return new Label(RDF_FACTORY.createBNode(string),generated);
 		}
 	}
 

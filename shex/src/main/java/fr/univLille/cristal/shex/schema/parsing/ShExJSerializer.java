@@ -32,7 +32,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
@@ -75,7 +75,7 @@ public class ShExJSerializer {
 		JsonUtils.writePrettyPrint(fw, json);
 	}
 
-	public static Object ToJson(Map<ShapeExprLabel,ShapeExpr> rules) {
+	public static Object ToJson(Map<Label,ShapeExpr> rules) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		result.put("@context","http://www.w3.org/ns/shex.jsonld");
 		result.put("type", "Schema");

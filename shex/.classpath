@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="fr/univLille/cristal/shex/schema/parsing/OldShExCParser.java|fr/univLille/cristal/shex/schema/concrsynt/ObjectLiteral.java|fr/univLille/cristal/shex/schema/concrsynt/ConjunctiveSetOfNodes.java|fr/univLille/cristal/shex/schema/concrsynt/SingletonPropertySet.java|fr/univLille/cristal/shex/schema/concrsynt/ExplictValuesSetOfNodes.java" kind="src" output="target/classes" path="src/main/java">
+	<classpathentry excluding="fr/univLille/cristal/shex/schema/parsing/OldShExCParser.java|fr/univLille/cristal/shex/schema/concrsynt/ObjectLiteral.java|fr/univLille/cristal/shex/schema/concrsynt/ConjunctiveSetOfNodes.java|fr/univLille/cristal/shex/schema/concrsynt/SingletonPropertySet.java|fr/univLille/cristal/shex/schema/concrsynt/ExplictValuesSetOfNodes.java|fr/univLille/cristal/shex/schema/ShapeExprLabel.java|fr/univLille/cristal/shex/schema/TripleExprLabel.java" kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>

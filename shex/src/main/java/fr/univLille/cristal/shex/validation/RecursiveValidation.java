@@ -29,7 +29,7 @@ import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.graph.RDFGraph;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.NodeConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
@@ -73,7 +73,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	}	
 	
 	@Override
-	public void validate(Value focusNode, ShapeExprLabel label) {
+	public void validate(Value focusNode, Label label) {
 //		if (!this.graph.getAllNodes().contains(focusNode)) {
 //			System.err.println("!!/?. "+focusNode+" not in the graph.");
 //			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
@@ -86,7 +86,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		}
 	}
 	
-	protected void recursiveValidation(Value focusNode, ShapeExprLabel label) {
+	protected void recursiveValidation(Value focusNode, Label label) {
 		this.typing.addHypothesis(focusNode, label);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
 		schema.getShapeMap().get(label).accept(visitor);

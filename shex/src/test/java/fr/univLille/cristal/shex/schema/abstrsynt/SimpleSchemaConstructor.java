@@ -29,7 +29,7 @@ import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.concrsynt.Constraint;
 import fr.univLille.cristal.shex.schema.concrsynt.DatatypeConstraint;
@@ -41,16 +41,16 @@ import fr.univLille.cristal.shex.util.Interval;
  * 10 oct. 2017
  */
 public class SimpleSchemaConstructor {
-	public static ShapeExprLabel slAll = newShapeLabel("SL_ALL"); 
-	public static ShapeExprLabel slInt = newShapeLabel("SL_INT");
-	public static ShapeExprLabel slString = newShapeLabel("SL_STRING");
+	public static Label slAll = newShapeLabel("SL_ALL"); 
+	public static Label slInt = newShapeLabel("SL_INT");
+	public static Label slString = newShapeLabel("SL_STRING");
 	public final static String PREFIX = "http://a.ex#";
 
-	private Map<ShapeExprLabel,ShapeExpr> rules = null;
+	private Map<Label,ShapeExpr> rules = null;
 	private ShexSchema schema;
 	
 	public SimpleSchemaConstructor() {
-		this.rules = new HashMap<ShapeExprLabel,ShapeExpr>();
+		this.rules = new HashMap<Label,ShapeExpr>();
 	}
 	
 	public ShexSchema getSchema () throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
@@ -213,8 +213,8 @@ public class SimpleSchemaConstructor {
 		if (!b) throw new RuntimeException(message);
 	}
 
-	public static ShapeExprLabel newShapeLabel (String label){
-		return new ShapeExprLabel(SimpleValueFactory.getInstance().createIRI(PREFIX + label));
+	public static Label newShapeLabel (String label){
+		return new Label(SimpleValueFactory.getInstance().createIRI(PREFIX + label));
 	}
 	
 }

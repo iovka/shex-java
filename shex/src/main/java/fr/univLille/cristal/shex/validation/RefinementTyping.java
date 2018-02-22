@@ -26,7 +26,7 @@ import java.util.Set;
 import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.graph.RDFGraph;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExprRef;
@@ -43,8 +43,8 @@ public class RefinementTyping implements Typing {
 	
 	private ShexSchema schema;
 	private RDFGraph graph;
-	private List<Set<Pair<Value, ShapeExprLabel>>> theTyping;
-	private Set<ShapeExprLabel> selectedShape;
+	private List<Set<Pair<Value, Label>>> theTyping;
+	private Set<Label> selectedShape;
 	
 	public RefinementTyping(ShexSchema schema, RDFGraph graph) {
 		this.schema = schema;
@@ -54,7 +54,7 @@ public class RefinementTyping implements Typing {
 			theTyping.add(new HashSet<>());
 		}
 		
-		this.selectedShape = new HashSet<ShapeExprLabel>();
+		this.selectedShape = new HashSet<Label>();
 		this.selectedShape.addAll(schema.getRules().keySet());
 		for (ShapeExpr expr:schema.getShapeMap().values())
 			if (expr instanceof ShapeExprRef) 
@@ -64,14 +64,14 @@ public class RefinementTyping implements Typing {
 				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
 	}
 	
-	public Set<ShapeExprLabel> getSelectedShape(){
+	public Set<Label> getSelectedShape(){
 		return this.selectedShape;
 	}
 
 	public void addAllLabelsFrom(int stratum, Value focusNode) {
-		Set<ShapeExprLabel> labels = schema.getStratum(stratum);
-		Set<Pair<Value, ShapeExprLabel>> set = theTyping.get(stratum);
-		for (ShapeExprLabel label: labels) {
+		Set<Label> labels = schema.getStratum(stratum);
+		Set<Pair<Value, Label>> set = theTyping.get(stratum);
+		for (Label label: labels) {
 			if (selectedShape.contains(label)) {
 				for (Value res : graph.getAllNodes()) {
 					set.add(new Pair<>(res, label));
@@ -82,20 +82,20 @@ public class RefinementTyping implements Typing {
 		}
 	}
 	
-	public Iterator<Pair<Value, ShapeExprLabel>> typesIterator (int stratum) {
+	public Iterator<Pair<Value, Label>> typesIterator (int stratum) {
 		return theTyping.get(stratum).iterator();
 	}
 	
 	@Override
-	public boolean contains (Value node, ShapeExprLabel label) {
+	public boolean contains (Value node, Label label) {
 		return theTyping.get(schema.hasStratum(label)).contains(new Pair<>(node, label));
 	}
 	
 	
 	@Override
-	public Set<Pair<Value, ShapeExprLabel>> asSet() {
-		Set<Pair<Value, ShapeExprLabel>> set = new HashSet<>();
-		for (Set<Pair<Value, ShapeExprLabel>> subset : theTyping)
+	public Set<Pair<Value, Label>> asSet() {
+		Set<Pair<Value, Label>> set = new HashSet<>();
+		for (Set<Pair<Value, Label>> subset : theTyping)
 			set.addAll(subset);
 		
 		return set;

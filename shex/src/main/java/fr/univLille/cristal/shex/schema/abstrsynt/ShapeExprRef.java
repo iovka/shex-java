@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**
@@ -26,14 +26,14 @@ import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
  */
 public class ShapeExprRef extends ShapeExpr {
 	
-	private final ShapeExprLabel label;
+	private final Label label;
 	private ShapeExpr def;
 	
-	public ShapeExprRef(ShapeExprLabel label) {
+	public ShapeExprRef(Label label) {
 		this.label = label;
 	}
 
-	public ShapeExprLabel getLabel () {
+	public Label getLabel () {
 		return this.label;
 	}
 	

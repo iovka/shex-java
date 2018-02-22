@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
 /**
@@ -26,15 +26,15 @@ import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
  */
 public abstract class ShapeExpr{
 	
-	protected ShapeExprLabel id = null;
+	protected Label id = null;
 	
-	public void setId(ShapeExprLabel id) {
+	public void setId(Label id) {
 		if (this.id != null)
 			throw new IllegalStateException("ID can be set only once");
 		this.id = id;
 	}
 	
-	public ShapeExprLabel getId () {
+	public Label getId () {
 		return this.id;
 	}
 	

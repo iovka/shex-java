@@ -23,7 +23,7 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.RepeatedTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.Shape;
@@ -43,7 +43,7 @@ class TestGenerateSORBE {
 		TripleConstraint tca = (TripleConstraint) tc("a :: .");
 		TripleConstraint tcb = (TripleConstraint) tc("b :: .");
 		
-		ShapeExprLabel label = new ShapeExprLabel(RDF_FACTORY.createIRI("_:test"));
+		Label label = new Label(RDF_FACTORY.createIRI("_:test"));
 		
 		Shape test = new Shape(tca,Collections.EMPTY_SET,false);
 		test.setId(label);
@@ -63,7 +63,7 @@ class TestGenerateSORBE {
 		
 		EachOf each = eachof(tca,tcb);
 		
-		ShapeExprLabel label = new ShapeExprLabel(RDF_FACTORY.createIRI("_:test"));
+		Label label = new Label(RDF_FACTORY.createIRI("_:test"));
 		
 		Shape test = new Shape(each,Collections.EMPTY_SET,false);
 		test.setId(label);
@@ -83,7 +83,7 @@ class TestGenerateSORBE {
 		EachOf each = eachof(tca,tcb);
 		RepeatedTripleExpression rte = new RepeatedTripleExpression(each, new Interval(2,5));
 		
-		ShapeExprLabel label = new ShapeExprLabel(RDF_FACTORY.createIRI("_:test"));
+		Label label = new Label(RDF_FACTORY.createIRI("_:test"));
 		
 		Shape test = new Shape(rte,Collections.EMPTY_SET,false);
 		test.setId(label);

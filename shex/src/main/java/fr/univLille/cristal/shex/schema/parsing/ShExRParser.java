@@ -41,8 +41,8 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
-import fr.univLille.cristal.shex.schema.ShapeExprLabel;
-import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
@@ -100,7 +100,7 @@ public class ShExRParser implements Parser {
 	private Set<Value> tripleSeen;
 	
 	@Override
-	public Map<ShapeExprLabel, ShapeExpr> getRules(Path path) throws Exception {
+	public Map<Label, ShapeExpr> getRules(Path path) throws Exception {
 		RDFFormat selFormat = null;
 		for (RDFFormat format:ShExRParser.RDFFormats) {
 			for (String ext:format.getFileExtensions()) {
@@ -115,7 +115,7 @@ public class ShExRParser implements Parser {
 	
 	private static String BASE_IRI = "http://base.shex.fr/shex/";
 	
-	public Map<ShapeExprLabel, ShapeExpr> getRules(Path path,RDFFormat format) throws Exception {
+	public Map<Label, ShapeExpr> getRules(Path path,RDFFormat format) throws Exception {
 		InputStream inputStream = new FileInputStream(path.toFile());
 		
 		model = Rio.parse(inputStream, BASE_IRI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
@@ -123,14 +123,17 @@ public class ShExRParser implements Parser {
 		Model roots = model.filter(null,TYPE_IRI,RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#Schema"));
 		Resource root = (Resource) roots.subjects().toArray()[0];
 		
-		Map<ShapeExprLabel,ShapeExpr> rules = new HashMap<ShapeExprLabel,ShapeExpr>();
+		Map<Label,ShapeExpr> rules = new HashMap<Label,ShapeExpr>();
 		shapeSeen = new HashSet<Value>();
 		tripleSeen = new HashSet<Value>();
 		
 		for (Statement stat: model.filter(root, RDF_FACTORY.createIRI("http://www.w3.org/ns/shex#shapes"), null)) {
 			ShapeExpr shape = parseShapeExpr(stat.getObject());
-			if (!(shape instanceof ShapeExprRef))
+			if (!(shape instanceof ShapeExprRef)) {
+				if (rules.containsKey(shape.getId()))
+					throw new IllegalArgumentException("Label "+shape.getId()+" allready used.");
 				rules.put(shape.getId(), shape);
+			}		
 		}
 		parseImports(root);
 		
@@ -174,7 +177,7 @@ public class ShExRParser implements Parser {
 	
 	private ShapeExpr parseShapeExpr(Value value) {
 		if (shapeSeen.contains(value) |  model.filter((Resource) value,null,null).size()==0 )
-			return new ShapeExprRef(createShapeExprLabel(value));
+			return new ShapeExprRef(createLabel(value));
 		
 		Value type = (Value) model.filter((Resource) value,TYPE_IRI,null).objects().toArray()[0];
 		
@@ -203,7 +206,7 @@ public class ShExRParser implements Parser {
 			subExpr.add(parseShapeExpr((Value) obj));
 		
 		ShapeExpr res = new ShapeAnd(subExpr);
-		setShapeExprLabel(res,value);		
+		setLabel(res,value);		
 		return res;
 	}
 	
@@ -214,7 +217,7 @@ public class ShExRParser implements Parser {
 			subExpr.add(parseShapeExpr((Value) obj));
 		
 		ShapeExpr res = new ShapeOr(subExpr);
-		setShapeExprLabel(res,value);	
+		setLabel(res,value);	
 		return res;
 	}
 	
@@ -224,7 +227,7 @@ public class ShExRParser implements Parser {
 		Value val = (Value) model.filter((Resource) value, SHAPE_EXPR, null).objects().toArray()[0];
 		
 		ShapeExpr res = new ShapeNot(parseShapeExpr(val));
-		setShapeExprLabel(res,value);
+		setLabel(res,value);
 		return res;
 	}
 	
@@ -238,7 +241,7 @@ public class ShExRParser implements Parser {
 
 		if (model.filter((Resource) value, TRIPLE_EXPRESSION,null).size()==0) {
 			ShapeExpr shtmp = new Shape(new EmptyTripleExpression(),Collections.emptySet(),false);
-			setShapeExprLabel(shtmp,value);
+			setLabel(shtmp,value);
 			return shtmp;
 		}
 		
@@ -257,7 +260,7 @@ public class ShExRParser implements Parser {
 		Value val = (Value) model.filter((Resource) value, TRIPLE_EXPRESSION, null).objects().toArray()[0];
 		
 		Shape res = new Shape(parseTripleExpr(val),extras,closed,annotations);
-		setShapeExprLabel(res,value);	
+		setLabel(res,value);	
 		return res;
 	}
 	
@@ -289,7 +292,7 @@ public class ShExRParser implements Parser {
 			constraints.add(constraint);
 				
 		ShapeExpr res = new NodeConstraint(constraints);
-		setShapeExprLabel(res,value);
+		setLabel(res,value);
 		return res;
 	}
 	
@@ -570,7 +573,7 @@ public class ShExRParser implements Parser {
 	
 	private TripleExpr parseTripleExpr(Value value) {
 		if (tripleSeen.contains(value) | model.filter((Resource) value,null,null).size()==0)
-			return new TripleExprRef(createTripleExprLabel(value));
+			return new TripleExprRef(createLabel(value));
 		
 		Value type = (Value) model.filter((Resource) value,TYPE_IRI,null).objects().toArray()[0];
 
@@ -597,7 +600,7 @@ public class ShExRParser implements Parser {
 			subExpr.add(parseTripleExpr((Value) obj));
 		
 		TripleExpr res = new EachOf(subExpr,annotations);
-		setTripleExprLabel(res,value);
+		setLabel(res,value);
 
 		Interval card = getInterval(value);
 		if (card!=null)
@@ -615,7 +618,7 @@ public class ShExRParser implements Parser {
 			subExpr.add(parseTripleExpr((Value) obj));
 		
 		TripleExpr res = new OneOf(subExpr,annotations);
-		setTripleExprLabel(res,value);
+		setLabel(res,value);
 
 		Interval card = getInterval(value);
 		if (card!=null)
@@ -654,7 +657,7 @@ public class ShExRParser implements Parser {
 		}
 		
 		TripleExpr res = new TripleConstraint(predicate,valueExpr,annotations);
-		setTripleExprLabel(res,value);
+		setLabel(res,value);
 		
 		Interval card = getInterval(value);
 		if (card!=null)
@@ -723,34 +726,26 @@ public class ShExRParser implements Parser {
 		return result;
 	}
 	
-	private ShapeExprLabel createShapeExprLabel(Value value) {
+	private Label createLabel(Value value) {
 		if (value instanceof IRI)
-			return new ShapeExprLabel((IRI) value);
+			return new Label((IRI) value);
 		if (value instanceof BNode)
-			return new ShapeExprLabel((BNode) value);
+			return new Label((BNode) value);
 		return null;
 	}
 	
-	private void setShapeExprLabel(ShapeExpr shape,Value value) {
+	private void setLabel(ShapeExpr shape,Value value) {
 		if (value instanceof IRI)
-			shape.setId(new ShapeExprLabel((IRI) value));
+			shape.setId(new Label((IRI) value));
 		if (value instanceof BNode & ! value.stringValue().startsWith(RDF_FACTORY.MyBnodePrefix))
-			shape.setId(new  ShapeExprLabel((BNode) value));
+			shape.setId(new  Label((BNode) value));
 	}
 	
-	private TripleExprLabel createTripleExprLabel(Value value) {
+	private void setLabel(TripleExpr triple,Value value) {
 		if (value instanceof IRI)
-			return new TripleExprLabel((IRI) value);
-		if (value instanceof BNode)
-			return new  TripleExprLabel((BNode) value);
-		return null;
-	}
-	
-	private void setTripleExprLabel(TripleExpr triple,Value value) {
-		if (value instanceof IRI)
-			triple.setId(new TripleExprLabel((IRI) value));
+			triple.setId(new Label((IRI) value));
 		if (value instanceof BNode & ! value.stringValue().startsWith(RDF_FACTORY.MyBnodePrefix))
-			triple.setId(new  TripleExprLabel((BNode) value));
+			triple.setId(new  Label((BNode) value));
 	}
 	
 }

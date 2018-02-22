@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 
 /**
@@ -25,15 +25,15 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * 11 oct. 2017
  */
 public abstract class TripleExpr {
-	protected TripleExprLabel id;
+	protected Label id;
 	
-	public void setId(TripleExprLabel id) {
+	public void setId(Label id) {
 		if (this.id != null)
 			throw new IllegalStateException("ID can be set only once");
 		this.id = id;
 	}
 	
-	public TripleExprLabel getId () {
+	public Label getId () {
 		return this.id;
 	}
 	

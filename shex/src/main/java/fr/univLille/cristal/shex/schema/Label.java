@@ -24,7 +24,7 @@ import org.eclipse.rdf4j.model.IRI;
  * @author Iovka Boneva
  * 11 oct. 2017
  */
-public abstract class Label {
+public class Label {
 	// Exactly one of these is non null
 	private final IRI iri;
 	private final BNode bnode;
@@ -90,6 +90,8 @@ public abstract class Label {
 		if (getClass() != obj.getClass())
 			return false;
 		Label other = (Label) obj;
+		if (this.generated !=other.isGenerated())
+			return false;		
 		if (bnode == null) {
 			if (other.bnode != null)
 				return false;

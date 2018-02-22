@@ -75,10 +75,13 @@ public class TripleConstraint extends TripleExpr implements AnnotedObject {
 
 	@Override
 	public String toString() {
-		String annot = "";
+		String result ="";
+		if (id!=null)
+			result += getId().toString()+"=";
+		result += String.format("%s::%s",property.toString(),shapeExpr.toString());
 		if (this.annotations!=null && this.annotations.size()>0)
-			annot =CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		return String.format("%s::%s %s",property.toString(),shapeExpr.toString(),annot);
+			result +=CollectionToString.collectionToString(annotations," ; ","// [", "]");
+		return result;
 	}
 
 }

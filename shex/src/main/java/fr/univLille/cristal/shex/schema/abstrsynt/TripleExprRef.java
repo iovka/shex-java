@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.abstrsynt;
 
-import fr.univLille.cristal.shex.schema.TripleExprLabel;
+import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 
 /**
@@ -25,11 +25,11 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
  * 11 oct. 2017
  */
 public class TripleExprRef extends TripleExpr {
-	private TripleExprLabel label;
+	private Label label;
 	private TripleExpr tripleExp;
 	
 	
-	public TripleExprRef(TripleExprLabel label) {
+	public TripleExprRef(Label label) {
 		this.label = label;
 	}
 	
@@ -46,7 +46,7 @@ public class TripleExprRef extends TripleExpr {
 	}
 
 
-	public TripleExprLabel getLabel() {
+	public Label getLabel() {
 		return label;
 	}
 
