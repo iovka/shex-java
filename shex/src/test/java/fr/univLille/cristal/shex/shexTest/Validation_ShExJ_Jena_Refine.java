@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.jena.rdf.model.ModelFactory;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -43,17 +44,18 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import fr.univLille.cristal.shex.graph.JenaGraph;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
-import fr.univLille.cristal.shex.validation.RecursiveValidation;
+import fr.univLille.cristal.shex.validation.RefineValidation;
 import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 
 
 @RunWith(Parameterized.class)
-public class Validation_ShExC_RDF4J_Recursive {
+public class Validation_ShExJ_Jena_Refine {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -167,16 +169,19 @@ public class Validation_ShExC_RDF4J_Recursive {
 
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
+    	fp = fp.substring(0,fp.length()-4)+"json";
 		return TEST_DIR+fp;
 	}
 	
 	public RDFGraph getRDFGraph() throws IOException {
-		Model data = parseTurtleFile(Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName)).toString(),GITHUB_URL+"validation/");
-		return new RDF4JGraph(data);
+		Path dataFile = Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName));
+		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
+		model.read(dataFile.toString()) ;
+		return new JenaGraph(model);
 	}
 	
 	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, RDFGraph dataGraph ) {
-		return new RecursiveValidation(schema, dataGraph);
+		return new RefineValidation(schema, dataGraph);
 	}
 	
 

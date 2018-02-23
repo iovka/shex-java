@@ -20,7 +20,7 @@ import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.impl.AbstractValueFactory;
 
 public class RDFFactory extends AbstractValueFactory {
-	
+
 	@Override
 	public BNode createBNode(String nodeID) {
 		if (nodeID.startsWith("genid-")) {
@@ -32,13 +32,14 @@ public class RDFFactory extends AbstractValueFactory {
 	}
 
 	public static String MyBnodePrefix = "GENERATEDLABELFORBNODE#^§%*$";
+	
 	@Override
 	public synchronized BNode createBNode() {
 		BNode result = super.createBNode();
 		//System.err.println(result.stringValue());
 		return createBNode(MyBnodePrefix+result.stringValue());
-}
-	
+	}
+
 	private static final RDFFactory sharedInstance = new RDFFactory();
 
 	/**
@@ -54,6 +55,6 @@ public class RDFFactory extends AbstractValueFactory {
 	 * Hidden constructor to enforce singleton pattern.
 	 */
 	protected RDFFactory() {
-}
+	}
 
 }

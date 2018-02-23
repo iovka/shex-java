@@ -16,28 +16,17 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-
-import com.github.jsonldjava.utils.JsonUtils;
 
 public class ConfigurationTest {
 	public static Path shexTestPath = Paths.get("src","test","ressources");
-	public static Path manifest_json = Paths.get("test","success","validation","manifest.jsonld");
-	public static final ValueFactory RDF_FACTORY = SimpleValueFactory.getInstance();
 
 	
 	public static List<Object[]> getTestFromDirectory(Path testDirectory,int result) throws IOException{
@@ -53,52 +42,6 @@ public class ConfigurationTest {
 
 			}
 		}
-		
 		return listOfParameters;
-	}
-	
-	
-	// TODO: finish this function....
-	public static List<Object[]> getJsonTestFromManifest(Set<String> excludedTraits) throws IOException{
-		List<Object[]> listOfParameters = new LinkedList<Object[]>();
-		
-		InputStream inputStream = new FileInputStream(ConfigurationTest.manifest_json.toFile());
-		Object manifest = JsonUtils.fromInputStream(inputStream);
-		
-		List<Map> tests = (List<Map>) ((Map) ((List) ((Map) manifest).get("@graph")).get(0)).get("entries");
-	
-		Set<Path> selectedSchema = new HashSet<Path>();
-		for (Map test:tests) {
-			Set<String> traits = new HashSet<String>();
-			traits.addAll((List<String>) test.get("trait"));
-			
-			boolean useThisTest = true;
-			for(String trait:excludedTraits) {
-				if (traits.contains(trait)){
-					useThisTest=false;
-				}
-			}
-			
-			if (useThisTest) {
-				Map action = (Map) test.get("action");
-				String jsonPath = ((String) action.get("schema")).replaceAll(".shex", ".json");
-				Path path = Paths.get(ConfigurationTest.shexTestPath.toString(),"success","validation",jsonPath).normalize();
-				if (path.toFile().exists()) {
-					selectedSchema.add(path);
-				}
-
-			}
-		}
-		
-		for (Path path : selectedSchema) {
-			if (path.toString().endsWith(".json")) {
-				Object [] parameters = new Object[2]; 
-				parameters[0] = path;
-				parameters[1] = 0;
-				listOfParameters.add(parameters);
-
-			}
-		}
-		return null;
 	}
 }

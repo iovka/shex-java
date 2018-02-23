@@ -16,9 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.graph;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -122,6 +120,11 @@ public class RDF4JGraph extends AbstractRDFGraph {
 		
 	private NeighborTriple newBwdTriple(Statement st) {
 		return new NeighborTriple(st.getObject(), TCProperty.createInvProperty(st.getPredicate()), st.getSubject());
+	}
+	
+	@Override
+	public String toString() {
+		return rdf4jModel.toString();
 	}
 
 }

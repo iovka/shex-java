@@ -55,7 +55,7 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class IsomorphismShExCShExJ {
+public class EqualityShExCShExJ {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -189,27 +189,13 @@ public class IsomorphismShExCShExJ {
 		ShexSchema fromShex = null;
 
 		try {
-			Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
 			Path jsonSchemaFile = Paths.get(getJsonSchemaFileName(testCase.schemaFileName));
 			Path shexSchemaFile = Paths.get(getShexSchemaFileName(testCase.schemaFileName));
-			Path dataFile = Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName));
 			
-			// This can happen with turtle test
-			if(schemaFile.toString().equals(dataFile.toString())) {
-				String message = "Skipping test because schema file is same as data file.";
-				nbSkip++;
-				return new TestResultForTestReport(testName, false, message, "validation");	
-			}
-			if(! schemaFile.toFile().exists()) {
-				String message = "Skipping test because schema file does not exists.";
-				nbSkip++;
-				return new TestResultForTestReport(testName, false, message, "validation");	
-			}
-			
-			fromJson = GenParser.parseSchema(jsonSchemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			fromJson = GenParser.parseSchema(jsonSchemaFile,Paths.get(SCHEMAS_DIR));
 			fromShex = GenParser.parseSchema(shexSchemaFile,Paths.get(SCHEMAS_DIR));
 			
-			if (SchemaIsomorphism.areIsomorphic(fromJson, fromShex)){
+			if (SchemaEquality.areEquals(fromJson, fromShex)){
 				passLog.println(logMessage(testCase, fromJson, fromShex, "PASS"));
 				nbPass++;
 				return new TestResultForTestReport(testName, true, null, "validation");
@@ -239,13 +225,6 @@ public class IsomorphismShExCShExJ {
 		return Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();
 	}
 
-	private static String getSchemaFileName (Resource res) {
-		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
-		//fp = fp.substring(0, fp.length()-5)+".json";
-		//fp = fp.substring(0, fp.length()-5)+".ttl";
-		return TEST_DIR+fp;
-	}
-	
 	private static String getJsonSchemaFileName (Resource res) {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
 		fp = fp.substring(0, fp.length()-5)+".json";

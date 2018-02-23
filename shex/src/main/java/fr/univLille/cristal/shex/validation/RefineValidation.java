@@ -209,7 +209,6 @@ public class RefineValidation implements ValidationAlgorithm {
 			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		}
 		
-		
 		Matcher matcher = new MatcherPredicateAndValue(this.getTyping()); 
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
 		

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.univLille.cristal.shex.schema.parsing;
+package fr.univLille.cristal.shex.runningTests;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.jena.rdf.model.ModelFactory;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -42,20 +43,24 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
+import fr.univLille.cristal.shex.graph.JenaGraph;
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
-import fr.univLille.cristal.shex.schema.Label;
+import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.shexTest.TestCase;
 import fr.univLille.cristal.shex.shexTest.TestResultForTestReport;
 import fr.univLille.cristal.shex.util.RDFFactory;
+import fr.univLille.cristal.shex.validation.RecursiveValidation;
+import fr.univLille.cristal.shex.validation.RefineValidation;
+import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class ParserSerialiserTest {
+public class RunTestsRebuild {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -184,31 +189,48 @@ public class ParserSerialiserTest {
 			nbError++;
 			return new TestResultForTestReport(testName, false, "Incorrect test definition.", "validation");
 		}
-		ShexSchema fromJson = null;
-		ShexSchema toJson = null;
+		ShexSchema schema = null;
+		RDFGraph dataGraph = null;
 		try {
 			Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
 			Path dataFile = Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName));
-						
-			fromJson = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-			Path tmp = Paths.get("/tmp/fromjson.json");
-			ShExJSerializer.ToJson(fromJson, tmp);
-			toJson = GenParser.parseSchema(tmp);
-			
-			if (SchemaEquality.areEquals(fromJson, toJson)){
-				passLog.println(logMessage(testCase, fromJson, toJson, "PASS"));
+			if(schemaFile.toString().equals(dataFile.toString())) {
+				String message = "Skipping test because schema file is same as data file.";
+				nbSkip++;
+				return new TestResultForTestReport(testName, false, message, "validation");	
+			}
+			if(! schemaFile.toFile().exists()) {
+				String message = "Skipping test because schema file does not exists.";
+				nbSkip++;
+				return new TestResultForTestReport(testName, false, message, "validation");	
+			}
+			schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		dataGraph = getRDFGraph(testCase);
+    		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
+    		
+			validation.validate(testCase.focusNode, testCase.shapeLabel);
+					
+			if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
+					validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
+					||
+					(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
+							! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))){
+				passLog.println(logMessage(testCase, schema, dataGraph, "PASS"));
 				nbPass++;
 				return new TestResultForTestReport(testName, true, null, "validation");
 			} else {
-				failLog.println(logMessage(testCase, fromJson, toJson, "FAIL"));
+				failLog.println(logMessage(testCase, schema, dataGraph, "FAIL"));
 				System.err.println("Failling: "+testName);
 				nbFail++;
 				return new TestResultForTestReport(testName, false, null, "validation");
-			}
-
-		} catch (Exception e) {
-			errorLog.println(logMessage(testCase, fromJson, toJson, "ERROR"));
+			}			
+		}catch (Exception e) {
+			errorLog.println(logMessage(testCase, schema, dataGraph, "ERROR"));
 			e.printStackTrace(errorLog);
+			if (testCase.testKind.equals(VALIDATION_TEST_CLASS))
+				nbError_pass++;
+			else
+				nbError_fail++;
 			nbError++;
 			System.err.println("Exception: "+testName);
 			System.err.println(e.getClass());
@@ -216,6 +238,24 @@ public class ParserSerialiserTest {
 		}
 
 	}
+	
+	public static String getSchemaFileName (Resource res) {
+		String fp = res.toString().substring(GITHUB_URL.length());
+		fp = fp.substring(0,fp.length()-4)+"json";
+		return TEST_DIR+fp;
+	}
+
+	public static RDFGraph getRDFGraph(TestCase testCase) throws IOException {
+		Path dataFile = Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName));
+		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
+		model.read(dataFile.toString()) ;
+		return new JenaGraph(model);
+	}
+
+	public static ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, RDFGraph dataGraph ) {
+		return new RefineValidation(schema, dataGraph);
+	}
+		
 
 	//--------------------------------------------------
 	// Utils functions for test
@@ -223,24 +263,6 @@ public class ParserSerialiserTest {
 
 	private static String getTestName (Model manifest, Resource testNode) {
 		return Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();
-	}
-
-	private static String getSchemaFileName (Resource res) {
-		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
-		//fp = fp.substring(0, fp.length()-5)+".json";
-		fp = fp.substring(0, fp.length()-5)+".ttl";
-		return TEST_DIR+fp;
-	}
-	
-	private static String getJsonSchemaFileName (Resource res) {
-		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
-		fp = fp.substring(0, fp.length()-5)+".json";
-		return TEST_DIR+fp;
-	}
-	
-	private static String getShexSchemaFileName (Resource res) {
-		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
-		return TEST_DIR+fp;
 	}
 
 	private static String getDataFileName (Resource res) {
@@ -256,14 +278,14 @@ public class ParserSerialiserTest {
 		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
 	}
 
-	private static String logMessage (TestCase testCase, ShexSchema schema1, ShexSchema schema2, String customMessage) {
+	private static String logMessage (TestCase testCase, ShexSchema schema, RDFGraph data, String customMessage) {
 		String result = "";
 		result += ">>----------------------------\n";
 		result += testCase.toString();
-		if (schema1 != null)
-			result += "Schema from Json : " + schema1.toString() + "\n";
-		if (schema2 != null)
-			result += "Schema from Shex : " + schema2.toString() + "\n";
+		if (schema != null)
+			result += "Schema : " + schema.toString() + "\n";
+		if (data != null)
+			result += "Data   : " + data.toString() + "\n";
 		result += customMessage + "\n"; 
 		result += "<<----------------------------";
 		return result;
