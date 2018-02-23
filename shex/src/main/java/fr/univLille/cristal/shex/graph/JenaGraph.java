@@ -14,6 +14,7 @@ import fr.univLille.cristal.shex.util.RDFFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.ResIterator;
+import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 
 public class JenaGraph extends AbstractRDFGraph {
@@ -65,15 +66,15 @@ public class JenaGraph extends AbstractRDFGraph {
 	@Override
 	protected Iterator<NeighborTriple> itOutNeighbours(Value focusNode, IRI predicate) {
 		return new Iterator<NeighborTriple>() {
-			NodeIterator it; { if (convertRDF4JValueToJenaResource(focusNode)==null) {
+			StmtIterator it; { if (convertRDF4JValueToJenaResource(focusNode)==null) {
 						it = null;
 					}else {
-						it = jenaModel.listObjectsOfProperty(convertRDF4JValueToJenaResource(focusNode),
-															convertRDF4JIRIToJenaProperty(predicate));	
+						it = jenaModel.listStatements(convertRDF4JValueToJenaResource(focusNode),
+													  convertRDF4JIRIToJenaProperty(predicate),
+													  (org.apache.jena.rdf.model.RDFNode) null);
 						}
 					}
-			TCProperty prop; {prop = TCProperty.createFwProperty(predicate);}
-			
+	
 			@Override
 			public boolean hasNext() {
 				if (it == null)
@@ -85,7 +86,10 @@ public class JenaGraph extends AbstractRDFGraph {
 			public NeighborTriple next() {
 				if (it == null)
 					throw new NoSuchElementException();
-				return new NeighborTriple(focusNode,prop,convertJenaRDFNodeToValue(it.next()));
+				Statement next = it.next();
+				IRI predicate = convertJenaPropertyToRDF4JIRI(next.getPredicate());
+				TCProperty prop = TCProperty.createFwProperty(predicate);
+				return new NeighborTriple(focusNode,prop,convertJenaRDFNodeToValue(next.getObject()));
 			}
 		};
 	}
@@ -94,9 +98,9 @@ public class JenaGraph extends AbstractRDFGraph {
 	@Override
 	protected Iterator<NeighborTriple> itInNeighbours(Value focusNode, IRI predicate) {
 		return new Iterator<NeighborTriple>() {
-			ResIterator it; { it = jenaModel.listResourcesWithProperty(convertRDF4JIRIToJenaProperty(predicate),
-																	   convertRDF4JValueToJenaRDFNode(focusNode));	}
-			TCProperty prop; {prop = TCProperty.createFwProperty(predicate);}
+			StmtIterator it; { it = jenaModel.listStatements(null,
+															 convertRDF4JIRIToJenaProperty(predicate),
+															 convertRDF4JValueToJenaRDFNode(focusNode));	}
 			
 			@Override
 			public boolean hasNext() {
@@ -105,7 +109,10 @@ public class JenaGraph extends AbstractRDFGraph {
 
 			@Override
 			public NeighborTriple next() {
-				return new NeighborTriple(convertJenaRDFNodeToValue(it.next()),prop,focusNode);
+				Statement next = it.next();
+				IRI predicate = convertJenaPropertyToRDF4JIRI(next.getPredicate());
+				TCProperty prop = TCProperty.createFwProperty(predicate);
+				return new NeighborTriple(convertJenaRDFNodeToValue(next.getSubject()),prop,focusNode);
 			}
 		};
 	}
@@ -116,10 +123,14 @@ public class JenaGraph extends AbstractRDFGraph {
 	//----------------------------------------------
 	
 	public org.apache.jena.rdf.model.Property convertRDF4JIRIToJenaProperty(IRI predicate) {
+		if (predicate == null)
+			return null;
 		return jenaModel.createProperty(predicate.stringValue());
 	}
 	
 	public org.apache.jena.rdf.model.Resource convertRDF4JValueToJenaResource(Value value) {
+		if (value == null)
+			return null;
 		if (value instanceof IRI)
 			return jenaModel.createResource(value.stringValue());
 		if (value instanceof BNode)
@@ -132,6 +143,8 @@ public class JenaGraph extends AbstractRDFGraph {
 	}
 	
 	public org.apache.jena.rdf.model.RDFNode convertRDF4JValueToJenaRDFNode(Value value) {
+		if (value == null)
+			return null;
 		if (value instanceof Literal) {
 			Literal lvalue = (Literal) value;
 			if (lvalue.getLanguage().isPresent())
@@ -146,7 +159,15 @@ public class JenaGraph extends AbstractRDFGraph {
 	// Conversion Jena to RDF4J
 	//----------------------------------------------
 	
+	public IRI convertJenaPropertyToRDF4JIRI(org.apache.jena.rdf.model.Property prop) {
+		if (prop == null)
+			return null;
+		return RDF_FACTORY.createIRI(prop.getURI());
+	}
+	
 	public Value convertJenaRDFNodeToValue(org.apache.jena.rdf.model.RDFNode jenaRes) {
+		if (jenaRes == null)
+			return null;
 		if (jenaRes.isResource()) {
 			return convertJenaRDFNodeToResource((org.apache.jena.rdf.model.Resource) jenaRes);
 		}else {
@@ -155,6 +176,8 @@ public class JenaGraph extends AbstractRDFGraph {
 	}
 	
 	public Resource convertJenaRDFNodeToResource(org.apache.jena.rdf.model.Resource jenaRes) {
+		if (jenaRes == null)
+			return null;
 		if (jenaRes.isAnon())
 			return RDF_FACTORY.createBNode();
 		if (jenaRes.getNameSpace().equals("_:"))
@@ -163,6 +186,8 @@ public class JenaGraph extends AbstractRDFGraph {
 	}
 	
 	public static Literal convertJenaRDFNodeToLiteral(org.apache.jena.rdf.model.Literal jenaLit) {
+		if (jenaLit == null)
+			return null;
 		String value = jenaLit.getLexicalForm();
 		String lang = jenaLit.getLanguage();
 		if (!lang.equals(""))

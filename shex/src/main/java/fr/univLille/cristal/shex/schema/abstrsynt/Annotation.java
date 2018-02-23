@@ -19,8 +19,6 @@ package fr.univLille.cristal.shex.schema.abstrsynt;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
-import fr.univLille.cristal.shex.schema.concrsynt.LiteralStemConstraint;
-
 public class Annotation {
 	private IRI predicate;
 	private Value objectValue;

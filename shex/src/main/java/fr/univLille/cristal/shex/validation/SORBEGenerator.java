@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import fr.univLille.cristal.shex.schema.Label;
-import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
 import fr.univLille.cristal.shex.schema.abstrsynt.OneOf;

@@ -197,7 +197,7 @@ public class RefineValidation implements ValidationAlgorithm {
 				inversePredicate.add(tc.getProperty().getIri());
 			}
 		}
-		
+	
 		List<NeighborTriple> neighbourhood = new ArrayList<NeighborTriple>();
 		tmp = graph.listInNeighboursWithPredicate(node, inversePredicate);
 		while(tmp.hasNext()) neighbourhood.add(tmp.next());
@@ -208,6 +208,7 @@ public class RefineValidation implements ValidationAlgorithm {
 			tmp = graph.listOutNeighboursWithPredicate(node,forwardPredicate);
 			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		}
+		//System.err.println(neighbourhood);
 		
 		Matcher matcher = new MatcherPredicateAndValue(this.getTyping()); 
 		Map<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
