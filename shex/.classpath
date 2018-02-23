@@ -6,7 +6,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="fr/univLille/cristal/shex/validation/TestRefineValidationJena.java|sandbox/TestMisc.java|sandbox/TestRDFNode.java|fr/univLille/cristal/shex/runningTests/RunTestParametrized.java|fr/univLille/cristal/shex/validation/TestIntervalComputation.java|fr/univLille/cristal/shex/validation/TestRefineValidationRDF4J.java|fr/univLille/cristal/shex/runningTests/RunTests.java|fr/univLille/cristal/shex/runningTests/TestCommandLine.java|fr/univLille/cristal/shex/runningTests/PublishTestResults.java|fr/univLille/cristal/shex/runningTests/OneTest.java" kind="src" output="target/test-classes" path="src/test/java">
+	<classpathentry excluding="fr/univLille/cristal/shex/validation/TestRefineValidationJena.java|sandbox/TestMisc.java|sandbox/TestRDFNode.java|fr/univLille/cristal/shex/validation/TestIntervalComputation.java|fr/univLille/cristal/shex/validation/TestRefineValidationRDF4J.java|fr/univLille/cristal/shex/runningTests/RunTests.java|fr/univLille/cristal/shex/runningTests/TestCommandLine.java|fr/univLille/cristal/shex/runningTests/PublishTestResults.java|fr/univLille/cristal/shex/runningTests/OneTest.java" kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>

@@ -43,11 +43,11 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.univLille.cristal.shex.graph.RDF4JGraph;
-import fr.univLille.cristal.shex.runningTests.TestCase;
-import fr.univLille.cristal.shex.runningTests.TestResultForTestReport;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
+import fr.univLille.cristal.shex.shexTest.TestCase;
+import fr.univLille.cristal.shex.shexTest.TestResultForTestReport;
 import fr.univLille.cristal.shex.util.RDFFactory;
 
 /**

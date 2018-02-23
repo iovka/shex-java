@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.univLille.cristal.shex.runningTests;
+package fr.univLille.cristal.shex.shexTest;
 
 import java.util.Set;
 
