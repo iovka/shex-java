@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -51,7 +52,7 @@ public class Validate {
 	
 	// FIXME not tested
 	
-	private static RDFFactory factory = RDFFactory.getInstance();
+	private static ValueFactory factory = RDFFactory.getInstance();
 	
 	/** Validates a graph against a schema.
 	 * 

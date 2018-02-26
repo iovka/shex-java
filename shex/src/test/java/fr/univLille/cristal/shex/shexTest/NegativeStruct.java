@@ -67,8 +67,8 @@ public class NegativeStruct {
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
 	private static final IRI TEST_SHEX_IRI = RDF_FACTORY.createIRI("https://shexspec.github.io/shexTest/ns#shex");
 	
-	protected static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
-	protected static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
+	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
+	public static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
 	
 	@Parameters
     public static Collection<Object[]> parameters() throws IOException {

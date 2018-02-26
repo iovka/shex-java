@@ -80,10 +80,10 @@ public class Validation_ShExC_RDF4J_Recursive {
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"relativeIRI")
 	}));
 	
-	protected static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
-	protected static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
-	protected static final Set<TestResultForTestReport> skiped = new HashSet<TestResultForTestReport>();
-	protected static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
+	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
+	public static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
+	public static final Set<TestResultForTestReport> skiped = new HashSet<TestResultForTestReport>();
+	public static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
 	
 	@Parameters
     public static Collection<Object[]> parameters() throws IOException {

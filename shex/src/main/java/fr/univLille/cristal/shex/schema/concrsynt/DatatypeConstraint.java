@@ -16,12 +16,16 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.concrsynt;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
-import fr.univLille.cristal.shex.graph.TCProperty;
 
 /**
  * 
@@ -29,7 +33,29 @@ import fr.univLille.cristal.shex.graph.TCProperty;
  * 10 oct. 2017
  */
 public class DatatypeConstraint implements Constraint {
-	
+	public static final Set<IRI> validatedDatatype = new HashSet<>(Arrays.asList(new IRI[] {
+					XMLSchema.INTEGER, 
+					XMLSchema.DECIMAL,
+					XMLSchema.FLOAT,
+					XMLSchema.DOUBLE,
+					XMLSchema.STRING,
+					XMLSchema.BOOLEAN,
+					XMLSchema.DATETIME,
+					XMLSchema.NON_POSITIVE_INTEGER,
+					XMLSchema.NEGATIVE_INTEGER,
+					XMLSchema.LONG,
+					XMLSchema.INT,
+					XMLSchema.SHORT,
+					XMLSchema.BYTE,
+					XMLSchema.NON_NEGATIVE_INTEGER,
+					XMLSchema.UNSIGNED_LONG,
+					XMLSchema.UNSIGNED_INT,
+					XMLSchema.UNSIGNED_SHORT,
+					XMLSchema.UNSIGNED_BYTE,
+					XMLSchema.POSITIVE_INTEGER,
+					//XMLSchema.TIME) 
+					//XMLSchema.DATE);			
+			}));
 	private IRI datatypeIri;
 	
 	public DatatypeConstraint(IRI datatypeIri) {
@@ -45,12 +71,13 @@ public class DatatypeConstraint implements Constraint {
 		if (! (node instanceof Literal)) return false;
 		Literal lnode = (Literal) node;
 		if (!(datatypeIri.equals(lnode.getDatatype()))) return false;
-		if ((XMLDatatypeUtil.isBuiltInDatatype(lnode.getDatatype()))) {
+		if (validatedDatatype.contains(lnode.getDatatype())) {
 			return XMLDatatypeUtil.isValidValue(lnode.stringValue(), lnode.getDatatype());
 		}
 
 		return true;
 	}
+	
 	
 	@Override
 	public String toString() {
