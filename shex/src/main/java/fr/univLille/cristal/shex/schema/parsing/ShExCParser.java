@@ -40,6 +40,8 @@ import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
@@ -88,7 +90,7 @@ import fr.univLille.cristal.shex.util.XPath;
 
 
 public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
-	private static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	private Map<Label,ShapeExpr> rules;
 	private Map<String,String> prefixes;
 	private List<String> imports;
@@ -486,7 +488,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			if (ctx.numericLiteral()!=null) {
 				lnode = (Literal) ctx.numericLiteral().accept(this);
 			} else {
-				lnode = RDF_FACTORY.createLiteral((String) ctx.string().accept(this),
+				lnode = rdfFactory.createLiteral((String) ctx.string().accept(this),
 						(IRI) ctx.datatype().accept(this));
 			}
 			BigDecimal value = lnode.decimalValue();
@@ -847,7 +849,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitPredicate(ShExDocParser.PredicateContext ctx) { 
 		if (ctx.iri() != null)
 			return ctx.iri().accept(this);
-		return RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"); 
+		return rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"); 
 	}
 	
 	public Object visitAnnotation(ShExDocParser.AnnotationContext ctx) {
@@ -883,8 +885,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			String iris = iri.getText();
 			iris = iris.substring(1,iris.length()-1);
 			if (base!=null)
-				return RDF_FACTORY.createIRI(base,iris);
-			return RDF_FACTORY.createIRI(iris);
+				return rdfFactory.createIRI(base,iris);
+			return rdfFactory.createIRI(iris);
 		}
 		return ctx.prefixedName().accept(this); 
 	}
@@ -892,38 +894,38 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitPrefixedName(ShExDocParser.PrefixedNameContext ctx) {
 		if (ctx.PNAME_NS()!=null)
-			return RDF_FACTORY.createIRI(prefixes.get(ctx.PNAME_NS().getText()));
+			return rdfFactory.createIRI(prefixes.get(ctx.PNAME_NS().getText()));
 
 		String prefix = ctx.PNAME_LN().getText().split(":")[0]+":";
 		String value = (ctx.PNAME_LN().getText().replaceAll(prefix, prefixes.get(prefix)));
-		return RDF_FACTORY.createIRI(value); 
+		return rdfFactory.createIRI(value); 
 	}
 
 	
 	@Override 
 	public Object visitNumericLiteral(@NotNull ShExDocParser.NumericLiteralContext ctx) { 
 		if (ctx.INTEGER()!=null)
-			return  RDF_FACTORY.createLiteral(ctx.INTEGER().getText(),XMLSchema.INTEGER);
+			return  rdfFactory.createLiteral(ctx.INTEGER().getText(),XMLSchema.INTEGER);
 		if (ctx.DOUBLE()!=null)
-			return  RDF_FACTORY.createLiteral(ctx.DOUBLE().getText(),XMLSchema.DOUBLE);
-		return RDF_FACTORY.createLiteral(ctx.DECIMAL().getText(),XMLSchema.DECIMAL);
+			return  rdfFactory.createLiteral(ctx.DOUBLE().getText(),XMLSchema.DOUBLE);
+		return rdfFactory.createLiteral(ctx.DECIMAL().getText(),XMLSchema.DECIMAL);
 	}
 	
 	@Override 
 	public Object visitRdfLiteral(@NotNull ShExDocParser.RdfLiteralContext ctx) {
 		String value = (String) ctx.string().accept(this);
 		if (ctx.datatype() != null)
-			return RDF_FACTORY.createLiteral(value, (IRI) ctx.datatype().accept(this));
+			return rdfFactory.createLiteral(value, (IRI) ctx.datatype().accept(this));
 		if (ctx.LANGTAG()!=null)
-			return RDF_FACTORY.createLiteral(value, ctx.LANGTAG().getText().substring(1));
-		return RDF_FACTORY.createLiteral(value);
+			return rdfFactory.createLiteral(value, ctx.LANGTAG().getText().substring(1));
+		return rdfFactory.createLiteral(value);
 	}
 
 	@Override 
 	public Object visitBooleanLiteral(@NotNull ShExDocParser.BooleanLiteralContext ctx) {
 		if (ctx.KW_FALSE()!=null)
-			return RDF_FACTORY.createLiteral(false);
-		return RDF_FACTORY.createLiteral(true);
+			return rdfFactory.createLiteral(false);
+		return rdfFactory.createLiteral(true);
 	}
 
 	
@@ -948,6 +950,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 	
 	public Object visitBlankNode(ShExDocParser.BlankNodeContext ctx) { 
-		return RDF_FACTORY.createBNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
+		return rdfFactory.createBNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
 	}
 }

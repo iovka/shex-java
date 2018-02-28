@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.univLille.cristal.shex.shexTest;
+package fr.univLille.cristal.shex.util;
 
 /**
  * 
@@ -22,10 +22,10 @@ package fr.univLille.cristal.shex.shexTest;
  * 10 oct. 2017
  */
 public class TestResultForTestReport {
-	String name;
-	boolean passed; // should be "passed" or "failed"
-	String description;
-	String testType;
+	public String name;
+	public boolean passed; // should be "passed" or "failed"
+	public String description;
+	public String testType;
 	
 	public TestResultForTestReport(String name, boolean passed, String description, String testType) {
 		this.name = name;

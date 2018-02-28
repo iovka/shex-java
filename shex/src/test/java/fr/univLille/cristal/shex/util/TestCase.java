@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.univLille.cristal.shex.shexTest;
+package fr.univLille.cristal.shex.util;
 
 import java.util.Set;
 
@@ -27,7 +27,6 @@ import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 
 import fr.univLille.cristal.shex.schema.Label;
-import fr.univLille.cristal.shex.util.RDFFactory;
 
 public 	class TestCase {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();

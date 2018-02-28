@@ -50,6 +50,7 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
+import fr.univLille.cristal.shex.util.TestResultForTestReport;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
 
 

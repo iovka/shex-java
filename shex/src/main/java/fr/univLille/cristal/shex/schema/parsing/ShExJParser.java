@@ -31,6 +31,8 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
@@ -84,7 +86,7 @@ import fr.univLille.cristal.shex.util.RDFFactory;
  */
 @SuppressWarnings("rawtypes")
 public class ShExJParser implements Parser{
-	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	private List<String> imports;
 
 	// --------------------------------------------------------------------
@@ -276,7 +278,7 @@ public class ShExJParser implements Parser{
 
 		String datatype = (String) (map.get("datatype"));
 		if (datatype != null)
-			constraints.add(new DatatypeConstraint(RDF_FACTORY.createIRI(datatype)));
+			constraints.add(new DatatypeConstraint(rdfFactory.createIRI(datatype)));
 
 		Constraint num = getNumericFacet(map);
 		if (num != null) 
@@ -313,7 +315,7 @@ public class ShExJParser implements Parser{
 
 			for (Object o : values) {
 				if (o instanceof String) {
-					explicitValues.add(RDF_FACTORY.createIRI((String)o));
+					explicitValues.add(rdfFactory.createIRI((String)o));
 				} else {
 					Map m = (Map) o;
 					String type = (String) m.get("type");
@@ -366,15 +368,15 @@ public class ShExJParser implements Parser{
 		private Value parseObjectLiteral (Map m) {
 			String value = (String) m.get("value");
 			if (m.get("type") == null & m.get("language")==null)
-				return RDF_FACTORY.createLiteral(value);
+				return rdfFactory.createLiteral(value);
 			
 			if (m.get("language") != null) {
 				String lang = (String) m.get("language");
-				return RDF_FACTORY.createLiteral(value, lang);
+				return rdfFactory.createLiteral(value, lang);
 			}
 			
-			IRI type = RDF_FACTORY.createIRI((String) m.get("type"));
-			return RDF_FACTORY.createLiteral(value,type);
+			IRI type = rdfFactory.createIRI((String) m.get("type"));
+			return rdfFactory.createLiteral(value,type);
 		}
 
 		//IriStem { stem:IRI }
@@ -393,7 +395,7 @@ public class ShExJParser implements Parser{
 				List<Object> exclu = (List<Object>) m.get("exclusions");
 				for (Object o:exclu) {
 					if (o instanceof String) {
-						forbidenValue.add(RDF_FACTORY.createIRI((String) o));
+						forbidenValue.add(rdfFactory.createIRI((String) o));
 					}else {
 						String type = (String) ((Map) o).get("type");
 						if (type != null & type.equals("IriStem"))
@@ -431,7 +433,7 @@ public class ShExJParser implements Parser{
 				List<Object> exclu = (List<Object>) m.get("exclusions");
 				for (Object o:exclu) {
 					if (o instanceof String) {
-						forbidenValue.add(RDF_FACTORY.createLiteral((String) o));
+						forbidenValue.add(rdfFactory.createLiteral((String) o));
 						//exclusions.add(new ObjectLiteral((String) o, null,null));
 					}else {
 						String type = (String) ((Map) o).get("type");
@@ -477,7 +479,7 @@ public class ShExJParser implements Parser{
 					if (o instanceof String) {
 						String tmp = (String) o;
 						if (isIriString(tmp))
-							forbidenValue.add(RDF_FACTORY.createIRI((String) o));
+							forbidenValue.add(rdfFactory.createIRI((String) o));
 						else
 							exclusions.add(new LanguageConstraint(tmp));
 					}else {
@@ -566,7 +568,7 @@ public class ShExJParser implements Parser{
 		protected List<IRI> parseListOfIri (List list) {
 			List<IRI> res = new ArrayList<>(list.size());
 			for (Object o: list) {
-				res.add(RDF_FACTORY.createIRI((String)o));
+				res.add(rdfFactory.createIRI((String)o));
 			}
 			return res;
 		}
@@ -670,7 +672,7 @@ public class ShExJParser implements Parser{
 		Boolean inv = (Boolean) (map.get("inverse"));
 		if (inv == null)
 			inv = false;
-		IRI predicate = RDF_FACTORY.createIRI((String) (map.get("predicate")));
+		IRI predicate = rdfFactory.createIRI((String) (map.get("predicate")));
 		TCProperty property = createTCProperty(predicate, !inv);
 
 		ShapeExpr shexpr = null;
@@ -727,10 +729,10 @@ public class ShExJParser implements Parser{
 			List<Object> lannot = (List<Object>) annotations;
 			for (Object annot:lannot) {
 				Map<String,Object> mannot = (Map<String,Object>) annot;
-				IRI pred = RDF_FACTORY.createIRI((String) mannot.get("predicate"));
+				IRI pred = rdfFactory.createIRI((String) mannot.get("predicate"));
 				Value obj = null;
 				if (mannot.get("object") instanceof String)
-					obj = RDF_FACTORY.createIRI((String) mannot.get("object"));
+					obj = rdfFactory.createIRI((String) mannot.get("object"));
 				else
 					obj = parseObjectLiteral((Map) mannot.get("object"));
 				result.add(new Annotation(pred,obj));
@@ -746,21 +748,21 @@ public class ShExJParser implements Parser{
 
 	private static Label createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new Label(RDF_FACTORY.createIRI(string),generated);
+			return new Label(rdfFactory.createIRI(string),generated);
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new Label(RDF_FACTORY.createBNode(string),generated);
+			return new Label(rdfFactory.createBNode(string),generated);
 		}
 	}
 
 	private static Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new Label(RDF_FACTORY.createIRI(string),generated);
+			return new Label(rdfFactory.createIRI(string),generated);
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new Label(RDF_FACTORY.createBNode(string),generated);
+			return new Label(rdfFactory.createBNode(string),generated);
 		}
 	}
 

@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyTripleExpression;
@@ -35,7 +38,7 @@ import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.RDFFactory;
 
 public class SORBEGenerator {
-	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	private static int tripleLabelNb = 0;
 	private static String TRIPLE_LABEL_PREFIX = "LABEL_FOR_SORBE_GENERATED";
 	
@@ -153,7 +156,7 @@ public class SORBEGenerator {
 	
 
 	private void setTripleLabel(TripleExpr triple) {
-		triple.setId(new Label(RDF_FACTORY.createBNode(TRIPLE_LABEL_PREFIX+"_"+tripleLabelNb),true));
+		triple.setId(new Label(rdfFactory.createBNode(TRIPLE_LABEL_PREFIX+"_"+tripleLabelNb),true));
 		tripleLabelNb++;
 	}
 	

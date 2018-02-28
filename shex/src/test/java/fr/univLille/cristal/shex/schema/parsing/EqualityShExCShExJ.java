@@ -46,9 +46,9 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
-import fr.univLille.cristal.shex.shexTest.TestCase;
-import fr.univLille.cristal.shex.shexTest.TestResultForTestReport;
 import fr.univLille.cristal.shex.util.RDFFactory;
+import fr.univLille.cristal.shex.util.TestCase;
+import fr.univLille.cristal.shex.util.TestResultForTestReport;
 
 /**
  * 

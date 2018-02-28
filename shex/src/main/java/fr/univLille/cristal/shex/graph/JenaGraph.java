@@ -8,6 +8,8 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 import fr.univLille.cristal.shex.util.RDFFactory;
 
@@ -18,7 +20,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 
 public class JenaGraph extends AbstractRDFGraph {
-	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	protected Model jenaModel;
 	
 	
@@ -162,7 +164,7 @@ public class JenaGraph extends AbstractRDFGraph {
 	public IRI convertJenaPropertyToRDF4JIRI(org.apache.jena.rdf.model.Property prop) {
 		if (prop == null)
 			return null;
-		return RDF_FACTORY.createIRI(prop.getURI());
+		return rdfFactory.createIRI(prop.getURI());
 	}
 	
 	public Value convertJenaRDFNodeToValue(org.apache.jena.rdf.model.RDFNode jenaRes) {
@@ -179,10 +181,10 @@ public class JenaGraph extends AbstractRDFGraph {
 		if (jenaRes == null)
 			return null;
 		if (jenaRes.isAnon())
-			return RDF_FACTORY.createBNode();
+			return rdfFactory.createBNode();
 		if (jenaRes.getNameSpace().equals("_:"))
-			return RDF_FACTORY.createBNode(jenaRes.getLocalName());
-		return RDF_FACTORY.createIRI(jenaRes.getURI());
+			return rdfFactory.createBNode(jenaRes.getLocalName());
+		return rdfFactory.createIRI(jenaRes.getURI());
 	}
 	
 	public static Literal convertJenaRDFNodeToLiteral(org.apache.jena.rdf.model.Literal jenaLit) {
@@ -191,8 +193,8 @@ public class JenaGraph extends AbstractRDFGraph {
 		String value = jenaLit.getLexicalForm();
 		String lang = jenaLit.getLanguage();
 		if (!lang.equals(""))
-			return RDF_FACTORY.createLiteral(value, lang);
-		return  RDF_FACTORY.createLiteral(value, RDF_FACTORY.createIRI(jenaLit.getDatatypeURI()));			
+			return rdfFactory.createLiteral(value, lang);
+		return  rdfFactory.createLiteral(value, rdfFactory.createIRI(jenaLit.getDatatypeURI()));			
 	}
 	
 	@Override

@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
@@ -210,7 +213,7 @@ public class ShexSchema {
 	//--------------------------------------------------------------------------------
 	// ID  function
 	//--------------------------------------------------------------------------------
-	private final static RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	
 	private static int shapeLabelNb = 0;
 	private static String SHAPE_LABEL_PREFIX = "SLGEN";
@@ -226,9 +229,9 @@ public class ShexSchema {
 	
 	private static Label createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new Label(RDF_FACTORY.createIRI(string),generated);
+			return new Label(rdfFactory.createIRI(string),generated);
 		else 
-			return new Label(RDF_FACTORY.createBNode(string),generated);
+			return new Label(rdfFactory.createBNode(string),generated);
 	}
 	
 	private void checkShapeID(ShapeExpr shape) {
@@ -240,9 +243,9 @@ public class ShexSchema {
 	
 	private static Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new Label(RDF_FACTORY.createIRI(string),generated);
+			return new Label(rdfFactory.createIRI(string),generated);
 		else 
-			return new Label(RDF_FACTORY.createBNode(string),generated);
+			return new Label(rdfFactory.createBNode(string),generated);
 	}
 	
 	private void checkTripleID(TripleExpr triple) {
