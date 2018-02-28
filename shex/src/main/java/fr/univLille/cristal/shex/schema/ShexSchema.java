@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.impl.ValueFactoryImpl;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
@@ -59,7 +58,6 @@ import fr.univLille.cristal.shex.schema.analysis.SchemaCollectors;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 import fr.univLille.cristal.shex.util.Pair;
-import fr.univLille.cristal.shex.util.RDFFactory;
 
 /** A ShEx schema.
  * 

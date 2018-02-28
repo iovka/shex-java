@@ -35,7 +35,6 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 import fr.univLille.cristal.shex.util.Interval;
-import fr.univLille.cristal.shex.util.RDFFactory;
 
 public class SORBEGenerator {
 	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();

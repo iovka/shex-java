@@ -30,10 +30,8 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.exception.CyclicReferencesException;
 import fr.univLille.cristal.shex.exception.UndefinedReferenceException;
-import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 
 /**
@@ -54,8 +52,6 @@ public class TestReferences {
 		Path cyclicReferences = Paths.get(ConfigurationTest.shexTestPath.toString(),"failure","CyclicReferences");
 		listOfParameters.addAll(ConfigurationTest.getTestFromDirectory(cyclicReferences, 2));
 		
-		
-		
 		return listOfParameters;
 	}
 		
@@ -71,7 +67,7 @@ public class TestReferences {
 	@Test
 	public void parse (){
 		try {
-			ShexSchema schema = GenParser.parseSchema(schemaFile);
+			GenParser.parseSchema(schemaFile);
 		}catch(UndefinedReferenceException e) {
 			if (status!=1) {
 				fail("Error: undefined reference catch on test ("+schemaFile+")");

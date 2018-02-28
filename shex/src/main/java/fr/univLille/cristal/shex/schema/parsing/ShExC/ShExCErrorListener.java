@@ -1,14 +1,8 @@
 package fr.univLille.cristal.shex.schema.parsing.ShExC;
 
-import java.util.BitSet;
-
-import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ConsoleErrorListener;
-import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.atn.ATNConfigSet;
-import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 public class ShExCErrorListener extends ConsoleErrorListener {
@@ -21,7 +15,7 @@ public class ShExCErrorListener extends ConsoleErrorListener {
 			String msg,
 			RecognitionException e) {
 		String message = ("line " + line + ":" + charPositionInLine + " " + msg);
-		throw new ParseCancellationException();
+		throw new ParseCancellationException(message);
 		
 
 	}

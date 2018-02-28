@@ -14,17 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.univLille.cristal.shex.runningTests;
+package fr.univLille.cristal.shex.shexTest;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
 
@@ -33,7 +31,7 @@ import fr.univLille.cristal.shex.util.TestResultForTestReport;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class PublishTestResults {
+public class CreateTestReport {
 
 	String ASSERTED_BY = "<http://cristal.univ-lille.fr/~boneva>";
 	String SUBJECT = "<https://gforge.inria.fr/projects/shex-impl/>";
@@ -41,7 +39,7 @@ public class PublishTestResults {
 	String WHEN = "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())+"\""+ "^^<http://www.w3.org/2001/XMLSchema#dateTime>";
 	PrintStream out;
 	
-	public PublishTestResults(String logPath) throws IOException {
+	public CreateTestReport(String logPath) throws IOException {
 		if (logPath == null)
 			out = System.out;
 		else 

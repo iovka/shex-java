@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,7 +84,6 @@ import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocParser.IriExclusion
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocParser.QualifierContext;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocParser.XsFacetContext;
 import fr.univLille.cristal.shex.util.Interval;
-import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.util.XPath;
 
 

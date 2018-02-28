@@ -39,7 +39,6 @@ import com.github.jsonldjava.utils.JsonUtils;
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
 import fr.univLille.cristal.shex.schema.abstrsynt.EmptyShape;
@@ -71,7 +70,6 @@ import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
 import fr.univLille.cristal.shex.util.Interval;
-import fr.univLille.cristal.shex.util.RDFFactory;
 
 /** Parses a {@link ShexSchema} from its jsonld representation. 
  * 
@@ -640,7 +638,6 @@ public class ShExJParser implements Parser{
 	}
 
 	// OneOf { 	id:Label? expressions:[tripleExpr] min:INTEGER? max:INTEGER? semActs:[SemAct]? annotations:[Annotation]? }	
-	@SuppressWarnings("rawtypes")
 	protected TripleExpr parseOneOf (Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);

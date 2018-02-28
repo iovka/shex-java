@@ -42,10 +42,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
-import fr.univLille.cristal.shex.graph.RDF4JGraph;
-import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.util.TestCase;
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
@@ -62,7 +59,6 @@ public class EqualityShExCShExJ {
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
 	protected static final String MANIFEST_FILE = TEST_DIR + "validation/manifest.ttl";
 	private static final String SCHEMAS_DIR = TEST_DIR + "schemas/";
-	private static final String DATA_DIR = TEST_DIR + "validation/";
 
 	private static final Resource VALIDATION_FAILURE_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationFailure");
 	private static final Resource VALIDATION_TEST_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationTest");
@@ -235,12 +231,6 @@ public class EqualityShExCShExJ {
 		String fp = res.toString().substring(res.toString().indexOf("/master/")+8);
 		return TEST_DIR+fp;
 	}
-
-	private static String getDataFileName (Resource res) {
-		String[] parts = res.toString().split("/");
-		return parts[parts.length-1];
-	}
-
 
 	protected static Model parseTurtleFile(String filename,String baseURI) throws IOException{
 		java.net.URL documentUrl = new URL("file://"+filename);

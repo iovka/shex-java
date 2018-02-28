@@ -22,24 +22,16 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.univLille.cristal.shex.ConfigurationTest;
 import fr.univLille.cristal.shex.exception.NotStratifiedException;
-import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
-import fr.univLille.cristal.shex.util.RDFFactory;
-import fr.univLille.cristal.shex.util.TestResultForTestReport;
 
 /**
  * 
@@ -73,7 +65,7 @@ public class TestStratification {
 	@Test
 	public void parse (){
 		try {
-			ShexSchema schema = GenParser.parseSchema(schemaFile);
+			GenParser.parseSchema(schemaFile);
 		}catch(NotStratifiedException e) {
 			if (status!=1) {
 				fail("Error: schema not stratified for test: "+schemaFile+".");
