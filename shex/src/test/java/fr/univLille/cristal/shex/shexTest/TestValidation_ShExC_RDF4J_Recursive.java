@@ -158,6 +158,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	}
     }
     
+	
 //    @AfterClass
 //	public static void ending() {
 //    	System.out.println("Result for validation tests:");
