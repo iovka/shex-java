@@ -55,7 +55,7 @@ import fr.univLille.cristal.shex.util.TestResultForTestReport;
 public class TestNegativeSyntax {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
-	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
+	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
 	protected static final String MANIFEST_FILE = TEST_DIR + "negativeSyntax/manifest.ttl";
 	private static final String SCHEMAS_DIR = TEST_DIR + "schemas/";

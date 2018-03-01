@@ -61,7 +61,7 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 public class TestValidation_ShExJ_Jena_Refine {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
-	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
+	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
 	
 	protected static String MANIFEST_FILE = TEST_DIR + "validation/manifest.ttl";
 	

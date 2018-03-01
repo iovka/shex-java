@@ -60,7 +60,7 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 public class TestValidation_ShExC_RDF4J_Recursive {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
-	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
+	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
 	
 	protected static String MANIFEST_FILE = TEST_DIR + "validation/manifest.ttl";
 	
@@ -90,20 +90,20 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	public static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
 	
 	@Parameters
-    public static Collection<Object[]> parameters() throws IOException {
-	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
-	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-		    	Object[] params =  {new TestCase(manifest,testNode)};
-		    	parameters.add(params);
-			}
-	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-	    		Object[] params =  {new TestCase(manifest,testNode)};
-		    	parameters.add(params);
-			}
-	        return parameters;
-    }
-    
+	public static Collection<Object[]> parameters() throws IOException {
+		Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
+		List<Object[]> parameters = new ArrayList<Object[]>();
+		for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
+			Object[] params =  {new TestCase(manifest,testNode)};
+			parameters.add(params);
+		}
+		for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
+			Object[] params =  {new TestCase(manifest,testNode)};
+			parameters.add(params);
+		}
+		return parameters;
+	}
+
     
     @Parameter
     public TestCase testCase;
@@ -135,7 +135,6 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
-    		
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		RDFGraph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
@@ -196,7 +195,6 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	public static Model parseTurtleFile(String filename,String baseURI) throws IOException{
 		java.net.URL documentUrl = new URL("file://"+filename);
 		InputStream inputStream = documentUrl.openStream();
-
 		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
 	}
 }
