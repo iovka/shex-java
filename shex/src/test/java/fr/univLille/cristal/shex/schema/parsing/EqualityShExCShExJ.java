@@ -44,6 +44,7 @@ import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.util.RDFFactory;
+import fr.univLille.cristal.shex.util.SchemaEquality;
 import fr.univLille.cristal.shex.util.TestCase;
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
 

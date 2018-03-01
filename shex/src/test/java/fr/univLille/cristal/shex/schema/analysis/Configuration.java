@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class ConfigurationTest {
+public class Configuration {
 	public static Path shexTestPath = Paths.get("src","test","ressources");
 
 	

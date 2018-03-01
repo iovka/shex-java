@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.shexTest;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -56,7 +58,7 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 
 
 @RunWith(Parameterized.class)
-public class Validation_ShExJ_Jena_Refine {
+public class TestValidation_ShExJ_Jena_Refine {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -150,14 +152,17 @@ public class Validation_ShExJ_Jena_Refine {
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
+    			fail("Fail: "+testCase.testName);
     		}			
     	}catch (Exception e) {
     		errors.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
+			fail("Exception: "+testCase.testName);
     	}
     }
     
     @AfterClass
 	public static void ending() {
+    	System.out.println("Result for validation tests:");
 		System.out.println("Skipped: "+skiped.size());
 		System.out.println("Passed : "+passed.size());
 		System.out.println("Failed : "+failed.size());

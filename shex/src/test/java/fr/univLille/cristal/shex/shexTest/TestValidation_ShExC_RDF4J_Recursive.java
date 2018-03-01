@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.shexTest;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -55,7 +57,7 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 
 
 @RunWith(Parameterized.class)
-public class Validation_ShExC_RDF4J_Recursive {
+public class TestValidation_ShExC_RDF4J_Recursive {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -132,7 +134,6 @@ public class Validation_ShExC_RDF4J_Recursive {
     		if(! schemaFile.toFile().exists()) {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
-    			return;
     		}
     		
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
@@ -149,19 +150,22 @@ public class Validation_ShExC_RDF4J_Recursive {
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
+    			fail("Fail: "+testCase.testName);
     		}			
     	}catch (Exception e) {
-    		errors.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
+    		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
+			fail("Exception: "+testCase.testName);
     	}
     }
     
-    @AfterClass
-	public static void ending() {
-		System.out.println("Skipped: "+skiped.size());
-		System.out.println("Passed : "+passed.size());
-		System.out.println("Failed : "+failed.size());
-		System.out.println("Errors : "+errors.size());
-	}
+//    @AfterClass
+//	public static void ending() {
+//    	System.out.println("Result for validation tests:");
+//		System.out.println("Skipped: "+skiped.size());
+//		System.out.println("Passed : "+passed.size());
+//		System.out.println("Failed : "+failed.size());
+//		System.out.println("Errors : "+errors.size());
+//	}
 	
 	//--------------------------------------------------
 	// Utils functions for test

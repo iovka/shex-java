@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.shexTest;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -49,7 +51,7 @@ import fr.univLille.cristal.shex.util.TestResultForTestReport;
 
 
 @RunWith(Parameterized.class)
-public class NegativeStruct {
+public class TestNegativeStruct {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
 	protected static final String TEST_DIR = "/home/jdusart/Documents/Shex/workspace/shexTest/";
@@ -86,23 +88,24 @@ public class NegativeStruct {
 	
     @Test
     public void runTest() {
-		System.err.println(schemaFile);
 		ShexSchema schema = null;
 		try {
 			schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-			System.out.println("Failing: "+testName);
-			System.out.println(schema);
-			failed.add(new TestResultForTestReport(testName, false, null, "negative syntax"));
+			//System.out.println("Failing: "+testName);
+			//System.out.println(schema);
+			failed.add(new TestResultForTestReport(testName, false, null, "negativeStructure"));
+			fail("Failing test: "+testName);
 		}catch (Exception e) {
-			System.err.println("Exception: "+testName);
-			System.err.println(e.getClass());
-			errors.add(new TestResultForTestReport(testName, false, null, "negative syntax"));
+			//System.err.println("Exception: "+testName);
+			//System.err.println(e.getClass());
+			errors.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeStructure"));
 		}
 
     }
     
     @AfterClass
 	public static void ending() {
+    	System.out.println("Result for negative structure tests:");
 		System.out.println("Failed : "+failed.size());
 		System.out.println("Errors : "+errors.size());
 	}

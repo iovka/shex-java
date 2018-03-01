@@ -24,6 +24,8 @@ import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.junit.runner.JUnitCore;
+
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
 
 /**
@@ -47,17 +49,34 @@ public class CreateTestReport {
 	}
 	
 	
-//	public static void main(String[] args) throws IOException, ParseException {
-//		PublishTestResults t = new PublishTestResults("/tmp/shexlille-earl.ttl");
-//		t.printHeader();
-//		
-//		List<TestResultForTestReport> report = RunTests.runAllTests(RunTests.loadManifest());
-//		for (TestResultForTestReport r : report) {
-//			t.printTestResult(r);
-//		}
-//		
-//		t.printFooter();
-//	}
+	public static void main(String[] args) throws IOException  {
+		CreateTestReport t = new CreateTestReport("/tmp/shexlille-earl.ttl");
+		t.printHeader();
+		
+		JUnitCore.runClasses(TestValidation_ShExC_RDF4J_Recursive.class);
+		for (TestResultForTestReport r : TestValidation_ShExC_RDF4J_Recursive.passed)
+			t.printTestResult(r);
+		for (TestResultForTestReport r : TestValidation_ShExC_RDF4J_Recursive.skiped)
+			t.printTestResult(r);
+		for (TestResultForTestReport r : TestValidation_ShExC_RDF4J_Recursive.errors)
+			t.printTestResult(r);
+		for (TestResultForTestReport r : TestValidation_ShExC_RDF4J_Recursive.failed)
+			t.printTestResult(r);
+		
+		JUnitCore.runClasses(TestNegativeStruct.class);
+		for (TestResultForTestReport r : TestNegativeStruct.errors)
+			t.printTestResult(r);
+		for (TestResultForTestReport r : TestNegativeStruct.failed)
+			t.printTestResult(r);
+		
+		JUnitCore.runClasses(TestNegativeSyntax.class);
+		for (TestResultForTestReport r : TestNegativeSyntax.errors)
+			t.printTestResult(r);
+		for (TestResultForTestReport r : TestNegativeSyntax.failed)
+			t.printTestResult(r);
+		
+		t.printFooter();
+	}
 	
 	private void printTestResult (TestResultForTestReport res)  {
 		StringBuilder s = new StringBuilder();

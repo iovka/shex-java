@@ -38,7 +38,6 @@ import fr.univLille.cristal.shex.graph.RDF4JGraph;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
-import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
@@ -52,7 +51,7 @@ public class Validate {
 	
 	// FIXME not tested
 	
-	private static ValueFactory factory = RDFFactory.getInstance();
+	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	
 	/** Validates a graph against a schema.
 	 * 
@@ -115,7 +114,7 @@ public class Validate {
 		
 		Resource focusNode = null;
 		if (parameters.get("-f") != null)
-			focusNode = factory.createIRI(parameters.get("-f"));
+			focusNode = rdfFactory.createIRI(parameters.get("-f"));
 		
 		Label shapeLabel = null;
 		if (parameters.get("-l") != null)
