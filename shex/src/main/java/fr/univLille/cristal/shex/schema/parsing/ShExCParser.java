@@ -107,8 +107,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
-		Reader isr = new InputStreamReader(is,"UTF-8");
-		ANTLRInputStream inputStream = new ANTLRInputStream(isr);
+		//Reader isr = new InputStreamReader(is,"UTF-8");
+		ANTLRInputStream inputStream = new ANTLRInputStream(is);
         ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
         ShExDocLexer.removeErrorListeners();
         ShExDocLexer.addErrorListener(new ShExCErrorListener());
