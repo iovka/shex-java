@@ -112,8 +112,7 @@ public class TestNegativeStruct {
     	System.out.println("Result for negative structure tests:");
 		System.out.println("Failed : "+failed.size());
 		printTestCaseNames("  > ",failed);
-		System.out.println("Errors : "+errors.size());
-		printTestCaseNames("  > ",errors);
+		System.out.println("Passed : "+errors.size());
 	}
     
     public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
