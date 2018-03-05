@@ -62,7 +62,7 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
  *
  */
 @RunWith(Parameterized.class)
-public class TestShExJParserSerializer {
+public class TestShExCParserShExJSerializer {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
@@ -152,6 +152,7 @@ public class TestShExJParserSerializer {
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "same"));
 			} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "failed"));
+    			fail("Failed: "+testCase.testName);
 			}
 
     	}catch (Exception e) {
@@ -163,7 +164,7 @@ public class TestShExJParserSerializer {
 	
     @AfterClass
 	public static void ending() {
-    	System.out.println("Result for ShExJ parser-serialiser tests:");
+    	System.out.println("Result for ShExC parser - ShExJ serialiser tests:");
 		System.out.println("Skipped: "+skiped.size());
 		printTestCaseNames("  > ",skiped);
 		System.out.println("Passed : "+passed.size());
