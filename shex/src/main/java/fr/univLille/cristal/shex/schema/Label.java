@@ -19,39 +19,46 @@ package fr.univLille.cristal.shex.schema;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 
-/**
+/** Label class for shex schema. A label is either an IRI or a BNode. This class is used to label triple expression and shape expression. 
  * 
  * @author Iovka Boneva
- * 11 oct. 2017
+ * @author Jérémie Dusart
  */
 public class Label {
 	// Exactly one of these is non null
 	private final IRI iri;
 	private final BNode bnode;
-	private final boolean generated;
+	private final boolean isGenerated;
 
+	
+	/** isGenerated is set to false.
+	 * @param iri
+	 */
 	public Label (IRI iri) {
 		this.iri = iri;
 		this.bnode = null;
-		this.generated = false;
+		this.isGenerated = false;
 	}
 	
+	/** isGenerated is set to false.
+	 * @param iri
+	 */
 	public Label (BNode bnode) {
 		this.bnode = bnode;
 		this.iri = null;
-		this.generated = false;
+		this.isGenerated = false;
 	}
 	
 	public Label (IRI iri,boolean generated) {
 		this.iri = iri;
 		this.bnode = null;
-		this.generated = generated;
+		this.isGenerated = generated;
 	}
 	
 	public Label (BNode bnode,boolean generated) {
 		this.bnode = bnode;
 		this.iri = null;
-		this.generated = generated;
+		this.isGenerated = generated;
 	}
 	
 	public boolean isIri() {
@@ -63,7 +70,7 @@ public class Label {
 	}
 	
 	public boolean isGenerated() {
-		return this.generated;
+		return this.isGenerated;
 	}
 	
 	public String stringValue() {
@@ -90,7 +97,7 @@ public class Label {
 		if (getClass() != obj.getClass())
 			return false;
 		Label other = (Label) obj;
-		if (this.generated !=other.isGenerated())
+		if (this.isGenerated !=other.isGenerated())
 			return false;		
 		if (bnode == null) {
 			if (other.bnode != null)

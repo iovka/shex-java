@@ -29,21 +29,23 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 
 /** Helper implementation of {@link RDF}.
- * Implementing classes need to implement only the methods {@link RDFGraph#listAllNodes()}, {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)}.
+ * Implementing classes need to implement only the methods {@link RDFGraph#listAllSubjectNodes()}, {@link RDFGraph#listAllObjectNodes()}, {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)}.
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- * 
+ * @author Jérémie Dusart
  */
 abstract class AbstractRDFGraph implements RDFGraph {
-	public Iterator<NeighborTriple> listAllNeighbours (Value focusNode) {
+	@Override
+	public Iterator<NeighborTriple> itAllNeighbours (Value focusNode) {
 		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
-		result.add(listInNeighbours(focusNode));
-		result.add(listOutNeighbours(focusNode));
+		result.add(itInNeighbours(focusNode));
+		result.add(itOutNeighbours(focusNode));
 		return new ConcatIterator<NeighborTriple>(result);
 	}
 	
-	public Iterator<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
+	@Override
+	public Iterator<NeighborTriple> itAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
 		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
 		for (IRI predicate:allowedPredicates) {
 			result.add(itOutNeighbours(focusNode,predicate));
@@ -52,15 +54,15 @@ abstract class AbstractRDFGraph implements RDFGraph {
 		return new ConcatIterator<NeighborTriple>(result);
 	}
 
-	
-	public Iterator<NeighborTriple> listOutNeighbours(Value focusNode) {
+	@Override
+	public Iterator<NeighborTriple> itOutNeighbours(Value focusNode) {
 		if (! (focusNode instanceof Resource))
 			return new EmptyIterator<NeighborTriple>();
 		return itOutNeighbours((Resource) focusNode,null);
 	}
 	
-
-	public Iterator<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
+	@Override
+	public Iterator<NeighborTriple> itOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
 		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
 		for (IRI predicate:allowedPredicates) {
 			result.add(itOutNeighbours(focusNode,predicate));
@@ -68,13 +70,13 @@ abstract class AbstractRDFGraph implements RDFGraph {
 		return new ConcatIterator<NeighborTriple>(result);
 	}
 	
-
-	public Iterator<NeighborTriple> listInNeighbours(Value focusNode) {
+	@Override
+	public Iterator<NeighborTriple> itInNeighbours(Value focusNode) {
 		return itInNeighbours(focusNode,null);
 	}
 	
-	
-	public Iterator<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
+	@Override
+	public Iterator<NeighborTriple> itInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates){
 		List<Iterator<NeighborTriple>> result = new ArrayList<Iterator<NeighborTriple>>();
 		for (IRI predicate:allowedPredicates) {
 			result.add(itInNeighbours(focusNode,predicate));
@@ -91,13 +93,24 @@ abstract class AbstractRDFGraph implements RDFGraph {
 	}
 	
 	
+	/** List all the triples that have the given node as object node and the specified predicate.
+	 * @param focusNode
+	 * @param predicate
+	 * @return
+	 */
+	protected abstract Iterator<NeighborTriple> itOutNeighbours (Value focusNode, IRI predicate);
+	
+	/** List all the triples that have the given node as subject node and the specified predicate.
+	 * @param focusNode
+	 * @param predicate
+	 * @return
+	 */
+	protected abstract Iterator<NeighborTriple> itInNeighbours (Value focusNode, IRI predicate);
+	
 	//---------------------------------------------------------------------------
 	// Iterators
 	//---------------------------------------------------------------------------
-	
-	protected abstract Iterator<NeighborTriple> itOutNeighbours (Value focusNode, IRI predicate);
-	protected abstract Iterator<NeighborTriple> itInNeighbours (Value focusNode, IRI predicate);
-	
+		
 	protected class ConcatIterator<T> implements Iterator<T> {
 		private List<Iterator<T>> iterators;
 				
@@ -107,18 +120,26 @@ abstract class AbstractRDFGraph implements RDFGraph {
 
 		@Override
 		public boolean hasNext() {
-			for (Iterator<T> it:iterators)
-				if (it.hasNext())
-					return true;							
-			return false;
+			if (iterators.size()==0)
+				return false;
+			if (!iterators.get(0).hasNext()) {
+				iterators.remove(0);
+				return this.hasNext();
+			} else {
+				return true;
+			}
 		}
 
 		@Override
 		public T next() {
-			for (Iterator<T> it:iterators)
-				if (it.hasNext())
-					return it.next();
-			throw new NoSuchElementException();
+			if (iterators.size()==0)
+				throw new NoSuchElementException();
+			if (!iterators.get(0).hasNext()) {
+				iterators.remove(0);
+				return this.next();
+			} else {
+				return iterators.get(0).next();
+			}
 		}
 	}	
 	

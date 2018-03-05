@@ -31,10 +31,9 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 
-/** Recursively collects all {@link AbstractASTElement}s of given type from a {@link TripleExpr}. 
+/** Recursively collects all triple constraints that appears in a shape. The result are stored and will not be recomputed. 
  * 
- * @author Iovka Boneva
- * 12 oct. 2017
+ * @author Jérémie Dusart
  * @param <TripleConstraint>
  */
 public class DynamicCollectorOfTripleConstraint extends TripleExpressionVisitor<List<TripleConstraint>>{

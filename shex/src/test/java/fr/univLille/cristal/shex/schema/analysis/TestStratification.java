@@ -34,9 +34,8 @@ import fr.univLille.cristal.shex.exception.NotStratifiedException;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 
 /**
- * 
- * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
+ *
  */
 @RunWith(Parameterized.class)
 public class TestStratification {

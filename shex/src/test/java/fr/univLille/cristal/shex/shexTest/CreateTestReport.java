@@ -50,7 +50,7 @@ public class CreateTestReport {
 	
 	
 	public static void main(String[] args) throws IOException  {
-		CreateTestReport t = new CreateTestReport("/tmp/shexlille-earl.ttl");
+		CreateTestReport t = new CreateTestReport("./shexlille-earl.ttl");
 		t.printHeader();
 		
 		JUnitCore.runClasses(TestValidation_ShExC_RDF4J_Recursive.class);

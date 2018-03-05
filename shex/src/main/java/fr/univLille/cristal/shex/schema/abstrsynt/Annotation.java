@@ -19,6 +19,9 @@ package fr.univLille.cristal.shex.schema.abstrsynt;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ */
 public class Annotation {
 	private IRI predicate;
 	private Value objectValue;
@@ -58,14 +61,12 @@ public class Annotation {
 		else
 			if (! predicate.equals(other.getPredicate()))
 				return false;
-		
 		if (objectValue ==null)
 			if (other.getObjectValue()!=null)
 				return false;
 		else
 			if (! objectValue.equals(other.getObjectValue()))
 				return false;
-		
 		return true;
 	}
 }

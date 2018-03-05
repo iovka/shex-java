@@ -18,8 +18,16 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class WildcardConstraint implements Constraint {
 	
+	
+	/** Return always true.
+	 * @see fr.univLille.cristal.shex.schema.concrsynt.Constraint#contains(org.eclipse.rdf4j.model.Value)
+	 */
 	@Override
 	public boolean contains(Value node) {
 		return true;
@@ -30,6 +38,9 @@ public class WildcardConstraint implements Constraint {
 		return "WILDCARD";
 	}
 	
+	/** Equals if obj is an instance of WildcardConstraint.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

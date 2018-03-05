@@ -19,6 +19,10 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class LanguageConstraint implements Constraint {
 	private String langTag;
 	
@@ -49,6 +53,9 @@ public class LanguageConstraint implements Constraint {
 		return "LangTag="+langTag;
 	}
 
+	/** Equals if obj has the same langTag.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

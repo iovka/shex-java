@@ -18,6 +18,7 @@ package fr.univLille.cristal.shex.validation;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -34,13 +35,11 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.util.Pair;
 
-/**
+/** The shape selected by default are the shapes of the set rules, the shapes that appear in a shape ref and the shapes that appear in a triple constraint.
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
  */
 public class RefinementTyping implements Typing {
-	
 	private ShexSchema schema;
 	private RDFGraph graph;
 	private List<Set<Pair<Value, Label>>> theTyping;
@@ -53,8 +52,21 @@ public class RefinementTyping implements Typing {
 		for (int i = 0; i < schema.getNbStratums(); i++) {
 			theTyping.add(new HashSet<>());
 		}
-		
-		this.selectedShape = new HashSet<Label>();
+		initSelectedShape(Collections.emptySet());
+	}
+	
+	public RefinementTyping(ShexSchema schema, RDFGraph graph, Set<Label> extraShapes) {
+		this.schema = schema;
+		this.graph = graph;
+		this.theTyping = new ArrayList<>(schema.getNbStratums());
+		for (int i = 0; i < schema.getNbStratums(); i++) {
+			theTyping.add(new HashSet<>());
+		}
+		initSelectedShape(extraShapes);
+	}
+	
+	protected void initSelectedShape(Set<Label> extraLabel) {
+		this.selectedShape = new HashSet<Label>(extraLabel);
 		this.selectedShape.addAll(schema.getRules().keySet());
 		for (ShapeExpr expr:schema.getShapeMap().values())
 			if (expr instanceof ShapeExprRef) 
@@ -64,9 +76,11 @@ public class RefinementTyping implements Typing {
 				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
 	}
 	
+	
 	public Set<Label> getSelectedShape(){
 		return this.selectedShape;
 	}
+	
 
 	public void addAllLabelsFrom(int stratum, Value focusNode) {
 		Set<Label> labels = schema.getStratum(stratum);
@@ -83,9 +97,11 @@ public class RefinementTyping implements Typing {
 		}
 	}
 	
+	
 	public Iterator<Pair<Value, Label>> typesIterator (int stratum) {
 		return theTyping.get(stratum).iterator();
 	}
+	
 	
 	@Override
 	public boolean contains (Value node, Label label) {

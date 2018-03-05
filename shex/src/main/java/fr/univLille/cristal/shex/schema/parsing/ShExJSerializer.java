@@ -67,6 +67,10 @@ import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
 import fr.univLille.cristal.shex.util.Interval;
 
 
+/** Convert a shex schema to its jsonld representation.
+ * @author Jérémie Dusart
+ *
+ */
 public class ShExJSerializer {
 	
 	public static void ToJson(ShexSchema schema, Path destination) throws JsonGenerationException, IOException {
@@ -85,6 +89,8 @@ public class ShExJSerializer {
 		result.put("shapes", shapes);
 		return result;
 	}
+	
+	
 	
 	//--------------------------------------------------
 	// Shape conversion
@@ -194,6 +200,7 @@ public class ShExJSerializer {
 		
 		return result;
 	}
+	
 	
 	//--------------------------------------------------
 	// Constraint conversion
@@ -330,6 +337,7 @@ public class ShExJSerializer {
 	}
 
 	
+	
 	//--------------------------------------------------
 	// Triple conversion
 	//--------------------------------------------------
@@ -415,6 +423,8 @@ public class ShExJSerializer {
 		
 		return result;
 	}
+	
+	
 	
 	//--------------------------------------------------
 	// Utils conversion

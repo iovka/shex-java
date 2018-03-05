@@ -73,14 +73,10 @@ import fr.univLille.cristal.shex.util.Interval;
 
 /** Parses a {@link ShexSchema} from its jsonld representation. 
  * 
- * This implementation does not support: external definitions, anonymous "start" shapes, inclusion, and stems.
- * It only supports XSD datatypes.
- * 
- * This implementation does not handle syntax errors. 
- * It would raise an exception if the jsonld file does not follow the shex schema format.
+ * This implementation does not support: external definitions, semantic actions and anonymous "start" shapes.
  * 
  * @author Iovka Boneva
- *
+ * @author Jérémie Dusart
  */
 @SuppressWarnings("rawtypes")
 public class ShExJParser implements Parser{
@@ -137,6 +133,8 @@ public class ShExJParser implements Parser{
 		return imports;
 	}
 
+	
+	
 	//-------------------------------------------
 	// Parsing shape
 	//-------------------------------------------
@@ -222,9 +220,9 @@ public class ShExJParser implements Parser{
 
 	// Shape 	{ 	id:Label? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
 	protected ShapeExpr parseShape(Map map) {
-		// TODO not used or not supported
+		// TODO not used and not supported
 		Object semActs = getSemActs(map);
-		//		
+			
 		Boolean closed = (Boolean) (map.get("closed"));
 		if (closed == null)
 			closed = false;
@@ -258,10 +256,15 @@ public class ShExJParser implements Parser{
 
 		return res;
 	}
+	
+	
+	
+	//-------------------------------------------
+	// Parsing node constraint
+	//-------------------------------------------
 
 	// NodeConstraint 	{ 	id:Label? nodeKind:("iri" | "bnode" | "nonliteral" | "literal")? datatype:IRI? xsFacet* values:[valueSetValue]? }
 	// xsFacet = stringFacet | numericFacet
-
 	protected NodeConstraint parseNodeConstraint(Map map) {
 		List<Constraint> constraints = new ArrayList<>();
 
@@ -297,295 +300,275 @@ public class ShExJParser implements Parser{
 
 		return res;
 	}
-	
-	//-------------------------------------------
-	// Parsing constraint
-	//-------------------------------------------
 
 	// List of
-		// valueSetValue 	= 	objectValue | IriStem | IriStemRange | LiteralStem | LiteralStemRange | Language | LanguageStem | LanguageStemRange ;
-		// objectValue 	= 	IRI | ObjectLiteral ;
-		// Language 	{ 	langTag:ObjectLiteral }
-		// _Stem_ contains stem as key
-		private Constraint parseValueSetValue (List values) {
-			Set<Value> explicitValues = new HashSet<>();
-			Set<Constraint> nodeConstraints = new HashSet<>();
+	// valueSetValue 	= 	objectValue | IriStem | IriStemRange | LiteralStem | LiteralStemRange | Language | LanguageStem | LanguageStemRange ;
+	// objectValue 	= 	IRI | ObjectLiteral ;
+	// Language 	{ 	langTag:ObjectLiteral }
+	// _Stem_ contains stem as key
+	private Constraint parseValueSetValue (List values) {
+		Set<Value> explicitValues = new HashSet<>();
+		Set<Constraint> nodeConstraints = new HashSet<>();
 
-			for (Object o : values) {
-				if (o instanceof String) {
-					explicitValues.add(rdfFactory.createIRI((String)o));
-				} else {
-					Map m = (Map) o;
-					String type = (String) m.get("type");
-					if (type!=null) {
-						switch (type) {
-						case "Language" : 
-							nodeConstraints.add(parseLanguage(m));
-							break;
-						case "IriStem":
-							nodeConstraints.add(parseIRIStem(m));
-							break;
-						case "IriStemRange":
-							nodeConstraints.add(parseIRIStemRange(m));
-							break;
-						case "LiteralStem":
-							nodeConstraints.add(parseLiteralStem(m));
-							break;
-						case "LiteralStemRange":
-							nodeConstraints.add(parseLiteralStemRange(m));
-							break;
-						case "LanguageStem":
-							nodeConstraints.add(parseLanguageStem(m));
-							break;
-						case "LanguageStemRange":
-							nodeConstraints.add(parseLanguageStemRange(m));
-							break;
-						default:
-							if (m.containsKey("value")) {
-								explicitValues.add(parseObjectLiteral(m));
-							}else {
-								System.err.println("Node constraint not recognize:"+m);
-							}
-						}
-					} else {
+		for (Object o : values) {
+			if (o instanceof String) {
+				explicitValues.add(rdfFactory.createIRI((String)o));
+			} else {
+				Map m = (Map) o;
+				String type = (String) m.get("type");
+				if (type!=null) {
+					switch (type) {
+					case "Language" : 
+						nodeConstraints.add(parseLanguage(m));
+						break;
+					case "IriStem":
+						nodeConstraints.add(parseIRIStem(m));
+						break;
+					case "IriStemRange":
+						nodeConstraints.add(parseIRIStemRange(m));
+						break;
+					case "LiteralStem":
+						nodeConstraints.add(parseLiteralStem(m));
+						break;
+					case "LiteralStemRange":
+						nodeConstraints.add(parseLiteralStemRange(m));
+						break;
+					case "LanguageStem":
+						nodeConstraints.add(parseLanguageStem(m));
+						break;
+					case "LanguageStemRange":
+						nodeConstraints.add(parseLanguageStemRange(m));
+						break;
+					default:
 						if (m.containsKey("value")) {
 							explicitValues.add(parseObjectLiteral(m));
 						}else {
 							System.err.println("Node constraint not recognize:"+m);
-						}			
+						}
 					}
+				} else {
+					if (m.containsKey("value")) {
+						explicitValues.add(parseObjectLiteral(m));
+					}else {
+						System.err.println("Node constraint not recognize:"+m);
+					}			
 				}
 			}
-//			if (! explicitValues.isEmpty())
-//				nodeConstraints.add(new ExplictValuesSetOfNodes(explicitValues));
-//			
-			return new ValueSetValueConstraint(explicitValues,nodeConstraints);
 		}
 		
-		// ObjectLiteral 	{ 	value:STRING language:STRING? type: STRING? }
-		private Value parseObjectLiteral (Map m) {
-			String value = (String) m.get("value");
-			if (m.get("type") == null & m.get("language")==null)
-				return rdfFactory.createLiteral(value);
-			
-			if (m.get("language") != null) {
-				String lang = (String) m.get("language");
-				return rdfFactory.createLiteral(value, lang);
+		return new ValueSetValueConstraint(explicitValues,nodeConstraints);
+	}
+
+	// ObjectLiteral 	{ 	value:STRING language:STRING? type: STRING? }
+	private Value parseObjectLiteral (Map m) {
+		String value = (String) m.get("value");
+		if (m.get("type") == null & m.get("language")==null)
+			return rdfFactory.createLiteral(value);
+
+		if (m.get("language") != null) {
+			String lang = (String) m.get("language");
+			return rdfFactory.createLiteral(value, lang);
+		}
+
+		IRI type = rdfFactory.createIRI((String) m.get("type"));
+		return rdfFactory.createLiteral(value,type);
+	}
+
+	//IriStem { stem:IRI }
+	protected Constraint parseIRIStem (Map m) {
+		//TODO: error if stem not present
+		String stem = (String) m.get("stem");
+		return new IRIStemConstraint(stem);
+	}
+
+	//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
+	protected Constraint parseIRIStemRange (Map m) {
+		//TODO: error if stem not present
+		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<Value> forbidenValue = new HashSet<Value>();
+		if (m.containsKey("exclusions")) {
+			List<Object> exclu = (List<Object>) m.get("exclusions");
+			for (Object o:exclu) {
+				if (o instanceof String) {
+					forbidenValue.add(rdfFactory.createIRI((String) o));
+				}else {
+					String type = (String) ((Map) o).get("type");
+					if (type != null & type.equals("IriStem"))
+						exclusions.add(parseIRIStem((Map) o));
+					else 
+						forbidenValue.add(parseObjectLiteral((Map) o));
+				}
 			}
-			
-			IRI type = rdfFactory.createIRI((String) m.get("type"));
-			return rdfFactory.createLiteral(value,type);
 		}
 
-		//IriStem { stem:IRI }
-		protected Constraint parseIRIStem (Map m) {
-			//TODO: error if stem not present
-			String stem = (String) m.get("stem");
-			return new IRIStemConstraint(stem);
+		Constraint stem;
+		if (m.get("stem") instanceof String) {
+			stem = parseIRIStem(m);
+		} else {
+			stem = new WildcardConstraint();
 		}
 
-		//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
-		protected Constraint parseIRIStemRange (Map m) {
-			//TODO: error if stem not present
-			Set<Constraint> exclusions = new HashSet<Constraint>();
-			Set<Value> forbidenValue = new HashSet<Value>();
-			if (m.containsKey("exclusions")) {
-				List<Object> exclu = (List<Object>) m.get("exclusions");
-				for (Object o:exclu) {
-					if (o instanceof String) {
+		return new IRIStemRangeConstraint(stem,forbidenValue,exclusions);
+	}
+
+
+	//LiteralStem 	{ 	stem:ObjectLiteral }
+	protected Constraint parseLiteralStem (Map m) {
+		//TODO: error if stem not present
+		String stem = (String) m.get("stem");
+		return new LiteralStemConstraint(stem);
+	}
+
+	//LiteralStemRange 	{ 	stem:(Literal | Wildcard) exclusions:[ objectValue|LiteralStem +]? }
+	protected Constraint parseLiteralStemRange (Map m) {
+		//TODO: error if stem not present
+		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<Value> forbidenValue = new HashSet<Value>();
+		if (m.containsKey("exclusions")) {
+			List<Object> exclu = (List<Object>) m.get("exclusions");
+			for (Object o:exclu) {
+				if (o instanceof String) {
+					forbidenValue.add(rdfFactory.createLiteral((String) o));
+					//exclusions.add(new ObjectLiteral((String) o, null,null));
+				}else {
+					String type = (String) ((Map) o).get("type");
+					if (type != null & type.equals("LiteralStem"))
+						exclusions.add(parseLiteralStem((Map) o));
+					else 
+						forbidenValue.add(parseObjectLiteral((Map) o));
+				}
+			}
+		}
+
+		Constraint stem;
+		if (m.get("stem") instanceof String) {
+			stem = parseLiteralStem(m);
+		} else {
+			stem = new WildcardConstraint();
+		}
+		return new LiteralStemRangeConstraint(stem,forbidenValue,exclusions);
+	}
+
+	//Language 	{ 	langTag:ObjectLiteral }
+	protected Constraint parseLanguage (Map m) {
+		if (m.containsKey("languageTag"))
+			return new LanguageConstraint((String) m.get("languageTag"));
+		if (m.containsKey("langTag"))
+			return new LanguageConstraint((String) m.get("langTag"));
+		throw new UnsupportedOperationException("Langtag not found");
+	}
+
+	protected Constraint parseLanguageStem (Map m) {
+		//TODO: error if stem not present
+		String stem = (String) m.get("stem");
+		return new LanguageStemConstraint(stem);
+	}
+
+	protected Constraint parseLanguageStemRange (Map m) {
+		//TODO: error if stem not present
+		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<Value> forbidenValue = new HashSet<Value>();
+		if (m.containsKey("exclusions")) {
+			List<Object> exclu = (List<Object>) m.get("exclusions");
+			for (Object o:exclu) {
+				if (o instanceof String) {
+					String tmp = (String) o;
+					if (isIriString(tmp))
 						forbidenValue.add(rdfFactory.createIRI((String) o));
-					}else {
-						String type = (String) ((Map) o).get("type");
-						if (type != null & type.equals("IriStem"))
-							exclusions.add(parseIRIStem((Map) o));
-						else 
-							forbidenValue.add(parseObjectLiteral((Map) o));
-					}
+					else
+						exclusions.add(new LanguageConstraint(tmp));
+				}else {
+					String type = (String) ((Map) o).get("type");
+					if (type != null ) {
+						if (type.equals("LanguageStem"))
+							exclusions.add(parseLanguageStem((Map) o));
+						if (type.equals("Language"))
+							exclusions.add(parseLanguage((Map) o));
+					}else 
+						forbidenValue.add(parseObjectLiteral((Map) o));
 				}
 			}
-
-			Constraint stem;
-			if (m.get("stem") instanceof String) {
-				stem = parseIRIStem(m);
-			} else {
-				stem = new WildcardConstraint();
-			}
-
-			return new IRIStemRangeConstraint(stem,forbidenValue,exclusions);
 		}
 
-
-		//LiteralStem 	{ 	stem:ObjectLiteral }
-		protected Constraint parseLiteralStem (Map m) {
-			//TODO: error if stem not present
-			String stem = (String) m.get("stem");
-			return new LiteralStemConstraint(stem);
+		Constraint stem;
+		if (m.get("stem") instanceof String) {
+			stem = parseLanguageStem(m);
+		} else {
+			stem = new WildcardConstraint();
 		}
 
-		//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
-		protected Constraint parseLiteralStemRange (Map m) {
-			//TODO: error if stem not present
-			Set<Constraint> exclusions = new HashSet<Constraint>();
-			Set<Value> forbidenValue = new HashSet<Value>();
-			if (m.containsKey("exclusions")) {
-				List<Object> exclu = (List<Object>) m.get("exclusions");
-				for (Object o:exclu) {
-					if (o instanceof String) {
-						forbidenValue.add(rdfFactory.createLiteral((String) o));
-						//exclusions.add(new ObjectLiteral((String) o, null,null));
-					}else {
-						String type = (String) ((Map) o).get("type");
-						if (type != null & type.equals("LiteralStem"))
-							exclusions.add(parseLiteralStem((Map) o));
-						else 
-							forbidenValue.add(parseObjectLiteral((Map) o));
-					}
-				}
-			}
+		return new LanguageStemRangeConstraint(stem,forbidenValue,exclusions);
+	}
 
-			Constraint stem;
-			if (m.get("stem") instanceof String) {
-				stem = parseLiteralStem(m);
-			} else {
-				stem = new WildcardConstraint();
-			}
-			return new LiteralStemRangeConstraint(stem,forbidenValue,exclusions);
-		}
+	// numericFacet = (mininclusive|minexclusive|maxinclusive|maxeclusive):numericLiteral | (totaldigits|fractiondigits):INTEGER
+	private static Constraint getNumericFacet (Map map) {
+		BigDecimal minincl = null, minexcl = null, maxincl = null, maxexcl = null;
+		Number n;
 
-		//Language 	{ 	langTag:ObjectLiteral }
-		protected Constraint parseLanguage (Map m) {
-			if (m.containsKey("languageTag"))
-				return new LanguageConstraint((String) m.get("languageTag"));
-			if (m.containsKey("langTag"))
-				return new LanguageConstraint((String) m.get("langTag"));
-			throw new UnsupportedOperationException("Langtag not found");
-		}
-		
-		protected Constraint parseLanguageStem (Map m) {
-			//TODO: error if stem not present
-			String stem = (String) m.get("stem");
-			return new LanguageStemConstraint(stem);
-		}
-		
-		protected Constraint parseLanguageStemRange (Map m) {
-			//TODO: error if stem not present
-			Set<Constraint> exclusions = new HashSet<Constraint>();
-			Set<Value> forbidenValue = new HashSet<Value>();
-			if (m.containsKey("exclusions")) {
-				List<Object> exclu = (List<Object>) m.get("exclusions");
-				for (Object o:exclu) {
-					if (o instanceof String) {
-						String tmp = (String) o;
-						if (isIriString(tmp))
-							forbidenValue.add(rdfFactory.createIRI((String) o));
-						else
-							exclusions.add(new LanguageConstraint(tmp));
-					}else {
-						String type = (String) ((Map) o).get("type");
-						if (type != null ) {
-							if (type.equals("LanguageStem"))
-								exclusions.add(parseLanguageStem((Map) o));
-							if (type.equals("Language"))
-								exclusions.add(parseLanguage((Map) o));
-						}else 
-							forbidenValue.add(parseObjectLiteral((Map) o));
-					}
-				}
-			}
+		n = (Number)(map.get("mininclusive"));
+		if (n != null)
+			minincl = new BigDecimal(n.toString());
+		n = (Number)(map.get("minexclusive"));
+		if (n != null)
+			minexcl = new BigDecimal(n.toString());
+		n = (Number)(map.get("maxinclusive"));
+		if (n != null) 
+			maxincl = new BigDecimal(n.toString());
+		n = (Number)(map.get("maxexclusive"));
+		if (n != null)
+			maxexcl = new BigDecimal(n.toString());
 
-			Constraint stem;
-			if (m.get("stem") instanceof String) {
-				stem = parseLanguageStem(m);
-			} else {
-				stem = new WildcardConstraint();
-			}
+		Integer totalDigits = (Integer) (map.get("totaldigits"));
+		Integer fractionDigits = (Integer) (map.get("fractiondigits"));
 
-			return new LanguageStemRangeConstraint(stem,forbidenValue,exclusions);
-		}
+		if (minincl != null || minexcl != null || maxincl != null || maxexcl != null || totalDigits != null || fractionDigits != null) {
+			FacetNumericConstraint facet = new FacetNumericConstraint();
+			facet.setMinincl(minincl);
+			facet.setMinexcl(minexcl);
+			facet.setMaxincl(maxincl);
+			facet.setMaxexcl(maxexcl);
+			facet.setTotalDigits(totalDigits);
+			facet.setFractionDigits(fractionDigits);
+			return facet;
+		} 
+		return null;
+	}
 
-		protected Constraint parseStem (Map m) {
-			throw new UnsupportedOperationException("stems not supported");
-		}
 
-		// numericFacet = (mininclusive|minexclusive|maxinclusive|maxeclusive):numericLiteral | (totaldigits|fractiondigits):INTEGER
-		private static Constraint getNumericFacet (Map map) {
-			BigDecimal minincl = null, minexcl = null, maxincl = null, maxexcl = null;
-			Number n;
+	// stringFacet = (length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING?
+	private static Constraint getStringFacet (Map map) {		
+		Integer length = (Integer) (map.get("length"));
+		Integer minlength = (Integer) (map.get("minlength"));
+		Integer maxlength = (Integer) (map.get("maxlength"));
+		String patternString = (String) (map.get("pattern"));
+		String flags = (String) (map.get("flags"));
 
-			n = (Number)(map.get("mininclusive"));
-			if (n != null)
-				minincl = new BigDecimal(n.toString());
-			n = (Number)(map.get("minexclusive"));
-			if (n != null)
-				minexcl = new BigDecimal(n.toString());
-			n = (Number)(map.get("maxinclusive"));
-			if (n != null) 
-				maxincl = new BigDecimal(n.toString());
-			n = (Number)(map.get("maxexclusive"));
-			if (n != null)
-				maxexcl = new BigDecimal(n.toString());
+		if (length != null || minlength != null || maxlength != null || patternString != null) {
+			FacetStringConstraint facet = new FacetStringConstraint();
+			facet.setLength(length);
+			facet.setMinLength(minlength);
+			facet.setMaxLength(maxlength);
+			facet.setPattern(patternString);
+			facet.setFlags(flags);
+			return facet;
+		} 
+		else return null;
+	}
 
-			Integer totalDigits = (Integer) (map.get("totaldigits"));
-			Integer fractionDigits = (Integer) (map.get("fractiondigits"));
 
-			if (minincl != null || minexcl != null || maxincl != null || maxexcl != null || totalDigits != null || fractionDigits != null) {
-				FacetNumericConstraint facet = new FacetNumericConstraint();
-				facet.setMinincl(minincl);
-				facet.setMinexcl(minexcl);
-				facet.setMaxincl(maxincl);
-				facet.setMaxexcl(maxexcl);
-				facet.setTotalDigits(totalDigits);
-				facet.setFractionDigits(fractionDigits);
-				return facet;
-			} 
-			return null;
-		}
-
-		
-		// stringFacet = (length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING?
-		private static Constraint getStringFacet (Map map) {		
-			Integer length = (Integer) (map.get("length"));
-			Integer minlength = (Integer) (map.get("minlength"));
-			Integer maxlength = (Integer) (map.get("maxlength"));
-			String patternString = (String) (map.get("pattern"));
-			String flags = (String) (map.get("flags"));
-
-			if (length != null || minlength != null || maxlength != null || patternString != null) {
-				FacetStringConstraint facet = new FacetStringConstraint();
-				facet.setLength(length);
-				facet.setMinLength(minlength);
-				facet.setMaxLength(maxlength);
-				facet.setPattern(patternString);
-				facet.setFlags(flags);
-				return facet;
-			} 
-			else return null;
-		}
-
-		
-		protected List<IRI> parseListOfIri (List list) {
-			List<IRI> res = new ArrayList<>(list.size());
-			for (Object o: list) {
-				res.add(rdfFactory.createIRI((String)o));
-			}
-			return res;
-		}
-
-		
-		private List<TripleExpr> parseListOfTripleExprs (List list) {
-			ArrayList<TripleExpr> resultList = new ArrayList<>();
-			for(Object o : list){
-				TripleExpr tripleExpression;
-				tripleExpression = parseTripleExpression(o);
-				resultList.add(tripleExpression);
-			}
-			return resultList;
-		}
-
-	
 	//-------------------------------------------
 	// Parsing triple expression
 	//-------------------------------------------
+
+	private List<TripleExpr> parseListOfTripleExprs (List list) {
+		ArrayList<TripleExpr> resultList = new ArrayList<>();
+		for(Object o : list){
+			TripleExpr tripleExpression;
+			tripleExpression = parseTripleExpression(o);
+			resultList.add(tripleExpression);
+		}
+		return resultList;
+	}
 
 	// tripleExpr 	= 	EachOf | OneOf | TripleConstraint | tripleExprRef ;
 	protected TripleExpr parseTripleExpression (Object obj) {
@@ -623,7 +606,7 @@ public class ShExJParser implements Parser{
 		Object semActs = getSemActs(map);
 		// 
 		List<Annotation> annotations = getAnnotations(map);
-		
+
 		List list = (List) (map.get("expressions"));
 		List<TripleExpr> subExpressions = parseListOfTripleExprs(list);
 
@@ -642,7 +625,7 @@ public class ShExJParser implements Parser{
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
 		//
-		
+
 		List<Annotation> annotations = getAnnotations(map);
 
 		List list = (List) (map.get("expressions"));
@@ -681,7 +664,7 @@ public class ShExJParser implements Parser{
 		}
 
 		Interval card = getCardinality(map);
-		
+
 		TripleExpr res = new TripleConstraint(property, shexpr, annotations);
 		if (card != null) 
 			res = new RepeatedTripleExpression(res, card); 
@@ -695,7 +678,13 @@ public class ShExJParser implements Parser{
 	// 	PARSING PART OF JSON OBJECT
 	// --------------------------------------------------------------------
 
-	
+	protected List<IRI> parseListOfIri (List list) {
+		List<IRI> res = new ArrayList<>(list.size());
+		for (Object o: list) {
+			res.add(rdfFactory.createIRI((String)o));
+		}
+		return res;
+	}
 
 	private Interval getCardinality (Map map)  {	
 		Integer min = (Integer) (map.get("min"));

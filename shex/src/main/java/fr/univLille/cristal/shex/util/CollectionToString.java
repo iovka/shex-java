@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class CollectionToString {
-
 	public static String collectionToString (Collection<?> list, String separator, String prefix, String suffix) {
 		StringBuilder s = new StringBuilder();
 		s.append(prefix);

@@ -19,10 +19,9 @@ package fr.univLille.cristal.shex.validation;
 import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 
-/**
+/** Math the predicate and the value. The typing providing in the constructor is used to check the value.
  * 
- * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class MatcherPredicateAndValue implements Matcher {
 	private Typing typing;

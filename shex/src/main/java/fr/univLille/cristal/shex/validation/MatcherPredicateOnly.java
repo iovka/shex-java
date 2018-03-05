@@ -19,7 +19,7 @@ package fr.univLille.cristal.shex.validation;
 import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 
-/**
+/** Match only the predicate.
  * 
  * @author Iovka Boneva
  * 10 oct. 2017

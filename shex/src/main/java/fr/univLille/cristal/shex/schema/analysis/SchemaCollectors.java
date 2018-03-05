@@ -39,10 +39,10 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 
 
-/**
+/** This class provide a set of functions to collect element from a set of rules. 
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class SchemaCollectors {
 
@@ -53,7 +53,7 @@ public class SchemaCollectors {
 
 
 	// -------------------------------------------------------------------------
-	// COMMON Shape
+	// Work on shape
 	// -------------------------------------------------------------------------
 
 	public static Set<ShapeExpr> collectAllShapes (Map<Label, ShapeExpr> rules) { 
@@ -85,7 +85,7 @@ public class SchemaCollectors {
 
 
 	// -------------------------------------------------------------------------
-	// COMMON Triple
+	// Work on triple
 	// -------------------------------------------------------------------------
 
 	public static Set<TripleExpr> collectAllTriples (Map<Label, ShapeExpr> rules) { 

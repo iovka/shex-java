@@ -27,7 +27,7 @@ import org.eclipse.rdf4j.model.Value;
 /** Wraps an RDF4J graph as {@link RDFGraph}.
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class RDF4JGraph extends AbstractRDFGraph {
 	

@@ -32,6 +32,10 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
+/** Wraps an RDF4J graph as {@link RDFGraph}.
+ * 
+ * @author Jérémie Dusart
+ */
 public class JenaGraph extends AbstractRDFGraph {
 	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	protected Model jenaModel;
@@ -132,6 +136,10 @@ public class JenaGraph extends AbstractRDFGraph {
 		};
 	}
 
+	@Override
+	public String toString() {
+		return jenaModel.toString();
+	}
 	
 	//----------------------------------------------
 	// Conversion RDF4J to Jena
@@ -210,8 +218,5 @@ public class JenaGraph extends AbstractRDFGraph {
 		return  rdfFactory.createLiteral(value, rdfFactory.createIRI(jenaLit.getDatatypeURI()));			
 	}
 	
-	@Override
-	public String toString() {
-		return jenaModel.toString();
-	}
+
 }

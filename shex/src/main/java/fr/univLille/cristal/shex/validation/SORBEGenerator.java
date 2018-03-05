@@ -36,6 +36,11 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleExprRef;
 import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 import fr.univLille.cristal.shex.util.Interval;
 
+/** Compute a SORBE version of a triple expression. The computation are store and will not be reused.
+ * The SORBE version does not contains any triple expression reference, cardinality other than *, ? or + and an empty triple expression with the + cardinality.
+ * 
+ * @author Jérémie Dusart
+ */
 public class SORBEGenerator {
 	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	private static int tripleLabelNb = 0;
@@ -47,8 +52,6 @@ public class SORBEGenerator {
 		this.sorbeMap=new HashMap<Label,TripleExpr>();
 	}
 	
-	// Get ride of the tripleExprRef by copying
-	// Also check that empty is not under a plus
 	public TripleExpr getSORBETripleExpr(Shape shape) {
 		if (this.sorbeMap.containsKey(shape.getId()))
 			return this.sorbeMap.get(shape.getId());

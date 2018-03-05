@@ -45,6 +45,7 @@ import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import fr.univLille.cristal.shex.graph.TCProperty;
 import fr.univLille.cristal.shex.schema.Label;
+import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.Annotation;
 import fr.univLille.cristal.shex.schema.abstrsynt.AnnotedObject;
 import fr.univLille.cristal.shex.schema.abstrsynt.EachOf;
@@ -87,6 +88,12 @@ import fr.univLille.cristal.shex.util.Interval;
 import fr.univLille.cristal.shex.util.XPath;
 
 
+/** Parses a {@link ShexSchema} from its shexc representation. 
+ * 
+ * This implementation does not support: external definitions, semantic actions and anonymous "start" shapes.
+ * @author Jérémie Dusart
+ *
+ */
 public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	private Map<Label,ShapeExpr> rules;
@@ -156,6 +163,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 
 	@Override 
 	public Object visitStatement(ShExDocParser.StatementContext ctx) { return visitChildren(ctx); }
+	
 	
 	//--------------------------------------------
 	// Shape structure
@@ -300,19 +308,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return extra; 
 	}
 
-
-	@Override 
-	public Object visitShapeAtomNodeConstraint(ShExDocParser.ShapeAtomNodeConstraintContext ctx) { 
-		NodeConstraint res = new NodeConstraint((List<Constraint>) ctx.nodeConstraint().accept(this));
-		if (ctx.shapeOrRef()!=null) {
-			List<ShapeExpr> tmp = new ArrayList<ShapeExpr>();
-			tmp.add(res);
-			tmp.add((ShapeExpr) ctx.shapeOrRef().accept(this));
-			return new ShapeAnd(tmp) ;
-		}
-		return res;
-	}
-
 	@Override 
 	public Object visitShapeAtomShapeOrRef(ShExDocParser.ShapeAtomShapeOrRefContext ctx) {
 		return ctx.shapeOrRef().accept(this); 
@@ -326,19 +321,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitShapeAtomAny(ShExDocParser.ShapeAtomAnyContext ctx) { 
 		return EmptyShape.Shape; 
-	}
-	
-	
-	@Override 
-	public Object visitInlineShapeAtomNodeConstraint(ShExDocParser.InlineShapeAtomNodeConstraintContext ctx) {
-		NodeConstraint res = new NodeConstraint((List<Constraint>) ctx.nodeConstraint().accept(this));
-		if (ctx.inlineShapeOrRef()!=null) {
-			List<ShapeExpr> tmp = new ArrayList<ShapeExpr>();
-			tmp.add(res);
-			tmp.add((ShapeExpr) ctx.inlineShapeOrRef().accept(this));
-			return new ShapeAnd(tmp) ;
-		}
-		return res;
 	}
 	
 	@Override 
@@ -383,8 +365,37 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		
 		return new ShapeExprRef((Label) ctx.shapeExprLabel().accept(this)); 
 	}
-
 	
+	
+	
+	//--------------------------------------------
+	// Node constraints
+	//--------------------------------------------
+
+	@Override 
+	public Object visitShapeAtomNodeConstraint(ShExDocParser.ShapeAtomNodeConstraintContext ctx) { 
+		NodeConstraint res = new NodeConstraint((List<Constraint>) ctx.nodeConstraint().accept(this));
+		if (ctx.shapeOrRef()!=null) {
+			List<ShapeExpr> tmp = new ArrayList<ShapeExpr>();
+			tmp.add(res);
+			tmp.add((ShapeExpr) ctx.shapeOrRef().accept(this));
+			return new ShapeAnd(tmp) ;
+		}
+		return res;
+	}
+	
+	@Override 
+	public Object visitInlineShapeAtomNodeConstraint(ShExDocParser.InlineShapeAtomNodeConstraintContext ctx) {
+		NodeConstraint res = new NodeConstraint((List<Constraint>) ctx.nodeConstraint().accept(this));
+		if (ctx.inlineShapeOrRef()!=null) {
+			List<ShapeExpr> tmp = new ArrayList<ShapeExpr>();
+			tmp.add(res);
+			tmp.add((ShapeExpr) ctx.inlineShapeOrRef().accept(this));
+			return new ShapeAnd(tmp) ;
+		}
+		return res;
+	}
+		
 	@Override 
 	public Object visitNodeConstraintLiteral(ShExDocParser.NodeConstraintLiteralContext ctx) {
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
@@ -634,8 +645,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return  new LanguageStemConstraint(langtag);
 	}
 	
-
-
 	//--------------------------------------------
 	// Triple structure
 	//--------------------------------------------
@@ -705,10 +714,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return result; 
 	}
 
-	//bracketedTripleExpr  : '(' innerTripleExpr ')' cardinality? annotation* semanticActions ;
 	@Override 
 	public Object visitBracketedTripleExpr(ShExDocParser.BracketedTripleExprContext ctx) {
-		//TODO: semacts
 		TripleExpr result = (TripleExpr) ctx.innerTripleExpr().accept(this);
 		
 		List<Annotation> annotations = null;
@@ -784,9 +791,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitInclude(ShExDocParser.IncludeContext ctx) { 
 		return new TripleExprRef((Label) ctx.tripleExprLabel().accept(this)); 
 	}
-
-
-
 
 	//--------------------------------------------
 	// Utils

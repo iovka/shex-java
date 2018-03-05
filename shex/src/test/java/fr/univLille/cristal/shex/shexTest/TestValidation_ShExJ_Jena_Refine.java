@@ -16,8 +16,6 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.shexTest;
 
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -56,7 +54,10 @@ import fr.univLille.cristal.shex.util.TestResultForTestReport;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 
-
+/** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
+ * @author Jérémie Dusart
+ *
+ */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExJ_Jena_Refine {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
@@ -152,22 +153,29 @@ public class TestValidation_ShExJ_Jena_Refine {
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-    			fail("Fail: "+testCase.testName);
     		}			
     	}catch (Exception e) {
     		errors.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-			fail("Exception: "+testCase.testName);
     	}
     }
     
     @AfterClass
 	public static void ending() {
-    	System.out.println("Result for validation tests:");
+    	System.out.println("Result for validation (ShExJ, Jena, Refine) tests:");
 		System.out.println("Skipped: "+skiped.size());
+		printTestCaseNames("  > ",skiped);
 		System.out.println("Passed : "+passed.size());
 		System.out.println("Failed : "+failed.size());
+		printTestCaseNames("  > ",failed);
 		System.out.println("Errors : "+errors.size());
+		printTestCaseNames("  > ",errors);
 	}
+    
+    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
+    	for (TestResultForTestReport report:reports)
+    		System.out.println(prefix+report.name);
+    }
+	
 	
 	//--------------------------------------------------
 	// Utils functions for test

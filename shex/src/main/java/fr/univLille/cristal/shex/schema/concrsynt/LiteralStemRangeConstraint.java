@@ -20,6 +20,10 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class LiteralStemRangeConstraint extends StemRangeConstraint {
 
 	public LiteralStemRangeConstraint(Constraint stem, Set<Value> exclusionsValues, Set<Constraint> exclusionsConstraints) {

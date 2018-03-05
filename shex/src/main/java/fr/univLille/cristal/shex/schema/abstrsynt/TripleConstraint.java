@@ -25,7 +25,7 @@ import fr.univLille.cristal.shex.util.CollectionToString;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class TripleConstraint extends TripleExpr implements AnnotedObject {
 	private TCProperty property;	

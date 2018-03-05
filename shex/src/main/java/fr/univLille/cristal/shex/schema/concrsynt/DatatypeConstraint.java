@@ -30,7 +30,7 @@ import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class DatatypeConstraint implements Constraint {
 	public static final Set<IRI> validatedDatatype = new HashSet<>(Arrays.asList(new IRI[] {
@@ -53,8 +53,8 @@ public class DatatypeConstraint implements Constraint {
 					XMLSchema.UNSIGNED_SHORT,
 					XMLSchema.UNSIGNED_BYTE,
 					XMLSchema.POSITIVE_INTEGER,
-					//XMLSchema.TIME) 
-					//XMLSchema.DATE);			
+					XMLSchema.TIME, 
+					XMLSchema.DATE	
 			}));
 	private IRI datatypeIri;
 	
@@ -84,6 +84,9 @@ public class DatatypeConstraint implements Constraint {
 		return "DT:"+datatypeIri.toString();
 	}
 	
+	/** Equals if contains obj contains the same constraint.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

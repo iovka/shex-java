@@ -18,6 +18,10 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public abstract class StemRangeConstraint implements Constraint {
 	protected Constraint stem;
 	protected ValueSetValueConstraint exclusions;

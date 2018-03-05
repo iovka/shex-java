@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.univLille.cristal.shex.shexTest;
+package fr.univLille.cristal.shex.schema.parsing;
+
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +50,7 @@ import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
+import fr.univLille.cristal.shex.util.SchemaEquality;
 import fr.univLille.cristal.shex.util.TestCase;
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
 import fr.univLille.cristal.shex.validation.RecursiveValidation;
@@ -59,7 +62,7 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
  *
  */
 @RunWith(Parameterized.class)
-public class TestValidation_ShExC_RDF4J_Recursive {
+public class TestShExJParserSerializer {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
 	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
@@ -129,38 +132,38 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     		failed.add(new TestResultForTestReport(testCase.testName, false, "Incorrect test definition.", "validation"));
     		return;
     	}
-
+    	ShexSchema fromJson = null;
+		ShexSchema toJson = null;
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
-   
+
     		if(! schemaFile.toFile().exists()) {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
-    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-    		RDFGraph dataGraph = getRDFGraph();
-    		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
+			
+			fromJson = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			Path tmp = Paths.get("/tmp/fromjson.json");
+			ShExJSerializer.ToJson(fromJson, tmp);
+			toJson = GenParser.parseSchema(tmp);
     		
-    		validation.validate(testCase.focusNode, testCase.shapeLabel);
+	
+    		if (SchemaEquality.areEquals(fromJson, toJson)){
+    			passed.add(new TestResultForTestReport(testCase.testName, true, null, "same"));
+			} else {
+    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "failed"));
+			}
 
-    		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
-    				||
-    				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    						! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))){
-    			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
-    		} else {
-    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-    		}			
     	}catch (Exception e) {
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
+			fail("Exception: "+testCase.testName);
     	}
     }
     
 	
     @AfterClass
 	public static void ending() {
-    	System.out.println("Result for validation (ShExC, RDF4J, recursive) tests:");
+    	System.out.println("Result for ShExJ parser-serialiser tests:");
 		System.out.println("Skipped: "+skiped.size());
 		printTestCaseNames("  > ",skiped);
 		System.out.println("Passed : "+passed.size());
@@ -174,7 +177,6 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	for (TestResultForTestReport report:reports)
     		System.out.println(prefix+report.name);
     }
-	
 	
 	//--------------------------------------------------
 	// Utils functions for test

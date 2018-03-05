@@ -25,7 +25,7 @@ import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class FacetNumericConstraint implements Constraint {
 	private BigDecimal minincl, minexcl, maxincl, maxexcl;
@@ -130,31 +130,10 @@ public class FacetNumericConstraint implements Constraint {
 		String frac = fractionDigits == null ? "" : "fracdigits: " + fractionDigits.toString();
 		return mini + maxi + mine + maxe + tot + frac;
 	}
-
-	public BigDecimal getMinincl() {
-		return minincl;
-	}
-
-	public BigDecimal getMinexcl() {
-		return minexcl;
-	}
-
-	public BigDecimal getMaxincl() {
-		return maxincl;
-	}
-
-	public BigDecimal getMaxexcl() {
-		return maxexcl;
-	}
-
-	public Integer getTotalDigits() {
-		return totalDigits;
-	}
-
-	public Integer getFractionDigits() {
-		return fractionDigits;
-	}
 	
+	/** Equals if obj has the same constraints.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -220,5 +199,29 @@ public class FacetNumericConstraint implements Constraint {
 				return false;
 
 		return true;
+	}
+	
+	public BigDecimal getMinincl() {
+		return minincl;
+	}
+
+	public BigDecimal getMinexcl() {
+		return minexcl;
+	}
+
+	public BigDecimal getMaxincl() {
+		return maxincl;
+	}
+
+	public BigDecimal getMaxexcl() {
+		return maxexcl;
+	}
+
+	public Integer getTotalDigits() {
+		return totalDigits;
+	}
+
+	public Integer getFractionDigits() {
+		return fractionDigits;
 	}
 }

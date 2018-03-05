@@ -50,6 +50,10 @@ import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
 
 
+/** Run the negative structure test of the shexTest suite.
+ * @author Jérémie Dusart
+ *
+ */
 @RunWith(Parameterized.class)
 public class TestNegativeStruct {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
@@ -107,8 +111,16 @@ public class TestNegativeStruct {
 	public static void ending() {
     	System.out.println("Result for negative structure tests:");
 		System.out.println("Failed : "+failed.size());
+		printTestCaseNames("  > ",failed);
 		System.out.println("Errors : "+errors.size());
+		printTestCaseNames("  > ",errors);
 	}
+    
+    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
+    	for (TestResultForTestReport report:reports)
+    		System.out.println(prefix+report.name);
+    }
+	
 	
 	//--------------------------------------------------
 	// Utils functions for test

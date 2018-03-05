@@ -19,6 +19,10 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class LanguageStemConstraint implements Constraint {
 	private String langStem;
 	
@@ -48,6 +52,9 @@ public class LanguageStemConstraint implements Constraint {
 		return langStem;
 	}
 	
+	/** Equals if obj has the same langStem.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

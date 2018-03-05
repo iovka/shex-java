@@ -24,6 +24,10 @@ import org.eclipse.rdf4j.model.Value;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class RecursiveTyping implements Typing {
 	private Set<Pair<Value, Label>> typing;
 	private Set<Pair<Value, Label>> lastSetOfHyp;

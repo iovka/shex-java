@@ -20,6 +20,10 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class ValueSetValueConstraint implements Constraint {
 	private Set<Value> explicitValues;
 	private Set<Constraint> constraintsValue;

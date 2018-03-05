@@ -43,6 +43,12 @@ import fr.univLille.cristal.shex.schema.concrsynt.Constraint;
 import fr.univLille.cristal.shex.schema.concrsynt.StemRangeConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
 
+
+
+/** Test if two schemas are equal.
+ * @author Jérémie Dusart
+ *
+ */
 public class SchemaEquality {
 
 	public static boolean areEquals(ShexSchema schema1, ShexSchema schema2) {

@@ -18,7 +18,9 @@ package fr.univLille.cristal.shex.schema.abstrsynt;
 
 import java.util.Collections;
 
-
+/** This class implements the singleton pattern.
+ * @author Jérémie Dusart
+ */
 public class EmptyShape extends NodeConstraint{
 	public static final EmptyShape Shape = new EmptyShape();
 

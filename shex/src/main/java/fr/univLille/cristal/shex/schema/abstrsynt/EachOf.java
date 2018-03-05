@@ -24,7 +24,7 @@ import fr.univLille.cristal.shex.util.CollectionToString;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class EachOf extends AbstractNaryTripleExpr implements AnnotedObject{
 	private List<Annotation> annotations;

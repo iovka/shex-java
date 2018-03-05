@@ -25,7 +25,7 @@ import fr.univLille.cristal.shex.util.CollectionToString;
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- *
+ * @author Jérémie Dusart
  */
 public class ShapeAnd extends AbstractNaryShapeExpr{
 

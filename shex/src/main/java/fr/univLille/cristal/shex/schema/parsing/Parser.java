@@ -25,8 +25,16 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 
 public interface Parser {
 	
+	/** Return the set of rules contains in the files.
+	 * @param path
+	 * @return
+	 * @throws Exception
+	 */
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception;
 	
+	/** Return the list of import declarations found during the last parsing.
+	 * @return
+	 */
 	public List<String> getImports();
 
 }

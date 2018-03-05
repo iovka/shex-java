@@ -24,10 +24,9 @@ import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.AtomicValue;
 
-/**
+/** Wrapper to connect and used XPath 3.1.
  * 
- * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class XPath {
 	public static XPathContext context = new EarlyEvaluationContext((new Processor(false)).getUnderlyingConfiguration());
@@ -234,10 +233,4 @@ public class XPath {
 	    return sb.toString();
 	}
 	
-
-//	public static void main(String[] args) {
-//		String input="/	\\b\\n\\r\\f\\a𝒸";
-//		String regex = "^\\/	\\n\\r-\\\\a\\U0001D4B8$";
-//		System.out.println(matches(input,regex,null));
-//	}
 }

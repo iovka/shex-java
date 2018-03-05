@@ -26,7 +26,7 @@ import fr.univLille.cristal.shex.util.XPath;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class FacetStringConstraint implements Constraint {
 	
@@ -71,9 +71,6 @@ public class FacetStringConstraint implements Constraint {
 			lex = ((IRI)node).stringValue();
 		else if (node instanceof BNode)
 			lex = ((BNode)node).getID();
-//		SimpleBNode bnode = (SimpleBNode) node;
-//		System.err.println(bnode);
-//		System.err.println(lex);
 		if (patternString != null && ! XPath.matches(lex, patternString,flags))
 			return false;
 		if (length != null && lex.length() != length)
@@ -95,38 +92,9 @@ public class FacetStringConstraint implements Constraint {
 		return len + min + max + pat;
 	}
 
-	public Integer getMinlength() {
-		return minlength;
-	}
-
-	public void setMinlength(Integer minlength) {
-		this.minlength = minlength;
-	}
-
-	public Integer getMaxlength() {
-		return maxlength;
-	}
-
-	public void setMaxlength(Integer maxlength) {
-		this.maxlength = maxlength;
-	}
-
-	public String getPatternString() {
-		return patternString;
-	}
-
-	public void setPatternString(String patternString) {
-		this.patternString = patternString;
-	}
-
-	public Integer getLength() {
-		return length;
-	}
-
-	public String getFlags() {
-		return flags;
-	}
-	
+	/** Equals if obj has the same constraints.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -179,5 +147,37 @@ public class FacetStringConstraint implements Constraint {
 				return false;
 		
 		return true;
+	}
+	
+	public Integer getMinlength() {
+		return minlength;
+	}
+
+	public void setMinlength(Integer minlength) {
+		this.minlength = minlength;
+	}
+
+	public Integer getMaxlength() {
+		return maxlength;
+	}
+
+	public void setMaxlength(Integer maxlength) {
+		this.maxlength = maxlength;
+	}
+
+	public String getPatternString() {
+		return patternString;
+	}
+
+	public void setPatternString(String patternString) {
+		this.patternString = patternString;
+	}
+
+	public Integer getLength() {
+		return length;
+	}
+
+	public String getFlags() {
+		return flags;
 	}
 }

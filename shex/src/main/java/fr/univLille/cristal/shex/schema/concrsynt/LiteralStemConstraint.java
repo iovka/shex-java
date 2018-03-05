@@ -19,6 +19,10 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class LiteralStemConstraint implements Constraint {
 	private String litStem;
 	
@@ -42,6 +46,9 @@ public class LiteralStemConstraint implements Constraint {
 		return litStem;
 	}
 
+	/** Equals if obj has the same litStem.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

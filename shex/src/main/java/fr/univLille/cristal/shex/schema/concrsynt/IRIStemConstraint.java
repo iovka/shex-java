@@ -19,6 +19,10 @@ package fr.univLille.cristal.shex.schema.concrsynt;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class IRIStemConstraint implements Constraint {
 	private String iriStem;
 	
@@ -43,6 +47,9 @@ public class IRIStemConstraint implements Constraint {
 		return iriStem;
 	}
 	
+	/** Equals if obj has the same stem.
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

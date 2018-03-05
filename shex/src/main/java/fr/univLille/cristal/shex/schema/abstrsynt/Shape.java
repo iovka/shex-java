@@ -28,7 +28,7 @@ import fr.univLille.cristal.shex.util.CollectionToString;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class Shape extends ShapeExpr implements AnnotedObject {
 	private boolean closed;

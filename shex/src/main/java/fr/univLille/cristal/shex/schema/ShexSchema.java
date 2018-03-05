@@ -61,7 +61,7 @@ import fr.univLille.cristal.shex.util.Pair;
 
 /** A ShEx schema.
  * 
- * An instance of this class represents a well-defined schema, that is, all shape labels are defined, and the set of rules is stratified.
+ * An instance of this class represents a well-defined schema, that is, all shape labels are defined, and the set of rules is stratified. All the verification on the set of rules id done in the constructor.
  * The stratification is a most refined stratification.
  * 
  * @author Iovka Boneva
@@ -74,7 +74,12 @@ public class ShexSchema {
 	private Map<Label,ShapeExpr> shapeMap;
 	private Map<Label,TripleExpr> tripleMap;
 
-	// generate ID, check cycle in reference and stratification
+	/** The constructor try to instantiate a well-defined schema. Label are generated for all shapeExpr and tripleExpr without and ID. References are resolved and a verification that there is no cycles in the references is performed. The stratification of the set of rules is stratified is computed. Rules cannot be modified after initialization
+	 * @param rules
+	 * @throws UndefinedReferenceException
+	 * @throws CyclicReferencesException
+	 * @throws NotStratifiedException
+	 */
 	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		//check that id are unique
 		
@@ -191,14 +196,23 @@ public class ShexSchema {
 	}
 
 	
+	/** The rules of the schema.
+	 * @return
+	 */
 	public Map<Label, ShapeExpr> getRules() {
 		return rules;
 	}
 
+	/** All the shape expressions of the schema.
+	 * @return
+	 */
 	public Map<Label, ShapeExpr> getShapeMap() {
 		return shapeMap;
 	}
 
+	/** All the triple expressions of the schema.
+	 * @return
+	 */
 	public Map<Label, TripleExpr> getTripleMap() {
 		return tripleMap;
 	}
@@ -394,7 +408,7 @@ public class ShexSchema {
 	
 
 	// -------------------------------------------------------------------------------
-	// STRATIFICATION
+	// Stratification computation and access
 	// -------------------------------------------------------------------------------
 
 	class CollectGraphDependencyFromShape extends ShapeExpressionVisitor<Set<Pair<Pair<Label,Label>,Integer>>> {

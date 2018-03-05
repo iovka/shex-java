@@ -25,6 +25,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class Configuration {
 	public static Path shexTestPath = Paths.get("src","test","ressources");
 

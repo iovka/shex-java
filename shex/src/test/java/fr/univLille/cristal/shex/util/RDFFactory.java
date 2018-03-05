@@ -19,6 +19,10 @@ package fr.univLille.cristal.shex.util;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.impl.AbstractValueFactory;
 
+/** Implementation of RDFFactory that to do not generate a label if one is provided for bnode.
+ * @author Jérémie Dusart
+ *
+ */
 public class RDFFactory extends AbstractValueFactory {
 
 	@Override

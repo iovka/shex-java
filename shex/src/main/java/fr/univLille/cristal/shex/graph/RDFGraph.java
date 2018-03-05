@@ -34,63 +34,63 @@ import org.eclipse.rdf4j.model.Value;
 public interface RDFGraph {
 
 
-	/** A list of all the triples that contain the given node as subject or object.
-	 * This is the union of {@link #listInNeighbours(RDFNode)} and {@link #listOutNeighbours(Resource)} 
+	/** List all the triples that contain the given node as subject or object.
+	 * This is the union of {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)} 
 	 * 
 	 * @param focusNode
 	 * @return
 	 */
-	public Iterator<NeighborTriple> listAllNeighbours (Value focusNode);
+	public Iterator<NeighborTriple> itAllNeighbours (Value focusNode);
 	
-	/** A list of all the forward triples that have the given node as focus node.
+	/** List all the triples that have the given node as focus node or object node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
 	 * @return
 	 */
-	public Iterator<NeighborTriple> listAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
+	public Iterator<NeighborTriple> itAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 	
-	/** A list of all the forward triples that have the given node as focus node.
+	/** List all the triples that have the given node as object node.
 	 * 
 	 * @param focusNode
 	 * @return
 	 */
-	public Iterator<NeighborTriple> listInNeighbours (Value focusNode);
+	public Iterator<NeighborTriple> itInNeighbours (Value focusNode);
 	
-	/** A list of all the forward triples that have the given node as focus node.
+	/** List all the triples that have the given node as object node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
 	 * @return
 	 */
-	public Iterator<NeighborTriple> listInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
+	public Iterator<NeighborTriple> itInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 	
-	/** A list of all the backward triples that have the given node as focus node.
+	/** List all the triples that have the given node as focus node.
 	 * 
 	 * @param focusNode
 	 * @return
 	 */
-	public Iterator<NeighborTriple> listOutNeighbours (Value focusNode);
+	public Iterator<NeighborTriple> itOutNeighbours (Value focusNode);
 	
-	/** A list of all the forward triples that have the given node as focus node.
+	/** List all the triples that have the given node as focus node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
 	 * @return
 	 */
-	public Iterator<NeighborTriple> listOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
+	public Iterator<NeighborTriple> itOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 
 
-	/** The set of all object nodes in the graph.
+	/** List all the object nodes in the graph.
 	 * 
 	 * @return
 	 */
 	public Iterator<Value> listAllObjectNodes ();
 	
-	/** The set of all subjects node in the graph.
+	/** List all the subjects node in the graph.
 	 * 
 	 * @return
 	 */
 	public Iterator<Value> listAllSubjectNodes ();
 	
-	/** The set of all object and subject in the graph.
+	/** List all the object and subject in the graph.
 	 * 
 	 * @return
 	 */

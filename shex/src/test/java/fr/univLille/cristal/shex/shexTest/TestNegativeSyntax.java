@@ -16,8 +16,6 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.shexTest;
 
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -50,7 +48,10 @@ import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
 
-
+/** Run the negative syntax test of the shexTest suite.
+ * @author Jérémie Dusart
+ *
+ */
 @RunWith(Parameterized.class)
 public class TestNegativeSyntax {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
@@ -106,7 +107,6 @@ public class TestNegativeSyntax {
 			//System.out.println("Failing: "+testName);
 			//System.out.println(schema);
 			failed.add(new TestResultForTestReport(testName, false, null, "negativeSyntax"));
-			fail("Failing test: "+testName);
 		}catch (Exception e) {
 			//System.err.println("Exception: "+testName);
 			//System.err.println(e.getClass());
@@ -119,8 +119,16 @@ public class TestNegativeSyntax {
 	public static void ending() {
     	System.out.println("Result for negative syntax tests:");
 		System.out.println("Failed : "+failed.size());
+		printTestCaseNames("  > ",failed);
 		System.out.println("Errors : "+errors.size());
+		printTestCaseNames("  > ",errors);
 	}
+    
+    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
+    	for (TestResultForTestReport report:reports)
+    		System.out.println(prefix+report.name);
+    }
+	
 	
 	//--------------------------------------------------
 	// Utils functions for test

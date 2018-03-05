@@ -22,7 +22,7 @@ import org.eclipse.rdf4j.model.Value;
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- *
+ * @author Jérémie Dusart
  */
 public interface Constraint {
 	public boolean contains (Value node);

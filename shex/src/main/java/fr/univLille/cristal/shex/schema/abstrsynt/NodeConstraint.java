@@ -27,7 +27,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.Constraint;
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- *
+ * @author Jérémie Dusart
  */
 public class NodeConstraint extends ShapeExpr {
 

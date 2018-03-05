@@ -22,7 +22,7 @@ import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class ShapeExprRef extends ShapeExpr {
 	
@@ -36,15 +36,12 @@ public class ShapeExprRef extends ShapeExpr {
 	public Label getLabel () {
 		return this.label;
 	}
-	
 
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShapeExprRef(this, arguments);
 	}
 
-	
-	// FIXME : implement as an instrumentation
 	public void setShapeDefinition(ShapeExpr def) {
 		if (this.def != null)
 			throw new IllegalStateException("Shape definition can be set at most once");

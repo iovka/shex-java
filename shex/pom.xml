@@ -20,7 +20,8 @@
 
 	<groupId>fr.univLille.cristal</groupId>
 	<artifactId>shex</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-a1</version>
+	<packaging>jar</packaging>
 
 	<name>shex</name>
 	<url>http://maven.apache.org</url>

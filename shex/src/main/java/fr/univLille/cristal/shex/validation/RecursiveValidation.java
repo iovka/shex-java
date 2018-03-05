@@ -43,12 +43,12 @@ import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
 
-/**
- * 
- * @author Jérémie Dusart
- * 7 feb. 2018
- */
 
+/** Implements the Recursive validation algorithm.
+ * This algorithm will check only the shape definition necessary, but can return false positive.
+ * 
+ * @author Jérémie Dusart 
+ */
 public class RecursiveValidation implements ValidationAlgorithm {
 	private RDFGraph graph;
 	private SORBEGenerator sorbeGenerator;
@@ -67,6 +67,10 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		this.typing = new RecursiveTyping();
 	}
 	
+	public void resetTyping() {
+		this.typing = new RecursiveTyping();
+	}
+	
 	@Override
 	public Typing getTyping() {
 		return typing;
@@ -74,10 +78,6 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	
 	@Override
 	public void validate(Value focusNode, Label label) {
-//		if (!this.graph.getAllNodes().contains(focusNode)) {
-//			System.err.println("!!/?. "+focusNode+" not in the graph.");
-//			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
-//		}
 		recursiveValidation(focusNode,label);
 		if (typing.contains(focusNode, label)) {
 			typing.keepLastSessionOfHypothesis();
@@ -162,7 +162,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			if (!shape.isClosed()) {
 				return true;
 			} else {
-				tmp = graph.listOutNeighbours(node);
+				tmp = graph.itOutNeighbours(node);
 				if (! tmp.hasNext()) {
 					return true;
 				} else {
@@ -182,13 +182,13 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		}
 		
 		List<NeighborTriple> neighbourhood = new ArrayList<NeighborTriple>();
-		tmp = graph.listInNeighboursWithPredicate(node, inversePredicate);
+		tmp = graph.itInNeighboursWithPredicate(node, inversePredicate);
 		while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		if (shape.isClosed()) {
-			tmp = graph.listOutNeighbours(node);
+			tmp = graph.itOutNeighbours(node);
 			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		} else {
-			tmp = graph.listOutNeighboursWithPredicate(node,forwardPredicate);
+			tmp = graph.itOutNeighboursWithPredicate(node,forwardPredicate);
 			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		}
 		

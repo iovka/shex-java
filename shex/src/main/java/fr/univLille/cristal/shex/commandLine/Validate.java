@@ -45,7 +45,7 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 /** Command line tool for validation.
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class Validate {
 	
@@ -67,8 +67,7 @@ public class Validate {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println(COPYRIGHT);
-		
+
 		if (args.length == 0) {
 			System.out.println(USAGE);
 			return;
@@ -94,18 +93,13 @@ public class Validate {
 			System.out.println(USAGE);
 			return;
 		}
-		
-		if (parameters.get("-a").equals("recursive")) {
-			System.out.println("Recursive validation not supported in the current version.");
-			System.out.println(USAGE);
-			return;
-		}
 				
 		ShexSchema schema = getSchema(parameters.get("-s"));
 		if (schema == null) {
 			System.err.println("Was unable to parse the schema. Aborting.");
 			return;
 		}
+		
 		Model dataModel = getData(parameters.get("-d"));
 		if (dataModel == null) {
 			System.err.println("Was unable to the parse data. Aborting.");
@@ -149,6 +143,7 @@ public class Validate {
 		}
 	}
 	
+	
 	private static ShexSchema getSchema (String schemaFileName) {
 		ShexSchema schema;
 		try {
@@ -182,6 +177,9 @@ public class Validate {
 		}
 		return dataModel;
 	}
+	
+	
+	
 	private static Map<String,String> parseParameters(String[] args) {
 		if (args.length % 2 == 1)
 			return null;
@@ -214,16 +212,6 @@ public class Validate {
 		text.append("  -a \"refine\" | \"recursive\" : the algorithm to be used\n");
 		text.append("  -out <output file>        : (optional) a path to a file where the resulting typing will be written\n");
 		USAGE = text.toString();
-	}
-	
-	private static final String COPYRIGHT;
-	static {
-		StringBuilder text = new StringBuilder();
-		text.append("ShEx validator v0.5 (binary).\n");
-		text.append("Copyright Universite de Lille--Sciences et Technologies and Inria.\n");
-		text.append("Author and contact: Iovka Boneva (iovka.boneva@univ-lille1.fr)\n");
-		text.append("November 2016, proprietary licence. See the LICENSE file for details.\n");
-		COPYRIGHT = text.toString();
 	}
 
 }

@@ -33,7 +33,12 @@ import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
 import fr.univLille.cristal.shex.schema.abstrsynt.ShapeExpr;
 
+/** For all the functions, the parser used depend of the file extension of the files.
+ * @author Jérémie Dusart
+ *
+ */
 public class GenParser {
+	
 	
 	public static ShexSchema parseSchema(Path filepath) throws Exception{
 		return parseSchema(filepath,Collections.emptyList());
@@ -46,6 +51,12 @@ public class GenParser {
 	}
 	
 	
+	/** The function try to find the imports, if any, in the list of directories provided.
+	 * @param filepath
+	 * @param importDirectories
+	 * @return
+	 * @throws Exception
+	 */
 	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{
 		if (!filepath.toFile().exists())
 			throw new FileNotFoundException("File "+filepath+" not found.");

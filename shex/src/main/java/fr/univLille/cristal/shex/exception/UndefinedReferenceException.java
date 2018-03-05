@@ -16,6 +16,10 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.exception;
 
+/**
+ * @author Jérémie Dusart
+ *
+ */
 public class UndefinedReferenceException extends Exception {
 
 	public UndefinedReferenceException() {

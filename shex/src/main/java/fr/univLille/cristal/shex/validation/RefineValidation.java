@@ -17,6 +17,7 @@
 package fr.univLille.cristal.shex.validation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -46,7 +47,7 @@ import fr.univLille.cristal.shex.util.Pair;
 
 /** Implements the Refinement validation algorithm.
  * 
- * Refine validation systematically constructs a complete typing for all nodes in the graph and for all shape labels in the schema.
+ * Refine validation systematically constructs a complete typing for all nodes in the graph and for a set of selected shape in the schema. See in typing for the selected shape.
  * It is therefore suited for cases when a complete typing is needed.
  * 
  * @author Jérémie Dusart
@@ -59,7 +60,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	private SORBEGenerator sorbeGenerator;
 	private ShexSchema schema;
 	private RefinementTyping typing;
-	
+	private Set<Label> extraShape;
 	private DynamicCollectorOfTripleConstraint collectorTC;
 	
 
@@ -69,16 +70,28 @@ public class RefineValidation implements ValidationAlgorithm {
 		this.schema = schema;
 		this.sorbeGenerator = new SORBEGenerator();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		this.extraShape=Collections.emptySet();
 		this.typing = new RefinementTyping(schema, graph);
 	}
 	
-	
+	public RefineValidation(ShexSchema schema, RDFGraph graph,Set<Label> extraShape) {
+		super();
+		this.graph = graph;
+		this.schema = schema;
+		this.sorbeGenerator = new SORBEGenerator();
+		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		this.extraShape=extraShape;
+		this.typing = new RefinementTyping(schema, graph,extraShape);
+	}
 	
 	@Override
 	public Typing getTyping () {
 		return typing;
 	}
 	
+	public void resetTyping() {
+		this.typing = new RefinementTyping(schema, graph, extraShape);
+	}
 	
 	@Override
 	public void validate(Value focusNode, Label label) {
@@ -179,7 +192,7 @@ public class RefineValidation implements ValidationAlgorithm {
 			if (!shape.isClosed()) {
 				return true;
 			} else {
-				tmp = graph.listOutNeighbours(node);
+				tmp = graph.itOutNeighbours(node);
 				if (! tmp.hasNext()) {
 					return true;
 				} else {
@@ -199,13 +212,13 @@ public class RefineValidation implements ValidationAlgorithm {
 		}
 	
 		List<NeighborTriple> neighbourhood = new ArrayList<NeighborTriple>();
-		tmp = graph.listInNeighboursWithPredicate(node, inversePredicate);
+		tmp = graph.itInNeighboursWithPredicate(node, inversePredicate);
 		while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		if (shape.isClosed()) {
-			tmp = graph.listOutNeighbours(node);
+			tmp = graph.itOutNeighbours(node);
 			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		} else {
-			tmp = graph.listOutNeighboursWithPredicate(node,forwardPredicate);
+			tmp = graph.itOutNeighboursWithPredicate(node,forwardPredicate);
 			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		}
 		//System.err.println(neighbourhood);
