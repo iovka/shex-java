@@ -18,6 +18,9 @@ package fr.univLille.cristal.shex.schema.parsing;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,8 +118,7 @@ public class ShExRParser implements Parser {
 		for (RDFFormat format:ShExRParser.RDFFormats) {
 			for (String ext:format.getFileExtensions()) {
 				if (path.toString().endsWith(ext)) {
-					return getRules(path,format);
-					
+					return getRules(path,format);	
 				}
 			}
 		}	
@@ -127,9 +129,10 @@ public class ShExRParser implements Parser {
 	private static String BASE_IRI = "http://base.shex.fr/shex/";
 	
 	public Map<Label, ShapeExpr> getRules(Path path,RDFFormat format) throws Exception {
-		InputStream inputStream = new FileInputStream(path.toFile());
+		InputStream is = new FileInputStream(path.toFile());
+		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		
-		model = Rio.parse(inputStream, BASE_IRI, RDFFormat.TURTLE, new ParserConfig(), rdfFactory, new ParseErrorLogger());
+		model = Rio.parse(isr, BASE_IRI, RDFFormat.TURTLE, new ParserConfig(), rdfFactory, new ParseErrorLogger());
 		
 		Model roots = model.filter(null,TYPE_IRI,rdfFactory.createIRI("http://www.w3.org/ns/shex#Schema"));
 		Resource root = (Resource) roots.subjects().toArray()[0];

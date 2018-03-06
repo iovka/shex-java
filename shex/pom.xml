@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>com.github.jsonld-java</groupId>
 			<artifactId>jsonld-java</artifactId>
-			<version>0.11.0</version>
+			<version>0.11.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -129,12 +129,17 @@
 			<version>${jena.version}</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>2.20.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
+			<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
@@ -160,6 +165,13 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

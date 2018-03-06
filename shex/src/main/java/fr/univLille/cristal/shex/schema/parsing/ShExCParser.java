@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,7 +108,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
-		Reader isr = new InputStreamReader(is,"UTF-8");
+		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		ANTLRInputStream inputStream = new ANTLRInputStream(isr);
         ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
         ShExDocLexer.removeErrorListeners();

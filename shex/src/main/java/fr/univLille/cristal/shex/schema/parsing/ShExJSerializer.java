@@ -19,6 +19,7 @@ package fr.univLille.cristal.shex.schema.parsing;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public class ShExJSerializer {
 	public static void ToJson(ShexSchema schema, Path destination) throws JsonGenerationException, IOException {
 		Object json = ToJson(schema.getRules());
 		//FileWriter fw = new FileWriter(destination.toFile());
-		BufferedWriter fw = Files.newWriter(destination.toFile(), StandardCharsets.UTF_8);
+		BufferedWriter fw = Files.newWriter(destination.toFile(), Charset.defaultCharset());
 		JsonUtils.writePrettyPrint(fw, json);
 	}
 

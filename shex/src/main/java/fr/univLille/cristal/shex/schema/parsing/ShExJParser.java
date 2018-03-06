@@ -19,6 +19,7 @@ package fr.univLille.cristal.shex.schema.parsing;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class ShExJParser implements Parser{
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception  {
 		imports = new ArrayList<>();
 		InputStream inputStream = new FileInputStream(path.toFile());
-		Object schemaObject = JsonUtils.fromInputStream(inputStream);
+		Object schemaObject = JsonUtils.fromInputStream(inputStream,Charset.defaultCharset().name());
 		
 		Map map = (Map) schemaObject;
 
