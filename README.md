@@ -2,6 +2,7 @@
 Support of Shape Expression Language 2.0 (http://shex.io/shex-semantics/index.html) and validation.
 
 The validation algorithms implemented are the one that appears in:
+```json
 @inproceedings{boneva:hal-01590350,
   TITLE = {{Semantics and Validation of Shapes Schemas for RDF}},
   AUTHOR = {Boneva, Iovka and Labra Gayo, Jose G and Prud 'hommeaux, Eric G},
@@ -14,6 +15,7 @@ The validation algorithms implemented are the one that appears in:
   HAL_ID = {hal-01590350},
   HAL_VERSION = {v1},
 }
+```
 
 # shexTest
 
