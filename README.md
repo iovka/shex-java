@@ -47,7 +47,7 @@ Create the package:
 
 To test the package, the shexTest suite must be in the same directories as shex-java and the OS must use UNIX-style path.
 Run the tests and create the report for shexTest: 
- > mvn exec:java -Dexec.mainClass="fr.univLille.cristal.shex.shexTest.CreateTestReport"
+ > mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.shexTest.CreateTestReport" -Dexec.args="http://example.fr/~me"
 
 ## Code Exemple
 

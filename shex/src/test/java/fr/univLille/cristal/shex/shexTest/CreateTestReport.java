@@ -31,10 +31,10 @@ import fr.univLille.cristal.shex.util.TestResultForTestReport;
 /**
  * 
  * @author Iovka Boneva
- * 10 oct. 2017
+ * @author Jérémie Dusart
  */
 public class CreateTestReport {
-	String ASSERTED_BY = "<http://cristal.univ-lille.fr/~boneva>";
+	String ASSERTED_BY;
 	String SUBJECT = "<https://github.com/iovka/shex-java>";
 	String BRANCH = "master";
 	String WHEN = "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())+"\""+ "^^<http://www.w3.org/2001/XMLSchema#dateTime>";
@@ -47,11 +47,23 @@ public class CreateTestReport {
 			out = new PrintStream(Files.newOutputStream(Paths.get(logPath), StandardOpenOption.CREATE));
 	}
 	
+	public static void usage() {
+		StringBuilder text = new StringBuilder();
+		text.append("Usage:\n");
+		text.append("  <id>          : id to use for the field asserted-by\n");
+		System.err.println(text);
+	}
 	
 	public static void main(String[] args) throws IOException  {
-		
-		
 		CreateTestReport t = new CreateTestReport("./shexlille-earl.ttl");
+
+		if (args.length!=1) {
+			usage();
+			System.exit(1);
+		}
+
+		t.ASSERTED_BY = "<"+args[0]+">";
+				
 		t.printHeader();
 		
 		JUnitCore.runClasses(TestValidation_ShExC_RDF4J_Recursive.class);
