@@ -88,7 +88,7 @@ public class Validate {
 			return;
 		}
 		
-		if (! parameters.get("-a").equals("refine") && parameters.get("-a").equals("recursive")) {
+		if (! parameters.get("-a").equals("refine") && ! parameters.get("-a").equals("recursive")) {
 			System.out.println("Invalid algorithm : " + parameters.get("-a"));
 			System.out.println(USAGE);
 			return;
@@ -112,12 +112,12 @@ public class Validate {
 		
 		Label shapeLabel = null;
 		if (parameters.get("-l") != null)
-			shapeLabel = new Label(SimpleValueFactory.getInstance().createIRI(parameters.get("-l")));
+			shapeLabel = new Label(rdfFactory.createIRI(parameters.get("-l")));
 		
 		ValidationAlgorithm val = null;
 		switch (parameters.get("-a")) {
-		case "refine" : val = new RefineValidation(schema, new RDF4JGraph(dataModel)); break;
-		case "recursive" : val = new RecursiveValidation(schema, new RDF4JGraph(dataModel)); break;
+			case "refine" : val = new RefineValidation(schema, new RDF4JGraph(dataModel)); break;
+			case "recursive" : val = new RecursiveValidation(schema, new RDF4JGraph(dataModel)); break;
 		}
 		
 		System.out.println("Validating graph " + parameters.get("-d") + " against schema " + parameters.get("-s") + ".");

@@ -44,9 +44,12 @@ Current implementation used RDF4J framework for the RDF manipulation. It is poss
 
 Create the package: 
  > mvn -DskipTests package
+ 
+ Command line example to run a validation:
+ >  mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.commandLine.Validate" -Dexec.args="-s  ../../shexTest/schemas/1dotSemi.shex -d file:///home/jdusart/Documents/Shex/workspace/shexTest/validation/Is1_Ip1_Io1.ttl -l http://a.example/S1 -f http://a.example/s1 -a recursive" 
 
 To test the package, the shexTest suite must be in the same directories as shex-java and the OS must use UNIX-style path.
-Run the tests and create the report for shexTest: 
+Command line example to run the tests and create the report for shexTest: 
  > mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.shexTest.CreateTestReport" -Dexec.args="http://example.fr/~me"
 
 ## Code Exemple
