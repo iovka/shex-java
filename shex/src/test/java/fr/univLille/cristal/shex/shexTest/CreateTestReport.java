@@ -34,9 +34,8 @@ import fr.univLille.cristal.shex.util.TestResultForTestReport;
  * 10 oct. 2017
  */
 public class CreateTestReport {
-
 	String ASSERTED_BY = "<http://cristal.univ-lille.fr/~boneva>";
-	String SUBJECT = "<https://gforge.inria.fr/projects/shex-impl/>";
+	String SUBJECT = "<https://github.com/iovka/shex-java>";
 	String BRANCH = "master";
 	String WHEN = "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())+"\""+ "^^<http://www.w3.org/2001/XMLSchema#dateTime>";
 	PrintStream out;
@@ -50,6 +49,8 @@ public class CreateTestReport {
 	
 	
 	public static void main(String[] args) throws IOException  {
+		
+		
 		CreateTestReport t = new CreateTestReport("./shexlille-earl.ttl");
 		t.printHeader();
 		
