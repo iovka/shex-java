@@ -19,7 +19,7 @@ The validation algorithms implemented are the one that appears in:
 
 # shexTest
 
-On validation, the current implementation, using RDF4J, pass 1033 tests, fail 3 tests and skip 41 tests.
+On validation, the current implementation, using RDF4J, passes 1033 tests, fails 3 tests and skips 41 tests.
 The tests that are skipped are the one with at least one of those traits:
  - Start
  - SemanticAction
@@ -31,9 +31,9 @@ The tests that are skipped are the one with at least one of those traits:
 Using Jena, more tests are failed because new label are generated for bnode. The same mechanism is also present in RDF4J, but has been disabled in the tests.
  
 
-On negative structure, the current implementation pass all the tests.
+On negative structure, the current implementation passes all the tests.
 
-On negative syntax, the current implementation fail 2 tests. 
+On negative syntax, the current implementation passes 100 out of the 102 tests. 
 
 
 # Usage

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -224,7 +225,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		//System.err.println(neighbourhood);
 		
 		Matcher matcher = new MatcherPredicateAndValue(this.getTyping()); 
-		Map<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
+		LinkedHashMap<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
 		
 		// Check that the neighbor that cannot be match to a constraint are in extra
 		Iterator<Map.Entry<NeighborTriple,List<TripleConstraint>>> iteMatchingTC = matchingTC.entrySet().iterator();
@@ -239,7 +240,9 @@ public class RefineValidation implements ValidationAlgorithm {
 		}
 		
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>(matchingTC.values());
+		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
+		for(NeighborTriple nt:matchingTC.keySet())
+			listMatchingTC.add(matchingTC.get(nt));
 		BagIterator bagIt = new BagIterator(listMatchingTC);
 
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
