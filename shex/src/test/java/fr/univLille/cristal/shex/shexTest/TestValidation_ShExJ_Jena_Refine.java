@@ -83,7 +83,7 @@ public class TestValidation_ShExJ_Jena_Refine {
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ShapeMap"), // few test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"IncorrectSyntax"), //no test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Greedy"),
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"relativeIRI")
+			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"relativeIRI"),
 	}));
 	
 	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
@@ -95,13 +95,18 @@ public class TestValidation_ShExJ_Jena_Refine {
     public static Collection<Object[]> parameters() throws IOException {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
+	    	String selectedTest = "";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-		    	Object[] params =  {new TestCase(manifest,testNode)};
-		    	parameters.add(params);
+	    		TestCase tc = new TestCase(manifest,testNode);
+		    	Object[] params =  {tc};
+		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+		    		parameters.add(params);
 			}
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-	    		Object[] params =  {new TestCase(manifest,testNode)};
-		    	parameters.add(params);
+	    		TestCase tc = new TestCase(manifest,testNode);
+		    	Object[] params =  {tc};
+		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+		    		parameters.add(params);
 			}
 	        return parameters;
     }
@@ -144,16 +149,27 @@ public class TestValidation_ShExJ_Jena_Refine {
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
     		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
-
+    		
+    		
+    		
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
     				validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
     				||
     				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
     						! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
-    		} else {
+     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-    		}			
+//    			System.out.println(testCase.testName);
+//    			System.out.println(testCase.shapeLabel);
+//    			System.out.println(testCase.focusNode);
+//    			System.out.println(testCase.testName+" "+testCase.traits);
+ //   			System.out.println(testCase.focusNode);
+//    			System.err.println(validation.getTyping());
+//    			System.out.println(testCase.testComment);
+//    			System.out.println(schema);
+//    			System.out.println(dataGraph);
+      		}			
     	}catch (Exception e) {
     		errors.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
     	}

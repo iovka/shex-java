@@ -19,6 +19,7 @@ package fr.univLille.cristal.shex.graph;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.ResIterator;
@@ -30,6 +31,7 @@ import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleBNode;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
 /** Wraps an RDF4J graph as {@link RDFGraph}.
@@ -119,7 +121,8 @@ public class JenaGraph extends AbstractRDFGraph {
 		return new Iterator<NeighborTriple>() {
 			StmtIterator it; { it = jenaModel.listStatements(null,
 															 convertRDF4JIRIToJenaProperty(predicate),
-															 convertRDF4JValueToJenaRDFNode(focusNode));	}
+															 convertRDF4JValueToJenaRDFNode(focusNode));
+			}
 			
 			@Override
 			public boolean hasNext() {
@@ -130,7 +133,7 @@ public class JenaGraph extends AbstractRDFGraph {
 			public NeighborTriple next() {
 				Statement next = it.next();
 				IRI predicate = convertJenaPropertyToRDF4JIRI(next.getPredicate());
-				TCProperty prop = TCProperty.createFwProperty(predicate);
+				TCProperty prop = TCProperty.createInvProperty(predicate);
 				return new NeighborTriple(convertJenaRDFNodeToValue(next.getSubject()),prop,focusNode);
 			}
 		};
@@ -156,8 +159,9 @@ public class JenaGraph extends AbstractRDFGraph {
 			return null;
 		if (value instanceof IRI)
 			return jenaModel.createResource(value.stringValue());
-		if (value instanceof BNode)
-			return jenaModel.createResource(value.stringValue());
+		if (value instanceof BNode) {
+			return jenaModel.createResource(new AnonId(value.stringValue()));
+		}
 		if (value instanceof Literal)
 			return null;
 		System.out.println("Need to convert from RDF4J: "+value.getClass()+" > "+value);
@@ -201,10 +205,9 @@ public class JenaGraph extends AbstractRDFGraph {
 	public Resource convertJenaRDFNodeToResource(org.apache.jena.rdf.model.Resource jenaRes) {
 		if (jenaRes == null)
 			return null;
-		if (jenaRes.isAnon())
-			return rdfFactory.createBNode();
-		if (jenaRes.getNameSpace().equals("_:"))
-			return rdfFactory.createBNode(jenaRes.getLocalName());
+		if (jenaRes.isAnon()) {
+			return rdfFactory.createBNode(jenaRes.toString());
+		}
 		return rdfFactory.createIRI(jenaRes.getURI());
 	}
 	

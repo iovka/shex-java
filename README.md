@@ -28,7 +28,7 @@ The tests that are skipped are the one with at least one of those traits:
  - Greedy
  - relativeIRI
 
-Using Jena, more tests are failed because new label are generated for bnode. The same mechanism is also present in RDF4J, but has been disabled in the tests.
+Using Jena, more tests are failed because new label are generated for bnode (test with traits LexicalBnode). Also test with focus node https://raw.githubusercontent.com/shexSpec/shexTest/master/validation/x because jena use the file path as a base for the IRI. The same mechanisms is also present in RDF4J, but has been disabled for the tests.
  
 
 On negative structure, the current implementation passes all the tests.
