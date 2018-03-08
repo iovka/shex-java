@@ -17,9 +17,8 @@
 package fr.univLille.cristal.shex.validation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiFunction;
 
 import fr.univLille.cristal.shex.graph.NeighborTriple;
@@ -40,9 +39,9 @@ public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Bo
 	 * @param matcher
 	 * @return
 	 */
-	public static Map<NeighborTriple,List<TripleConstraint>> collectMatchingTC (List<NeighborTriple> neighbourhood, List<TripleConstraint> constraints, Matcher matcher) {
+	public static LinkedHashMap<NeighborTriple,List<TripleConstraint>> collectMatchingTC (List<NeighborTriple> neighbourhood, List<TripleConstraint> constraints, Matcher matcher) {
 		
-		Map<NeighborTriple,List<TripleConstraint>> result = new HashMap<>(neighbourhood.size()); 
+		LinkedHashMap<NeighborTriple,List<TripleConstraint>> result = new LinkedHashMap<>(neighbourhood.size()); 
 		
 		for (NeighborTriple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
@@ -50,8 +49,7 @@ public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Bo
 				if (matcher.apply(triple, tc)) {
 					matching.add(tc);
 				}
-			}
-			
+			}	
 			result.put(triple,matching);
 		}
 		return result;

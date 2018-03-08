@@ -19,6 +19,7 @@ package fr.univLille.cristal.shex.validation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -194,7 +195,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		
 		// Match using only predicate and recursive test. The following line are the only difference with refine validation
 		Matcher matcher1 = new MatcherPredicateOnly();
-		Map<NeighborTriple,List<TripleConstraint>> matchingTC1 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher1);
+		LinkedHashMap<NeighborTriple,List<TripleConstraint>> matchingTC1 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher1);
 
 		for(Entry<NeighborTriple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
 			List<TripleConstraint> possibility = entry.getValue();
@@ -210,7 +211,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 
 
 		Matcher matcher2 = new MatcherPredicateAndValue(this.getTyping()); 
-		Map<NeighborTriple,List<TripleConstraint>> matchingTC2 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher2);
+		LinkedHashMap<NeighborTriple,List<TripleConstraint>> matchingTC2 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher2);
 
 		// Check that the neighbor that cannot be match to a constraint are in extra
 		Iterator<Map.Entry<NeighborTriple,List<TripleConstraint>>> iteMatchingTC = matchingTC2.entrySet().iterator();
@@ -225,7 +226,10 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		}
 		
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>(matchingTC2.values());
+		ArrayList<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
+		for(NeighborTriple nt:matchingTC2.keySet())
+			listMatchingTC.add(matchingTC2.get(nt));
+		
 		BagIterator bagIt = new BagIterator(listMatchingTC);
 
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
