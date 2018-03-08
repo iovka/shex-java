@@ -222,11 +222,9 @@ public class RefineValidation implements ValidationAlgorithm {
 			tmp = graph.itOutNeighboursWithPredicate(node,forwardPredicate);
 			while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		}
-		//System.err.println(neighbourhood);
 		
 		Matcher matcher = new MatcherPredicateAndValue(this.getTyping()); 
 		LinkedHashMap<NeighborTriple,List<TripleConstraint>> matchingTC = Matcher.collectMatchingTC(neighbourhood, constraints, matcher);
-		
 		// Check that the neighbor that cannot be match to a constraint are in extra
 		Iterator<Map.Entry<NeighborTriple,List<TripleConstraint>>> iteMatchingTC = matchingTC.entrySet().iterator();
 		while(iteMatchingTC.hasNext()) {
@@ -238,7 +236,7 @@ public class RefineValidation implements ValidationAlgorithm {
 				iteMatchingTC.remove();
 			}
 		}
-		
+
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
 		List<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
 		for(NeighborTriple nt:matchingTC.keySet())
