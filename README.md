@@ -19,6 +19,8 @@ The validation algorithms implemented are the one that appears in:
 
 # Install
 
+## Maven install
+
 On GNU/Linux operation system with shexTest:
 
 ```sh
@@ -35,17 +37,29 @@ cd shex-java/shex
 mvn -DskipTests clean install
 ```
 
-Then put in the pom.xml file of your project:
-```xml
-<dependency>
-  	<groupId>fr.univLille.cristal</groupId>
-  	<artifactId>shex</artifactId>
-  	<version>1.0-a1</version>
-  	<scope>provided</scope>
- </dependency>
+## Build the jar
+
+On GNU/Linux operation system with shexTest:
+
+```sh
+git clone https://github.com/iovka/shex-java.git
+git clone https://github.com/shexSpec/shexTest
+cd shex-java/shex
+mvn clean package
 ```
 
+On other operating system or without shexTest:
+```sh
+git clone https://github.com/iovka/shex-java.git
+cd shex-java/shex
+mvn -DskipTests clean package
+```
+
+After that, the jar file can be found in the target directory.
+
 # shexTest
+
+To test the package, the shexTest suite must be in the same directories as shex-java and the OS must use UNIX-style path.
 
 On validation, the current implementation, using RDF4J, passes 1033 tests, fails 3 tests and skips 41 tests.
 The tests that are skipped are the one with at least one of those traits:
@@ -63,19 +77,29 @@ On negative structure, the current implementation passes all the tests.
 
 On negative syntax, the current implementation passes 100 out of the 102 tests. 
 
+Command line example to run the tests and create the report for shexTest: 
+ > mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.shexTest.CreateTestReport" -Dexec.args="http://example.fr/~me"
 
 # Usage
 
 Current implementation used RDF4J framework for the RDF manipulation. It is possible to used JENA using JenaGraph class, but we recommend the use of RDF4J.
 
-## Maven
+## Command line validation with maven
 
  Command line example to run a validation:
  >  mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.commandLine.Validate" -Dexec.args="-s  ../../shexTest/schemas/1dotSemi.shex -d file:///home/jdusart/Documents/Shex/workspace/shexTest/validation/Is1_Ip1_Io1.ttl -l http://a.example/S1 -f http://a.example/s1 -a recursive" 
 
-To test the package, the shexTest suite must be in the same directories as shex-java and the OS must use UNIX-style path.
-Command line example to run the tests and create the report for shexTest: 
- > mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.shexTest.CreateTestReport" -Dexec.args="http://example.fr/~me"
+## Maven dependency
+
+Put in the pom.xml file of your project:
+```xml
+<dependency>
+  	<groupId>fr.univLille.cristal</groupId>
+  	<artifactId>shex</artifactId>
+  	<version>1.0-a1</version>
+  	<scope>provided</scope>
+ </dependency>
+```
 
 ## Code Exemple
 
