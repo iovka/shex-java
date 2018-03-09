@@ -148,6 +148,10 @@ public class TestValidation_ShExJ_Jena_Refine {
     		RDFGraph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
     		
+    		if (testCase.focusNode.stringValue().startsWith(GITHUB_URL)) {
+    			Path fullpath = Paths.get(TEST_DIR,testCase.focusNode.stringValue().substring(GITHUB_URL.length()));
+    			testCase.focusNode = RDF_FACTORY.createIRI("file://"+fullpath.toString());
+       		}
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
     		
     		
@@ -164,11 +168,12 @@ public class TestValidation_ShExJ_Jena_Refine {
 //    			System.out.println(testCase.shapeLabel);
 //    			System.out.println(testCase.focusNode);
 //    			System.out.println(testCase.testName+" "+testCase.traits);
- //   			System.out.println(testCase.focusNode);
+//    			System.out.println(testCase.focusNode);
 //    			System.err.println(validation.getTyping());
 //    			System.out.println(testCase.testComment);
 //    			System.out.println(schema);
 //    			System.out.println(dataGraph);
+    			
       		}			
     	}catch (Exception e) {
     		errors.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
