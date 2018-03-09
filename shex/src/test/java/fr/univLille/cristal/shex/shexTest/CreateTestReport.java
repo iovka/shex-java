@@ -55,7 +55,7 @@ public class CreateTestReport {
 	}
 	
 	public static void main(String[] args) throws IOException  {
-		CreateTestReport t = new CreateTestReport("./shexlille-earl.ttl");
+		CreateTestReport t = new CreateTestReport("shexlille-earl.ttl");
 
 		if (args.length!=1) {
 			usage();

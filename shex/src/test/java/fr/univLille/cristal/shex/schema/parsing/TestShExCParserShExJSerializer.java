@@ -18,15 +18,16 @@ package fr.univLille.cristal.shex.schema.parsing;
 
 import static org.junit.Assert.fail;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -45,16 +46,11 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.univLille.cristal.shex.graph.RDF4JGraph;
-import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.ShexSchema;
-import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.RDFFactory;
 import fr.univLille.cristal.shex.util.SchemaEquality;
 import fr.univLille.cristal.shex.util.TestCase;
 import fr.univLille.cristal.shex.util.TestResultForTestReport;
-import fr.univLille.cristal.shex.validation.RecursiveValidation;
-import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 
 
 /** Run the validation tests of the shexTest suite using ShExC parser, RDF4JGraph and recursive validation.
@@ -65,12 +61,12 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 public class TestShExCParserShExJSerializer {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
-	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
+	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
 	
-	protected static String MANIFEST_FILE = TEST_DIR + "validation/manifest.ttl";
+	protected static String MANIFEST_FILE = Paths.get(TEST_DIR,"validation","manifest.ttl").toString();
 	
-	protected static final String DATA_DIR = TEST_DIR + "validation/";
-	protected static final String SCHEMAS_DIR = TEST_DIR + "schemas/";
+	protected static final String DATA_DIR = Paths.get(TEST_DIR,"validation").toString();
+	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();
 
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
 	protected static final Resource VALIDATION_FAILURE_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationFailure");
@@ -143,10 +139,10 @@ public class TestShExCParserShExJSerializer {
     		}
 			
 			fromJson = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-			Path tmp = Paths.get("/tmp/fromjson.json");
+			Path tmp = Paths.get("tmp_fromjson.json");
 			ShExJSerializer.ToJson(fromJson, tmp);
 			toJson = GenParser.parseSchema(tmp);
-    		
+    		tmp.toFile().delete();
 	
     		if (SchemaEquality.areEquals(fromJson, toJson)){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "same"));
@@ -185,28 +181,19 @@ public class TestShExCParserShExJSerializer {
 
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
-		return TEST_DIR+fp;
-	}
-	
-	public RDFGraph getRDFGraph() throws IOException {
-		Model data = parseTurtleFile(Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName)).toString(),GITHUB_URL+"validation/");
-		return new RDF4JGraph(data);
-	}
-	
-	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, RDFGraph dataGraph ) {
-		return new RecursiveValidation(schema, dataGraph);
-	}
-	
+    	fp = fp.substring(0,fp.length()-4)+"json";
 
-	public String getDataFileName (Resource res) {
-		String[] parts = res.toString().split("/");
-		return parts[parts.length-1];
+    	String result = Paths.get(TEST_DIR).toString();
+    	Iterator<Path> iter = Paths.get(fp).iterator();
+    	while(iter.hasNext())
+    		result = Paths.get(result,iter.next().toString()).toString();
+    	
+		return result;
 	}
-
 
 	public static Model parseTurtleFile(String filename,String baseURI) throws IOException{
-		java.net.URL documentUrl = new URL("file://"+filename);
-		InputStream inputStream = documentUrl.openStream();
+		Path fp = Paths.get(filename);
+		InputStream inputStream = new FileInputStream(fp.toFile());
 		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
 	}
 }

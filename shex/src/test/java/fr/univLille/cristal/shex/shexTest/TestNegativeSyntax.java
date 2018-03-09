@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.shexTest;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -56,10 +57,10 @@ import fr.univLille.cristal.shex.util.TestResultForTestReport;
 public class TestNegativeSyntax {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 
-	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
+	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
-	protected static final String MANIFEST_FILE = TEST_DIR + "negativeSyntax/manifest.ttl";
-	private static final String SCHEMAS_DIR = TEST_DIR + "schemas/";
+	protected static final String MANIFEST_FILE = Paths.get(TEST_DIR,"negativeSyntax","manifest.ttl").toString();
+	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();
 
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	private static final Resource NEGATIVE_SYNTAX = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeSyntax");
@@ -144,8 +145,8 @@ public class TestNegativeSyntax {
 	}
 
 	public static Model parseTurtleFile(String filename,String baseURI) throws IOException{
-		java.net.URL documentUrl = new URL("file://"+filename);
-		InputStream inputStream = documentUrl.openStream();
+		Path fp = Paths.get(filename);
+		InputStream inputStream = new FileInputStream(fp.toFile());
 
 		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
 	}

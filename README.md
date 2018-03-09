@@ -1,4 +1,4 @@
-# shex-java
+# Shex-java
 Support of Shape Expression Language 2.0 (http://shex.io/shex-semantics/index.html) and validation.
 
 The validation algorithms implemented are the one that appears in:
