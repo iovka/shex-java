@@ -40,6 +40,8 @@ On negative syntax, the current implementation passes 100 out of the 102 tests.
 
 Current implementation used RDF4J framework for the RDF manipulation. It is possible to used JENA using JenaGraph class, but we recommend the use of RDF4J.
 
+For window users, the test currently used unix style path and so the implementation will return an error if you try to run them. To still be able to use the implementation, skip the tests by using the maven option -DskipTests (for example: mvn -DskipTests clean install).
+
 ## Maven
 
 Create the package: 
