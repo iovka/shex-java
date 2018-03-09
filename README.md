@@ -35,6 +35,16 @@ cd shex-java/shex
 mvn -DskipTests clean install
 ```
 
+Then put in the pom.xml file of your project:
+```xml
+<dependency>
+  	<groupId>fr.univLille.cristal</groupId>
+  	<artifactId>shex</artifactId>
+  	<version>1.0-a1</version>
+  	<scope>provided</scope>
+ </dependency>
+```
+
 # shexTest
 
 On validation, the current implementation, using RDF4J, passes 1033 tests, fails 3 tests and skips 41 tests.
@@ -72,32 +82,59 @@ Command line example to run the tests and create the report for shexTest:
 Classic example for validating a model and a schema.
 
 ```java
-Path dataFile, schemaFile;
-List<Path> importDirectories;
+import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
 
-// load and create the shex schema
-ShexSchema schema = GenParser.parseSchema(schemaFile,importDirectories);
- 
- // load the model
-IRI baseIRI = SimpleValueFactory.getInstance().createIRI("http://a.example.shex/");
-Model data = Rio.parse(new FileInputStream(dataFile.toFile()), baseIRI, RDFFormat.TURTLE);
+import fr.univLille.cristal.shex.graph.RDF4JGraph;
+import fr.univLille.cristal.shex.graph.RDFGraph;
+import fr.univLille.cristal.shex.schema.Label;
+import fr.univLille.cristal.shex.schema.ShexSchema;
+import fr.univLille.cristal.shex.schema.parsing.GenParser;
+import fr.univLille.cristal.shex.validation.RecursiveValidation;
+import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 
-// create the RDF graph
-RDFGraph dataGraph = new RDF4JGraph(data);
-    		
-// create the validation algorithm
-ValidationAlgorithm validation = new RecursiveValidation(schema, dataGraph);   
+public class Main {
 
-// choose focus node and shapelabel
-IRI focusNode = SimpleValueFactory.getInstance().createIRI(baseIRI,"node");
-IRI shapeLabel = SimpleValueFactory.getInstance().createIRI(baseIRI,"Shape");
+	public static void main(String[] args) throws Exception {
+		Path schemaFile = Paths.get("datatypes.json"); //to change with what you want 
+		Path dataFile = Paths.get("datatypes-data.ttl"); //to change with what you want 
+		List<Path> importDirectories = Collections.emptyList();
+	
+		// load and create the shex schema
+		ShexSchema schema = GenParser.parseSchema(schemaFile,importDirectories);
+		 
+		 // load the model
+		String baseIRI = "http://a.example.shex/";
+		Model data = Rio.parse(new FileInputStream(dataFile.toFile()), baseIRI, RDFFormat.TURTLE);
 
-//validate
-validation.validate(focusNode, shapeLabel);
+		// create the RDF graph
+		RDFGraph dataGraph = new RDF4JGraph(data);
+		    		
+		// create the validation algorithm
+		ValidationAlgorithm validation = new RecursiveValidation(schema, dataGraph);   
 
-//check the result
-validation.getTyping().contains(focusNode, shapeLabel);
+		// choose focus node and shapelabel
+		IRI focusNode = SimpleValueFactory.getInstance().createIRI("http://a.example/integer-p1"); //to change with what you want 
+		Label shapeLabel = new Label(SimpleValueFactory.getInstance().createIRI("http://a.example/S-integer")); //to change with what you want 
+
+		//validate
+		validation.validate(focusNode, shapeLabel);
+
+		//check the result
+		System.out.println(validation.getTyping().contains(focusNode, shapeLabel));
+	}
+
+}
+
 
 ```
 
