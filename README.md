@@ -17,6 +17,24 @@ The validation algorithms implemented are the one that appears in:
 }
 ```
 
+# Install
+
+On GNU/Linux operation system with shexTest:
+
+```sh
+git clone https://github.com/iovka/shex-java.git
+git clone https://github.com/shexSpec/shexTest
+cd shex-java/shex
+mvn clean install
+```
+
+On other operating system or without shexTest:
+```sh
+git clone https://github.com/iovka/shex-java.git
+cd shex-java/shex
+mvn -DskipTests clean install
+```
+
 # shexTest
 
 On validation, the current implementation, using RDF4J, passes 1033 tests, fails 3 tests and skips 41 tests.
@@ -28,7 +46,7 @@ The tests that are skipped are the one with at least one of those traits:
  - Greedy
  - relativeIRI
 
-Using Jena, more tests are failed because new label are generated for bnode (test with traits LexicalBnode). Also test with focus node https://raw.githubusercontent.com/shexSpec/shexTest/master/validation/x because jena use the file path as a base for the IRI. The same mechanisms is also present in RDF4J, but has been disabled for the tests.
+Using Jena, more tests are failed because new label are generated for bnode (test with trait LexicalBnode). The same mechanism is also present in RDF4J, but has been disabled for the tests.
  
 
 On negative structure, the current implementation passes all the tests.
@@ -40,13 +58,8 @@ On negative syntax, the current implementation passes 100 out of the 102 tests.
 
 Current implementation used RDF4J framework for the RDF manipulation. It is possible to used JENA using JenaGraph class, but we recommend the use of RDF4J.
 
-For window users, the test currently used unix style path and so the implementation will return an error if you try to run them. To still be able to use the implementation, skip the tests by using the maven option -DskipTests (for example: mvn -DskipTests clean install).
-
 ## Maven
 
-Create the package: 
- > mvn -DskipTests package
- 
  Command line example to run a validation:
  >  mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.commandLine.Validate" -Dexec.args="-s  ../../shexTest/schemas/1dotSemi.shex -d file:///home/jdusart/Documents/Shex/workspace/shexTest/validation/Is1_Ip1_Io1.ttl -l http://a.example/S1 -f http://a.example/s1 -a recursive" 
 
