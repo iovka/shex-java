@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.shexTest;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -25,8 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Spliterator;
 
 import org.apache.jena.rdf.model.ModelFactory;
 import org.eclipse.rdf4j.model.IRI;
@@ -62,12 +65,12 @@ import fr.univLille.cristal.shex.validation.ValidationAlgorithm;
 public class TestValidation_ShExJ_Jena_Refine {
 	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
 	
-	protected static final String TEST_DIR = Paths.get("./../../shexTest/").toAbsolutePath().normalize().toString()+"/";
+	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
 	
-	protected static String MANIFEST_FILE = TEST_DIR + "validation/manifest.ttl";
+	protected static String MANIFEST_FILE = Paths.get(TEST_DIR,"validation","manifest.ttl").toString();
 	
-	protected static final String DATA_DIR = TEST_DIR + "validation/";
-	protected static final String SCHEMAS_DIR = TEST_DIR + "schemas/";
+	protected static final String DATA_DIR = Paths.get(TEST_DIR,"validation").toString();
+	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();
 
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
 	protected static final Resource VALIDATION_FAILURE_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationFailure");
@@ -205,7 +208,13 @@ public class TestValidation_ShExJ_Jena_Refine {
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
     	fp = fp.substring(0,fp.length()-4)+"json";
-		return TEST_DIR+fp;
+
+    	String result = Paths.get(TEST_DIR).toString();
+    	Iterator<Path> iter = Paths.get(fp).iterator();
+    	while(iter.hasNext())
+    		result = Paths.get(result,iter.next().toString()).toString();
+    	
+		return result;
 	}
 	
 	public RDFGraph getRDFGraph() throws IOException {
@@ -221,14 +230,13 @@ public class TestValidation_ShExJ_Jena_Refine {
 	
 
 	public String getDataFileName (Resource res) {
-		String[] parts = res.toString().split("/");
-		return parts[parts.length-1];
+		return Paths.get(res.stringValue()).getFileName().toString();
 	}
 
 
 	public static Model parseTurtleFile(String filename,String baseURI) throws IOException{
-		java.net.URL documentUrl = new URL("file://"+filename);
-		InputStream inputStream = documentUrl.openStream();
+		Path fp = Paths.get(filename);
+		InputStream inputStream = new FileInputStream(fp.toFile());
 
 		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
 	}
