@@ -98,7 +98,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     public static Collection<Object[]> parameters() throws IOException {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	String selectedTest = "";
+	    	String selectedTest = "simple-group";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
@@ -152,9 +152,12 @@ public class TestValidation_ShExJ_Jena_Refine {
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
     		
     		if (testCase.focusNode.stringValue().startsWith(GITHUB_URL)) {
+    			System.err.println(testCase.focusNode);
     			Path fullpath = Paths.get(TEST_DIR,testCase.focusNode.stringValue().substring(GITHUB_URL.length()));
+    			System.err.println(fullpath);
     			testCase.focusNode = RDF_FACTORY.createIRI("file://"+fullpath.toString());
        		}
+    		System.err.println(dataGraph);
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
     		
     		
