@@ -213,8 +213,13 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	
 
 	public String getDataFileName (Resource res) {
-		String result = Paths.get(res.stringValue()).getFileName().toString();
-		result = Paths.get(DATA_DIR,result).toString();
+		String fp = res.toString().substring(GITHUB_URL.length());
+		
+		String result = Paths.get(TEST_DIR).toString();
+    	Iterator<Path> iter = Paths.get(fp).iterator();
+    	while(iter.hasNext())
+    		result = Paths.get(result,iter.next().toString()).toString();
+    	
 		return result;
 		
 	}
