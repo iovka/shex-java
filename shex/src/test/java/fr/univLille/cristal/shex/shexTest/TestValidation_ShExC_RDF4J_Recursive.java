@@ -156,6 +156,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
     		}			
     	}catch (Exception e) {
+    		System.err.println(e.getMessage());
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
     	}
     }
@@ -196,7 +197,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	}
 	
 	public RDFGraph getRDFGraph() throws IOException {
-		Model data = parseTurtleFile(Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName)).toString(),GITHUB_URL+"validation/");
+		Model data = parseTurtleFile(getDataFileName(testCase.dataFileName),GITHUB_URL+"validation/");
 		return new RDF4JGraph(data);
 	}
 	
@@ -206,7 +207,10 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	
 
 	public String getDataFileName (Resource res) {
-		return Paths.get(res.stringValue()).getFileName().toString();
+		String result = Paths.get(res.stringValue()).getFileName().toString();
+		result = Paths.get(DATA_DIR,result).toString();
+		return result;
+		
 	}
 
 
