@@ -153,9 +153,15 @@ public class TestValidation_ShExJ_Jena_Refine {
     		
     		if (testCase.focusNode.stringValue().startsWith(GITHUB_URL)) {
     			System.err.println(testCase.focusNode);
-    			Path fullpath = Paths.get(TEST_DIR,testCase.focusNode.stringValue().substring(GITHUB_URL.length()));
-    			System.err.println(fullpath);
-    			testCase.focusNode = RDF_FACTORY.createIRI("file://"+fullpath.toString());
+    			if (TEST_DIR.contains(":")) {
+    				String newURI = TEST_DIR.substring(TEST_DIR.indexOf(":")+1);
+    				newURI += testCase.focusNode.stringValue().substring(GITHUB_URL.length());
+    				testCase.focusNode = RDF_FACTORY.createIRI(newURI);
+    			}else {
+        			Path fullpath = Paths.get(TEST_DIR,testCase.focusNode.stringValue().substring(GITHUB_URL.length()));
+    				testCase.focusNode = RDF_FACTORY.createIRI("file://"+fullpath.toString());
+    			}
+    			System.err.println(testCase.focusNode);
        		}
     		System.err.println(dataGraph);
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
