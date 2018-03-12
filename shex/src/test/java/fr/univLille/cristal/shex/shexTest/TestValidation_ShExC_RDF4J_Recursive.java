@@ -98,13 +98,18 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	public static Collection<Object[]> parameters() throws IOException {
 		Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 		List<Object[]> parameters = new ArrayList<Object[]>();
-		for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-			Object[] params =  {new TestCase(manifest,testNode)};
-			parameters.add(params);
+		String selectedTest = "decimal-n1_pass";
+    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
+    		TestCase tc = new TestCase(manifest,testNode);
+	    	Object[] params =  {tc};
+	    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+	    		parameters.add(params);
 		}
-		for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-			Object[] params =  {new TestCase(manifest,testNode)};
-			parameters.add(params);
+    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
+    		TestCase tc = new TestCase(manifest,testNode);
+	    	Object[] params =  {tc};
+	    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+	    		parameters.add(params);
 		}
 		return parameters;
 	}
@@ -157,6 +162,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     		}			
     	}catch (Exception e) {
     		System.err.println(e.getMessage());
+    		e.printStackTrace();
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
     	}
     }
