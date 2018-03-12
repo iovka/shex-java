@@ -98,7 +98,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	public static Collection<Object[]> parameters() throws IOException {
 		Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 		List<Object[]> parameters = new ArrayList<Object[]>();
-		String selectedTest = "decimal-n1_pass";
+		String selectedTest = "";
     	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
     		TestCase tc = new TestCase(manifest,testNode);
 	    	Object[] params =  {tc};
@@ -220,8 +220,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	while(iter.hasNext())
     		result = Paths.get(result,iter.next().toString()).toString();
     	
-		return result;
-		
+		return result;	
 	}
 
 

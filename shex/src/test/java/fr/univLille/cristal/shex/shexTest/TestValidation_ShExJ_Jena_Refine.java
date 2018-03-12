@@ -218,9 +218,8 @@ public class TestValidation_ShExJ_Jena_Refine {
 	}
 	
 	public RDFGraph getRDFGraph() throws IOException {
-		Path dataFile = Paths.get(DATA_DIR,getDataFileName(testCase.dataFileName));
 		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
-		model.read(dataFile.toString()) ;
+		model.read(getDataFileName(testCase.dataFileName)) ;
 		return new JenaGraph(model);
 	}
 	
@@ -230,7 +229,14 @@ public class TestValidation_ShExJ_Jena_Refine {
 	
 
 	public String getDataFileName (Resource res) {
-		return Paths.get(res.stringValue()).getFileName().toString();
+		String fp = res.toString().substring(GITHUB_URL.length());
+		
+		String result = Paths.get(TEST_DIR).toString();
+    	Iterator<Path> iter = Paths.get(fp).iterator();
+    	while(iter.hasNext())
+    		result = Paths.get(result,iter.next().toString()).toString();
+    	
+		return result;	
 	}
 
 
