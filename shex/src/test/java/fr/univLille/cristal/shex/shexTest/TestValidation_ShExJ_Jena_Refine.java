@@ -175,19 +175,10 @@ public class TestValidation_ShExJ_Jena_Refine {
     						! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
      		} else {
-    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-//    			System.out.println(testCase.testName);
-//    			System.out.println(testCase.shapeLabel);
-//    			System.out.println(testCase.focusNode);
-//    			System.out.println(testCase.testName+" "+testCase.traits);
-//    			System.out.println(testCase.focusNode);
-//    			System.err.println(validation.getTyping());
-//    			System.out.println(testCase.testComment);
-//    			System.out.println(schema);
-//    			System.out.println(dataGraph);
-    			
+    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));			
       		}			
     	}catch (Exception e) {
+    		e.printStackTrace();
     		errors.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
     	}
     }
@@ -225,16 +216,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     	
 		return result;
 	}
-	
-	public RDFGraph getRDFGraph() throws IOException {
-		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
-		model.read(getDataFileName(testCase.dataFileName)) ;
-		return new JenaGraph(model);
-	}
-	
-	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, RDFGraph dataGraph ) {
-		return new RefineValidation(schema, dataGraph);
-	}
+
 	
 
 	public String getDataFileName (Resource res) {
@@ -247,7 +229,16 @@ public class TestValidation_ShExJ_Jena_Refine {
     	
 		return result;	
 	}
-
+	
+	public RDFGraph getRDFGraph() throws IOException {
+		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
+		model.read(getDataFileName(testCase.dataFileName)) ;
+		return new JenaGraph(model);
+	}
+	
+	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, RDFGraph dataGraph ) {
+		return new RefineValidation(schema, dataGraph);
+	}
 
 	public static Model parseTurtleFile(String filename,String baseURI) throws IOException{
 		Path fp = Paths.get(filename);
