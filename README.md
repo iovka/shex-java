@@ -21,37 +21,36 @@ The validation algorithms implemented are the one that appears in:
 
 ## Maven install
 
-On GNU/Linux operation system with shexTest:
+With all the tests:
 
 ```sh
 git clone https://github.com/iovka/shex-java.git
 git clone https://github.com/shexSpec/shexTest
-cd shex-java/shex
+cd shex-java/shex #cd shex-java\shex for windows user
 mvn clean install
 ```
 
-On other operating system or without shexTest:
+Without the tests:
 ```sh
 git clone https://github.com/iovka/shex-java.git
-cd shex-java/shex
+cd shex-java/shex #cd shex-java\shex for windows user
 mvn -DskipTests clean install
 ```
 
 ## Build the jar
 
-On GNU/Linux operation system with shexTest:
-
+With all the tests:
 ```sh
 git clone https://github.com/iovka/shex-java.git
 git clone https://github.com/shexSpec/shexTest
-cd shex-java/shex
+cd shex-java/shex #cd shex-java\shex for windows user
 mvn clean package
 ```
 
-On other operating system or without shexTest:
+Without the tests:
 ```sh
 git clone https://github.com/iovka/shex-java.git
-cd shex-java/shex
+cd shex-java/shex #cd shex-java\shex for windows user
 mvn -DskipTests clean package
 ```
 
