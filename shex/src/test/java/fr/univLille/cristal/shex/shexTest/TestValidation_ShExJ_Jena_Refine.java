@@ -150,11 +150,11 @@ public class TestValidation_ShExJ_Jena_Refine {
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		RDFGraph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
-    		
+	
     		if (testCase.focusNode.stringValue().startsWith(GITHUB_URL)) {
     			System.err.println(testCase.focusNode);
     			if (TEST_DIR.contains(":")) {
-    				String newURI = TEST_DIR.substring(TEST_DIR.indexOf(":")+1);
+    				String newURI = TEST_DIR.substring(0,TEST_DIR.indexOf(":")+1);
     				newURI += testCase.focusNode.stringValue().substring(GITHUB_URL.length());
     				testCase.focusNode = RDF_FACTORY.createIRI(newURI);
     			}else {
