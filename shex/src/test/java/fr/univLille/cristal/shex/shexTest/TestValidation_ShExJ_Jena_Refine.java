@@ -151,7 +151,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     		RDFGraph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
 	
-    		// Fix for dealing with no baseURi in jena
+    		// Fix for dealing with the absence of namespace specification in jena.
     		if (testCase.focusNode.stringValue().startsWith(GITHUB_URL)) {
     			if (TEST_DIR.contains(":")) {
     				String newURI = TEST_DIR.substring(0,TEST_DIR.indexOf(":")+1);
