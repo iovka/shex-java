@@ -155,7 +155,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     			System.err.println(testCase.focusNode);
     			if (TEST_DIR.contains(":")) {
     				String newURI = TEST_DIR.substring(0,TEST_DIR.indexOf(":")+1);
-    				newURI += testCase.focusNode.stringValue().substring(GITHUB_URL.length());
+    				newURI += testCase.focusNode.stringValue().substring(GITHUB_URL.length()+11);
     				testCase.focusNode = RDF_FACTORY.createIRI(newURI);
     			}else {
         			Path fullpath = Paths.get(TEST_DIR,testCase.focusNode.stringValue().substring(GITHUB_URL.length()));
