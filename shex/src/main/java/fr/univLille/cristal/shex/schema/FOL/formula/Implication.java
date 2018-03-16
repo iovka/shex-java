@@ -1,6 +1,12 @@
 package fr.univLille.cristal.shex.schema.FOL.formula;
 
-import fr.univLille.cristal.shex.util.CollectionToString;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.rdf4j.model.Value;
+
+import fr.univLille.cristal.shex.schema.Label;
+import fr.univLille.cristal.shex.util.Pair;
 
 public class Implication implements Sentence{
 	protected Sentence s1;
@@ -12,9 +18,10 @@ public class Implication implements Sentence{
 	}
 
 	@Override
-	public boolean evaluate() {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean evaluate(Map<Variable,Value> affectations,
+							Set<Pair<Value, Label>> shapes,
+							Set<Pair<Pair<Value,Value>, Label>> triples) {
+		return !s1.evaluate(affectations,shapes,triples) || s2.evaluate(affectations,shapes,triples);
 	}
 	
 	@Override

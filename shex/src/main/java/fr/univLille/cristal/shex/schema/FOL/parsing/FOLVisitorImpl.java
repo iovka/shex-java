@@ -7,10 +7,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
@@ -39,11 +42,13 @@ import fr.univLille.cristal.shex.schema.FOL.formula.TriplePredicate;
 import fr.univLille.cristal.shex.schema.FOL.formula.Variable;
 import fr.univLille.cristal.shex.schema.FOL.parsing.FOLParser.FormulaContext;
 import fr.univLille.cristal.shex.schema.FOL.parsing.FOLParser.SentenceContext;
+import fr.univLille.cristal.shex.util.CollectionToString;
 
 
 public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	private Map<String,String> prefixes;
+	private Set<Variable> definedVariable;
 	
 	public ArrayList<Formula> visitFormulas(String formulas) throws IOException{
 		InputStream is = new ByteArrayInputStream(formulas.getBytes());
@@ -52,8 +57,9 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 		FOLLexer folLexer = new FOLLexer(inputStream);
 		CommonTokenStream commonTokenStream = new CommonTokenStream(folLexer);
 		FOLParser folParser = new FOLParser(commonTokenStream);
-		 FOLParser.FormulasContext context = folParser.formulas();
-		 return (ArrayList<Formula>) context.accept(this);
+		FOLParser.FormulasContext context = folParser.formulas();
+		definedVariable = new HashSet<Variable>();
+		return (ArrayList<Formula>) context.accept(this);
 	}
 	
 	
@@ -87,12 +93,12 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 	}
 	
 	public Quantifier visitForallQuantifier(FOLParser.ForallQuantifierContext ctx) { 
-		return new Forall(new Variable(ctx.VARIABLE().getText())); 
+		return new Forall(initVariable(ctx.VARIABLE().getText())); 
 	}
 	
 	@Override 
 	public Quantifier visitExistsQuantifier(FOLParser.ExistsQuantifierContext ctx) { 
-		return new Exists(new Variable(ctx.VARIABLE().getText())); 
+		return new Exists(initVariable(ctx.VARIABLE().getText())); 
 	}
 
 	//----------------------------
@@ -138,32 +144,32 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 	
 	@Override
 	public Operator visitOperatorEqual(FOLParser.OperatorEqualContext ctx) { 
-		return new OpEqual(new Variable(ctx.VARIABLE(0).getText()),new Variable(ctx.VARIABLE(1).getText()));
+		return new OpEqual(generateVariable(ctx.VARIABLE(0).getText()),generateVariable(ctx.VARIABLE(1).getText()));
 	}
 
 	@Override 
 	public Operator visitOperatorEqualInf(FOLParser.OperatorEqualInfContext ctx) { 
-		return new OpEqualInf(new Variable(ctx.VARIABLE(0).getText()),new Variable(ctx.VARIABLE(1).getText()));
+		return new OpEqualInf(generateVariable(ctx.VARIABLE(0).getText()),generateVariable(ctx.VARIABLE(1).getText()));
 	}
 
 	@Override 
 	public Operator visitOperatorEqualSup(FOLParser.OperatorEqualSupContext ctx) { 
-		return new OpEqualSup(new Variable(ctx.VARIABLE(0).getText()),new Variable(ctx.VARIABLE(1).getText()));
+		return new OpEqualSup(generateVariable(ctx.VARIABLE(0).getText()),generateVariable(ctx.VARIABLE(1).getText()));
 	}
 
 	@Override 
 	public Operator visitOperatorInf(FOLParser.OperatorInfContext ctx) { 
-		return new OpInf(new Variable(ctx.VARIABLE(0).getText()),new Variable(ctx.VARIABLE(1).getText()));
+		return new OpInf(generateVariable(ctx.VARIABLE(0).getText()),generateVariable(ctx.VARIABLE(1).getText()));
 	}
 
 	@Override 
 	public Operator visitOperatorSup(FOLParser.OperatorSupContext ctx) { 
-		return new OpSup(new Variable(ctx.VARIABLE(0).getText()),new Variable(ctx.VARIABLE(1).getText()));
+		return new OpSup(generateVariable(ctx.VARIABLE(0).getText()),generateVariable(ctx.VARIABLE(1).getText()));
 	}
 	
 	@Override
 	public Operator visitOperatorDiff(FOLParser.OperatorDiffContext ctx) { 
-		return new OpDiff(new Variable(ctx.VARIABLE(0).getText()),new Variable(ctx.VARIABLE(1).getText()));
+		return new OpDiff(generateVariable(ctx.VARIABLE(0).getText()),generateVariable(ctx.VARIABLE(1).getText()));
 	}
 	
 	//----------------------------
@@ -172,25 +178,33 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 	
 	@Override 
 	public ShapePredicate visitShapePredicate(FOLParser.ShapePredicateContext ctx) { 
-		return new ShapePredicate((Label) ctx.label().accept(this), new Variable(ctx.VARIABLE().getText())); 
+		return new ShapePredicate((Label) ctx.label().accept(this), generateVariable(ctx.VARIABLE().getText())); 
 	}
 	
 	@Override 
 	public TriplePredicate visitTriplePredicate(FOLParser.TriplePredicateContext ctx) {
 		ArrayList<Variable> variables = new ArrayList<Variable>();
 		for (TerminalNode var:ctx.VARIABLE())
-			variables.add(new Variable(var.getText()));
+			variables.add(generateVariable(var.getText()));
 		return new TriplePredicate((Label) ctx.label().accept(this),variables.get(0),variables.get(1));
 	}
 
 	//----------------------------
 	//base
 	//----------------------------
+
+	public Variable initVariable(String text ) {
+		Variable res = new Variable(text);
+		definedVariable.add(res);
+		return res;
+	}
 	
-//	@Override 
-//	public Variable visitVariable(FOLParser.VariableContext ctx) {
-//		return new Variable(ctx.VARIABLE().getText());
-//	}
+	public Variable generateVariable(String text) {
+		Variable res = new Variable(text);
+		if (!definedVariable.contains(res))
+			throw new ParseCancellationException("Undefined variable "+text+".");
+		return res;
+	}
 
 	@Override 
 	public Label visitLabel(FOLParser.LabelContext ctx) { 

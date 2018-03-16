@@ -19,7 +19,7 @@ class FOLParserTestOperators {
 		String text = "forall x exists y x=y";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 	
 	@Test
@@ -29,7 +29,7 @@ class FOLParserTestOperators {
 		String text = "forall x exists y x!=y";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 	
 	@Test
@@ -39,7 +39,7 @@ class FOLParserTestOperators {
 		String text = "forall x exists y x<y";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 
 	@Test
@@ -49,7 +49,7 @@ class FOLParserTestOperators {
 		String text = "forall x exists y x<=y";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 	
 	@Test
@@ -59,7 +59,7 @@ class FOLParserTestOperators {
 		String text = "forall x exists y x>y";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 
 	@Test
@@ -69,6 +69,6 @@ class FOLParserTestOperators {
 		String text = "forall x exists y x>=y";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 }

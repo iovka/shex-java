@@ -20,7 +20,7 @@ class FOLParserTestPredicate {
 		String text = "forall x exists y "+label+"(x)";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 
 
@@ -32,7 +32,7 @@ class FOLParserTestPredicate {
 		String text = "forall x exists y "+label+"(x)";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 	
 	@Test
@@ -43,7 +43,7 @@ class FOLParserTestPredicate {
 		String text = "forall x exists y "+label+"(x,y)";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 	
 	@Test
@@ -54,6 +54,6 @@ class FOLParserTestPredicate {
 		String text = "forall x exists y "+label+"(x,y)";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		for (Formula f:formulas)
-			System.out.println(f);
+			System.out.println(text+" >>> "+f);
 	}
 }

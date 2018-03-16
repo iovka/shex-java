@@ -1,6 +1,12 @@
 package fr.univLille.cristal.shex.schema.FOL.formula;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.rdf4j.model.Value;
+
 import fr.univLille.cristal.shex.schema.Label;
+import fr.univLille.cristal.shex.util.Pair;
 
 public class TriplePredicate implements Sentence{
 	protected Label label;
@@ -14,7 +20,9 @@ public class TriplePredicate implements Sentence{
 	}
 
 	@Override
-	public boolean evaluate() {
+	public boolean evaluate(Map<Variable,Value> affectations,
+							Set<Pair<Value, Label>> shapes,
+							Set<Pair<Pair<Value,Value>, Label>> triples) {
 		// TODO Auto-generated method stub
 		return false;
 	}
