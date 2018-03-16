@@ -12,5 +12,9 @@ public class Exists implements Quantifier{
 		return '\u2203'+""+variable;
 	}
 
-
+	@Override
+	public Variable getVariable() {
+		return variable;
+	}
+	
 }

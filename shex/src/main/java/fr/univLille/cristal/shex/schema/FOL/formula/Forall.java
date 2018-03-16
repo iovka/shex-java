@@ -11,4 +11,11 @@ public class Forall implements Quantifier{
 	public String toString() {
 		return '\u2200'+""+variable;
 	}
+
+	@Override
+	public Variable getVariable() {
+		return variable;
+	}
+	
+	
 }
