@@ -16,10 +16,17 @@ public class Not implements Sentence{
 	}
 
 	@Override
-	public boolean evaluate(Map<Variable,Value> affectations,
+	public int evaluate(Map<Variable,Value> affectations,
 			Set<Pair<Value, Label>> shapes,
 			Set<Pair<Pair<Value,Value>, Label>> triples) {
-		return !subSentence.evaluate(affectations,shapes,triples);
+		int subScore = subSentence.evaluate(affectations,shapes,triples);
+		if (subScore>=2)
+			return subScore;
+		if (subScore==0)
+			return 1;
+		if (subScore==1)
+			return 0;
+		return -1;
 	}
 	
 	@Override

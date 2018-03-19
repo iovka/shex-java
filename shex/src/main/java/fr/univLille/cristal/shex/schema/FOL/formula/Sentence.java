@@ -8,7 +8,10 @@ import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;
 
 public interface Sentence {
-	public boolean evaluate(Map<Variable,Value> affectations,
+	/** This function return 0 if the result is false, 1 if the result is true, 2 if the affectation is incomplete, 3 if the affectations is incorrect. 
+	 * 
+	 */
+	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples);
 }

@@ -15,11 +15,15 @@ public class OpDiff extends Operator{
 	}
 
 	@Override
-	public boolean evaluate(Map<Variable,Value> affectations,
+	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples) {
-		// TODO Auto-generated method stub
-		return false;
+		int res = super.evaluate(affectations, shapes, triples);
+		if (res !=-1)
+			return res;
+		if (isEqual(affectations.get(v2.name), affectations.get(v1.name)))
+			return 0;
+		return 1;
 	}
 	
 	@Override

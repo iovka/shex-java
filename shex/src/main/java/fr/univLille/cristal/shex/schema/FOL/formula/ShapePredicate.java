@@ -18,11 +18,13 @@ public class ShapePredicate implements Sentence{
 	}
 
 	@Override
-	public boolean evaluate(Map<Variable,Value> affectations,
+	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples) {
-		// TODO Auto-generated method stub
-		return false;
+		Pair<Value,Label> key = new Pair<Value,Label>(affectations.get(variable.name),label);
+		if (shapes.contains(key))
+			return 1;
+		return 0;
 	}
 
 	@Override

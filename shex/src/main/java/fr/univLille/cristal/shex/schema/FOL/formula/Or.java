@@ -18,13 +18,19 @@ public class Or implements Sentence{
 	}
 
 	@Override
-	public boolean evaluate(Map<Variable,Value> affectations,
+	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples) {
-		for (Sentence sub:subSentences)
-			if (sub.evaluate(affectations,shapes,triples))
-				return true;
-		return false;
+		boolean partial=false;
+		for (Sentence sub:subSentences) {
+			int subScore = sub.evaluate(affectations,shapes,triples);
+			if (subScore==3) return 3;
+			if (subScore==2) partial=true;
+			if (subScore==1) return 1;
+		}
+		if (partial)
+			return 2;
+		return 0;
 	}
 	
 	@Override
