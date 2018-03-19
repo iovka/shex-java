@@ -16,12 +16,17 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.validation;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 
+import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.schema.Label;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.util.Pair;
 
 /**
@@ -31,10 +36,12 @@ import fr.univLille.cristal.shex.util.Pair;
 public class RecursiveTyping implements Typing {
 	private Set<Pair<Value, Label>> typing;
 	private Set<Pair<Value, Label>> lastSetOfHyp;
+	private Map<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>> matching;
 
 	public RecursiveTyping() {
 		typing = new HashSet<Pair<Value, Label>>();
 		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
+		matching = new HashMap<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>>();
 	}
 
 	@Override
@@ -53,7 +60,10 @@ public class RecursiveTyping implements Typing {
 	}
 	
 	public void removeHypothesis(Value node, Label label) {
-		typing.remove(new Pair<Value, Label>(node,label));
+		Pair<Value, Label> hyp = new Pair<Value, Label>(node,label);
+		typing.remove(hyp);
+		if (matching.containsKey(hyp))
+			matching.remove(hyp);
 	}
 	
 	public void keepLastSessionOfHypothesis() {
@@ -62,8 +72,20 @@ public class RecursiveTyping implements Typing {
 	
 	public void removeLastSessionOfHypothesis() {
 		for (Pair<Value, Label> hyp:lastSetOfHyp)
-			typing.remove(hyp);		
+			removeHypothesis(hyp.one,hyp.two);
 		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
+	}
+
+	@Override
+	public List<Pair<NeighborTriple, Label>> getMatch(Value node, Label label) {
+		if (matching.containsKey(new Pair<Value, Label>(node,label)))
+			return matching.get(new Pair<Value, Label>(node,label));		
+		return null;
+	}
+
+	@Override
+	public void addMatch(Value node, Label label, List<Pair<NeighborTriple, Label>> match) {
+		matching.put(new Pair<Value, Label>(node,label), match);	
 	}
 
 }

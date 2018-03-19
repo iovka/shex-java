@@ -16,12 +16,15 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.validation;
 
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 
+import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;
+import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 
 /** A set of associations (resource, shape labels).
  * Is produced as result of a validation, see {@link ValidationAlgorithm}
@@ -45,5 +48,21 @@ public interface Typing {
 	 * @return
 	 */
 	public Set<Pair<Value, Label>> asSet(); // For testing purposes
+	
+	/** add the match (list of neighbor and triple constraint pair) for the node-label association to the typing.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
+	public void addMatch(Value node, Label label, List<Pair<NeighborTriple,Label>> match);
+	
+	/** return the match (list of neighbor and triple constraint pair) for the node-label association.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
+	public List<Pair<NeighborTriple,Label>> getMatch(Value node, Label label);
 
 }

@@ -19,13 +19,16 @@ package fr.univLille.cristal.shex.validation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 
+import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.graph.RDFGraph;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.schema.ShexSchema;
@@ -44,8 +47,10 @@ public class RefinementTyping implements Typing {
 	private RDFGraph graph;
 	private List<Set<Pair<Value, Label>>> theTyping;
 	private Set<Label> selectedShape;
-	
+	private Map<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>> matching;
+
 	public RefinementTyping(ShexSchema schema, RDFGraph graph) {
+		matching = new HashMap<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>>();
 		this.schema = schema;
 		this.graph = graph;
 		this.theTyping = new ArrayList<>(schema.getNbStratums());
@@ -114,8 +119,19 @@ public class RefinementTyping implements Typing {
 		Set<Pair<Value, Label>> set = new HashSet<>();
 		for (Set<Pair<Value, Label>> subset : theTyping)
 			set.addAll(subset);
-		
 		return set;
+	}
+	
+	@Override
+	public List<Pair<NeighborTriple, Label>> getMatch(Value node, Label label) {
+		if (matching.containsKey(new Pair<Value, Label>(node,label)))
+			return matching.get(new Pair<Value, Label>(node,label));		
+		return null;
+	}
+
+	@Override
+	public void addMatch(Value node, Label label, List<Pair<NeighborTriple, Label>> match) {
+		matching.put(new Pair<Value, Label>(node,label), match);	
 	}
 	
 	@Override

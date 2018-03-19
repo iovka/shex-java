@@ -43,6 +43,7 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
+import fr.univLille.cristal.shex.util.Pair;
 
 
 /** Implements the Recursive validation algorithm.
@@ -182,7 +183,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			}
 		}
 		
-		List<NeighborTriple> neighbourhood = new ArrayList<NeighborTriple>();
+		ArrayList<NeighborTriple> neighbourhood = new ArrayList<NeighborTriple>();
 		tmp = graph.itInNeighboursWithPredicate(node, inversePredicate);
 		while(tmp.hasNext()) neighbourhood.add(tmp.next());
 		if (shape.isClosed()) {
@@ -230,7 +231,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		for(NeighborTriple nt:matchingTC2.keySet())
 			listMatchingTC.add(matchingTC2.get(nt));
 		
-		BagIterator bagIt = new BagIterator(listMatchingTC);
+		BagIterator bagIt = new BagIterator(neighbourhood,listMatchingTC);
 
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 		
@@ -238,6 +239,10 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			Bag bag = bagIt.next();
 			tripleExpression.accept(intervalComputation, bag, this);
 			if (intervalComputation.getResult().contains(1)) {
+				List<Pair<NeighborTriple,Label>> result = new ArrayList<Pair<NeighborTriple,Label>>();
+				for (Pair<NeighborTriple,Label> pair:bagIt.getCurrentBag())
+					result.add(new Pair<NeighborTriple,Label>(pair.one,SORBEGenerator.removeSORBESuffixe(pair.two)));
+				typing.addMatch(node, shape.getId(), result);
 				return true;
 			}
 		}
