@@ -20,7 +20,7 @@ public class ShapePredicate implements Sentence{
 	@Override
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) {
+							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
 		Pair<Value,Label> key = new Pair<Value,Label>(affectations.get(variable.name),label);
 		if (shapes.contains(key))
 			return 1;

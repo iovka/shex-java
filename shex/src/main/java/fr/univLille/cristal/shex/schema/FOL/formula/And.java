@@ -1,6 +1,7 @@
 package fr.univLille.cristal.shex.schema.FOL.formula;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,7 +11,7 @@ import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.CollectionToString;
 import fr.univLille.cristal.shex.util.Pair;
 
-public class And implements Sentence{
+public class And implements Sentence,CompositeSentence{
 	protected ArrayList<Sentence> subSentences;
 	
 	public And(ArrayList<Sentence> subSentences) {
@@ -20,11 +21,10 @@ public class And implements Sentence{
 	@Override
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) {
+							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
 		boolean partial=false;
 		for (Sentence sub:subSentences) {
 			int subScore = sub.evaluate(affectations,shapes,triples);
-			if (subScore==3) return 3;
 			if (subScore==2) partial=true;
 			if (subScore==0) return 0;
 		}
@@ -36,6 +36,11 @@ public class And implements Sentence{
 	@Override
 	public String toString() {
 		return CollectionToString.collectionToString(subSentences, ", ", "AND{ ", " }");
+	}
+
+	@Override
+	public List<Sentence> getSubSentences() {
+		return subSentences;
 	}
 
 }

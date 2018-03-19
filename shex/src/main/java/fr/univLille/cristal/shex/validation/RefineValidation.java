@@ -105,15 +105,16 @@ public class RefineValidation implements ValidationAlgorithm {
 			boolean changed;
 			do {
 				changed = false;
-				Iterator<Pair<Value, Label>> typesIt = typing.typesIterator(stratum);
+				Iterator<Pair<Value,Label>> typesIt = typing.typesIterator(stratum);
 				while (typesIt.hasNext()) {
-					Pair<Value, Label> nl = typesIt.next();
-					
+					Pair<Value, Label> nl = typesIt.next();			
 					if (! isLocallyValid(nl)) {
 						typesIt.remove();
+						typing.removeMatch(nl.one, nl.two);
 						changed = true;
 					}
 				}
+
 			} while (changed);
 		}
 	}
@@ -252,7 +253,7 @@ public class RefineValidation implements ValidationAlgorithm {
 				List<Pair<NeighborTriple,Label>> result = new ArrayList<Pair<NeighborTriple,Label>>();
 				for (Pair<NeighborTriple,Label> pair:bagIt.getCurrentBag())
 					result.add(new Pair<NeighborTriple,Label>(pair.one,SORBEGenerator.removeSORBESuffixe(pair.two)));
-				typing.addMatch(node, shape.getId(), result);
+				typing.setMatch(node, shape.getId(), result);
 				return true;
 			}
 		}

@@ -1,5 +1,7 @@
 package fr.univLille.cristal.shex.schema.FOL.formula;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -8,7 +10,7 @@ import org.eclipse.rdf4j.model.Value;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;
 
-public class Not implements Sentence{
+public class Not implements Sentence,CompositeSentence{
 	protected Sentence subSentence;
 	
 	public Not(Sentence subSentence) {
@@ -18,7 +20,7 @@ public class Not implements Sentence{
 	@Override
 	public int evaluate(Map<Variable,Value> affectations,
 			Set<Pair<Value, Label>> shapes,
-			Set<Pair<Pair<Value,Value>, Label>> triples) {
+			Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
 		int subScore = subSentence.evaluate(affectations,shapes,triples);
 		if (subScore>=2)
 			return subScore;
@@ -33,4 +35,12 @@ public class Not implements Sentence{
 	public String toString() {
 		return "NOT{ "+subSentence+" }" ;
 	}
+
+	@Override
+	public List<Sentence> getSubSentences() {
+		List<Sentence> res = new ArrayList<Sentence>();
+		res.add(subSentence);
+		return res;
+	}
+	
 }

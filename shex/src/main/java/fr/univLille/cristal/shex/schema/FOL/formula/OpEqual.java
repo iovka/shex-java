@@ -17,7 +17,7 @@ public class OpEqual extends Operator{
 	@Override
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) {
+							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
 		int res = super.evaluate(affectations, shapes, triples);
 		if (res !=-1)
 			return res;

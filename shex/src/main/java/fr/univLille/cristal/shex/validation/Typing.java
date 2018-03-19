@@ -55,7 +55,7 @@ public interface Typing {
 	 * @param shape
 	 * @return
 	 */
-	public void addMatch(Value node, Label label, List<Pair<NeighborTriple,Label>> match);
+	public void setMatch(Value node, Label label, List<Pair<NeighborTriple,Label>> match);
 	
 	/** return the match (list of neighbor and triple constraint pair) for the node-label association.
 	 * 
@@ -64,5 +64,13 @@ public interface Typing {
 	 * @return
 	 */
 	public List<Pair<NeighborTriple,Label>> getMatch(Value node, Label label);
+	
+	/** remove the match (list of neighbor and triple constraint pair) for the node-label association to the typing.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
+	public void removeMatch(Value node, Label label);
 
 }

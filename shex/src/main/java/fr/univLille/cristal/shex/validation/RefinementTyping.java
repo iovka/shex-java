@@ -102,7 +102,7 @@ public class RefinementTyping implements Typing {
 		}
 	}
 	
-	
+
 	public Iterator<Pair<Value, Label>> typesIterator (int stratum) {
 		return theTyping.get(stratum).iterator();
 	}
@@ -130,8 +130,13 @@ public class RefinementTyping implements Typing {
 	}
 
 	@Override
-	public void addMatch(Value node, Label label, List<Pair<NeighborTriple, Label>> match) {
+	public void setMatch(Value node, Label label, List<Pair<NeighborTriple, Label>> match) {
 		matching.put(new Pair<Value, Label>(node,label), match);	
+	}
+
+	@Override
+	public void removeMatch(Value node, Label label) {
+		matching.remove(new Pair<Value, Label>(node,label));	
 	}
 	
 	@Override

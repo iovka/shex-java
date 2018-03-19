@@ -22,7 +22,7 @@ public class TriplePredicate implements Sentence{
 	@Override
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) {
+							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
 		Pair<Value,Value> tmp = new Pair<Value,Value>(affectations.get(variable1.name),affectations.get(variable2.name));
 		Pair<Pair<Value,Value>, Label> key = new Pair<Pair<Value,Value>, Label>(tmp,label);
 		if (triples.contains(key))

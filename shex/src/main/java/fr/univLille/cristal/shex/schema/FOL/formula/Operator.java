@@ -1,7 +1,9 @@
 package fr.univLille.cristal.shex.schema.FOL.formula;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,14 +28,21 @@ public abstract class Operator implements Sentence{
 	
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) {
+							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
 		if (affectations.containsKey(v1.name) && !isCorrectlyDefined(affectations.get(v1.name)))
-			return 3;
+			throw new Exception("Incorrect value for variable: "+v1.name);
 		if (affectations.containsKey(v2.name) && !isCorrectlyDefined(affectations.get(v2.name)))
-			return 3;
+			throw new Exception("Incorrect value for variable: "+v2.name);
 		if (!affectations.containsKey(v1.name) || !affectations.containsKey(v2.name))
 			return 2;
 		return -1;
+	}
+	
+	public List<Variable> getVariables() {
+		List<Variable> res = new ArrayList<Variable>();
+		res.add(v1);
+		res.add(v2);
+		return res;
 	}
 
 	public static final Set<IRI> validateDatatype = new HashSet<>(Arrays.asList(new IRI[] {

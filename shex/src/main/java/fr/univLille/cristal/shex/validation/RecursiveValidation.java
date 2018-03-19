@@ -242,7 +242,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 				List<Pair<NeighborTriple,Label>> result = new ArrayList<Pair<NeighborTriple,Label>>();
 				for (Pair<NeighborTriple,Label> pair:bagIt.getCurrentBag())
 					result.add(new Pair<NeighborTriple,Label>(pair.one,SORBEGenerator.removeSORBESuffixe(pair.two)));
-				typing.addMatch(node, shape.getId(), result);
+				typing.setMatch(node, shape.getId(), result);
 				return true;
 			}
 		}
