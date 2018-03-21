@@ -23,7 +23,9 @@ public class TriplePredicate implements Sentence{
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
-		Pair<Value,Value> tmp = new Pair<Value,Value>(affectations.get(variable1.name),affectations.get(variable2.name));
+		if (!affectations.containsKey(variable1) || !affectations.containsKey(variable2) )
+			return 2;
+		Pair<Value,Value> tmp = new Pair<Value,Value>(affectations.get(variable1),affectations.get(variable2));
 		Pair<Pair<Value,Value>, Label> key = new Pair<Pair<Value,Value>, Label>(tmp,label);
 		if (triples.contains(key))
 			return 1;

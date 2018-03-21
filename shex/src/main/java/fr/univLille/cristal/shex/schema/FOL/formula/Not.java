@@ -33,7 +33,7 @@ public class Not implements Sentence,CompositeSentence{
 	
 	@Override
 	public String toString() {
-		return "NOT{ "+subSentence+" }" ;
+		return "!( "+subSentence+" )" ;
 	}
 
 	@Override

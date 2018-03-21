@@ -1,6 +1,7 @@
 package fr.univLille.cristal.shex.schema.FOL.formula;
 
-import java.util.Map;import java.util.Set;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 

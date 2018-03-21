@@ -42,7 +42,6 @@ import fr.univLille.cristal.shex.schema.FOL.formula.TriplePredicate;
 import fr.univLille.cristal.shex.schema.FOL.formula.Variable;
 import fr.univLille.cristal.shex.schema.FOL.parsing.FOLParser.FormulaContext;
 import fr.univLille.cristal.shex.schema.FOL.parsing.FOLParser.SentenceContext;
-import fr.univLille.cristal.shex.util.CollectionToString;
 
 
 public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
@@ -224,7 +223,7 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 		TerminalNode iri = ctx.IRIREF();
 		if (iri != null) {
 			String iris = iri.getText();
-			iris = iris.substring(1,iris.length()-1);
+			iris = iris.substring(2,iris.length()-2);
 			return rdfFactory.createIRI(iris);
 		}
 		return ctx.prefixedName().accept(this); 

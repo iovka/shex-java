@@ -21,7 +21,9 @@ public class ShapePredicate implements Sentence{
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
-		Pair<Value,Label> key = new Pair<Value,Label>(affectations.get(variable.name),label);
+		if (!affectations.containsKey(variable))
+			return 2;
+		Pair<Value,Label> key = new Pair<Value,Label>(affectations.get(variable),label);
 		if (shapes.contains(key))
 			return 1;
 		return 0;

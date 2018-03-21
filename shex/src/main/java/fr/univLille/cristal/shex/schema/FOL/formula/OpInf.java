@@ -3,7 +3,6 @@ package fr.univLille.cristal.shex.schema.FOL.formula;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 
 import fr.univLille.cristal.shex.schema.Label;
@@ -22,7 +21,7 @@ public class OpInf extends Operator{
 		int res = super.evaluate(affectations, shapes, triples);
 		if (res !=-1)
 			return res;
-		if (isStrictlyInferior(affectations.get(v1.name), affectations.get(v2.name)))
+		if (isStrictlyInferior(affectations.get(v1), affectations.get(v2)))
 			return 1;
 		return 0;
 	}

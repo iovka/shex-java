@@ -21,7 +21,7 @@ public class OpDiff extends Operator{
 		int res = super.evaluate(affectations, shapes, triples);
 		if (res !=-1)
 			return res;
-		if (isEqual(affectations.get(v2.name), affectations.get(v1.name)))
+		if (isEqual(affectations.get(v2), affectations.get(v1)))
 			return 0;
 		return 1;
 	}

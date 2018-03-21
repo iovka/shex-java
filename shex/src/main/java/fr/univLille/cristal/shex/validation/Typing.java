@@ -24,7 +24,6 @@ import org.eclipse.rdf4j.model.Value;
 import fr.univLille.cristal.shex.graph.NeighborTriple;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;
-import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 
 /** A set of associations (resource, shape labels).
  * Is produced as result of a validation, see {@link ValidationAlgorithm}

@@ -35,7 +35,7 @@ public class Or implements Sentence,CompositeSentence{
 	
 	@Override
 	public String toString() {
-		return CollectionToString.collectionToString(subSentences, ", ", "OR{ ", " }");
+		return CollectionToString.collectionToString(subSentences, " || ", "( ", " )");
 	}
 	
 	@Override

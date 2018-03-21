@@ -29,11 +29,11 @@ public abstract class Operator implements Sentence{
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
-		if (affectations.containsKey(v1.name) && !isCorrectlyDefined(affectations.get(v1.name)))
+		if (affectations.containsKey(v1) && !isCorrectlyDefined(affectations.get(v1)))
 			throw new Exception("Incorrect value for variable: "+v1.name);
-		if (affectations.containsKey(v2.name) && !isCorrectlyDefined(affectations.get(v2.name)))
-			throw new Exception("Incorrect value for variable: "+v2.name);
-		if (!affectations.containsKey(v1.name) || !affectations.containsKey(v2.name))
+		if (affectations.containsKey(v2) && !isCorrectlyDefined(affectations.get(v2)))
+			throw new Exception("Incorrect value for variable: "+v2);
+		if (!affectations.containsKey(v1) || !affectations.containsKey(v2))
 			return 2;
 		return -1;
 	}

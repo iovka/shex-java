@@ -3,9 +3,7 @@ package fr.univLille.cristal.shex.schema.FOL.formula;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;

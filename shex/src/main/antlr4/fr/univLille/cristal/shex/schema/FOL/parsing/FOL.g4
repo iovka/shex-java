@@ -47,7 +47,7 @@ NOT          	: N O T ;
 EQUAL        	: '=' ;
 EQUALINF      	: '<' '=' ;
 EQUALSUP       	: '>' '=' ;
-INF        	    : '<';
+INF        	    : '<' ;
 SUP      	    : '>' ;
 DIFF          	: '!' '=' ;
 
@@ -55,7 +55,7 @@ DIFF          	: '!' '=' ;
 PASS				  : [ \t\r\n]+ -> skip;
 
 
-IRIREF                : '<' (~[\u0000-\u0020=<>"{}|^`\\] | UCHAR)* '>' ; /* #x00=NULL #01-#x1F=control codes #x20=space */
+IRIREF                : '<''<' (~[\u0000-\u0020=<>"{}|^`\\] | UCHAR)* '>''>' ; /* #x00=NULL #01-#x1F=control codes #x20=space */
 PNAME_NS			  : PN_PREFIX? ':' ;
 PNAME_LN			  : PNAME_NS PN_LOCAL ;
 BLANK_NODE_LABEL      : '_:' (PN_CHARS_U | [0-9]) ((PN_CHARS | '.')* PN_CHARS)? ;

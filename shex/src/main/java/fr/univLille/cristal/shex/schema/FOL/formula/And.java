@@ -35,7 +35,7 @@ public class And implements Sentence,CompositeSentence{
 	
 	@Override
 	public String toString() {
-		return CollectionToString.collectionToString(subSentences, ", ", "AND{ ", " }");
+		return CollectionToString.collectionToString(subSentences, " && ", "( ", " )");
 	}
 
 	@Override

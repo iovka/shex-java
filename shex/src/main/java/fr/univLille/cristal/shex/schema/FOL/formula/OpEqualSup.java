@@ -21,8 +21,8 @@ public class OpEqualSup extends Operator{
 		int res = super.evaluate(affectations, shapes, triples);
 		if (res !=-1)
 			return res;
-		if (isStrictlyInferior(affectations.get(v2.name), affectations.get(v1.name)) ||
-			isEqual(affectations.get(v2.name), affectations.get(v1.name)))
+		if (isStrictlyInferior(affectations.get(v2), affectations.get(v1)) ||
+			isEqual(affectations.get(v2), affectations.get(v1)))
 			return 1;
 		return 0;
 	}

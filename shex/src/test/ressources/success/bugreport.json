@@ -1,0 +1,29 @@
+{
+	"@context": "http://www.w3.org/ns/shex.jsonld",
+	"type": "Schema",
+	"shapes": [
+	{
+		"id": "http://a.example/BugReport",
+		"type":"Shape",
+		"expression":{
+		    "type":"EachOf",
+		    "expressions":[
+		        {
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/descr",
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				    }
+			    },{
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/reportedOn",
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#dateTime"
+				    }
+			    }
+		    ]
+		}
+	}]
+}
