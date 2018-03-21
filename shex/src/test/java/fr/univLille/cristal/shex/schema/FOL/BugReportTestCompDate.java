@@ -106,9 +106,9 @@ class BugReportTestCompDate {
 					triples.add(new Pair<Pair<Value,Value>, Label>(couple,aff.two));
 				}
 		
-		String shape = "<<http://a.example/BugReport>>(x)";
-		String report = "<<http://a.example/reportDate>>(x,x1)";
-		String reprod = "<<http://a.example/reproducedDate>>(x,x2)";
+		String shape = "<http://a.example/BugReport>(x)";
+		String report = "<http://a.example/reportDate>(x,x1)";
+		String reprod = "<http://a.example/reproducedDate>(x,x2)";
 		String text = "forall x forall x1 forall x2 ->(and("+shape+","+report+","+reprod+"),x1<x2)";
 		ArrayList<Formula> formulas = FOLVisitorImpl.parseFormulas(text);
 		System.out.println();
@@ -121,9 +121,9 @@ class BugReportTestCompDate {
 				System.out.println("Affectations "+f.getLastAffectations()+" failed the formula.");
 		}
 		
-		shape = "<<http://a.example/BugReport>>(x)";
-		report = "<<http://a.example/reportDate>>(x,x1)";
-		reprod = "<<http://a.example/reproducedDate>>(x,x2)";
+		shape = "<http://a.example/BugReport>(x)";
+		report = "<http://a.example/reportDate>(x,x1)";
+		reprod = "<http://a.example/reproducedDate>(x,x2)";
 		text = "forall x forall x1 forall x2 ->(and("+shape+","+report+","+reprod+"),x2<x1)";
 		formulas = FOLVisitorImpl.parseFormulas(text);
 		System.out.println();

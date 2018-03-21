@@ -227,7 +227,7 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 		TerminalNode iri = ctx.IRIREF();
 		if (iri != null) {
 			String iris = iri.getText();
-			iris = iris.substring(2,iris.length()-2);
+			iris = iris.substring(1,iris.length()-1);
 			return rdfFactory.createIRI(iris);
 		}
 		return ctx.prefixedName().accept(this); 

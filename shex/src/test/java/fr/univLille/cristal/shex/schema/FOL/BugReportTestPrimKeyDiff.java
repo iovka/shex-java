@@ -111,10 +111,10 @@ class BugReportTestPrimKeyDiff {
 		System.out.println(triples);
 		
 		FOLVisitorImpl folVisitor = new FOLVisitorImpl();
-		String shapeX = "<<http://a.example/BugReport>>(x)";
-		String shapeY = "<<http://a.example/BugReport>>(y)";
-		String keyX = "<<http://a.example/primkey>>(x,x1)";
-		String keyY = "<<http://a.example/primkey>>(y,y1)";
+		String shapeX = "<http://a.example/BugReport>(x)";
+		String shapeY = "<http://a.example/BugReport>(y)";
+		String keyX = "<http://a.example/primkey>(x,x1)";
+		String keyY = "<http://a.example/primkey>(y,y1)";
 		String text = "forall x forall y forall x1 forall y1 ->(and("+shapeX+","+shapeY+",x!=y,"+keyX+","+keyY+"),(x1!=y1))";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
 		System.out.println();
