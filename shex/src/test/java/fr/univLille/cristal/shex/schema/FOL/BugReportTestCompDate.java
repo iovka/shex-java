@@ -106,12 +106,11 @@ class BugReportTestCompDate {
 					triples.add(new Pair<Pair<Value,Value>, Label>(couple,aff.two));
 				}
 		
-		FOLVisitorImpl folVisitor = new FOLVisitorImpl();
 		String shape = "<<http://a.example/BugReport>>(x)";
 		String report = "<<http://a.example/reportDate>>(x,x1)";
 		String reprod = "<<http://a.example/reproducedDate>>(x,x2)";
 		String text = "forall x forall x1 forall x2 ->(and("+shape+","+report+","+reprod+"),x1<x2)";
-		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
+		ArrayList<Formula> formulas = FOLVisitorImpl.parseFormulas(text);
 		System.out.println();
 		System.out.println("FORMULAS:");
 		for (Formula f:formulas) {
@@ -122,7 +121,7 @@ class BugReportTestCompDate {
 		report = "<<http://a.example/reportDate>>(x,x1)";
 		reprod = "<<http://a.example/reproducedDate>>(x,x2)";
 		text = "forall x forall x1 forall x2 ->(and("+shape+","+report+","+reprod+"),x2<x1)";
-		formulas = folVisitor.visitFormulas(text);
+		formulas = FOLVisitorImpl.parseFormulas(text);
 		System.out.println();
 		System.out.println("FORMULAS:");
 		for (Formula f:formulas) {

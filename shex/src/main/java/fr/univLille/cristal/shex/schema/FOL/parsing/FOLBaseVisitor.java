@@ -1,5 +1,6 @@
 // Generated from fr/univLille/cristal/shex/schema/FOL/parsing/FOL.g4 by ANTLR 4.5
 package fr.univLille.cristal.shex.schema.FOL.parsing;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**

@@ -49,6 +49,10 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 	private Map<String,String> prefixes;
 	private Set<Variable> definedVariable;
 	
+	public static ArrayList<Formula> parseFormulas(String formulas) throws IOException{
+		return (new FOLVisitorImpl()).visitFormulas(formulas);
+	}
+	
 	public ArrayList<Formula> visitFormulas(String formulas) throws IOException{
 		InputStream is = new ByteArrayInputStream(formulas.getBytes());
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
