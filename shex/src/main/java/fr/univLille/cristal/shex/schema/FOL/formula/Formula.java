@@ -19,6 +19,7 @@ public class Formula {
 	protected ArrayList<Quantifier> quantifiers;
 	protected Sentence sentence;
 	protected Map<Variable,Set<Variable>> sameTypeVariables;
+	private Map<Variable,Value> lastAffectations;
 
 	public Formula(ArrayList<Quantifier> quantifiers,Sentence sentence) {
 		this.quantifiers = quantifiers;
@@ -45,7 +46,7 @@ public class Formula {
 									Set<Pair<Value, Label>> shapes,
 									Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception
 	{
-		System.err.println(affectations);
+		lastAffectations = new HashMap<>(affectations);
 		int currentScore = sentence.evaluate(affectations, shapes, triples);
 		if (currentScore != 2)
 			return currentScore;
@@ -61,7 +62,7 @@ public class Formula {
 				for (Variable x:affectations.keySet())
 					if (sameTypeVariables.get(first.getVariable()).contains(x))
 						selectedType=((Literal) affectations.get(x)).getDatatype();
-				if (selectedType==null && Operator.isCorrectlyDefined(e))
+				if (selectedType==null && OperatorRestricted.isCorrectlyDefined(e))
 					affectations.put(first.getVariable(), e);
 				else
 					if ((e instanceof Literal) && ((Literal) e).getDatatype().equals(selectedType))
@@ -92,17 +93,26 @@ public class Formula {
 		return -1;
 	}
 	
+	
+	/** Return the last affectations done by a call of evaluate. It the evaluation fail, it will give you the affectations on which the formula failed.
+	 * 
+	 * @return
+	 */
+	public Map<Variable, Value> getLastAffectations() {
+		return lastAffectations;
+	}
+
 	@Override
 	public String toString() {
 		return CollectionToString.collectionToString(quantifiers, " ", "", "")+"  "+sentence;
 	}	
 
 	protected void recFindOperatorVariables(Sentence s) {
-		if (s instanceof Operator && !(s instanceof OpDiff)) {
-			for (Variable v:((Operator) s).getVariables()){
+		if (s instanceof OperatorRestricted) {
+			for (Variable v:((OperatorRestricted) s).getVariables()){
 				if (!sameTypeVariables.containsKey(v))
 					sameTypeVariables.put(v, new HashSet<Variable>());
-				sameTypeVariables.get(v).addAll(((Operator) s).getVariables());
+				sameTypeVariables.get(v).addAll(((OperatorRestricted) s).getVariables());
 				sameTypeVariables.get(v).remove(v);
 			}
 		}

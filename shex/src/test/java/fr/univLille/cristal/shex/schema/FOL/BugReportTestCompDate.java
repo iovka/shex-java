@@ -114,7 +114,11 @@ class BugReportTestCompDate {
 		System.out.println();
 		System.out.println("FORMULAS:");
 		for (Formula f:formulas) {
-			System.out.println(f+" : "+f.evaluate(values, shapes, triples));
+			System.out.println(f);
+			if (f.evaluate(values, shapes, triples))
+				System.out.println("Formula is verified.");
+			else
+				System.out.println("Affectations "+f.getLastAffectations()+" failed the formula.");
 		}
 		
 		shape = "<<http://a.example/BugReport>>(x)";
@@ -125,7 +129,11 @@ class BugReportTestCompDate {
 		System.out.println();
 		System.out.println("FORMULAS:");
 		for (Formula f:formulas) {
-			System.out.println(f+" : "+f.evaluate(values, shapes, triples));
+			System.out.println(f);
+			if (f.evaluate(values, shapes, triples))
+				System.out.println("Formula is verified.");
+			else
+				System.out.println("Affectations "+f.getLastAffectations()+" failed the formula.");
 		}
 	}
 

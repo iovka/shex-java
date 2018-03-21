@@ -8,7 +8,7 @@ import org.eclipse.rdf4j.model.Value;
 import fr.univLille.cristal.shex.schema.Label;
 import fr.univLille.cristal.shex.util.Pair;
 
-public class OpInf extends Operator{
+public class OpInf extends OperatorRestricted{
 
 	public OpInf(Variable v1, Variable v2) {
 		super(v1, v2);
