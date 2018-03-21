@@ -98,7 +98,7 @@ public class Formula {
 	}	
 
 	protected void recFindOperatorVariables(Sentence s) {
-		if (s instanceof Operator) {
+		if (s instanceof Operator && !(s instanceof OpDiff)) {
 			for (Variable v:((Operator) s).getVariables()){
 				if (!sameTypeVariables.containsKey(v))
 					sameTypeVariables.put(v, new HashSet<Variable>());

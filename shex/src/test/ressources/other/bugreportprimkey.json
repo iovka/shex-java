@@ -1,0 +1,137 @@
+{
+	"@context": "http://www.w3.org/ns/shex.jsonld",
+	"type": "Schema",
+	"shapes": [
+	{
+		"id": "http://a.example/BugReport",
+		"type":"Shape",
+		"expression":{
+		    "type":"EachOf",
+		    "expressions":[
+		        {
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/descr",
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				    }
+			    },{
+		            "type":"TripleConstraint",
+		            "id":"http://a.example/primkey",
+		            "predicate":"http://a.example/primkey",
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#int"
+				    }
+			    },{
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/reportedBy",
+				    "valueExpr":"http://a.example/User"
+			    },{
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/reportedOn",
+		            "id":"http://a.example/reportDate",
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#dateTime"
+				    }
+			    },{
+			        "type":"EachOf",
+			        "min":0,
+			        "max":1,
+			        "expressions":[
+			            {
+		                    "type":"TripleConstraint",
+		                    "predicate":"http://a.example/reproducedBy",
+				            "valueExpr": "http://a.example/Employee"
+			            },{
+		                    "type":"TripleConstraint",
+		                    "predicate":"http://a.example/reproducedOn",
+		                    "id":"http://a.example/reproducedDate",
+				            "valueExpr": {
+				                "type": "NodeConstraint", 
+				                "datatype": "http://www.w3.org/2001/XMLSchema#dateTime"
+				            }
+			            }
+			            
+			        ]			    
+			    },{
+			        "type":"TripleConstraint",
+		            "predicate":"http://a.example/related",
+		            "min":0,
+		            "max":-1,
+				    "valueExpr": "http://a.example/BugReport"
+			    }
+		    ]
+		}
+	},{
+	    "id": "http://a.example/User",
+		"type":"Shape",
+		"expression":{
+		    "type":"EachOf",
+		    "expressions":[
+		        {
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/name",
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				    }
+			    },{
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/email",
+		            "min":0,
+		            "max":1,
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				    }
+			    }
+		    ]
+		}
+	},{
+	    "id": "http://a.example/Employee",
+		"type":"Shape",
+		"expression":{
+		    "type":"EachOf",
+		    "expressions":[
+		        {
+		            "type":"OneOf",
+		            "expressions":[
+		                {
+		                    "type":"TripleConstraint",
+		                    "predicate":"http://a.example/name",
+				            "valueExpr": {
+				                "type": "NodeConstraint", 
+				                "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				            }
+                        },{
+		                    "type":"EachOf",
+		                    "expressions":[{
+		                        "type":"TripleConstraint",
+		                        "predicate":"http://a.example/first-name",
+				                "valueExpr": {
+				                    "type": "NodeConstraint", 
+				                    "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				                }
+                            },{
+		                        "type":"TripleConstraint",
+		                        "predicate":"http://a.example/last-name",
+				                "valueExpr": {
+				                    "type": "NodeConstraint", 
+				                    "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				                }
+                            }]
+                        }
+                   ]
+                },{
+		            "type":"TripleConstraint",
+		            "predicate":"http://a.example/email",
+				    "valueExpr": {
+				        "type": "NodeConstraint", 
+				        "datatype": "http://www.w3.org/2001/XMLSchema#string"
+				    }
+			    }]
+		}
+	}]
+}

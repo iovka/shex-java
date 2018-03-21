@@ -30,12 +30,12 @@ import fr.univLille.cristal.shex.schema.parsing.GenParser;
 import fr.univLille.cristal.shex.util.Pair;
 import fr.univLille.cristal.shex.validation.RefineValidation;
 
-class BugReportTest {
+class BugReportTestPrimKeyDiff {
 	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 
 	@Test
-	void test() throws Exception {
-		Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"other","bugreport.json");
+	void testDate() throws Exception {
+		Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"other","bugreportprimkey.json");
 		ShexSchema schema = GenParser.parseSchema(schema_file);
 		System.out.println("SCHEMA:");
 		for (Label l:schema.getRules().keySet())
@@ -52,6 +52,7 @@ class BugReportTest {
 		//create bug1
 		Resource bug1 = rdfFactory.createBNode("bug1");
 		model.add(bug1,rdfFactory.createIRI("http://a.example/descr"),rdfFactory.createLiteral("Kaboom!"));
+		model.add(bug1,rdfFactory.createIRI("http://a.example/primkey"),rdfFactory.createLiteral(1052));
 		Calendar date = Calendar.getInstance();
 		date.set(2012,11,4,0,0,0); //4 décembre 2012 à 00:00:00
 		model.add(bug1,rdfFactory.createIRI("http://a.example/reportedOn"),rdfFactory.createLiteral(date.getTime()));
@@ -61,6 +62,7 @@ class BugReportTest {
 		model.add(bug1,rdfFactory.createIRI("http://a.example/reproducedBy"),emp1);
 		//create bug2
 		Resource bug2 = rdfFactory.createBNode("bug2");
+		model.add(bug2,rdfFactory.createIRI("http://a.example/primkey"),rdfFactory.createLiteral(102));
 		model.add(bug2,rdfFactory.createIRI("http://a.example/descr"),rdfFactory.createLiteral("Bham!"));
 		date.set(2013,10,2,0,0,0); //2 novembre 2013 à 00:00:00
 		model.add(bug2,rdfFactory.createIRI("http://a.example/reportedOn"),rdfFactory.createLiteral(date.getTime()));
@@ -106,32 +108,15 @@ class BugReportTest {
 					triples.add(new Pair<Pair<Value,Value>, Label>(couple,aff.two));
 				}
 		
-		System.out.println();
-		System.out.println("Hashcode:");
-		for (Object key:shapes) {
-			System.out.println(key+": "+key.hashCode());
-		}
-		for (Object key:triples) {
-			System.out.println(key+": "+key.hashCode());
-		}
+		System.out.println(triples);
 		
 		FOLVisitorImpl folVisitor = new FOLVisitorImpl();
-		String shape = "<<http://a.example/BugReport>>(x)";
-		String report = "<<http://a.example/reportDate>>(x,x1)";
-		String reprod = "<<http://a.example/reproducedDate>>(x,x2)";
-		String text = "forall x forall x1 forall x2 ->(and("+shape+","+report+","+reprod+"),x1<x2)";
+		String shapeX = "<<http://a.example/BugReport>>(x)";
+		String shapeY = "<<http://a.example/BugReport>>(y)";
+		String keyX = "<<http://a.example/primkey>>(x,x1)";
+		String keyY = "<<http://a.example/primkey>>(y,y1)";
+		String text = "forall x forall y forall x1 forall y1 ->(and("+shapeX+","+shapeY+",x!=y,"+keyX+","+keyY+"),(x1!=y1))";
 		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
-		System.out.println();
-		System.out.println("FORMULAS:");
-		for (Formula f:formulas) {
-			System.out.println(f+" : "+f.evaluate(values, shapes, triples));
-		}
-		
-		shape = "<<http://a.example/BugReport>>(x)";
-		report = "<<http://a.example/reportDate>>(x,x1)";
-		reprod = "<<http://a.example/reproducedDate>>(x,x2)";
-		text = "forall x forall x1 forall x2 ->(and("+shape+","+report+","+reprod+"),x2<x1)";
-		formulas = folVisitor.visitFormulas(text);
 		System.out.println();
 		System.out.println("FORMULAS:");
 		for (Formula f:formulas) {

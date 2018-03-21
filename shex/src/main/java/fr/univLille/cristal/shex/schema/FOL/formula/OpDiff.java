@@ -18,10 +18,9 @@ public class OpDiff extends Operator{
 	public int evaluate(Map<Variable,Value> affectations,
 							Set<Pair<Value, Label>> shapes,
 							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
-		int res = super.evaluate(affectations, shapes, triples);
-		if (res !=-1)
-			return res;
-		if (isEqual(affectations.get(v2), affectations.get(v1)))
+		if (!affectations.containsKey(v1) || !affectations.containsKey(v2))
+			return 2;
+		if (affectations.get(v2).equals(affectations.get(v1)))
 			return 0;
 		return 1;
 	}
