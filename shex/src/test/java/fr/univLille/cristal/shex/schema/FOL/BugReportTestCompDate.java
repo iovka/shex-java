@@ -42,6 +42,7 @@ class BugReportTestCompDate {
 			System.out.println(l+" >> "+schema.getRules().get(l));
 		
 		Model model = new LinkedHashModel();
+		Calendar date = Calendar.getInstance();
 		//create an user
 		Resource user1 =  rdfFactory.createBNode("user1");
 		model.add(user1,rdfFactory.createIRI("http://a.example/name"),rdfFactory.createLiteral("Mr. Smith"));
@@ -52,7 +53,6 @@ class BugReportTestCompDate {
 		//create bug1
 		Resource bug1 = rdfFactory.createBNode("bug1");
 		model.add(bug1,rdfFactory.createIRI("http://a.example/descr"),rdfFactory.createLiteral("Kaboom!"));
-		Calendar date = Calendar.getInstance();
 		date.set(2012,11,4,0,0,0); //4 décembre 2012 à 00:00:00
 		model.add(bug1,rdfFactory.createIRI("http://a.example/reportedOn"),rdfFactory.createLiteral(date.getTime()));
 		model.add(bug1,rdfFactory.createIRI("http://a.example/reportedBy"),user1);
