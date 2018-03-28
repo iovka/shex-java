@@ -62,7 +62,7 @@ class BugReportTestPrimKeyDiff {
 		model.add(bug1,rdfFactory.createIRI("http://a.example/reproducedBy"),emp1);
 		//create bug2
 		Resource bug2 = rdfFactory.createBNode("bug2");
-		model.add(bug2,rdfFactory.createIRI("http://a.example/primkey"),rdfFactory.createLiteral(102));
+		model.add(bug2,rdfFactory.createIRI("http://a.example/primkey"),rdfFactory.createLiteral(1052));
 		model.add(bug2,rdfFactory.createIRI("http://a.example/descr"),rdfFactory.createLiteral("Bham!"));
 		date.set(2013,10,2,0,0,0); //2 novembre 2013 à 00:00:00
 		model.add(bug2,rdfFactory.createIRI("http://a.example/reportedOn"),rdfFactory.createLiteral(date.getTime()));

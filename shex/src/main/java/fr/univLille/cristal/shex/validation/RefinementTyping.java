@@ -45,8 +45,13 @@ import fr.univLille.cristal.shex.util.Pair;
 public class RefinementTyping implements Typing {
 	private ShexSchema schema;
 	private RDFGraph graph;
+	
 	private List<Set<Pair<Value, Label>>> theTyping;
+	private Map<Label,Set<Value>> shapeTyping;
+	private Map<Value,Set<Label>> valueTyping;
+	
 	private Set<Label> selectedShape;
+	
 	private Map<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>> matching;
 
 	public RefinementTyping(ShexSchema schema, RDFGraph graph) {

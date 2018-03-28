@@ -91,6 +91,21 @@ class FOLEvaluationTest {
 	}
 	
 	@Test
+	void testEvaluation55() throws Exception {
+		System.out.println("Test evaluation 55:");
+		FOLVisitorImpl folVisitor = new FOLVisitorImpl();
+		String text = "forall x exists y x<=y";
+		List<Value> values = new ArrayList<Value>();
+		values.add(rdfFactory.createLiteral(5));
+		values.add(rdfFactory.createLiteral(6));
+		values.add(rdfFactory.createLiteral(10));
+		ArrayList<Formula> formulas = folVisitor.visitFormulas(text);
+		for (Formula f:formulas) {
+			System.out.println(f+" : "+f.evaluate(values, new HashSet<>(), new HashSet<>()));
+		}
+	}
+	
+	@Test
 	void testEvaluation6() throws Exception {
 		System.out.println("Test evaluation 6:");
 		FOLVisitorImpl folVisitor = new FOLVisitorImpl();

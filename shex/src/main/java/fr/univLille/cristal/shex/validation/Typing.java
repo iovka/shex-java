@@ -30,7 +30,7 @@ import fr.univLille.cristal.shex.util.Pair;
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- *
+ * @author Jérémie Dusart
  */
 public interface Typing {
 
