@@ -22,9 +22,8 @@ import java.util.Collections;
  * @author Jérémie Dusart
  */
 public class EmptyShape extends NodeConstraint{
-	public static final EmptyShape Shape = new EmptyShape();
 
-	protected EmptyShape() {
+	public EmptyShape() {
 		super(Collections.emptyList());
 	}
 	

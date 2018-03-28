@@ -324,7 +324,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitShapeAtomAny(ShExDocParser.ShapeAtomAnyContext ctx) { 
-		return EmptyShape.Shape; 
+		return new EmptyShape(); 
 	}
 	
 	@Override 
@@ -353,19 +353,20 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitInlineShapeAtomAny(ShExDocParser.InlineShapeAtomAnyContext ctx) { 
-		return EmptyShape.Shape;
+		return new EmptyShape();
 	}
 	
 	@Override 
 	public Object visitShapeRef(ShExDocParser.ShapeRefContext ctx) { 
 		if (ctx.ATPNAME_LN()!=null) {
-			System.err.println("Shape ref ATPNAME_LN: "+ctx.ATPNAME_LN());
-			return null;
+			String ref = ctx.getText().substring(1);
+			String prefix = ref.split(":")[0]+":";
+			String name = ref.split(":")[1];
+			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)+name))); 
 		}
 		if (ctx.ATPNAME_NS()!=null) {
-			System.err.println("Shape ref ATPNAME_NS: "+ctx.ATPNAME_NS());
-			return null;
-		}
+			String prefix = ctx.getText().substring(1);
+			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)))); 		}
 		
 		return new ShapeExprRef((Label) ctx.shapeExprLabel().accept(this)); 
 	}
@@ -774,7 +775,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			tcp = TCProperty.createInvProperty(predicate);
 		ShapeExpr expr = (ShapeExpr) ctx.inlineShapeExpression().accept(this);
 		if (expr==null) {
-			expr = EmptyShape.Shape;
+			expr = new EmptyShape();
 		}
 		
 		List<Annotation> annotations = null;

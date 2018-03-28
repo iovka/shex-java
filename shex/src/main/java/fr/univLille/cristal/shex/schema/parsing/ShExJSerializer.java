@@ -420,7 +420,7 @@ public class ShExJSerializer {
 			result.put("inverse", true);
 		result.put("predicate", triple.getProperty().getIri().stringValue());
 		
-		if (! triple.getShapeExpr().equals(EmptyShape.Shape)) 
+		if (! (triple.getShapeExpr() instanceof EmptyShape)) 
 			result.put("valueExpr", convertShapeExpr(triple.getShapeExpr()));
 		
 		if (triple.getAnnotations()!=null && triple.getAnnotations().size()>0) 

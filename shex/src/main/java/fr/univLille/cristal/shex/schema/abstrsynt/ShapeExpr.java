@@ -30,7 +30,7 @@ public abstract class ShapeExpr{
 	
 	public void setId(Label id) {
 		if (this.id != null)
-			throw new IllegalStateException("ID can be set only once");
+			throw new IllegalStateException("ID can be set only once ( is:"+this.id+", to:"+id+").");
 		this.id = id;
 	}
 	

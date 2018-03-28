@@ -25,8 +25,9 @@ public abstract class AbstractNaryTripleExpr extends TripleExpr {
 	private final List<TripleExpr> subExpressions;
 	
 	public AbstractNaryTripleExpr (List<TripleExpr> subExpressions) {
-		if (subExpressions.size() < 2)
+		if (subExpressions.size() < 2) {
 			throw new IllegalArgumentException("At least two subexpressions required");
+		}
 		this.subExpressions = new ArrayList<>(subExpressions);
 	}
 	
