@@ -38,6 +38,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
+import org.apache.jena.sparql.lang.sparql_10.ParseException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -733,7 +734,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		((AnnotedObject) result).setAnnotations(annotations);
 		
 		if (ctx.cardinality()!=null){
-			result = new RepeatedTripleExpression(result, (Interval) ctx.cardinality().accept(this));
+			Interval card = (Interval) ctx.cardinality().accept(this);
+			result = new RepeatedTripleExpression(result, card);
 		}
 		return result; 
 	}
@@ -787,8 +789,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		
 		TripleExpr res = new TripleConstraint(tcp, expr,annotations);
 		// TODO semact annotations
-		if (ctx.cardinality()!=null)
-			res = new RepeatedTripleExpression(res,(Interval) ctx.cardinality().accept(this));
+		if (ctx.cardinality()!=null) {
+			Interval card = (Interval) ctx.cardinality().accept(this);
+			res = new RepeatedTripleExpression(res,card);
+		}
 		return res;
 	}
 	
