@@ -661,7 +661,7 @@ public class ShExJParser implements Parser{
 		if (valueExpr != null)
 			shexpr = parseShapeExpression(valueExpr);
 		else {
-			shexpr = EmptyShape.Shape;
+			shexpr = new EmptyShape();
 		}
 
 		Interval card = getCardinality(map);

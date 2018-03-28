@@ -99,7 +99,7 @@ public class SchemaEquality {
 		if ((shape1 instanceof ShapeExprRef) && (shape2 instanceof ShapeExprRef))
 			return areEqualsShapeExprRef((ShapeExprRef) shape1, (ShapeExprRef) shape2);
 		
-		if (shape1.equals(EmptyShape.Shape) && shape2.equals(EmptyShape.Shape))
+		if ((shape1 instanceof EmptyShape) && (shape2 instanceof EmptyShape))
 			return true;
 		
 		return false;

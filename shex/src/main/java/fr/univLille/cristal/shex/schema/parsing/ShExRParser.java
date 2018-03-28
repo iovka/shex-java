@@ -672,7 +672,7 @@ public class ShExRParser implements Parser {
 			Value val = (Value) model.filter((Resource) value, VALUE_EXPR, null).objects().toArray()[0];
 			valueExpr = parseShapeExpr(val);
 		} else {
-			valueExpr = EmptyShape.Shape;
+			valueExpr = new EmptyShape();
 		}
 		
 		TripleExpr res = new TripleConstraint(predicate,valueExpr,annotations);

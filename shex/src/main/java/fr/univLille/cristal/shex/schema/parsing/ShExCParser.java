@@ -38,6 +38,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
+import org.apache.jena.sparql.lang.sparql_10.ParseException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -326,7 +327,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitShapeAtomAny(ShExDocParser.ShapeAtomAnyContext ctx) { 
-		return EmptyShape.Shape; 
+		return new EmptyShape(); 
 	}
 	
 	@Override 
@@ -355,19 +356,20 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	@Override 
 	public Object visitInlineShapeAtomAny(ShExDocParser.InlineShapeAtomAnyContext ctx) { 
-		return EmptyShape.Shape;
+		return new EmptyShape();
 	}
 	
 	@Override 
 	public Object visitShapeRef(ShExDocParser.ShapeRefContext ctx) { 
 		if (ctx.ATPNAME_LN()!=null) {
-			System.err.println("Shape ref ATPNAME_LN: "+ctx.ATPNAME_LN());
-			return null;
+			String ref = ctx.getText().substring(1);
+			String prefix = ref.split(":")[0]+":";
+			String name = ref.split(":")[1];
+			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)+name))); 
 		}
 		if (ctx.ATPNAME_NS()!=null) {
-			System.err.println("Shape ref ATPNAME_NS: "+ctx.ATPNAME_NS());
-			return null;
-		}
+			String prefix = ctx.getText().substring(1);
+			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)))); 		}
 		
 		return new ShapeExprRef((Label) ctx.shapeExprLabel().accept(this)); 
 	}
@@ -734,7 +736,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		((AnnotedObject) result).setAnnotations(annotations);
 		
 		if (ctx.cardinality()!=null){
-			result = new RepeatedTripleExpression(result, (Interval) ctx.cardinality().accept(this));
+			Interval card = (Interval) ctx.cardinality().accept(this);
+			result = new RepeatedTripleExpression(result, card);
 		}
 		return result; 
 	}
@@ -776,7 +779,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			tcp = TCProperty.createInvProperty(predicate);
 		ShapeExpr expr = (ShapeExpr) ctx.inlineShapeExpression().accept(this);
 		if (expr==null) {
-			expr = EmptyShape.Shape;
+			expr = new EmptyShape();
 		}
 		
 		List<Annotation> annotations = null;
@@ -788,8 +791,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		
 		TripleExpr res = new TripleConstraint(tcp, expr,annotations);
 		// TODO semact annotations
-		if (ctx.cardinality()!=null)
-			res = new RepeatedTripleExpression(res,(Interval) ctx.cardinality().accept(this));
+		if (ctx.cardinality()!=null) {
+			Interval card = (Interval) ctx.cardinality().accept(this);
+			res = new RepeatedTripleExpression(res,card);
+		}
 		return res;
 	}
 	
