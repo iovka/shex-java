@@ -64,12 +64,13 @@ import fr.univLille.cristal.shex.schema.ShexSchema;
 public interface ValidationAlgorithm {
 
 	/** Constructs a typing that allows to validate a focus node against a type.
+	 * return true is focusNode has shape label, false otherwise.
 	 * The constructed typing can be retrieved using {@link #getTyping()}
 	 * 
 	 * @param focusNode The focus node for which the typing is to be complete. If null, then the typing will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
 	 * @param label The label for which the typing is to be complete. If null, then the typing will be complete for all labels.
 	 */
-	public void validate(Value focusNode, Label label);
+	public boolean validate(Value focusNode, Label label);
 	
 	/** Retrieves the typing constructed by a previous call of {@link #validate(Resource, ShapeLabel)}.
 	 * 

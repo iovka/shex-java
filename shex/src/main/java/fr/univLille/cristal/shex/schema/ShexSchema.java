@@ -26,6 +26,7 @@ import java.util.Set;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.jgrapht.Graph;
+import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -133,11 +134,13 @@ public class ShexSchema {
 		
 		// Check that there is no cycle in the definition of the references
 		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph();
-		TarjanSimpleCycles<Label,DefaultEdge> cyclesFinder = new TarjanSimpleCycles<Label,DefaultEdge>(referencesGraph);
-		List<List<Label>> allcycles = cyclesFinder.findSimpleCycles();
-		
-		if (! allcycles.isEmpty())
-			throw new CyclicReferencesException("Cyclic dependencies of refences found: " + allcycles);
+		CycleDetector<Label, DefaultEdge> detector = new CycleDetector<>(referencesGraph);
+		if (detector.detectCycles())
+			throw new CyclicReferencesException("Cyclic dependencies of refences found." );
+//		TarjanSimpleCycles<Label,DefaultEdge> cyclesFinder = new TarjanSimpleCycles<Label,DefaultEdge>(referencesGraph);
+//		List<List<Label>> allcycles = cyclesFinder.findSimpleCycles();
+//		if (! allcycles.isEmpty())
+//			throw new CyclicReferencesException("Cyclic dependencies of refences found: " + allcycles);
 		
 		//Starting to check and compute stratification
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.computeDependencesGraph();
@@ -366,7 +369,8 @@ public class ShexSchema {
 		@Override
 		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
 			CollectGraphReferencesFromShape visitor = new CollectGraphReferencesFromShape(set);
-			tc.getShapeExpr().accept(visitor,arguments);		}
+			tc.getShapeExpr().accept(visitor,arguments);		
+		}
 
 		@Override
 		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {

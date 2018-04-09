@@ -95,10 +95,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 	
 	@Override
-	public void validate(Value focusNode, Label label) {
-//		if (!this.graph.getAllNodes().contains(focusNode))
-//			throw new IllegalArgumentException(focusNode+" does not belong to the graph.");
-//		
+	public boolean validate(Value focusNode, Label label) {
 		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 			typing.addAllLabelsFrom(stratum, focusNode);
 						
@@ -115,7 +112,8 @@ public class RefineValidation implements ValidationAlgorithm {
 					}
 				}
 			} while (changed);
-		}
+		}	
+		return typing.contains(focusNode, label);
 	}
 
 	
