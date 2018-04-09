@@ -30,11 +30,9 @@ import fr.univLille.cristal.shex.util.Pair;
  */
 public class RecursiveTyping implements Typing {
 	private Set<Pair<Value, Label>> typing;
-	private Set<Pair<Value, Label>> lastSetOfHyp;
 
 	public RecursiveTyping() {
 		typing = new HashSet<Pair<Value, Label>>();
-		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
 	}
 
 	@Override
@@ -49,21 +47,18 @@ public class RecursiveTyping implements Typing {
 	
 	public void addHypothesis(Value node, Label label) {
 		typing.add(new Pair<Value, Label>(node,label));
-		lastSetOfHyp.add(new Pair<Value, Label>(node,label));
+	}
+	
+	public void addHypothesis(Set<Pair<Value,Label>> hypothesis) {
+		typing.addAll(hypothesis);
 	}
 	
 	public void removeHypothesis(Value node, Label label) {
 		typing.remove(new Pair<Value, Label>(node,label));
 	}
 	
-	public void keepLastSessionOfHypothesis() {
-		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
-	}
-	
-	public void removeLastSessionOfHypothesis() {
-		for (Pair<Value, Label> hyp:lastSetOfHyp)
-			typing.remove(hyp);		
-		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
-	}
+	public void removeHypothesis(Set<Pair<Value,Label>> hypothesis) {
+		typing.removeAll(hypothesis);
+	}	
 
 }

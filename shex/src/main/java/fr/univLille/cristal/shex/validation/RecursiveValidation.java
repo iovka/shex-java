@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
@@ -43,6 +44,7 @@ import fr.univLille.cristal.shex.schema.abstrsynt.ShapeOr;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleConstraint;
 import fr.univLille.cristal.shex.schema.abstrsynt.TripleExpr;
 import fr.univLille.cristal.shex.schema.analysis.ShapeExpressionVisitor;
+import fr.univLille.cristal.shex.util.Pair;
 
 
 /** Implements the Recursive validation algorithm.
@@ -78,21 +80,21 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	}	
 	
 	@Override
-	public void validate(Value focusNode, Label label) {
-		recursiveValidation(focusNode,label);
-		if (typing.contains(focusNode, label)) {
-			typing.keepLastSessionOfHypothesis();
-		} else {
-			typing.removeLastSessionOfHypothesis();
+	public boolean validate(Value focusNode, Label label) {
+		this.resetTyping();
+		boolean result = recursiveValidation(focusNode,label);
+		if (result) {
+			this.typing.addHypothesis(focusNode, label);
 		}
+		return result;
 	}
 	
-	protected void recursiveValidation(Value focusNode, Label label) {
+	protected boolean recursiveValidation(Value focusNode, Label label) {
 		this.typing.addHypothesis(focusNode, label);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
 		schema.getShapeMap().get(label).accept(visitor);
-		if (!visitor.result)
-			this.typing.removeHypothesis(focusNode, label);
+		this.typing.removeHypothesis(focusNode, label);
+		return visitor.result;
 		
 	}
 	
@@ -194,6 +196,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		}
 		
 		// Match using only predicate and recursive test. The following line are the only difference with refine validation
+		Set<Pair<Value, Label>> shapeMap = new HashSet<Pair<Value, Label>>();
 		Matcher matcher1 = new MatcherPredicateOnly();
 		LinkedHashMap<NeighborTriple,List<TripleConstraint>> matchingTC1 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher1);
 
@@ -204,10 +207,14 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			for (TripleConstraint tc:possibility) {
 				Value destNode = entry.getKey().getOpposite();
 				if (! this.typing.contains(destNode, tc.getShapeExpr().getId())) {
-					this.recursiveValidation(destNode, tc.getShapeExpr().getId());
+					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId()))
+						shapeMap.add(new Pair<>(destNode, tc.getShapeExpr().getId()));
 				}
 			}
 		}
+		
+		// Add the detected node value to the typing
+		this.typing.addHypothesis(shapeMap);
 
 
 		Matcher matcher2 = new MatcherPredicateAndValue(this.getTyping()); 
@@ -219,6 +226,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			Entry<NeighborTriple, List<TripleConstraint>> listTC = iteMatchingTC.next();
 			if (listTC.getValue().isEmpty()) {
 				if (! shape.getExtraProperties().contains(listTC.getKey().getPredicate())){
+					this.typing.removeHypothesis(shapeMap);
 					return false;
 				}
 				iteMatchingTC.remove();
@@ -231,17 +239,18 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			listMatchingTC.add(matchingTC2.get(nt));
 		
 		BagIterator bagIt = new BagIterator(listMatchingTC);
-
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 		
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
 			tripleExpression.accept(intervalComputation, bag, this);
 			if (intervalComputation.getResult().contains(1)) {
+				this.typing.removeHypothesis(shapeMap);
 				return true;
 			}
 		}
 
+		this.typing.removeHypothesis(shapeMap);
 		return false;
 	}	
 
