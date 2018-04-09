@@ -34,12 +34,10 @@ import fr.univLille.cristal.shex.util.Pair;
  */
 public class RecursiveTyping implements Typing {
 	private Set<Pair<Value, Label>> typing;
-	private Set<Pair<Value, Label>> lastSetOfHyp;
 	private Map<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>> matching;
 
 	public RecursiveTyping() {
 		typing = new HashSet<Pair<Value, Label>>();
-		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
 		matching = new HashMap<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>>();
 	}
 
@@ -55,7 +53,10 @@ public class RecursiveTyping implements Typing {
 	
 	public void addHypothesis(Value node, Label label) {
 		typing.add(new Pair<Value, Label>(node,label));
-		lastSetOfHyp.add(new Pair<Value, Label>(node,label));
+	}
+	
+	public void addHypothesis(Set<Pair<Value,Label>> hypothesis) {
+		typing.addAll(hypothesis);
 	}
 	
 	public void removeHypothesis(Value node, Label label) {
@@ -65,15 +66,13 @@ public class RecursiveTyping implements Typing {
 			matching.remove(hyp);
 	}
 	
-	public void keepLastSessionOfHypothesis() {
-		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
-	}
 	
-	public void removeLastSessionOfHypothesis() {
-		for (Pair<Value, Label> hyp:lastSetOfHyp)
-			removeHypothesis(hyp.one,hyp.two);
-		lastSetOfHyp = new HashSet<Pair<Value, Label>>();
-	}
+	public void removeHypothesis(Set<Pair<Value,Label>> hypothesis) {
+		typing.removeAll(hypothesis);
+		for (Pair<Value,Label> key:hypothesis)
+			if (matching.containsKey(key))
+				matching.remove(key);
+	}	
 
 	@Override
 	public List<Pair<NeighborTriple, Label>> getMatch(Value node, Label label) {
