@@ -102,6 +102,10 @@ Put in the pom.xml file of your project:
 
 ## Code Exemple
 
+Two small projects that use the implementation:
+ - https://github.com/jdusart/DatatypesShExJava
+ - https://github.com/jdusart/GeneWikiShExJava
+ 
 Classic example for validating a model and a schema.
 Schema file: https://github.com/shexSpec/shexTest/blob/master/schemas/datatypes.json
 Data file: https://github.com/shexSpec/shexTest/blob/master/validation/datatypes-data.ttl
