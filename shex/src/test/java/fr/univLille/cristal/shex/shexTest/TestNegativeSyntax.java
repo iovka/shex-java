@@ -85,11 +85,13 @@ public class TestNegativeSyntax {
     public static Collection<Object[]> parameters() throws IOException {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
+	    	String selectedTest = "";
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_SYNTAX).subjects()) {
 	    		Object[] params =  new Object[2];
 	    		params[0]=getTestName(manifest, testNode);
 	    		params[1]=getSchemaFileName(manifest, testNode);
-		    	parameters.add(params);
+	    		if (selectedTest.equals("") || params[0].equals(selectedTest))
+	    			parameters.add(params);
 			}
 	        return parameters;
     }

@@ -33,6 +33,7 @@ import java.util.Set;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -122,6 +123,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
         ShExDocParser ShExDocParser = new ShExDocParser(commonTokenStream);   
         
         ShExDocParser.setErrorHandler(new BailErrorStrategy());
+        ShExDocParser.removeErrorListeners();
+        ShExDocParser.addErrorListener(new ShExCErrorListener());
         
         ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();      
         rules = new HashMap<Label,ShapeExpr>();
