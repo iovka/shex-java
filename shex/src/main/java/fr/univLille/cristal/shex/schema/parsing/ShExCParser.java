@@ -109,6 +109,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
+		return getRules(is);		
+	}
+	
+	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		ANTLRInputStream inputStream = new ANTLRInputStream(isr);
         ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
