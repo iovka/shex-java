@@ -3,7 +3,6 @@ package fr.univLille.cristal.shex.schema.parsing.ShExC;
 import java.util.BitSet;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
