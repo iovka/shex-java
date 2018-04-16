@@ -38,7 +38,6 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
-import org.apache.jena.sparql.lang.sparql_10.ParseException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -122,6 +121,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
         ShExDocParser ShExDocParser = new ShExDocParser(commonTokenStream);   
         
         ShExDocParser.setErrorHandler(new BailErrorStrategy());
+        ShExDocParser.removeErrorListeners();
+        ShExDocParser.addErrorListener(new ShExCErrorListener());
         
         ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();      
         rules = new HashMap<Label,ShapeExpr>();

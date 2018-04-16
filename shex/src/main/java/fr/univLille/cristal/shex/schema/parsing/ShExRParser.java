@@ -84,6 +84,7 @@ import fr.univLille.cristal.shex.util.Interval;
 /** Parses a {@link ShexSchema} from its rdf representation. 
  * 
  * This implementation does not support: external definitions, semantic actions and anonymous "start" shapes.
+ * The base IRI for shex object is http://www.w3.org/ns/shex#.
  * 
  * @author Jérémie Dusart
  */
