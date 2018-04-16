@@ -83,6 +83,7 @@ import fr.univLille.cristal.shex.util.Interval;
 public class ShExJParser implements Parser{
 	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
 	private List<String> imports;
+	private Path path;
 
 	// --------------------------------------------------------------------
 	// 	PARSING
@@ -90,14 +91,19 @@ public class ShExJParser implements Parser{
 
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception  {
-		imports = new ArrayList<>();
 		InputStream inputStream = new FileInputStream(path.toFile());
-		Object schemaObject = JsonUtils.fromInputStream(inputStream,Charset.defaultCharset().name());
+		return getRules(inputStream);
+	}
+		
+	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
+		imports = new ArrayList<>();
+
+		Object schemaObject = JsonUtils.fromInputStream(is,Charset.defaultCharset().name());
 		
 		Map map = (Map) schemaObject;
 
 		if (! "Schema".equals(getType(map))) {
-			throw new ParseException("The type of a schema should be a schema",-1);	
+			throw new ParseException("The type of a schema should be a schema.",-1);	
 		}
 
 		if (map.containsKey("startActs")) {
@@ -105,7 +111,7 @@ public class ShExJParser implements Parser{
 		}
 
 		if (map.containsKey("start")) {
-			throw new UnsupportedOperationException(path + ": Start action not supported");
+			throw new UnsupportedOperationException("Start action not supported.");
 		}
 		
 		if (map.containsKey("imports")){
