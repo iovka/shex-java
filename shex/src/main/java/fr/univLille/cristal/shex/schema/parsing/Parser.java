@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.univLille.cristal.shex.schema.parsing;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,13 @@ public interface Parser {
 	 * @throws Exception
 	 */
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception;
+	
+	/** Return the set of rules contains in the inputstream.
+	 * @param path
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception;
 	
 	/** Return the list of import declarations found during the last parsing.
 	 * @return

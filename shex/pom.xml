@@ -19,12 +19,35 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.univLille.cristal</groupId>
-	<artifactId>shex</artifactId>
-	<version>1.0-a1</version>
+	<artifactId>shexjava</artifactId>
+	<version>1.0-a2</version>
 	<packaging>jar</packaging>
 
-	<name>shex</name>
-	<url>http://maven.apache.org</url>
+	<name>ShExjava</name>
+	<description>An implementation of ShEx in java.</description>
+	<url>https://github.com/iovka/shex-java</url>
+
+	<licenses>
+		<license>
+			<name>GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007</name>
+			<url>https://www.gnu.org/licenses/lgpl-3.0.fr.html</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Jérémie Dusart</name>
+			<email>jeremie.dusart@inria.fr</email>
+			<organization>INRIA</organization>
+			<organizationUrl>https://inria.fr/</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/iovka/shex-java</connection>
+		<developerConnection>scm:git:ssh://github.com:iovka/shex-java</developerConnection>
+		<url>https://github.com/iovka/shex-java/tree/master</url>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -129,11 +152,15 @@
 			<version>${jena.version}</version>
 			<type>pom</type>
 		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.0</version>
+			</plugin>
 			<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

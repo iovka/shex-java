@@ -84,6 +84,7 @@ import fr.univLille.cristal.shex.util.Interval;
 /** Parses a {@link ShexSchema} from its rdf representation. 
  * 
  * This implementation does not support: external definitions, semantic actions and anonymous "start" shapes.
+ * The base IRI for shex object is http://www.w3.org/ns/shex#.
  * 
  * @author Jérémie Dusart
  */
@@ -115,21 +116,29 @@ public class ShExRParser implements Parser {
 	 */
 	@Override
 	public Map<Label, ShapeExpr> getRules(Path path) throws Exception {
+		RDFFormat foundformat = null;
 		for (RDFFormat format:ShExRParser.RDFFormats) {
 			for (String ext:format.getFileExtensions()) {
 				if (path.toString().endsWith(ext)) {
-					return getRules(path,format);	
+					foundformat = format;	
 				}
 			}
 		}	
-		return getRules(path,null);
+		InputStream is = new FileInputStream(path.toFile());
+		return getRules(is,foundformat);
 	}
 	
+	/** Used null as format.
+	 * @see fr.univLille.cristal.shex.schema.parsing.Parser#getRules(java.nio.file.Path)
+	 */
+	@Override
+	public Map<Label, ShapeExpr> getRules(InputStream is) throws Exception {
+		return getRules(is,null);
+	}
 	
 	private static String BASE_IRI = "http://base.shex.fr/shex/";
-	
-	public Map<Label, ShapeExpr> getRules(Path path,RDFFormat format) throws Exception {
-		InputStream is = new FileInputStream(path.toFile());
+		
+	public Map<Label, ShapeExpr> getRules(InputStream is, RDFFormat format) throws Exception {
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		
 		model = Rio.parse(isr, BASE_IRI, RDFFormat.TURTLE, new ParserConfig(), rdfFactory, new ParseErrorLogger());
