@@ -51,7 +51,7 @@ Without the tests:
 ```sh
 git clone https://github.com/iovka/shex-java.git
 cd shex-java/shex #cd shex-java\shex for windows user
-mvn -DskipTests clean package
+mvn clean package
 ```
 
 After that, the jar file can be found in the target directory.
