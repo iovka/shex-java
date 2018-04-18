@@ -37,7 +37,6 @@ public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Bo
 	 * @param neighbourhood
 	 * @param constraints
 	 * @param matcher
-	 * @return
 	 */
 	public static LinkedHashMap<NeighborTriple,List<TripleConstraint>> collectMatchingTC (List<NeighborTriple> neighbourhood, List<TripleConstraint> constraints, Matcher matcher) {
 		

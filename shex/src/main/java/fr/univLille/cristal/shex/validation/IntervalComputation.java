@@ -31,8 +31,8 @@ import fr.univLille.cristal.shex.util.Interval;
 /** Allows to compute the interval for a triple expression and a bag.
  * 
  * The Interval Algorithm is defined only for shape expressions that satisfy the following constraints:
- * - Arbitrary cardinalities are allowed only on triple constraints. An "arbitrary" cardinality is one different from {@link Interval.OPT}, {@link Interval.PLUS}, {@link Interval.STAR}.
- * - A {@link Interval.PLUS} cardinality is allowed only if the sub expression does not contain the empty bag.
+ * - Arbitrary cardinalities are allowed only on triple constraints. An "arbitrary" cardinality is one different from {@link Interval#OPT}, {@link Interval#PLUS}, {@link Interval#STAR}.
+ * - A {@link Interval#PLUS} cardinality is allowed only if the sub expression does not contain the empty bag.
  * If the expression does not satisfy one of these, a {@link IllegalArgumentException} is thrown.
  * 
  * @author Iovka Boneva

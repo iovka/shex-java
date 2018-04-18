@@ -41,7 +41,7 @@ public class Label {
 	}
 	
 	/** isGenerated is set to false.
-	 * @param iri
+	 * @param bnode
 	 */
 	public Label (BNode bnode) {
 		this.bnode = bnode;
