@@ -43,7 +43,7 @@ public class NeighborTriple {
 	
 	/** The focus node is the subject of a forward triple, or the object of a backward triple.
 	 * 
-	 * @return
+	 * @return the focus node of the triple
 	 */
 	public final Value getFocus() {
 		return focus;
@@ -52,7 +52,7 @@ public class NeighborTriple {
 	/** The extremity of a triple that is opposite to the focus node.
 	 * This is the subject of a forward triple, and is the object of a backward triple.
 	 * 
-	 * @return
+	 * @return the opposite node of the triple
 	 */
 	public final Value getOpposite() {
 		return opposite;
@@ -60,7 +60,7 @@ public class NeighborTriple {
 	
 	/** The predicate of a neighbor triple.
 	 * 
-	 * @return
+	 * @return the predicate of the triple
 	 */
 	public final TCProperty getPredicate() {
 		return this.prop;

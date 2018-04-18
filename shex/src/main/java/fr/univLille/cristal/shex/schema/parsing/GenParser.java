@@ -51,10 +51,10 @@ public class GenParser {
 	}
 	
 	
-	/** The function try to find the imports, if any, in the list of directories provided.
+	/** The function try to find the imports, if any, in the list of directories provided. The format of the schema is infer from the file extension.
 	 * @param filepath
 	 * @param importDirectories
-	 * @return
+	 * @return the parsed ShexSchema
 	 * @throws Exception
 	 */
 	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{

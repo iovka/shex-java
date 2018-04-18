@@ -49,7 +49,7 @@ import fr.univLille.cristal.shex.util.Pair;
 /** Implements the Refinement validation algorithm.
  * 
  * Refine validation systematically constructs a complete typing for all nodes in the graph and for a set of selected shape in the schema. See in typing for the selected shape.
- * It is therefore suited for cases when a complete typing is needed.
+ * It is therefore suited for cases when a complete typing is needed. The typing is computed at the first call of validate.
  * 
  * @author Jérémie Dusart
  * @author Iovka Boneva
@@ -60,7 +60,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	private RDFGraph graph;
 	private SORBEGenerator sorbeGenerator;
 	private ShexSchema schema;
-	private RefinementTyping typing;
+	private RefinementTyping typing = null;
 	private Set<Label> extraShape;
 	private DynamicCollectorOfTripleConstraint collectorTC;
 	
@@ -72,7 +72,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		this.sorbeGenerator = new SORBEGenerator();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.extraShape=Collections.emptySet();
-		this.typing = new RefinementTyping(schema, graph);
+		this.extraShape=Collections.emptySet();
 	}
 	
 	public RefineValidation(ShexSchema schema, RDFGraph graph,Set<Label> extraShape) {
@@ -82,7 +82,6 @@ public class RefineValidation implements ValidationAlgorithm {
 		this.sorbeGenerator = new SORBEGenerator();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.extraShape=extraShape;
-		this.typing = new RefinementTyping(schema, graph,extraShape);
 	}
 	
 	@Override
@@ -90,29 +89,37 @@ public class RefineValidation implements ValidationAlgorithm {
 		return typing;
 	}
 	
+	/** Reset typing to null.
+	 * 
+	 */
 	public void resetTyping() {
-		this.typing = new RefinementTyping(schema, graph, extraShape);
+		this.typing = null;
 	}
 	
 	@Override
 	public boolean validate(Value focusNode, Label label) {
-		for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
-			typing.addAllLabelsFrom(stratum, focusNode);
+		if (typing == null) {
+			this.typing = new RefinementTyping(schema, graph, extraShape);
+			for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
+				typing.addAllLabelsFrom(stratum, focusNode);
+							
+				boolean changed;
+				do {
+					changed = false;
+					Iterator<Pair<Value, Label>> typesIt = typing.typesIterator(stratum);
+					while (typesIt.hasNext()) {
+						Pair<Value, Label> nl = typesIt.next();
 						
-			boolean changed;
-			do {
-				changed = false;
-				Iterator<Pair<Value, Label>> typesIt = typing.typesIterator(stratum);
-				while (typesIt.hasNext()) {
-					Pair<Value, Label> nl = typesIt.next();
-					
-					if (! isLocallyValid(nl)) {
-						typesIt.remove();
-						changed = true;
+						if (! isLocallyValid(nl)) {
+							typesIt.remove();
+							changed = true;
+						}
 					}
-				}
-			} while (changed);
-		}	
+				} while (changed);
+			}
+		}		
+		if (focusNode==null || label==null)
+			return false;
 		return typing.contains(focusNode, label);
 	}
 
