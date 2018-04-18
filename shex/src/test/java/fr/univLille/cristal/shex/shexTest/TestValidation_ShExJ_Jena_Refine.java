@@ -98,7 +98,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	String selectedTest = "";
+	    	String selectedTest = "float-1_pass";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
@@ -178,6 +178,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));			
       		}			
     	}catch (Exception e) {
+    		System.err.println(testCase.testName);
     		e.printStackTrace();
     		errors.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
     	}

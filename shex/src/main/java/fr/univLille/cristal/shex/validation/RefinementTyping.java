@@ -66,6 +66,7 @@ public class RefinementTyping implements Typing {
 	}
 	
 	public RefinementTyping(ShexSchema schema, RDFGraph graph, Set<Label> extraShapes) {
+		matching = new HashMap<Pair<Value, Label>,List<Pair<NeighborTriple,Label>>>();
 		this.schema = schema;
 		this.graph = graph;
 		this.theTyping = new ArrayList<>(schema.getNbStratums());
