@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -95,22 +96,25 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	
 	@Parameters
 	public static Collection<Object[]> parameters() throws IOException {
-		Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
-		List<Object[]> parameters = new ArrayList<Object[]>();
-		String selectedTest = "";
-    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-    		TestCase tc = new TestCase(manifest,testNode);
-	    	Object[] params =  {tc};
-	    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
-	    		parameters.add(params);
-		}
-    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-    		TestCase tc = new TestCase(manifest,testNode);
-	    	Object[] params =  {tc};
-	    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
-	    		parameters.add(params);
-		}
-		return parameters;
+    	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
+			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
+			List<Object[]> parameters = new ArrayList<Object[]>();
+			String selectedTest = "";
+	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
+	    		TestCase tc = new TestCase(manifest,testNode);
+		    	Object[] params =  {tc};
+		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+		    		parameters.add(params);
+			}
+	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
+	    		TestCase tc = new TestCase(manifest,testNode);
+		    	Object[] params =  {tc};
+		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+		    		parameters.add(params);
+			}
+			return parameters;
+    	}
+    	return Collections.emptyList();
 	}
 
     

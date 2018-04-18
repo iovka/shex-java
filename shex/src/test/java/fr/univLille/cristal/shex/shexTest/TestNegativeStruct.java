@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,6 +74,7 @@ public class TestNegativeStruct {
 	
 	@Parameters
     public static Collection<Object[]> parameters() throws IOException {
+    	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT).subjects()) {
@@ -82,6 +84,8 @@ public class TestNegativeStruct {
 		    	parameters.add(params);
 			}
 	        return parameters;
+    	}
+    	return Collections.emptyList();
     }
     
     
