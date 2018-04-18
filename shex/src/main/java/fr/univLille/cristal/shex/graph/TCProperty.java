@@ -33,7 +33,7 @@ public class TCProperty{
 	/** Creates a new forward property.
 	 * 
 	 * @param iri
-	 * @return
+	 * @return the create TCProperty
 	 */
 	public static TCProperty createFwProperty (IRI iri) {
 		return new TCProperty(iri, true);
@@ -42,7 +42,7 @@ public class TCProperty{
 	/** Creates a new backward property.
 	 * 
 	 * @param iri
-	 * @return
+	 * @return  the create TCProperty
 	 */
 	public static TCProperty createInvProperty (IRI iri) {
 		return new TCProperty(iri, false);
@@ -55,15 +55,15 @@ public class TCProperty{
 
 	/** Tests whether the property is forward.
 	 * 
-	 * @return
+	 * @return true if the TCProperty is forward
 	 */
 	public boolean isForward() {
 		return isFwd;
 	}
 	
-	/** The encapsulated property. 
+	/** Get the IRI. 
 	 * 
-	 * @return
+	 * @return the encapsulated property. 
 	 */
 	public IRI getIri() {
 		return iri;

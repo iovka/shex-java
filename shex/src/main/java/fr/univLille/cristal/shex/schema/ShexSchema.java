@@ -199,21 +199,21 @@ public class ShexSchema {
 
 	
 	/** The rules of the schema.
-	 * @return
+	 * @return the rules of the schema.
 	 */
 	public Map<Label, ShapeExpr> getRules() {
 		return rules;
 	}
 
 	/** All the shape expressions of the schema.
-	 * @return
+	 * @return a map of all the ShapeExpr of the schema.
 	 */
 	public Map<Label, ShapeExpr> getShapeMap() {
 		return shapeMap;
 	}
 
 	/** All the triple expressions of the schema.
-	 * @return
+	 * @return a map of all the TripleExpr of the schema.
 	 */
 	public Map<Label, TripleExpr> getTripleMap() {
 		return tripleMap;
@@ -572,7 +572,7 @@ public class ShexSchema {
 	/** The set of shape labels on a given stratum.
 	 * 
 	 * @param i
-	 * @return
+	 * @return the labels of the shapes of stratum i
 	 */
 	public Set<Label> getStratum (int i) {
 		if (i < 0 && i >= this.getStratification().size())
@@ -580,18 +580,15 @@ public class ShexSchema {
 		return Collections.unmodifiableSet(this.getStratification().get(i));
 	}
 
-	/** The number of stratums of the schema.
+	/** Get the number of stratums of the schema.
 	 * 
-	 * @return
 	 */
 	public int getNbStratums () {
 		return this.getStratification().size();
 	}
 
-	/** The stratum of a given shape label.
+	/** Get the stratum of a given shape label.
 	 * 
-	 * @param label
-	 * @return
 	 */
 	public int hasStratum (Label label) {
 		for (int i = 0; i < getNbStratums(); i++)

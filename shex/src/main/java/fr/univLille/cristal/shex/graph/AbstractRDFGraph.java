@@ -96,21 +96,21 @@ abstract class AbstractRDFGraph implements RDFGraph {
 	/** List all the triples that have the given node as object node and the specified predicate.
 	 * @param focusNode
 	 * @param predicate
-	 * @return
+	 * @return an iterator over the neighbors of focusNode connected with the predicate
 	 */
 	protected abstract Iterator<NeighborTriple> itOutNeighbours (Value focusNode, IRI predicate);
 	
 	/** List all the triples that have the given node as subject node and the specified predicate.
 	 * @param focusNode
 	 * @param predicate
-	 * @return
+	 * @return an iterator over the neighbors of focusNode connected with the predicate
 	 */
 	protected abstract Iterator<NeighborTriple> itInNeighbours (Value focusNode, IRI predicate);
 	
 	//---------------------------------------------------------------------------
 	// Iterators
 	//---------------------------------------------------------------------------
-		
+	
 	protected class ConcatIterator<T> implements Iterator<T> {
 		private List<Iterator<T>> iterators;
 				

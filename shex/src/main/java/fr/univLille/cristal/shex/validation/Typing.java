@@ -38,13 +38,11 @@ public interface Typing {
 	 * 
 	 * @param node
 	 * @param label
-	 * @return
 	 */
 	public boolean contains(Value node, Label label);
 	
-	/** Returns the typing as a set of pairs (node, label).
+	/** Returns the typing as a set of pairs (node, label). Use for testing purpose.
 	 * 
-	 * @return
 	 */
 	public Set<Pair<Value, Label>> asSet(); // For testing purposes
 	

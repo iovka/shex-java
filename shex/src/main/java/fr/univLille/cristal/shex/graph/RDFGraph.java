@@ -35,64 +35,64 @@ public interface RDFGraph {
 
 
 	/** List all the triples that contain the given node as subject or object.
-	 * This is the union of {@link #itInNeighbours(RDFNode)} and {@link #itOutNeighbours(Resource)} 
+	 * This is the union of {@link #itInNeighbours(Value)} and {@link #itOutNeighbours(Value)} 
 	 * 
 	 * @param focusNode
-	 * @return
+	 * @return an iterator over the neighbors of focusNode
 	 */
 	public Iterator<NeighborTriple> itAllNeighbours (Value focusNode);
 	
 	/** List all the triples that have the given node as focus node or object node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
-	 * @return
+	 * @return an iterator over the neighbors of focusNode connected with one of the allowedPredicates
 	 */
 	public Iterator<NeighborTriple> itAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 	
 	/** List all the triples that have the given node as object node.
 	 * 
 	 * @param focusNode
-	 * @return
+	 * @return an iterator over the incoming neighbors of focusNode
 	 */
 	public Iterator<NeighborTriple> itInNeighbours (Value focusNode);
 	
 	/** List all the triples that have the given node as object node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
-	 * @return
+	 * @return an iterator over the incoming neighbors of focusNode connected with one of the allowedPredicates
 	 */
 	public Iterator<NeighborTriple> itInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 	
 	/** List all the triples that have the given node as focus node.
 	 * 
 	 * @param focusNode
-	 * @return
+	 * @return an iterator over the outgoing neighbors of focusNode
 	 */
 	public Iterator<NeighborTriple> itOutNeighbours (Value focusNode);
 	
 	/** List all the triples that have the given node as focus node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
-	 * @return
+	 * @return an iterator over the outgoing neighbors of focusNode connected with one of the allowedPredicates
 	 */
 	public Iterator<NeighborTriple> itOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
 
 
 	/** List all the object nodes in the graph.
 	 * 
-	 * @return
+	 * @return an iterator over the object nodes of the graph
 	 */
 	public Iterator<Value> listAllObjectNodes ();
 	
 	/** List all the subjects node in the graph.
 	 * 
-	 * @return
+	 * @return an iterator over the subject nodes of the graph
 	 */
 	public Iterator<Value> listAllSubjectNodes ();
 	
 	/** List all the object and subject in the graph.
 	 * 
-	 * @return
+	 * @return an iterator over the nodes of the graph
 	 */
 	public Iterator<Value> listAllNodes ();
 }

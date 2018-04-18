@@ -95,7 +95,7 @@ Put in the pom.xml file of your project:
 <dependency>
   	<groupId>fr.univLille.cristal</groupId>
   	<artifactId>shex</artifactId>
-  	<version>1.0-a1</version>
+  	<version>1.0-a2</version>
   	<scope>provided</scope>
  </dependency>
 ```

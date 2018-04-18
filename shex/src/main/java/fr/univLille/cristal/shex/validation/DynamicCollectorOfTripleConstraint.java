@@ -34,7 +34,7 @@ import fr.univLille.cristal.shex.schema.analysis.TripleExpressionVisitor;
 /** Recursively collects all triple constraints that appears in a shape. The result are stored and will not be recomputed. 
  * 
  * @author Jérémie Dusart
- * @param <TripleConstraint>
+ * @param <List<TripleConstraint>>
  */
 public class DynamicCollectorOfTripleConstraint extends TripleExpressionVisitor<List<TripleConstraint>>{
 	private Map<Label,List<TripleConstraint>> dynamiqueRes;
