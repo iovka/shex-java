@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -96,6 +97,7 @@ public class TestValidation_ShExJ_Jena_Refine {
 	
 	@Parameters
     public static Collection<Object[]> parameters() throws IOException {
+    	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
 	    	String selectedTest = "";
@@ -112,6 +114,8 @@ public class TestValidation_ShExJ_Jena_Refine {
 		    		parameters.add(params);
 			}
 	        return parameters;
+    	}
+    	return Collections.emptyList();
     }
     
     
