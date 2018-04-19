@@ -86,7 +86,7 @@ public class TestNegativeSyntax {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	String selectedTest = "";
+	    	String selectedTest = "prefix-none";
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_SYNTAX).subjects()) {
 	    		Object[] params =  new Object[2];
 	    		params[0]=getTestName(manifest, testNode);
@@ -114,8 +114,6 @@ public class TestNegativeSyntax {
 			//System.out.println(schema);
 			failed.add(new TestResultForTestReport(testName, false, null, "negativeSyntax"));
 		}catch (Exception e) {
-			//System.err.println("Exception: "+testName);
-			//System.err.println(e.getClass());
 			errors.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeSyntax"));
 		}
 

@@ -97,7 +97,7 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 	
 	@Override
-	public boolean validate(Value focusNode, Label label) {
+	public boolean validate(Value focusNode, Label label)  throws Exception {
 		if (typing == null) {
 			this.typing = new RefinementTyping(schema, graph, extraShape);
 			for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
@@ -122,6 +122,8 @@ public class RefineValidation implements ValidationAlgorithm {
 		}		
 		if (focusNode==null || label==null)
 			return false;
+		if (!schema.getShapeMap().containsKey(label))
+			throw new Exception("Unknown label: "+label);
 		return typing.contains(focusNode, label);
 	}
 
