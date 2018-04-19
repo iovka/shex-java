@@ -46,7 +46,7 @@ public interface ValidationAlgorithm {
 	 * @param focusNode The focus node for which the typing is to be complete. If null, then the typing will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
 	 * @param label The label for which the typing is to be complete. If null, then the typing will be complete for all labels.
 	 */
-	public boolean validate(Value focusNode, Label label);
+	public boolean validate(Value focusNode, Label label)  throws Exception;
 	
 	/** Retrieves the typing constructed by a previous call of {@link #validate(Value, Label)}.
 	 * 

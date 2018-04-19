@@ -79,7 +79,9 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	}	
 	
 	@Override
-	public boolean validate(Value focusNode, Label label) {
+	public boolean validate(Value focusNode, Label label) throws Exception {
+		if (label == null || !schema.getShapeMap().containsKey(label))
+			throw new Exception("Unknown label: "+label);
 		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {

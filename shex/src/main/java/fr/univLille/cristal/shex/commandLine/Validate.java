@@ -65,8 +65,9 @@ public class Validate {
 	 * 
 	 * 
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		if (args.length == 0) {
 			System.out.println(USAGE);
