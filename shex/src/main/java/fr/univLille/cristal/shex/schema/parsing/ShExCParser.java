@@ -81,6 +81,7 @@ import fr.univLille.cristal.shex.schema.concrsynt.NodeKindConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.ValueSetValueConstraint;
 import fr.univLille.cristal.shex.schema.concrsynt.WildcardConstraint;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExCErrorListener;
+import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExCErrorStrategy;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocBaseVisitor;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocLexer;
 import fr.univLille.cristal.shex.schema.parsing.ShExC.ShExDocParser;
@@ -120,7 +121,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
         CommonTokenStream commonTokenStream = new CommonTokenStream(ShExDocLexer);
         ShExDocParser ShExDocParser = new ShExDocParser(commonTokenStream);   
         
-        ShExDocParser.setErrorHandler(new BailErrorStrategy());
+        ShExDocParser.setErrorHandler(new ShExCErrorStrategy());
         ShExDocParser.removeErrorListeners();
         ShExDocParser.addErrorListener(new ShExCErrorListener());
         
@@ -511,15 +512,19 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 				lnode = rdfFactory.createLiteral((String) ctx.string().accept(this),
 						(IRI) ctx.datatype().accept(this));
 			}
-			BigDecimal value = lnode.decimalValue();
-			if (ctx.numericRange().KW_MAXEXCLUSIVE()!=null)
-				result.setMaxexcl(value);
-			if (ctx.numericRange().KW_MAXINCLUSIVE()!=null)
-				result.setMaxincl(value);
-			if (ctx.numericRange().KW_MINEXCLUSIVE()!=null)
-				result.setMinexcl(value);
-			if (ctx.numericRange().KW_MININCLUSIVE()!=null)
-				result.setMinincl(value);
+			try {
+				BigDecimal value = lnode.decimalValue();
+				if (ctx.numericRange().KW_MAXEXCLUSIVE()!=null)
+					result.setMaxexcl(value);
+				if (ctx.numericRange().KW_MAXINCLUSIVE()!=null)
+					result.setMaxincl(value);
+				if (ctx.numericRange().KW_MINEXCLUSIVE()!=null)
+					result.setMinexcl(value);
+				if (ctx.numericRange().KW_MININCLUSIVE()!=null)
+					result.setMinincl(value);
+			}catch (NumberFormatException e) {
+				throw new NumberFormatException(lnode.toString());
+			}
 				
 		}
 		return result; 
@@ -913,6 +918,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			return rdfFactory.createIRI(prefixes.get(ctx.PNAME_NS().getText()));
 
 		String prefix = ctx.PNAME_LN().getText().split(":")[0]+":";
+		if (!prefixes.containsKey(prefix))
+			throw new ParseCancellationException("Unknown prefix: "+prefix);
 		String value = (ctx.PNAME_LN().getText().replaceAll(prefix, prefixes.get(prefix)));
 		return rdfFactory.createIRI(value); 
 	}
