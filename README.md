@@ -94,7 +94,7 @@ Put in the pom.xml file of your project:
 ```xml
 <dependency>
   	<groupId>fr.univLille.cristal</groupId>
-  	<artifactId>shex</artifactId>
+  	<artifactId>shexjava</artifactId>
   	<version>1.0-a2</version>
   	<scope>provided</scope>
  </dependency>
