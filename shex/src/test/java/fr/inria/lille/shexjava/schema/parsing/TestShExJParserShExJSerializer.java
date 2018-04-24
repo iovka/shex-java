@@ -48,8 +48,6 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.schema.parsing.ShExJSerializer;
 import fr.inria.lille.shexjava.util.RDFFactory;
 import fr.inria.lille.shexjava.util.SchemaEquality;
 import fr.inria.lille.shexjava.util.TestCase;

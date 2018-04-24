@@ -16,7 +16,6 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 
 import fr.inria.lille.shexjava.graph.RDFGraph;
