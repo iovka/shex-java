@@ -1,4 +1,4 @@
-// Generated from fr/univLille/cristal/shex/schema/parsing/ShExC/ShExDoc.g4 by ANTLR 4.5
+// Generated from fr/inria/lille/shexjava/schema/parsing/ShExC/ShExDoc.g4 by ANTLR 4.5
 package fr.inria.lille.shexjava.schema.parsing.ShExC;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
