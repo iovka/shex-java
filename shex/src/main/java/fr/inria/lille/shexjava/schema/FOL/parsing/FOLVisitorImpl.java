@@ -20,6 +20,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 
+import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.FOL.formula.And;
 import fr.inria.lille.shexjava.schema.FOL.formula.Exists;
 import fr.inria.lille.shexjava.schema.FOL.formula.Forall;
@@ -41,7 +42,6 @@ import fr.inria.lille.shexjava.schema.FOL.formula.TriplePredicate;
 import fr.inria.lille.shexjava.schema.FOL.formula.Variable;
 import fr.inria.lille.shexjava.schema.FOL.parsing.FOLParser.FormulaContext;
 import fr.inria.lille.shexjava.schema.FOL.parsing.FOLParser.SentenceContext;
-import fr.inria.lille.shexjava.schema.Label;
 
 
 public class FOLVisitorImpl extends FOLBaseVisitor<Object> {

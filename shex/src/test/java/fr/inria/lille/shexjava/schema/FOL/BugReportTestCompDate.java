@@ -18,13 +18,13 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.Test;
 
-import fr.inria.lille.shexjava.schema.FOL.formula.Formula;
-import fr.inria.lille.shexjava.schema.FOL.parsing.FOLVisitorImpl;
 import fr.inria.lille.shexjava.graph.NeighborTriple;
 import fr.inria.lille.shexjava.graph.RDF4JGraph;
 import fr.inria.lille.shexjava.graph.RDFGraph;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.schema.FOL.formula.Formula;
+import fr.inria.lille.shexjava.schema.FOL.parsing.FOLVisitorImpl;
 import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.Pair;
