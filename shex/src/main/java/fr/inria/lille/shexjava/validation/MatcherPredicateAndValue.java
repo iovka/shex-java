@@ -34,11 +34,11 @@ public class MatcherPredicateAndValue extends Matcher {
 	
 	@Override
 	public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc) {
-		if (tc.getProperty().isForward() && triple.getSubject().equals(focusNode))
-			if (tc.getProperty().getIri().equals(triple.getPredicate())) 
+		if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString()))
+			if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString())) 
 				return typing.contains(triple.getObject(), tc.getShapeExpr().getId());
-		if (!tc.getProperty().isForward() && triple.getObject().equals(focusNode))
-			if (tc.getProperty().getIri().equals(triple.getPredicate())) 
+		if (!tc.getProperty().isForward() && triple.getObject().ntriplesString().equals(focusNode.ntriplesString()))
+			if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString())) 
 				return typing.contains(triple.getSubject(), tc.getShapeExpr().getId());
 		return false;
 	}

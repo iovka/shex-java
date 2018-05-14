@@ -164,43 +164,41 @@ public class RecursiveValidation implements ValidationAlgorithm {
 
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
 		if (constraints.size() == 0) {
-			if (!shape.isClosed()) {
+			if (!shape.isClosed())
 				return true;
-			} else {
-				if (CommonGraph.getOutNeighbours(graph, node).size()==0) {
+			else {
+				if (CommonGraph.getOutNeighbours(graph, node).size()==0)
 					return true;
-				} else {
+				 else
 					return false;
-				}
 			}
 		}
 		
 		
 		Set<IRI> inversePredicate = new HashSet<IRI>();
 		Set<IRI> forwardPredicate = new HashSet<IRI>();
-		for (TripleConstraint tc:constraints) {
-			if (tc.getProperty().isForward()) {
+		for (TripleConstraint tc:constraints)
+			if (tc.getProperty().isForward())
 				forwardPredicate.add(tc.getProperty().getIri());
-			}else {
+			else
 				inversePredicate.add(tc.getProperty().getIri());
-			}
-		}
+
 		
 		List<Triple> neighbourhood = CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate);
-		if (shape.isClosed()) {
+		if (shape.isClosed())
 			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
-		} else {
+		else
 			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-		}
+
 
 		// Match using only predicate and recursive test. The following line are the only difference with refine validation
 		Set<Pair<RDFTerm, Label>> shapeMap = new HashSet<Pair<RDFTerm, Label>>();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 		
+
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
-			List<TripleConstraint> possibility = entry.getValue();
-			if (possibility.isEmpty()) {
+			if (entry.getValue().isEmpty()) {
 				boolean success = false;
 				for (TCProperty extra : shape.getExtraProperties())
 					if (extra.getIri().equals(entry.getKey().getPredicate()))
@@ -209,15 +207,14 @@ public class RecursiveValidation implements ValidationAlgorithm {
 					return false;
 			}
 			
-			for (TripleConstraint tc:possibility) {
+			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 				
 				if (! this.typing.contains(destNode, tc.getShapeExpr().getId())) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
-						shapeMap.add(new Pair<>(destNode, tc.getShapeExpr().getId()));
-						
+						shapeMap.add(new Pair<>(destNode, tc.getShapeExpr().getId()));		
 				}
 			}
 		}
@@ -261,8 +258,8 @@ public class RecursiveValidation implements ValidationAlgorithm {
 				return true;
 			}
 		}
-
 		this.typing.removeHypothesis(shapeMap);
+		
 		return false;
 	}	
 

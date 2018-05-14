@@ -101,7 +101,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 			List<Object[]> parameters = new ArrayList<Object[]>();
-			String selectedTest = "1literalFractiondigits_pass-xsd_integer-short";
+			String selectedTest = "bnode1dot_pass-others_lexicallyEarlier";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
@@ -150,9 +150,12 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
+    		System.out.println(testCase);
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-    		
-    		Graph dataGraph = getRDFGraph();
+    		System.out.println(schema.getRules());
+ 
+    		//System.out.println(dataGraph.stream().collect(Collectors.toList()));
+    		Graph dataGraph = getRDFGraph();    		
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
     		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
@@ -198,7 +201,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
-    	fp = fp.substring(0,fp.length()-4)+"json";
+    	//fp = fp.substring(0,fp.length()-4)+"json";
 
     	String result = Paths.get(TEST_DIR).toString();
     	Iterator<Path> iter = Paths.get(fp).iterator();

@@ -68,9 +68,9 @@ public class FacetStringConstraint implements Constraint {
 		if (node instanceof Literal)
 			lex = ((Literal)node).getLexicalForm();
 		else if (node instanceof IRI)
-			lex = ((IRI)node).ntriplesString();
+			lex = ((IRI)node).getIRIString();
 		else if (node instanceof BlankNode)
-			lex = ((BlankNode)node).ntriplesString();
+			lex = ((BlankNode)node).ntriplesString().substring(2);
 		if (patternString != null && ! XPath.matches(lex, patternString,flags))
 			return false;
 		if (length != null && lex.length() != length)
@@ -79,7 +79,6 @@ public class FacetStringConstraint implements Constraint {
 			return false;
 		if (maxlength != null && lex.length() > maxlength)
 			return false;
-		
 		return true;
 	}
 	

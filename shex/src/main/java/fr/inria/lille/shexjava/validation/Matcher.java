@@ -47,7 +47,6 @@ public abstract class Matcher {
 		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: constraints) {
-				//test forward and backward
 				if (apply(focusNode,triple, tc)) {
 					matching.add(tc);
 				}
@@ -58,5 +57,6 @@ public abstract class Matcher {
 	}
 	
 	public abstract boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc);
+	
 	
 }

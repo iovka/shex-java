@@ -108,6 +108,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	private Path filename;
 	
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
+		System.out.println("ShexC parsing...");
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
 		return getRules(is);		
@@ -887,6 +888,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	public Object visitShapeExprLabel(ShExDocParser.ShapeExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
+		System.out.println("Label .... "+result);
 		if (result instanceof IRI) 
 			return new Label((IRI) result);
 		else 
@@ -973,7 +975,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return XPath.unescapeJavaString(result);
 	}
 	
-	public Object visitBlankNode(ShExDocParser.BlankNodeContext ctx) { 
+	public Object visitBlankNode(ShExDocParser.BlankNodeContext ctx) {
 		return rdfFactory.createBlankNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
 	}
 }
