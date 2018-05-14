@@ -1,6 +1,7 @@
 package fr.inria.lille.shexjava.util;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
@@ -39,6 +40,18 @@ public class DatatypeUtil {
 		String value = lnode.getLexicalForm();
 		IRI datatype = lnode.getDatatype();
 		return rdfFact.createLiteral(value, rdfFact.createIRI(datatype.getIRIString())).booleanValue();
+	}
+	
+	public static int getIntegerValue(Literal lnode) {
+		String value = lnode.getLexicalForm();
+		IRI datatype = lnode.getDatatype();
+		return rdfFact.createLiteral(value, rdfFact.createIRI(datatype.getIRIString())).integerValue().intValue();
+	}
+	
+	public static String getStringValue(Literal lnode) {
+		String value = lnode.getLexicalForm();
+		IRI datatype = lnode.getDatatype();
+		return rdfFact.createLiteral(value, rdfFact.createIRI(datatype.getIRIString())).stringValue();
 	}
 	
 }

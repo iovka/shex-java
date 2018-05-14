@@ -408,14 +408,14 @@ public class ShExRParser implements Parser {
 	private Constraint parseLiteralStem(RDFTerm value) {
 		RDFTerm type = (RDFTerm) getObjects(value,TYPE_IRI).get(0);
 		if (type.equals(LITERAL_STEM)) {
-			Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-			return new LiteralStemConstraint(tmp.stringValue());
+			Literal tmp = (Literal) getObjects(value, STEM).get(0);
+			return new LiteralStemConstraint(tmp.getLexicalForm());
 		}
 		if (type.equals(LITERAL_STEM_RANGE)) {
 			Constraint stem;
-			if (model.filter((Resource) value, STEM, null).size()>0) {
-				Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-				stem = new LiteralStemConstraint(tmp.stringValue());
+			if (testTriples(value, STEM)) {
+				Literal tmp = (Literal) getObjects(value, STEM).get(0);
+				stem = new LiteralStemConstraint(tmp.getLexicalForm());
 			} else {
 				stem = new WildcardConstraint();
 			}
@@ -423,7 +423,7 @@ public class ShExRParser implements Parser {
 			Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 			Set<Constraint> constraints = new HashSet<Constraint>();
 			
-			RDFTerm exclu = (RDFTerm) model.filter((Resource) value, EXCLUSION, null).objects().toArray()[0];
+			RDFTerm exclu = (RDFTerm) getObjects(value, EXCLUSION).get(0);
 			List<Object> exclusions = computeListOfObject(exclu);
 			for (Object excl:exclusions) {
 				if (excl instanceof Literal) {
@@ -450,18 +450,18 @@ public class ShExRParser implements Parser {
 		//System.err.println(model.filter((Resource) value,null,null));
 		RDFTerm type = (RDFTerm) getObjects(value,TYPE_IRI).get(0);
 		if (type.equals(LANGUAGE)) {
-			Literal tmp = (Literal) model.filter((Resource) value, LANGUAGE_TAG, null).objects().toArray()[0];
-			return new LanguageConstraint(tmp.stringValue());
+			Literal tmp = (Literal)  getObjects(value, LANGUAGE_TAG).get(0);
+			return new LanguageConstraint(tmp.getLexicalForm());
 		}
 		if (type.equals(LANGUAGE_STEM)) {
-			Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-			return new LanguageStemConstraint(tmp.stringValue());
+			Literal tmp = (Literal)  getObjects(value, STEM).get(0);
+			return new LanguageStemConstraint(tmp.getLexicalForm());
 		}
 		if (type.equals(LANGUAGE_STEM_RANGE)) {
 			Constraint stem ;
-			if (model.filter((Resource) value, STEM, null).size()>0) {
-				Literal tmp = (Literal) model.filter((Resource) value, STEM, null).objects().toArray()[0];
-				stem = new LanguageStemConstraint(tmp.stringValue());
+			if (testTriples(value, STEM)) {
+				Literal tmp = (Literal)  getObjects(value, STEM).get(0);
+				stem = new LanguageStemConstraint(tmp.getLexicalForm());
 			} else {
 				stem = new WildcardConstraint();
 			}
@@ -469,13 +469,13 @@ public class ShExRParser implements Parser {
 			Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 			Set<Constraint> constraints = new HashSet<Constraint>();
 			
-			Value exclu = (Value) model.filter((Resource) value, EXCLUSION, null).objects().toArray()[0];
+			RDFTerm exclu = (RDFTerm)  getObjects(value, EXCLUSION).get(0);
 			List<Object> exclusions = computeListOfObject(exclu);
 			for (Object excl:exclusions) {
 				if (excl instanceof Literal) {
 					constraints.add(new LanguageConstraint(((Literal)excl).stringValue()));
 				} else {
-					Literal tmp = (Literal) model.filter((Resource) excl, STEM, null).objects().toArray()[0];
+					Literal tmp = (Literal)  getObjects(excl, STEM).get(0);
 					constraints.add(new LanguageStemConstraint(tmp.stringValue()));
 				}
 			}
@@ -491,10 +491,10 @@ public class ShExRParser implements Parser {
 	private static IRI LITERAL = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#literal");
 	private static IRI NONLITERAL = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#nonliteral");
 	private Constraint parseNodeKind(RDFTerm value) {
-		if (model.filter((Resource) value,NODEKIND,null).size()==0)
+		if (!testTriples(value,NODEKIND))
 			return null;
 		
-		RDFTerm val = (RDFTerm) model.filter((Resource) value, NODEKIND, null).objects().toArray()[0];
+		RDFTerm val = (RDFTerm) getObjects(value, NODEKIND).get(0);
 		if (val.equals(BNODE))
 			return NodeKindConstraint.Blank;
 		if (val.equals(IRI))
@@ -519,28 +519,28 @@ public class ShExRParser implements Parser {
 		boolean changed = false;
 		
 		if (testTriples(value, LENGTH)) {
-			Literal val = (Literal) model.filter((Resource) value, LENGTH, null).objects().toArray()[0];
-			facet.setLength(val.intValue());
+			Literal val = (Literal) getObjects(value, LENGTH).get(0);
+			facet.setLength(DatatypeUtil.getIntegerValue(val));
 			changed=true;
 		}
 		if (testTriples(value, MINLENGTH)) {
-			Literal val = (Literal) model.filter((Resource) value, MINLENGTH, null).objects().toArray()[0];
-			facet.setMinLength(val.intValue());
+			Literal val = (Literal) getObjects(value, MINLENGTH).get(0);
+			facet.setMinLength(DatatypeUtil.getIntegerValue(val));
 			changed=true;
 		}
 		if (testTriples(value, MAXLENGTH)) {
-			Literal val = (Literal) model.filter((Resource) value, MAXLENGTH, null).objects().toArray()[0];
-			facet.setMaxLength(val.intValue());
+			Literal val = (Literal) getObjects(value, MAXLENGTH).get(0);
+			facet.setMaxLength(DatatypeUtil.getIntegerValue(val));
 			changed=true;
 		}
 		if (testTriples(value, PATTERN)) {
-			Literal val = (Literal) model.filter((Resource) value, PATTERN, null).objects().toArray()[0];
-			facet.setPattern(val.stringValue());
+			Literal val = (Literal) getObjects(value, PATTERN).get(0);
+			facet.setPattern(DatatypeUtil.getStringValue(val));
 			changed=true;
 		}
 		if (testTriples(value, FLAGS)) {
-			Literal val = (Literal) model.filter((Resource) value, FLAGS, null).objects().toArray()[0];
-			facet.setFlags(val.stringValue());
+			Literal val = (Literal) getObjects(value, FLAGS).get(0);
+			facet.setFlags(DatatypeUtil.getStringValue(val));
 			changed=true;
 		}
 		
@@ -561,38 +561,38 @@ public class ShExRParser implements Parser {
 		boolean changed = false;
 				
 		if (testTriples(value, MININCLUSIVE)) {
-			Literal val = (Literal) model.filter((Resource) value, MININCLUSIVE, null).objects().toArray()[0];
-			facet.setMinincl(val.decimalValue());
+			Literal val = (Literal) getObjects(value, MININCLUSIVE).get(0);
+			facet.setMinincl(DatatypeUtil.getDecimalValue(val));
 			changed=true;
 		}
 		
 		if (testTriples(value, MINEXCLUSIVE)) {
-			Literal val = (Literal) model.filter((Resource) value, MINEXCLUSIVE, null).objects().toArray()[0];
-			facet.setMinexcl(val.decimalValue());
+			Literal val = (Literal) getObjects(value, MINEXCLUSIVE).get(0);
+			facet.setMinexcl(DatatypeUtil.getDecimalValue(val));
 			changed=true;
 		}
 		
 		if (testTriples(value, MAXINCLUSIVE)) {
-			Literal val = (Literal) model.filter((Resource) value, MAXINCLUSIVE, null).objects().toArray()[0];
-			facet.setMaxincl(val.decimalValue());
+			Literal val = (Literal) getObjects(value, MAXINCLUSIVE).get(0);
+			facet.setMaxincl(DatatypeUtil.getDecimalValue(val));
 			changed=true;
 		}
 		
 		if (testTriples(value, MAXEXCLUSIVE)) {
-			Literal val = (Literal) model.filter((Resource) value, MAXEXCLUSIVE, null).objects().toArray()[0];
-			facet.setMaxexcl(val.decimalValue());
+			Literal val = (Literal) getObjects(value, MAXEXCLUSIVE).get(0);
+			facet.setMaxexcl(DatatypeUtil.getDecimalValue(val));
 			changed=true;
 		}
 		
 		if (testTriples(value, FRACTIONDIGITS)) {
-			Literal val = (Literal) model.filter((Resource) value, FRACTIONDIGITS, null).objects().toArray()[0];
-			facet.setFractionDigits(val.intValue());;
+			Literal val = (Literal) getObjects(value, FRACTIONDIGITS).get(0);
+			facet.setFractionDigits(DatatypeUtil.getIntegerValue(val));
 			changed=true;
 		}
 		
 		if (testTriples(value, TOTALDIGITS)) {
-			Literal val = (Literal) model.filter((Resource) value, TOTALDIGITS, null).objects().toArray()[0];
-			facet.setTotalDigits(val.intValue());;
+			Literal val = (Literal) getObjects(value, TOTALDIGITS).get(0);
+			facet.setTotalDigits(DatatypeUtil.getIntegerValue(val));;
 			changed=true;
 		}
 		
@@ -612,7 +612,7 @@ public class ShExRParser implements Parser {
 	private static IRI ONE_OF = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#OneOf");
 	
 	private TripleExpr parseTripleExpr(RDFTerm value) {
-		if (tripleSeen.contains(value) | model.filter((Resource) value,null,null).size()==0)
+		if (tripleSeen.contains(value) | !testTriples(value,null))
 			return new TripleExprRef(createLabel(value));
 		
 		RDFTerm type = (RDFTerm) getObjects(value,TYPE_IRI).get(0);
@@ -634,7 +634,7 @@ public class ShExRParser implements Parser {
 	private TripleExpr parseEachOf(RDFTerm value) {
 		List<Annotation> annotations = parseAnnotations(value);
 
-		RDFTerm val = (RDFTerm) model.filter((Resource) value, EXPRESSIONS, null).objects().toArray()[0];
+		RDFTerm val = (RDFTerm) getObjects(value, EXPRESSIONS).get(0);
 		List<TripleExpr> subExpr = new ArrayList<TripleExpr>();
 		for (Object obj:computeListOfObject(val))
 			subExpr.add(parseTripleExpr((RDFTerm) obj));
@@ -652,7 +652,7 @@ public class ShExRParser implements Parser {
 	private TripleExpr parseOneOf(RDFTerm value) {
 		List<Annotation> annotations = parseAnnotations(value);
 
-		RDFTerm val = (RDFTerm) model.filter((Resource) value, EXPRESSIONS, null).objects().toArray()[0];
+		RDFTerm val = (RDFTerm) getObjects(value, EXPRESSIONS).get(0);
 		List<TripleExpr> subExpr = new ArrayList<TripleExpr>();
 		for (Object obj:computeListOfObject(val))
 			subExpr.add(parseTripleExpr((RDFTerm) obj));
@@ -676,11 +676,11 @@ public class ShExRParser implements Parser {
 		
 		boolean inverse = false;
 		if (testTriples(value, INVERSE)) {
-			Literal inv = (Literal) model.filter((Resource) value, INVERSE, null).objects().toArray()[0];
-			inverse = inv.booleanValue();
+			Literal inv = (Literal) getObjects(value, INVERSE).get(0);
+			inverse = DatatypeUtil.getBooleanValue(inv);
 		}
 		
-		RDFTerm pred = (RDFTerm) model.filter((Resource) value, PREDICATE, null).objects().toArray()[0];
+		RDFTerm pred = (RDFTerm) getObjects(value, PREDICATE).get(0);
 		TCProperty predicate;
 		if (inverse)
 			predicate = TCProperty.createInvProperty((IRI) pred);
@@ -689,7 +689,7 @@ public class ShExRParser implements Parser {
 		
 		ShapeExpr valueExpr;
 		if (testTriples(value,VALUE_EXPR)) {
-			RDFTerm val = (RDFTerm) model.filter((Resource) value, VALUE_EXPR, null).objects().toArray()[0];
+			RDFTerm val = (RDFTerm) getObjects(value,VALUE_EXPR).get(0);
 			valueExpr = parseShapeExpr(val);
 		} else {
 			valueExpr = new EmptyShape();
@@ -710,13 +710,13 @@ public class ShExRParser implements Parser {
 	private static IRI OBJECT = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#object");
 	private List<Annotation> parseAnnotations(RDFTerm value){
 		List<Annotation> annotations = null;
-		if (model.filter((Resource) value, ANNOTATION, null).size()>0) {
-			RDFTerm ann = (RDFTerm) model.filter((Resource) value, ANNOTATION, null).objects().toArray()[0];
+		if (testTriples(value, ANNOTATION)) {
+			RDFTerm ann = (RDFTerm) getObjects(value, ANNOTATION).get(0);
 			List<Object> lannot = computeListOfObject(ann);
 			annotations = new ArrayList<Annotation>();
 			for (Object obj:lannot) {
-				IRI predicate = (IRI) model.filter((Resource) obj, PREDICATE, null).objects().toArray()[0];
-				RDFTerm object = (RDFTerm) model.filter((Resource) obj, OBJECT, null).objects().toArray()[0];
+				IRI predicate = (IRI) getObjects(obj, PREDICATE).get(0);
+				RDFTerm object = (RDFTerm) getObjects(obj, OBJECT).get(0);
 				annotations.add(new Annotation(predicate,object));
 			}
 		}
@@ -730,9 +730,9 @@ public class ShExRParser implements Parser {
 	private Interval getInterval(RDFTerm value) {
 		Integer  min=null,max=null;
 		if (testTriples(value,MIN))
-			min =  ((Literal) model.filter((Resource) value, MIN, null).objects().toArray()[0]).intValue();
+			min =  DatatypeUtil.getIntegerValue(((Literal) getObjects(value, MIN).get(0)));
 		if (testTriples(value,MAX))
-			max =  ((Literal) model.filter((Resource) value, MAX, null).objects().toArray()[0]).intValue();
+			max =  DatatypeUtil.getIntegerValue(((Literal) getObjects(value, MAX).get(0)));
 		
 		if (min==null & max==null)
 			return null;
