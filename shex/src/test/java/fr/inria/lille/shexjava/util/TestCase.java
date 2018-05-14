@@ -32,8 +32,8 @@ import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import fr.inria.lille.shexjava.schema.Label;
 
 public 	class TestCase {
-	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
-	private static final RDF4J RDFCommons = new RDF4J(); 
+	private static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
+	private static final CommonFactory RDFCommon = new CommonFactory(); 
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
 	private static final IRI ACTION_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action");
@@ -61,10 +61,14 @@ public 	class TestCase {
 			if (Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).isPresent()) {
 				Resource labelRes = Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).get();
 				if (labelRes instanceof BNode)
-					shapeLabel = new Label((BlankNode) RDFCommons.asRDFTerm(labelRes));
+					shapeLabel = new Label(RDFCommon.createBlankNode(labelRes.stringValue()));
 				else
-					shapeLabel = new Label((org.apache.commons.rdf.api.IRI) RDFCommons.asRDFTerm(labelRes));
-				focusNode = RDFCommons.asRDFTerm(Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get());
+					shapeLabel = new Label(RDFCommon.createIRI(labelRes.stringValue()));
+				Value focus = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
+				if (focus instanceof BlankNode)
+					focusNode = RDFCommon.createBlankNode(focus.stringValue());
+				else
+					focusNode = (new RDF4J()).asRDFTerm(focus);
 			}
 			testComment = Models.getPropertyString(manifest, testNode, RDFS.COMMENT).get();
 			testName = Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();

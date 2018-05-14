@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.rio.RDFFormat;
+import org.apache.commons.rdf.api.RDF;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
@@ -40,14 +40,14 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 public class GenParser {
 	
 	
-	public static ShexSchema parseSchema(Path filepath) throws Exception{
-		return parseSchema(filepath,Collections.emptyList());
+	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath) throws Exception{
+		return parseSchema(rdfFactory,filepath,Collections.emptyList());
 	}
 	
-	public static ShexSchema parseSchema(Path filepath, Path importDir) throws Exception{
+	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath, Path importDir) throws Exception{
 		List<Path> importDirs = new ArrayList<>();
 		importDirs.add(importDir);
-		return parseSchema(filepath,importDirs);
+		return parseSchema(rdfFactory,filepath,importDirs);
 	}
 	
 	
@@ -57,7 +57,7 @@ public class GenParser {
 	 * @return the parsed ShexSchema
 	 * @throws Exception
 	 */
-	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{
+	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath, List<Path> importDirectories) throws Exception{
 		if (!filepath.toFile().exists())
 			throw new FileNotFoundException("File "+filepath+" not found.");
 		
@@ -81,7 +81,7 @@ public class GenParser {
 				//parser = new ShExRParser();
 				throw new Exception("ShexR not supported");
 			}
-			allRules.putAll(parser.getRules(selectedPath));
+			allRules.putAll(parser.getRules(rdfFactory,selectedPath));
 			List<String> imports = parser.getImports();
 
 			for (String imp:imports) {
@@ -111,7 +111,7 @@ public class GenParser {
 					toload.add(res);					
 			}
 		}
-		ShexSchema schema = new ShexSchema(allRules);
+		ShexSchema schema = new ShexSchema(rdfFactory,allRules);
 		return schema;
 	}
 

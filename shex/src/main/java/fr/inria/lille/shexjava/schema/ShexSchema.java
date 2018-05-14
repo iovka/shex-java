@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.simple.SimpleRDF;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
@@ -73,7 +72,7 @@ public class ShexSchema {
 	private Map<Label, ShapeExpr> rules;
 	private Map<Label,ShapeExpr> shapeMap;
 	private Map<Label,TripleExpr> tripleMap;
-	private static final RDF rdfFactory = new SimpleRDF();
+	private RDF rdfFactory;
 
 	/** The constructor try to instantiate a well-defined schema. Label are generated for all shapeExpr and tripleExpr without and ID. References are resolved and a verification that there is no cycles in the references is performed. The stratification of the set of rules is stratified is computed. Rules cannot be modified after initialization
 	 * @param rules
@@ -81,7 +80,8 @@ public class ShexSchema {
 	 * @throws CyclicReferencesException
 	 * @throws NotStratifiedException
 	 */
-	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	public ShexSchema(RDF rdfFactory,Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		this.rdfFactory = rdfFactory;
 		//check that id are unique
 		
 		this.rules = Collections.unmodifiableMap(new HashMap<Label, ShapeExpr>(rules));

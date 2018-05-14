@@ -30,11 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.simple.SimpleRDF;
 import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
-
 
 import com.github.jsonldjava.utils.JsonUtils;
 
@@ -82,7 +80,7 @@ import fr.inria.lille.shexjava.util.Interval;
  */
 @SuppressWarnings("rawtypes")
 public class ShExJParser implements Parser{
-	private static final RDF rdfFactory = new SimpleRDF();
+	private RDF rdfFactory;
 	private List<String> imports;
 	private Path path;
 
@@ -91,12 +89,13 @@ public class ShExJParser implements Parser{
 	// --------------------------------------------------------------------
 
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
-	public Map<Label,ShapeExpr> getRules(Path path) throws Exception  {
+	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, Path path) throws Exception  {
 		InputStream inputStream = new FileInputStream(path.toFile());
-		return getRules(inputStream);
+		return getRules(rdfFactory,inputStream);
 	}
 		
-	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
+	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
+		this.rdfFactory = rdfFactory;
 		imports = new ArrayList<>();
 
 		Object schemaObject = JsonUtils.fromInputStream(is,Charset.defaultCharset().name());
@@ -740,7 +739,7 @@ public class ShExJParser implements Parser{
 	// FACTORY METHODS
 	// ----------------------------------------------------------------------
 
-	private static Label createShapeLabel (String string,boolean generated) {
+	private Label createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
 			return new Label(rdfFactory.createIRI(string),generated);
 		else {
@@ -750,7 +749,7 @@ public class ShExJParser implements Parser{
 		}
 	}
 
-	private static Label createTripleLabel (String string,boolean generated) {
+	private Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
 			return new Label(rdfFactory.createIRI(string),generated);
 		else {

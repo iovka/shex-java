@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.rdf.api.RDF;
+
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 
@@ -31,14 +33,14 @@ public interface Parser {
 	 * @return the set of rules contains in the file
 	 * @throws Exception
 	 */
-	public Map<Label,ShapeExpr> getRules(Path path) throws Exception;
+	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, Path path) throws Exception;
 	
 	/** Return the set of rules contains in the inputstream.
 	 * @param is
 	 * @return the set of rules contains in the inputstream
 	 * @throws Exception
 	 */
-	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception;
+	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception;
 	
 	/** Return the list of import declarations found during the last parsing.
 	 * @return the list of import declarations found during the last parsing

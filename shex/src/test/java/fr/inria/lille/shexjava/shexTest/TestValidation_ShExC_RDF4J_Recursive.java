@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.rdf4j.RDF4J;
+import org.apache.commons.rdf.simple.SimpleRDF;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -51,7 +52,8 @@ import org.junit.runners.Parameterized.Parameters;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.util.RDFFactory;
+import fr.inria.lille.shexjava.util.CommonFactory;
+import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 import fr.inria.lille.shexjava.validation.RecursiveValidation;
@@ -64,16 +66,11 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
  */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExC_RDF4J_Recursive {
-	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
-	
-	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
-	
+	protected static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
+	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();	
 	protected static String MANIFEST_FILE = Paths.get(TEST_DIR,"validation","manifest.ttl").toString();
-	
 	protected static final String DATA_DIR = Paths.get(TEST_DIR,"validation").toString();
 	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();
-
-
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
 	protected static final Resource VALIDATION_FAILURE_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationFailure");
 	protected static final Resource VALIDATION_TEST_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationTest");
@@ -101,7 +98,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 			List<Object[]> parameters = new ArrayList<Object[]>();
-			String selectedTest = "bnode1dot_pass-others_lexicallyEarlier";
+			String selectedTest = "";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
@@ -150,9 +147,9 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
-    		System.out.println(testCase);
-    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-    		System.out.println(schema.getRules());
+    		//System.out.println(testCase);
+    		ShexSchema schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		//System.out.println(schema.getRules());
  
     		//System.out.println(dataGraph.stream().collect(Collectors.toList()));
     		Graph dataGraph = getRDFGraph();    		
@@ -201,7 +198,6 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
-    	//fp = fp.substring(0,fp.length()-4)+"json";
 
     	String result = Paths.get(TEST_DIR).toString();
     	Iterator<Path> iter = Paths.get(fp).iterator();

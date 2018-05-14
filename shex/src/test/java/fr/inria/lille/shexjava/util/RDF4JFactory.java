@@ -23,7 +23,7 @@ import org.eclipse.rdf4j.model.impl.AbstractValueFactory;
  * @author Jérémie Dusart
  *
  */
-public class RDFFactory extends AbstractValueFactory {
+public class RDF4JFactory extends AbstractValueFactory {
 
 	@Override
 	public BNode createBNode(String nodeID) {
@@ -40,25 +40,24 @@ public class RDFFactory extends AbstractValueFactory {
 	@Override
 	public synchronized BNode createBNode() {
 		BNode result = super.createBNode();
-		//System.err.println(result.stringValue());
 		return createBNode(MyBnodePrefix+result.stringValue());
 	}
 
-	private static final RDFFactory sharedInstance = new RDFFactory();
+	private static final RDF4JFactory sharedInstance = new RDF4JFactory();
 
 	/**
 	 * Provide a single shared instance of a SimpleValueFactory.
 	 * 
 	 * @return a singleton instance of SimpleValueFactory.
 	 */
-	public static RDFFactory getInstance() {
+	public static RDF4JFactory getInstance() {
 		return sharedInstance;
 	}
 
 	/**
 	 * Hidden constructor to enforce singleton pattern.
 	 */
-	protected RDFFactory() {
+	protected RDF4JFactory() {
 	}
 
 }

@@ -40,10 +40,8 @@ import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.simple.SimpleRDF;
-//import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
 
 import fr.inria.lille.shexjava.graph.TCProperty;
@@ -100,21 +98,22 @@ import fr.inria.lille.shexjava.util.XPath;
  *
  */
 public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
-	private static final RDF rdfFactory = new SimpleRDF();
+	private RDF rdfFactory;
 	private Map<Label,ShapeExpr> rules;
 	private Map<String,String> prefixes;
 	private List<String> imports;
 	private String base;
 	private Path filename;
 	
-	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
-		System.out.println("ShexC parsing...");
+	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, Path path) throws Exception{
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
-		return getRules(is);		
+		return getRules(rdfFactory,is);		
 	}
 	
-	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
+	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
+		this.rdfFactory = rdfFactory;
+		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		ANTLRInputStream inputStream = new ANTLRInputStream(isr);
         ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
@@ -888,7 +887,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	public Object visitShapeExprLabel(ShExDocParser.ShapeExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
-		System.out.println("Label .... "+result);
 		if (result instanceof IRI) 
 			return new Label((IRI) result);
 		else 
@@ -950,8 +948,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitBooleanLiteral(@NotNull ShExDocParser.BooleanLiteralContext ctx) {
 		if (ctx.KW_FALSE()!=null)
-			return rdfFactory.createLiteral("\"false\"^^"+Types.XSD_BOOLEAN.getIRIString());
-		return rdfFactory.createLiteral("\"true\"^^"+Types.XSD_BOOLEAN.getIRIString());
+			return rdfFactory.createLiteral("false",Types.XSD_BOOLEAN);
+		return rdfFactory.createLiteral("true",Types.XSD_BOOLEAN);
 	}
 
 	

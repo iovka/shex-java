@@ -4,11 +4,12 @@ import java.math.BigDecimal;
 
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.simple.Types;
 import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+
 
 public class DatatypeUtil {
-	private static RDFFactory rdfFact = RDFFactory.getInstance();
+	private static SimpleValueFactory rdfFact = SimpleValueFactory.getInstance();
 
 	public static boolean isValidValue(Literal lnode) {
 		return XMLDatatypeUtil.isValidValue(lnode.getLexicalForm(), rdfFact.createIRI(lnode.getDatatype().getIRIString()));

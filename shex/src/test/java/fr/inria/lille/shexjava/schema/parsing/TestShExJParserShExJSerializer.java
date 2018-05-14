@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.simple.SimpleRDF;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -48,7 +50,8 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.util.RDFFactory;
+import fr.inria.lille.shexjava.util.CommonFactory;
+import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.SchemaEquality;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
@@ -60,7 +63,7 @@ import fr.inria.lille.shexjava.util.TestResultForTestReport;
  */
 @RunWith(Parameterized.class)
 public class TestShExJParserShExJSerializer {
-	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	protected static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
 	
 	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
 	
@@ -96,13 +99,18 @@ public class TestShExJParserShExJSerializer {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 			List<Object[]> parameters = new ArrayList<Object[]>();
+			String selectedTest = "";
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-				Object[] params =  {new TestCase(manifest,testNode)};
-				parameters.add(params);
+				TestCase tc = new TestCase(manifest,testNode);
+		    	Object[] params =  {tc};
+		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+		    		parameters.add(params);
 			}
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-				Object[] params =  {new TestCase(manifest,testNode)};
-				parameters.add(params);
+				TestCase tc = new TestCase(manifest,testNode);
+		    	Object[] params =  {tc};
+		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
+		    		parameters.add(params);
 			}
 			return parameters;
     	}
@@ -141,11 +149,13 @@ public class TestShExJParserShExJSerializer {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
-			
-			fromJson = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		
+    		RDF factory = new CommonFactory();
+    					
+			fromJson = GenParser.parseSchema(factory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
 			Path tmp = Paths.get("tmp_fromjson.json");
 			ShExJSerializer.ToJson(fromJson, tmp);
-			toJson = GenParser.parseSchema(tmp);
+			toJson = GenParser.parseSchema(factory,tmp);
 			tmp.toFile().delete();
 	
     		if (SchemaEquality.areEquals(fromJson, toJson)){
@@ -156,6 +166,7 @@ public class TestShExJParserShExJSerializer {
 			}
 
     	}catch (Exception e) {
+    		e.printStackTrace();
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
 			fail("Exception: "+testCase.testName);
     	}

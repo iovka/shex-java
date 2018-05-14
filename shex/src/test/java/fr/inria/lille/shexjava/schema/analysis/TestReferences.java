@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.rdf.simple.SimpleRDF;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -66,7 +67,7 @@ public class TestReferences {
 	@Test
 	public void parse (){
 		try {
-			GenParser.parseSchema(schemaFile);
+			GenParser.parseSchema(new SimpleRDF(),schemaFile);
 		}catch(UndefinedReferenceException e) {
 			if (status!=1) {
 				fail("Error: undefined reference catch on test ("+schemaFile+")");

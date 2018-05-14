@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.rdf.simple.SimpleRDF;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -47,7 +48,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.util.RDFFactory;
+import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 
 
@@ -57,7 +58,7 @@ import fr.inria.lille.shexjava.util.TestResultForTestReport;
  */
 @RunWith(Parameterized.class)
 public class TestNegativeStruct {
-	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
 
 	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
@@ -98,7 +99,7 @@ public class TestNegativeStruct {
     public void runTest() {
 		ShexSchema schema = null;
 		try {
-			schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			schema = GenParser.parseSchema(new SimpleRDF(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
 			//System.out.println("Failing: "+testName);
 			//System.out.println(schema);
 			failed.add(new TestResultForTestReport(testName, false, null, "negativeStructure"));

@@ -25,10 +25,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.jena.ext.com.google.common.io.Files;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.jena.ext.com.google.common.io.Files;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.github.jsonldjava.utils.JsonUtils;
@@ -440,7 +440,7 @@ public class ShExJSerializer {
 			tmp.put("type", "Annotation");
 			tmp.put("predicate", ann.getPredicate().getIRIString());
 			if (ann.getObjectValue() instanceof IRI)
-				tmp.put("object", ann.getObjectValue().ntriplesString());
+				tmp.put("object", ((IRI) ann.getObjectValue()).getIRIString());
 			else {
 				Map<String,Object> tmp2 = new LinkedHashMap<>();
 				tmp2.put("value", ann.getObjectValue().ntriplesString());
@@ -456,11 +456,13 @@ public class ShExJSerializer {
 			Literal lv = (Literal) v;
 			Map<String,Object> result = new LinkedHashMap<String, Object>();
 			result.put("value", lv.getLexicalForm());
-			result.put("type", lv.getDatatype().toString());
+			result.put("type", lv.getDatatype().getIRIString());
 			if (lv.getLanguageTag().isPresent())
 				result.put("language", lv.getLanguageTag().get());
 			return result;
 		}
+		if (v instanceof IRI)
+			return ((IRI) v).getIRIString();
 		return v.ntriplesString();
 	}
 	

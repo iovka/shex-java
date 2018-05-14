@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDFTerm;
-import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 
 import fr.inria.lille.shexjava.util.DatatypeUtil;
 

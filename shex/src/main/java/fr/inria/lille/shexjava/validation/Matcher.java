@@ -19,7 +19,6 @@ package fr.inria.lille.shexjava.validation;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
