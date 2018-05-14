@@ -16,14 +16,16 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import fr.inria.lille.shexjava.graph.NeighborTriple;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
+
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 
 /** Match the predicate and the value. The typing providing in the constructor is used to check the value.
  * 
  * @author Jérémie Dusart
  */
-public class MatcherPredicateAndValue implements Matcher {
+public class MatcherPredicateAndValue extends Matcher {
 	private Typing typing;
 	
 	public MatcherPredicateAndValue(Typing typing) {
@@ -31,9 +33,13 @@ public class MatcherPredicateAndValue implements Matcher {
 	}
 	
 	@Override
-	public Boolean apply(NeighborTriple triple, TripleConstraint tc) {
-		if (tc.getProperty().equals(triple.getPredicate())) 
-			return typing.contains(triple.getOpposite(), tc.getShapeExpr().getId());
+	public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc) {
+		if (tc.getProperty().isForward() && triple.getSubject().equals(focusNode))
+			if (tc.getProperty().getIri().equals(triple.getPredicate())) 
+				return typing.contains(triple.getObject(), tc.getShapeExpr().getId());
+		if (!tc.getProperty().isForward() && triple.getObject().equals(focusNode))
+			if (tc.getProperty().getIri().equals(triple.getPredicate())) 
+				return typing.contains(triple.getSubject(), tc.getShapeExpr().getId());
 		return false;
 	}
 

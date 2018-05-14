@@ -19,7 +19,7 @@ package fr.inria.lille.shexjava.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.graph.TCProperty;
 import fr.inria.lille.shexjava.schema.Label;
@@ -167,7 +167,7 @@ public class SchemaEquality {
 			
 			if (vst1.getExplicitValues().size()!=vst2.getExplicitValues().size())
 				return false;
-			for (Value v:vst1.getExplicitValues())
+			for (RDFTerm v:vst1.getExplicitValues())
 				if (!vst2.getExplicitValues().contains(v))
 					return false;
 			

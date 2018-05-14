@@ -25,11 +25,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
-import fr.inria.lille.shexjava.graph.NeighborTriple;
-import fr.inria.lille.shexjava.graph.RDFGraph;
+import fr.inria.lille.shexjava.graph.TCProperty;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
@@ -43,6 +44,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
+import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
 
 
@@ -52,7 +54,7 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author Jérémie Dusart 
  */
 public class RecursiveValidation implements ValidationAlgorithm {
-	private RDFGraph graph;
+	private Graph graph;
 	private SORBEGenerator sorbeGenerator;
 	private ShexSchema schema;
 	private RecursiveTyping typing;
@@ -60,7 +62,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	private DynamicCollectorOfTripleConstraint collectorTC;
 	
 	
-	public RecursiveValidation(ShexSchema schema, RDFGraph graph) {
+	public RecursiveValidation(ShexSchema schema, Graph graph) {
 		super();
 		this.graph = graph;
 		this.sorbeGenerator = new SORBEGenerator();
@@ -79,7 +81,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	}	
 	
 	@Override
-	public boolean validate(Value focusNode, Label label) throws Exception {
+	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
 		if (label == null || !schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
 		this.resetTyping();
@@ -90,7 +92,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		return result;
 	}
 	
-	protected boolean recursiveValidation(Value focusNode, Label label) {
+	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
 		this.typing.addHypothesis(focusNode, label);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
 		schema.getShapeMap().get(label).accept(visitor);
@@ -100,10 +102,10 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	}
 	
 	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
-		private Value node; 
+		private RDFTerm node; 
 		private Boolean result;
 		
-		public EvaluateShapeExpressionVisitor(Value one) {
+		public EvaluateShapeExpressionVisitor(RDFTerm one) {
 			this.node = one;
 		}
 
@@ -157,23 +159,22 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	}
 	
 	
-	private boolean isLocallyValid (Value node, Shape shape) {
+	private boolean isLocallyValid (RDFTerm node, Shape shape) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-		Iterator<NeighborTriple> tmp ;
 
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
 		if (constraints.size() == 0) {
 			if (!shape.isClosed()) {
 				return true;
 			} else {
-				tmp = graph.itOutNeighbours(node);
-				if (! tmp.hasNext()) {
+				if (CommonGraph.getOutNeighbours(graph, node).size()==0) {
 					return true;
 				} else {
 					return false;
 				}
 			}
 		}
+		
 		
 		Set<IRI> inversePredicate = new HashSet<IRI>();
 		Set<IRI> forwardPredicate = new HashSet<IRI>();
@@ -185,31 +186,38 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			}
 		}
 		
-		List<NeighborTriple> neighbourhood = new ArrayList<NeighborTriple>();
-		tmp = graph.itInNeighboursWithPredicate(node, inversePredicate);
-		while(tmp.hasNext()) neighbourhood.add(tmp.next());
+		List<Triple> neighbourhood = CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate);
 		if (shape.isClosed()) {
-			tmp = graph.itOutNeighbours(node);
-			while(tmp.hasNext()) neighbourhood.add(tmp.next());
+			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
 		} else {
-			tmp = graph.itOutNeighboursWithPredicate(node,forwardPredicate);
-			while(tmp.hasNext()) neighbourhood.add(tmp.next());
+			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
 		}
-		
-		// Match using only predicate and recursive test. The following line are the only difference with refine validation
-		Set<Pair<Value, Label>> shapeMap = new HashSet<Pair<Value, Label>>();
-		Matcher matcher1 = new MatcherPredicateOnly();
-		LinkedHashMap<NeighborTriple,List<TripleConstraint>> matchingTC1 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher1);
 
-		for(Entry<NeighborTriple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
+		// Match using only predicate and recursive test. The following line are the only difference with refine validation
+		Set<Pair<RDFTerm, Label>> shapeMap = new HashSet<Pair<RDFTerm, Label>>();
+		Matcher matcher = new MatcherPredicateOnly();
+		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
+		
+		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
 			List<TripleConstraint> possibility = entry.getValue();
-			if (possibility.isEmpty() & ! shape.getExtraProperties().contains(entry.getKey().getPredicate()))
-				return false;
+			if (possibility.isEmpty()) {
+				boolean success = false;
+				for (TCProperty extra : shape.getExtraProperties())
+					if (extra.getIri().equals(entry.getKey().getPredicate()))
+						success = true;
+				if (!success)
+					return false;
+			}
+			
 			for (TripleConstraint tc:possibility) {
-				Value destNode = entry.getKey().getOpposite();
+				RDFTerm destNode = entry.getKey().getObject();
+				if (!tc.getProperty().isForward())
+					destNode = entry.getKey().getSubject();
+				
 				if (! this.typing.contains(destNode, tc.getShapeExpr().getId())) {
-					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId()))
+					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
 						shapeMap.add(new Pair<>(destNode, tc.getShapeExpr().getId()));
+						
 				}
 			}
 		}
@@ -217,16 +225,19 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		// Add the detected node value to the typing
 		this.typing.addHypothesis(shapeMap);
 
-
 		Matcher matcher2 = new MatcherPredicateAndValue(this.getTyping()); 
-		LinkedHashMap<NeighborTriple,List<TripleConstraint>> matchingTC2 = Matcher.collectMatchingTC(neighbourhood, constraints, matcher2);
+		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC2 = matcher2.collectMatchingTC(node, neighbourhood, constraints);
 
 		// Check that the neighbor that cannot be match to a constraint are in extra
-		Iterator<Map.Entry<NeighborTriple,List<TripleConstraint>>> iteMatchingTC = matchingTC2.entrySet().iterator();
+		Iterator<Map.Entry<Triple,List<TripleConstraint>>> iteMatchingTC = matchingTC2.entrySet().iterator();
 		while(iteMatchingTC.hasNext()) {
-			Entry<NeighborTriple, List<TripleConstraint>> listTC = iteMatchingTC.next();
+			Entry<Triple, List<TripleConstraint>> listTC = iteMatchingTC.next();
 			if (listTC.getValue().isEmpty()) {
-				if (! shape.getExtraProperties().contains(listTC.getKey().getPredicate())){
+				boolean success = false;
+				for (TCProperty extra : shape.getExtraProperties())
+					if (extra.getIri().equals(listTC.getKey().getPredicate()))
+						success = true;
+				if (!success) {
 					this.typing.removeHypothesis(shapeMap);
 					return false;
 				}
@@ -236,7 +247,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		
 		// Create a BagIterator for all possible bags induced by the matching triple constraints
 		ArrayList<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
-		for(NeighborTriple nt:matchingTC2.keySet())
+		for(Triple nt:matchingTC2.keySet())
 			listMatchingTC.add(matchingTC2.get(nt));
 		
 		BagIterator bagIt = new BagIterator(listMatchingTC);

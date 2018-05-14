@@ -18,9 +18,11 @@ package fr.inria.lille.shexjava.schema.concrsynt;
 
 import java.math.BigDecimal;
 
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDFTerm;
 import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
+
+import fr.inria.lille.shexjava.util.DatatypeUtil;
 
 /**
  * 
@@ -68,15 +70,16 @@ public class FacetNumericConstraint implements Constraint {
 	}
 
 	@Override
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		if (! (node instanceof Literal)) return false;
 		Literal lnode = (Literal) node;
 		
-		if (!XMLDatatypeUtil.isValidDouble(lnode.stringValue()))
+		if (!DatatypeUtil.isValidDouble(lnode))
 			return false;
-		if (!XMLDatatypeUtil.isValidValue(lnode.stringValue(), lnode.getDatatype()))
+		if (!DatatypeUtil.isValidValue(lnode))
 			return false;
-		BigDecimal dv = lnode.decimalValue().stripTrailingZeros();
+		
+		BigDecimal dv = DatatypeUtil.getDecimalValue(lnode).stripTrailingZeros();
 		
 		if (minincl != null && dv.compareTo(minincl) < 0)
 			return false;
@@ -90,15 +93,15 @@ public class FacetNumericConstraint implements Constraint {
 		if (totalDigits==null & fractionDigits==null)
 			return true;
 		
-		if (!XMLDatatypeUtil.isDecimalDatatype(lnode.getDatatype())){
+		if (!DatatypeUtil.isDecimalDatatype(lnode)){
 			return false;
 		}
 		
-		String normalizeValue = XMLDatatypeUtil.normalize(lnode.stringValue(), lnode.getDatatype());		
-		if (totalDigits != null && totalDigits < computeTotalDigit(normalizeValue)) 
+		String normalizedValue = DatatypeUtil.normalize(lnode);		
+		if (totalDigits != null && totalDigits < computeTotalDigit(normalizedValue)) 
 			return false;
 		
-		if (fractionDigits != null && fractionDigits < computeFractionDigit(normalizeValue)) 
+		if (fractionDigits != null && fractionDigits < computeFractionDigit(normalizedValue)) 
 			return false;
 		
 		return true;

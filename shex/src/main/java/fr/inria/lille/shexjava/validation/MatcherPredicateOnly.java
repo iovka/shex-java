@@ -16,7 +16,9 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import fr.inria.lille.shexjava.graph.NeighborTriple;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
+
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 
 /** Match only the predicate.
@@ -24,11 +26,15 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class MatcherPredicateOnly implements Matcher {
+public class MatcherPredicateOnly extends Matcher {
 	
 	@Override
-	public Boolean apply(NeighborTriple triple, TripleConstraint tc) {
-		return tc.getProperty().equals(triple.getPredicate());
+	public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc) {
+		if (tc.getProperty().isForward() && triple.getSubject().equals(focusNode))
+			return tc.getProperty().getIri().equals(triple.getPredicate());
+		if (!tc.getProperty().isForward() && triple.getObject().equals(focusNode))
+			return tc.getProperty().getIri().equals(triple.getPredicate());
+		return false;
 	}
 
 

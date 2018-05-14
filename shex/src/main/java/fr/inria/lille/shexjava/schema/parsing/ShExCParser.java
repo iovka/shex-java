@@ -37,13 +37,14 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
-import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.simple.SimpleRDF;
+//import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.apache.commons.rdf.simple.Types;
 
 import fr.inria.lille.shexjava.graph.TCProperty;
 import fr.inria.lille.shexjava.schema.Label;
@@ -87,6 +88,7 @@ import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.IriExclusionContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.QualifierContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.XsFacetContext;
+import fr.inria.lille.shexjava.util.DatatypeUtil;
 import fr.inria.lille.shexjava.util.Interval;
 import fr.inria.lille.shexjava.util.XPath;
 
@@ -98,7 +100,7 @@ import fr.inria.lille.shexjava.util.XPath;
  *
  */
 public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
-	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
+	private static final RDF rdfFactory = new SimpleRDF();
 	private Map<Label,ShapeExpr> rules;
 	private Map<String,String> prefixes;
 	private List<String> imports;
@@ -512,7 +514,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 						(IRI) ctx.datatype().accept(this));
 			}
 			try {
-				BigDecimal value = lnode.decimalValue();
+				BigDecimal value = DatatypeUtil.getDecimalValue(lnode);
 				if (ctx.numericRange().KW_MAXEXCLUSIVE()!=null)
 					result.setMaxexcl(value);
 				if (ctx.numericRange().KW_MAXINCLUSIVE()!=null)
@@ -532,13 +534,13 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	// must return a setOfNode
 	@Override
 	public Object visitValueSet(ShExDocParser.ValueSetContext ctx) {
-		Set<Value> explicitValues = new HashSet<Value>();
+		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 		Set<Constraint> constraint = new HashSet<Constraint>();
 		for (ParseTree child:ctx.children) {
 			if (child instanceof ShExDocParser.ValueSetValueContext) {
 				Object res = child.accept(this);
-				if (res instanceof Value)
-					explicitValues.add((Value) res);
+				if (res instanceof RDFTerm)
+					explicitValues.add((RDFTerm) res);
 				else
 					constraint.add((Constraint) res);
 			}
@@ -550,13 +552,13 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitValueSetValue(ShExDocParser.ValueSetValueContext ctx) {
 		if(ctx.children.get(0).getText().equals(".")) {
-			Set<Value> explicitValues = new HashSet<Value>();
+			Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 			Set<Constraint> exclusions = new HashSet<Constraint>();
 			for (ParseTree child:ctx.children){
 				if (! (child instanceof TerminalNodeImpl)) {
 					Object res = child.accept(this);
 					if (res instanceof IRI)
-						explicitValues.add((Value) res);
+						explicitValues.add((RDFTerm) res);
 					else
 						exclusions.add((Constraint) res);
 				}
@@ -575,11 +577,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitIriRange(ShExDocParser.IriRangeContext ctx) {
 		if (ctx.STEM_MARK()==null)
 			return (IRI) ctx.iri().accept(this);
-		IRIStemConstraint stem = new IRIStemConstraint(((IRI) ctx.iri().accept(this)).stringValue());
+		IRIStemConstraint stem = new IRIStemConstraint(((IRI) ctx.iri().accept(this)).getIRIString());
 		if (ctx.iriExclusion()==null)
 			return stem;
 		Set<Constraint> exclusions = new HashSet<Constraint>();
-		Set<Value> explicitValues = new HashSet<Value>();
+		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 		for(IriExclusionContext exclu:ctx.iriExclusion()) {
 			Object res = exclu.accept(this);
 			if (res instanceof IRI)
@@ -595,7 +597,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitIriExclusion(ShExDocParser.IriExclusionContext ctx) {
 		if (ctx.STEM_MARK()!=null)
-			return new IRIStemConstraint(((IRI) ctx.iri().accept(this)).stringValue());
+			return new IRIStemConstraint(((IRI) ctx.iri().accept(this)).getIRIString());
 		return (IRI) ctx.iri().accept(this);
 	}
 	
@@ -605,14 +607,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		if (ctx.STEM_MARK()==null) {
 			return val;
 		}
-		LiteralStemConstraint stem = new LiteralStemConstraint(val.stringValue());
+		LiteralStemConstraint stem = new LiteralStemConstraint(val.getLexicalForm());
 		if (ctx.literalExclusion()==null)
 			return stem;
 		Set<Constraint> exclusions = new HashSet<Constraint>();
-		Set<Value> explicitValues = new HashSet<Value>();
+		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 		for(ShExDocParser.LiteralExclusionContext exclu:ctx.literalExclusion()) {
 			Object res = exclu.accept(this);
-			if (res instanceof Value)
+			if (res instanceof RDFTerm)
 				explicitValues.add((Literal) res);
 			else
 				exclusions.add((Constraint) res);
@@ -626,7 +628,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitLiteralExclusion(ShExDocParser.LiteralExclusionContext ctx) {
 		Literal val = (Literal) ctx.literal().accept(this);
 		if (ctx.STEM_MARK()!=null)
-			return new LiteralStemConstraint(val.stringValue());
+			return new LiteralStemConstraint(val.getLexicalForm());
 		return val;
 	}
 	
@@ -639,10 +641,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		if (ctx.languageExclusion()==null)
 			return stem;
 		Set<Constraint> exclusions = new HashSet<Constraint>();
-		Set<Value> explicitValues = new HashSet<Value>();
+		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 		for(ShExDocParser.LanguageExclusionContext exclu:ctx.languageExclusion()) {
 			Object res = exclu.accept(this);
-			if (res instanceof Value)
+			if (res instanceof RDFTerm)
 				explicitValues.add((Literal) res);
 			else
 				exclusions.add((Constraint) res);
@@ -874,11 +876,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	public Object visitAnnotation(ShExDocParser.AnnotationContext ctx) {
 		IRI predicate = (IRI) ctx.predicate().accept(this);
-		Value obj;
+		RDFTerm obj;
 		if (ctx.iri() != null)
-			obj = (Value) ctx.iri().accept(this);
+			obj = (RDFTerm) ctx.iri().accept(this);
 		else
-			obj = (Value) ctx.literal().accept(this);
+			obj = (RDFTerm) ctx.literal().accept(this);
 		return new Annotation(predicate,obj); 
 	}
 	
@@ -888,7 +890,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		if (result instanceof IRI) 
 			return new Label((IRI) result);
 		else 
-			return new Label((BNode) result);
+			return new Label((BlankNode) result);
 	}
 	
 	public Object visitTripleExprLabel(ShExDocParser.TripleExprLabelContext ctx) {
@@ -896,7 +898,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		if (result instanceof IRI) 
 			return new Label((IRI) result);
 		else 
-			return new Label((BNode) result);
+			return new Label((BlankNode) result);
 	}
 		
 	public Object visitIri(ShExDocParser.IriContext ctx) {
@@ -905,7 +907,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			String iris = iri.getText();
 			iris = iris.substring(1,iris.length()-1);
 			if (base!=null)
-				return rdfFactory.createIRI(base,iris);
+				return rdfFactory.createIRI(base+iris);
 			return rdfFactory.createIRI(iris);
 		}
 		return ctx.prefixedName().accept(this); 
@@ -927,10 +929,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitNumericLiteral(@NotNull ShExDocParser.NumericLiteralContext ctx) { 
 		if (ctx.INTEGER()!=null)
-			return  rdfFactory.createLiteral(ctx.INTEGER().getText(),XMLSchema.INTEGER);
+			return  rdfFactory.createLiteral(ctx.INTEGER().getText(),Types.XSD_INTEGER);
 		if (ctx.DOUBLE()!=null)
-			return  rdfFactory.createLiteral(ctx.DOUBLE().getText(),XMLSchema.DOUBLE);
-		return rdfFactory.createLiteral(ctx.DECIMAL().getText(),XMLSchema.DECIMAL);
+			return  rdfFactory.createLiteral(ctx.DOUBLE().getText(),Types.XSD_DOUBLE);
+		return rdfFactory.createLiteral(ctx.DECIMAL().getText(),Types.XSD_DECIMAL);
 	}
 	
 	@Override 
@@ -946,8 +948,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public Object visitBooleanLiteral(@NotNull ShExDocParser.BooleanLiteralContext ctx) {
 		if (ctx.KW_FALSE()!=null)
-			return rdfFactory.createLiteral(false);
-		return rdfFactory.createLiteral(true);
+			return rdfFactory.createLiteral("\"false\"^^"+Types.XSD_BOOLEAN.getIRIString());
+		return rdfFactory.createLiteral("\"true\"^^"+Types.XSD_BOOLEAN.getIRIString());
 	}
 
 	
@@ -972,6 +974,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 	
 	public Object visitBlankNode(ShExDocParser.BlankNodeContext ctx) { 
-		return rdfFactory.createBNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
+		return rdfFactory.createBlankNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
 	}
 }

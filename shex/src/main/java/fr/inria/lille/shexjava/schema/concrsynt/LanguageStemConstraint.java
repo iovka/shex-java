@@ -16,8 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * @author Jérémie Dusart
@@ -31,15 +31,15 @@ public class LanguageStemConstraint implements Constraint {
 	}
 
 	@Override
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		if (! (node instanceof Literal))
 			return false;
 		
 		Literal lnode = (Literal) node;
-		if (!lnode.getLanguage().isPresent())
+		if (!lnode.getLanguageTag().isPresent())
 			return false;
 
-		String lang = lnode.getLanguage().get();
+		String lang = lnode.getLanguageTag().get();
 		
 		return lang.startsWith(langStem);
 	}

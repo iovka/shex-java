@@ -29,7 +29,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -45,8 +48,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.inria.lille.shexjava.graph.RDF4JGraph;
-import fr.inria.lille.shexjava.graph.RDFGraph;
+import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.RDFFactory;
@@ -99,7 +101,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 			List<Object[]> parameters = new ArrayList<Object[]>();
-			String selectedTest = "";
+			String selectedTest = "1literalFractiondigits_pass-xsd_integer-short";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
@@ -149,7 +151,8 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-    		RDFGraph dataGraph = getRDFGraph();
+    		
+    		Graph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
     		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
@@ -205,12 +208,12 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 		return result;
 	}
 	
-	public RDFGraph getRDFGraph() throws IOException {
+	public Graph getRDFGraph() throws IOException {
 		Model data = parseTurtleFile(getDataFileName(testCase.dataFileName),GITHUB_URL+"validation/");
-		return new RDF4JGraph(data);
+		return (new RDF4J()).asGraph(data);
 	}
 	
-	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, RDFGraph dataGraph ) {
+	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
 		return new RecursiveValidation(schema, dataGraph);
 	}
 	

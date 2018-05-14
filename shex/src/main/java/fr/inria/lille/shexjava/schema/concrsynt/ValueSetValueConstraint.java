@@ -18,22 +18,22 @@ package fr.inria.lille.shexjava.schema.concrsynt;
 
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * @author Jérémie Dusart
  *
  */
 public class ValueSetValueConstraint implements Constraint {
-	private Set<Value> explicitValues;
+	private Set<RDFTerm> explicitValues;
 	private Set<Constraint> constraintsValue;
 
-	public ValueSetValueConstraint(Set<Value> explicitValues, Set<Constraint> constraintsValue) {
+	public ValueSetValueConstraint(Set<RDFTerm> explicitValues, Set<Constraint> constraintsValue) {
 		this.explicitValues = explicitValues;
 		this.constraintsValue = constraintsValue;
 	}
 	
-	public Set<Value> getExplicitValues() {
+	public Set<RDFTerm> getExplicitValues() {
 		return explicitValues;
 	}
 
@@ -42,7 +42,7 @@ public class ValueSetValueConstraint implements Constraint {
 	}
 
 	@Override
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		if (explicitValues.contains(node))
 			return true;
 		

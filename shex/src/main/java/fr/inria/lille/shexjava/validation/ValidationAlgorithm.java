@@ -16,9 +16,9 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import org.eclipse.rdf4j.model.Value;
 
-import fr.inria.lille.shexjava.graph.RDFGraph;
+import org.apache.commons.rdf.api.RDFTerm;
+
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 
@@ -45,7 +45,7 @@ public interface ValidationAlgorithm {
 	 * @param focusNode The focus node for which the typing is to be complete. If null, then the typing will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
 	 * @param label The label for which the typing is to be complete. If null, then the typing will be complete for all labels.
 	 */
-	public boolean validate(Value focusNode, Label label)  throws Exception;
+	public boolean validate(RDFTerm focusNode, Label label)  throws Exception;
 	
 	/** Retrieves the typing constructed by a previous call of {@link #validate(Value, Label)}.
 	 * 

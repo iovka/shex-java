@@ -19,8 +19,9 @@ package fr.inria.lille.shexjava.graph;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
  
 /** Defines the operations on an RDF graph that are needed for validation.
@@ -32,65 +33,65 @@ import org.eclipse.rdf4j.model.Value;
 public interface RDFGraph {
 
 
-	/** List all the triples that contain the given node as subject or object.
-	 * This is the union of {@link #itInNeighbours(Value)} and {@link #itOutNeighbours(Value)} 
+	/** List all the RDFTerms that contain the given node as subject or object.
+	 * This is the union of {@link #itInNeighbours(RDFTerm)} and {@link #itOutNeighbours(RDFTerm)} 
 	 * 
 	 * @param focusNode
 	 * @return an iterator over the neighbors of focusNode
 	 */
-	public Iterator<NeighborTriple> itAllNeighbours (Value focusNode);
+	public Iterator<Triple> itAllNeighbours (RDFTerm focusNode);
 	
-	/** List all the triples that have the given node as focus node or object node and a predicate belonging to the set of allowed predicates.
+	/** List all the RDFTerms that have the given node as focus node or object node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
 	 * @return an iterator over the neighbors of focusNode connected with one of the allowedPredicates
 	 */
-	public Iterator<NeighborTriple> itAllNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
+	public Iterator<Triple> itAllNeighboursWithPredicate (RDFTerm focusNode,Set<IRI> allowedPredicates);
 	
-	/** List all the triples that have the given node as object node.
+	/** List all the RDFTerms that have the given node as object node.
 	 * 
 	 * @param focusNode
 	 * @return an iterator over the incoming neighbors of focusNode
 	 */
-	public Iterator<NeighborTriple> itInNeighbours (Value focusNode);
+	public Iterator<Triple> itInNeighbours (RDFTerm focusNode);
 	
-	/** List all the triples that have the given node as object node and a predicate belonging to the set of allowed predicates.
+	/** List all the RDFTerms that have the given node as object node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
 	 * @return an iterator over the incoming neighbors of focusNode connected with one of the allowedPredicates
 	 */
-	public Iterator<NeighborTriple> itInNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
+	public Iterator<Triple> itInNeighboursWithPredicate (RDFTerm focusNode,Set<IRI> allowedPredicates);
 	
-	/** List all the triples that have the given node as focus node.
+	/** List all the RDFTerms that have the given node as focus node.
 	 * 
 	 * @param focusNode
 	 * @return an iterator over the outgoing neighbors of focusNode
 	 */
-	public Iterator<NeighborTriple> itOutNeighbours (Value focusNode);
+	public Iterator<Triple> itOutNeighbours (RDFTerm focusNode);
 	
-	/** List all the triples that have the given node as focus node and a predicate belonging to the set of allowed predicates.
+	/** List all the RDFTerms that have the given node as focus node and a predicate belonging to the set of allowed predicates.
 	 * 
 	 * @param focusNode
 	 * @return an iterator over the outgoing neighbors of focusNode connected with one of the allowedPredicates
 	 */
-	public Iterator<NeighborTriple> itOutNeighboursWithPredicate (Value focusNode,Set<IRI> allowedPredicates);
+	public Iterator<Triple> itOutNeighboursWithPredicate (RDFTerm focusNode,Set<IRI> allowedPredicates);
 
 
 	/** List all the object nodes in the graph.
 	 * 
 	 * @return an iterator over the object nodes of the graph
 	 */
-	public Iterator<Value> listAllObjectNodes ();
+	public Iterator<RDFTerm> listAllObjectNodes ();
 	
 	/** List all the subjects node in the graph.
 	 * 
 	 * @return an iterator over the subject nodes of the graph
 	 */
-	public Iterator<Value> listAllSubjectNodes ();
+	public Iterator<RDFTerm> listAllSubjectNodes ();
 	
 	/** List all the object and subject in the graph.
 	 * 
 	 * @return an iterator over the nodes of the graph
 	 */
-	public Iterator<Value> listAllNodes ();
+	public Iterator<RDFTerm> listAllNodes ();
 }

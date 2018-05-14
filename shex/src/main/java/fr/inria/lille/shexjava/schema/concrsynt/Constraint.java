@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * 
@@ -25,6 +25,6 @@ import org.eclipse.rdf4j.model.Value;
  * @author Jérémie Dusart
  */
 public interface Constraint {
-	public boolean contains (Value node);
+	public boolean contains (RDFTerm node);
 	
 }

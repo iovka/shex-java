@@ -19,7 +19,7 @@ package fr.inria.lille.shexjava.validation;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
@@ -29,35 +29,35 @@ import fr.inria.lille.shexjava.util.Pair;
  *
  */
 public class RecursiveTyping implements Typing {
-	private Set<Pair<Value, Label>> typing;
+	private Set<Pair<RDFTerm, Label>> typing;
 
 	public RecursiveTyping() {
-		typing = new HashSet<Pair<Value, Label>>();
+		typing = new HashSet<Pair<RDFTerm, Label>>();
 	}
 
 	@Override
-	public boolean contains(Value node, Label label) {
-		return typing.contains(new Pair<Value, Label>(node,label));
+	public boolean contains(RDFTerm node, Label label) {
+		return typing.contains(new Pair<RDFTerm, Label>(node,label));
 	}
 
 	@Override
-	public Set<Pair<Value, Label>> asSet() {
+	public Set<Pair<RDFTerm, Label>> asSet() {
 		return typing;
 	}
 	
-	public void addHypothesis(Value node, Label label) {
-		typing.add(new Pair<Value, Label>(node,label));
+	public void addHypothesis(RDFTerm node, Label label) {
+		typing.add(new Pair<RDFTerm, Label>(node,label));
 	}
 	
-	public void addHypothesis(Set<Pair<Value,Label>> hypothesis) {
+	public void addHypothesis(Set<Pair<RDFTerm,Label>> hypothesis) {
 		typing.addAll(hypothesis);
 	}
 	
-	public void removeHypothesis(Value node, Label label) {
-		typing.remove(new Pair<Value, Label>(node,label));
+	public void removeHypothesis(RDFTerm node, Label label) {
+		typing.remove(new Pair<RDFTerm, Label>(node,label));
 	}
 	
-	public void removeHypothesis(Set<Pair<Value,Label>> hypothesis) {
+	public void removeHypothesis(Set<Pair<RDFTerm,Label>> hypothesis) {
 		typing.removeAll(hypothesis);
 	}	
 

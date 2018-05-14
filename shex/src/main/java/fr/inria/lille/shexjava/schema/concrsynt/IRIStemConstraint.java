@@ -16,8 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * @author Jérémie Dusart
@@ -31,12 +31,12 @@ public class IRIStemConstraint implements Constraint {
 	}
 
 	@Override
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		if (! (node instanceof IRI))
 			return false;
 		
 		IRI inode = (IRI) node;		
-		return inode.stringValue().startsWith(iriStem);
+		return inode.getIRIString().startsWith(iriStem);
 	}
 
 	public String toString() {

@@ -18,7 +18,7 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.List;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.schema.concrsynt.Constraint;
@@ -37,7 +37,7 @@ public class NodeConstraint extends ShapeExpr {
 		this.constraints = constraints;
 	}
 	
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		for (Constraint s : constraints)
 			if (! s.contains(node))
 				return false;

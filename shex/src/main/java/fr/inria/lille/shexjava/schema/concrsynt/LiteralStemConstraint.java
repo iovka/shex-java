@@ -16,8 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * @author Jérémie Dusart
@@ -31,11 +31,11 @@ public class LiteralStemConstraint implements Constraint {
 	}
 
 	@Override
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		if (! (node instanceof Literal))
 			return false;
 		Literal lnode = (Literal) node;
-		return lnode.stringValue().startsWith(litStem);
+		return lnode.getLexicalForm().startsWith(litStem);
 	}
 	
 	public String toString() {

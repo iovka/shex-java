@@ -30,16 +30,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
-import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
+import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.Triple;
+import org.apache.commons.rdf.rdf4j.RDF4J;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.simple.SimpleRDF;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.ParserConfig;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
@@ -103,13 +105,13 @@ public class ShExRParser implements Parser {
 			RDFFormat.TURTLE
 	});
 
-	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
+	private static final RDF rdfFactory = new SimpleRDF();
 	private static IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	
-	private Model model;
+	private Graph graph;
 	private List<String> imports;
-	private Set<Value> shapeSeen;
-	private Set<Value> tripleSeen;
+	private Set<RDFTerm> shapeSeen;
+	private Set<RDFTerm> tripleSeen;
 	
 	/** Used the first format that contains an extension that ends the provided path in the list of RDFFormats.
 	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(java.nio.file.Path)
@@ -141,9 +143,11 @@ public class ShExRParser implements Parser {
 	public Map<Label, ShapeExpr> getRules(InputStream is, RDFFormat format) throws Exception {
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		
-		model = Rio.parse(isr, BASE_IRI, RDFFormat.TURTLE, new ParserConfig(), rdfFactory, new ParseErrorLogger());
+		Model model = Rio.parse(isr, BASE_IRI, RDFFormat.TURTLE);
+		RDF4J tmp = new RDF4J();
+		graph = tmp.asGraph(model);
 		
-		Model roots = model.filter(null,TYPE_IRI,rdfFactory.createIRI("http://www.w3.org/ns/shex#Schema"));
+		Stream<? extends Triple> roots = graph.stream(null,TYPE_IRI,rdfFactory.createIRI("http://www.w3.org/ns/shex#Schema"));
 		Resource root = (Resource) roots.subjects().toArray()[0];
 		
 		Map<Label,ShapeExpr> rules = new HashMap<Label,ShapeExpr>();

@@ -30,10 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.simple.SimpleRDF;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
+
 
 import com.github.jsonldjava.utils.JsonUtils;
 
@@ -81,7 +82,7 @@ import fr.inria.lille.shexjava.util.Interval;
  */
 @SuppressWarnings("rawtypes")
 public class ShExJParser implements Parser{
-	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
+	private static final RDF rdfFactory = new SimpleRDF();
 	private List<String> imports;
 	private Path path;
 
@@ -314,7 +315,7 @@ public class ShExJParser implements Parser{
 	// Language 	{ 	langTag:ObjectLiteral }
 	// _Stem_ contains stem as key
 	private Constraint parseValueSetValue (List values) {
-		Set<Value> explicitValues = new HashSet<>();
+		Set<RDFTerm> explicitValues = new HashSet<>();
 		Set<Constraint> nodeConstraints = new HashSet<>();
 
 		for (Object o : values) {
@@ -367,7 +368,7 @@ public class ShExJParser implements Parser{
 	}
 
 	// ObjectLiteral 	{ 	value:STRING language:STRING? type: STRING? }
-	private Value parseObjectLiteral (Map m) {
+	private RDFTerm parseObjectLiteral (Map m) {
 		String value = (String) m.get("value");
 		if (m.get("type") == null & m.get("language")==null)
 			return rdfFactory.createLiteral(value);
@@ -392,7 +393,7 @@ public class ShExJParser implements Parser{
 	protected Constraint parseIRIStemRange (Map m) {
 		//TODO: error if stem not present
 		Set<Constraint> exclusions = new HashSet<Constraint>();
-		Set<Value> forbidenValue = new HashSet<Value>();
+		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
 			List<Object> exclu = (List<Object>) m.get("exclusions");
 			for (Object o:exclu) {
@@ -430,7 +431,7 @@ public class ShExJParser implements Parser{
 	protected Constraint parseLiteralStemRange (Map m) {
 		//TODO: error if stem not present
 		Set<Constraint> exclusions = new HashSet<Constraint>();
-		Set<Value> forbidenValue = new HashSet<Value>();
+		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
 			List<Object> exclu = (List<Object>) m.get("exclusions");
 			for (Object o:exclu) {
@@ -474,7 +475,7 @@ public class ShExJParser implements Parser{
 	protected Constraint parseLanguageStemRange (Map m) {
 		//TODO: error if stem not present
 		Set<Constraint> exclusions = new HashSet<Constraint>();
-		Set<Value> forbidenValue = new HashSet<Value>();
+		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
 			List<Object> exclu = (List<Object>) m.get("exclusions");
 			for (Object o:exclu) {
@@ -723,7 +724,7 @@ public class ShExJParser implements Parser{
 			for (Object annot:lannot) {
 				Map<String,Object> mannot = (Map<String,Object>) annot;
 				IRI pred = rdfFactory.createIRI((String) mannot.get("predicate"));
-				Value obj = null;
+				RDFTerm obj = null;
 				if (mannot.get("object") instanceof String)
 					obj = rdfFactory.createIRI((String) mannot.get("object"));
 				else
@@ -745,7 +746,7 @@ public class ShExJParser implements Parser{
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new Label(rdfFactory.createBNode(string),generated);
+			return new Label(rdfFactory.createBlankNode(string),generated);
 		}
 	}
 
@@ -755,7 +756,7 @@ public class ShExJParser implements Parser{
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new Label(rdfFactory.createBNode(string),generated);
+			return new Label(rdfFactory.createBlankNode(string),generated);
 		}
 	}
 

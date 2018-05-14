@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * @author Jérémie Dusart
@@ -29,7 +29,7 @@ public class WildcardConstraint implements Constraint {
 	 * @see fr.inria.lille.shexjava.schema.concrsynt.Constraint#contains(org.eclipse.rdf4j.model.Value)
 	 */
 	@Override
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		return true;
 	}
 	

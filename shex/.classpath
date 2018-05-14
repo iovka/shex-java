@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="target/classes" path="src/main/java">
+	<classpathentry excluding="fr/inria/lille/shexjava/commandLine/Validate.java|fr/inria/lille/shexjava/graph/AbstractRDFGraph.java|fr/inria/lille/shexjava/graph/JenaGraph.java|fr/inria/lille/shexjava/graph/NeighborTriple.java|fr/inria/lille/shexjava/graph/RDF4JGraph.java|fr/inria/lille/shexjava/schema/parsing/ShExRParser.java|fr/inria/lille/shexjava/validation/RefinementTyping.java|fr/inria/lille/shexjava/validation/RefineValidation.java|fr/inria/lille/shexjava/graph/RDFGraph.java" kind="src" output="target/classes" path="src/main/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" output="target/test-classes" path="src/test/java">
+	<classpathentry excluding="fr/inria/lille/shexjava/shexTest/TestValidation_ShExJ_Jena_Refine.java" kind="src" output="target/test-classes" path="src/test/java">
 		<attributes>
 			<attribute name="optional" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>

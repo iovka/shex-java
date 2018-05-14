@@ -21,7 +21,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import fr.inria.lille.shexjava.graph.NeighborTriple;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
+
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 
 /** Defines a custom condition on whether a neighbor triple matches a triple constraint.
@@ -30,7 +32,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * @author Antonin Durey
  *
  */
-public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Boolean> {
+public abstract class Matcher {
 
 	/** Constructs a list that for all neighbor triple contains the list of triple constraints that the triple matches according to the matcher given as parameter.
 	 * 
@@ -38,14 +40,15 @@ public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Bo
 	 * @param constraints
 	 * @param matcher
 	 */
-	public static LinkedHashMap<NeighborTriple,List<TripleConstraint>> collectMatchingTC (List<NeighborTriple> neighbourhood, List<TripleConstraint> constraints, Matcher matcher) {
+	public LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTC (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints) {
 		
-		LinkedHashMap<NeighborTriple,List<TripleConstraint>> result = new LinkedHashMap<>(neighbourhood.size()); 
+		LinkedHashMap<Triple,List<TripleConstraint>> result = new LinkedHashMap<>(neighbourhood.size()); 
 		
-		for (NeighborTriple triple: neighbourhood) {
+		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: constraints) {
-				if (matcher.apply(triple, tc)) {
+				//test forward and backward
+				if (apply(focusNode,triple, tc)) {
 					matching.add(tc);
 				}
 			}	
@@ -53,5 +56,7 @@ public interface Matcher extends BiFunction<NeighborTriple, TripleConstraint, Bo
 		}
 		return result;
 	}
+	
+	public abstract boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc);
 	
 }

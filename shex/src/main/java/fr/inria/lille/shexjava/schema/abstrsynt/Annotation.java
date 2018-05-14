@@ -16,21 +16,21 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * @author Jérémie Dusart
  */
 public class Annotation {
 	private IRI predicate;
-	private Value objectValue;
+	private RDFTerm objectRDFTerm;
 	
 	
-	public Annotation(IRI predicate, Value objectValue) {
+	public Annotation(IRI predicate, RDFTerm objectRDFTerm) {
 		super();
 		this.predicate = predicate;
-		this.objectValue = objectValue;
+		this.objectRDFTerm = objectRDFTerm;
 	}
 
 	public IRI getPredicate() {
@@ -38,12 +38,12 @@ public class Annotation {
 	}
 
 
-	public Value getObjectValue() {
-		return objectValue;
+	public RDFTerm getObjectValue() {
+		return objectRDFTerm;
 	}
 	
 	public String toString() {
-		return predicate+" "+objectValue;
+		return predicate+" "+objectRDFTerm;
 	}
 
 	@Override
@@ -61,11 +61,11 @@ public class Annotation {
 		else
 			if (! predicate.equals(other.getPredicate()))
 				return false;
-		if (objectValue ==null)
+		if (objectRDFTerm ==null)
 			if (other.getObjectValue()!=null)
 				return false;
 		else
-			if (! objectValue.equals(other.getObjectValue()))
+			if (! objectRDFTerm.equals(other.getObjectValue()))
 				return false;
 		return true;
 	}

@@ -16,15 +16,18 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
-import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
-import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.simple.SimpleRDF;
+import org.apache.commons.rdf.simple.Types ;
+
+import fr.inria.lille.shexjava.util.DatatypeUtil;
+
 
 
 /**
@@ -33,29 +36,31 @@ import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
  * @author Jérémie Dusart
  */
 public class DatatypeConstraint implements Constraint {
-	public static final Set<IRI> validatedDatatype = new HashSet<>(Arrays.asList(new IRI[] {
-					XMLSchema.INTEGER, 
-					XMLSchema.DECIMAL,
-					XMLSchema.FLOAT,
-					XMLSchema.DOUBLE,
-					XMLSchema.STRING,
-					XMLSchema.BOOLEAN,
-					XMLSchema.DATETIME,
-					XMLSchema.NON_POSITIVE_INTEGER,
-					XMLSchema.NEGATIVE_INTEGER,
-					XMLSchema.LONG,
-					XMLSchema.INT,
-					XMLSchema.SHORT,
-					XMLSchema.BYTE,
-					XMLSchema.NON_NEGATIVE_INTEGER,
-					XMLSchema.UNSIGNED_LONG,
-					XMLSchema.UNSIGNED_INT,
-					XMLSchema.UNSIGNED_SHORT,
-					XMLSchema.UNSIGNED_BYTE,
-					XMLSchema.POSITIVE_INTEGER,
-					XMLSchema.TIME, 
-					XMLSchema.DATE	
-			}));
+	public static final RDF rdfFactory = new SimpleRDF();
+	public static final Set<IRI> validatedDatatype = new HashSet<IRI>(){{
+					add(Types.XSD_INTEGER);
+					add(Types.XSD_DECIMAL);
+					add(Types.XSD_FLOAT);
+					add(Types.XSD_DOUBLE);
+					add(Types.XSD_STRING);
+					add(Types.XSD_BOOLEAN);
+					add(Types.XSD_DATETIME);
+					add(Types.XSD_NONPOSITIVEINTEGER);
+					add(Types.XSD_NEGATIVEINTEGER);
+					add(Types.XSD_LONG);
+					add(Types.XSD_INT);
+					add(Types.XSD_SHORT);
+					add(Types.XSD_BYTE);
+					add(Types.XSD_NONNEGATIVEINTEGER);
+					add(Types.XSD_UNSIGNEDLONG);
+					add(Types.XSD_UNSIGNEDINT);
+					add(Types.XSD_UNSIGNEDSHORT);
+					add(Types.XSD_UNSIGNEDBYTE);
+					add(Types.XSD_POSITIVEINTEGER);
+					add(Types.XSD_TIME);
+					add(Types.XSD_DATE);
+			}};
+	
 	private IRI datatypeIri;
 	
 	public DatatypeConstraint(IRI datatypeIri) {
@@ -67,12 +72,12 @@ public class DatatypeConstraint implements Constraint {
 	}
 
 	@Override
-	public boolean contains(Value node) {
+	public boolean contains(RDFTerm node) {
 		if (! (node instanceof Literal)) return false;
 		Literal lnode = (Literal) node;
 		if (!(datatypeIri.equals(lnode.getDatatype()))) return false;
 		if (validatedDatatype.contains(lnode.getDatatype())) {
-			return XMLDatatypeUtil.isValidValue(lnode.stringValue(), lnode.getDatatype());
+			return DatatypeUtil.isValidValue(lnode);
 		}
 
 		return true;

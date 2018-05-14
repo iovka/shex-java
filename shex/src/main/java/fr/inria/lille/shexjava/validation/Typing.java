@@ -18,7 +18,7 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
@@ -37,11 +37,11 @@ public interface Typing {
 	 * @param node
 	 * @param label
 	 */
-	public boolean contains(Value node, Label label);
+	public boolean contains(RDFTerm node, Label label);
 	
 	/** Returns the typing as a set of pairs (node, label). Use for testing purpose.
 	 * 
 	 */
-	public Set<Pair<Value, Label>> asSet(); // For testing purposes
+	public Set<Pair<RDFTerm, Label>> asSet(); // For testing purposes
 
 }

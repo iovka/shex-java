@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.graph;
 
-import org.eclipse.rdf4j.model.IRI;
+import org.apache.commons.rdf.api.IRI;
 
 /** Represents a property with an orientation which is forward or backward.
  * Used as predicate in a {@link NeighborTriple}.

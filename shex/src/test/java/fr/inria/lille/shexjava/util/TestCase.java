@@ -18,6 +18,9 @@ package fr.inria.lille.shexjava.util;
 
 import java.util.Set;
 
+import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -30,6 +33,7 @@ import fr.inria.lille.shexjava.schema.Label;
 
 public 	class TestCase {
 	private static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	private static final RDF4J RDFCommons = new RDF4J(); 
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
 	private static final IRI ACTION_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#action");
@@ -44,7 +48,7 @@ public 	class TestCase {
 	public final Resource schemaFileName;
 	public final Resource dataFileName;
 	public Label shapeLabel;
-	public Value focusNode;
+	public RDFTerm focusNode;
 	public final String testComment;
 	public final Set<Value> traits;
 
@@ -57,11 +61,10 @@ public 	class TestCase {
 			if (Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).isPresent()) {
 				Resource labelRes = Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).get();
 				if (labelRes instanceof BNode)
-					shapeLabel = new Label((BNode)labelRes);
+					shapeLabel = new Label((BlankNode) RDFCommons.asRDFTerm(labelRes));
 				else
-					shapeLabel = new Label((IRI)labelRes);
-
-				focusNode = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
+					shapeLabel = new Label((org.apache.commons.rdf.api.IRI) RDFCommons.asRDFTerm(labelRes));
+				focusNode = RDFCommons.asRDFTerm(Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get());
 			}
 			testComment = Models.getPropertyString(manifest, testNode, RDFS.COMMENT).get();
 			testName = Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();

@@ -78,7 +78,8 @@ public class GenParser {
 			} else if (selectedPath.toString().endsWith(".shex")) {
 				parser = new ShExCParser();
 			}else {
-				parser = new ShExRParser();
+				//parser = new ShExRParser();
+				throw new Exception("ShexR not supported");
 			}
 			allRules.putAll(parser.getRules(selectedPath));
 			List<String> imports = parser.getImports();
@@ -93,13 +94,14 @@ public class GenParser {
 						res = Paths.get(p.toString(),imp+".json");
 						break;
 					} else {
-						for (RDFFormat format:ShExRParser.RDFFormats) {
-							for (String ext:format.getFileExtensions()) {
-								if (Paths.get(p.toString(),imp+"."+ext).toFile().exists()) {
-									res = Paths.get(p.toString(),imp+"."+ext);
-								}
-							}
-						}
+						throw new Exception("ShexR not supported");
+//						for (RDFFormat format:ShExRParser.RDFFormats) {
+//							for (String ext:format.getFileExtensions()) {
+//								if (Paths.get(p.toString(),imp+"."+ext).toFile().exists()) {
+//									res = Paths.get(p.toString(),imp+"."+ext);
+//								}
+//							}
+//						}
 					}
 				}	
 				if (res == null){

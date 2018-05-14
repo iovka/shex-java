@@ -18,7 +18,7 @@ package fr.inria.lille.shexjava.schema.concrsynt;
 
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 /**
  * @author Jérémie Dusart
@@ -26,7 +26,7 @@ import org.eclipse.rdf4j.model.Value;
  */
 public class LanguageStemRangeConstraint extends StemRangeConstraint {
 
-	public LanguageStemRangeConstraint(Constraint stem, Set<Value> exclusionsValues, Set<Constraint> exclusionsConstraints) {
+	public LanguageStemRangeConstraint(Constraint stem, Set<RDFTerm> exclusionsValues, Set<Constraint> exclusionsConstraints) {
 		super(stem, new ValueSetValueConstraint (exclusionsValues,exclusionsConstraints));
 	}
 

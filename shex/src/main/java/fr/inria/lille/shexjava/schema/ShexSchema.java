@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.simple.SimpleRDF;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
@@ -73,6 +73,7 @@ public class ShexSchema {
 	private Map<Label, ShapeExpr> rules;
 	private Map<Label,ShapeExpr> shapeMap;
 	private Map<Label,TripleExpr> tripleMap;
+	private static final RDF rdfFactory = new SimpleRDF();
 
 	/** The constructor try to instantiate a well-defined schema. Label are generated for all shapeExpr and tripleExpr without and ID. References are resolved and a verification that there is no cycles in the references is performed. The stratification of the set of rules is stratified is computed. Rules cannot be modified after initialization
 	 * @param rules
@@ -227,8 +228,6 @@ public class ShexSchema {
 	//--------------------------------------------------------------------------------
 	// ID  function
 	//--------------------------------------------------------------------------------
-	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
-	
 	private static int shapeLabelNb = 0;
 	private static String SHAPE_LABEL_PREFIX = "SLGEN";
 	private static int tripleLabelNb = 0;
@@ -241,11 +240,11 @@ public class ShexSchema {
 		return true;
 	}
 	
-	private static Label createShapeLabel (String string,boolean generated) {
+	private Label createShapeLabel (String string, boolean generated) {
 		if (isIriString(string))
 			return new Label(rdfFactory.createIRI(string),generated);
 		else 
-			return new Label(rdfFactory.createBNode(string),generated);
+			return new Label(rdfFactory.createBlankNode(string),generated);
 	}
 	
 	private void checkShapeID(ShapeExpr shape) {
@@ -255,11 +254,11 @@ public class ShexSchema {
 		}
 	}
 	
-	private static Label createTripleLabel (String string,boolean generated) {
+	private Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
 			return new Label(rdfFactory.createIRI(string),generated);
 		else 
-			return new Label(rdfFactory.createBNode(string),generated);
+			return new Label(rdfFactory.createBlankNode(string),generated);
 	}
 	
 	private void checkTripleID(TripleExpr triple) {
