@@ -18,7 +18,6 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.List;
 
-import fr.inria.lille.shexjava.graph.TCProperty;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
 

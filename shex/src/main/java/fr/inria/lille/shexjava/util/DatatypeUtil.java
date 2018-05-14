@@ -35,4 +35,10 @@ public class DatatypeUtil {
 		return XMLDatatypeUtil.normalize(value, rdfFact.createIRI(datatype.getIRIString()));	
 	}
 
+	public static boolean getBooleanValue(Literal lnode) {
+		String value = lnode.getLexicalForm();
+		IRI datatype = lnode.getDatatype();
+		return rdfFact.createLiteral(value, rdfFact.createIRI(datatype.getIRIString())).booleanValue();
+	}
+	
 }

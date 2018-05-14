@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.jena.JenaRDF;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -46,11 +48,10 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.inria.lille.shexjava.graph.JenaGraph;
-import fr.inria.lille.shexjava.graph.RDFGraph;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.util.RDFFactory;
+import fr.inria.lille.shexjava.util.CommonFactory;
+import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 import fr.inria.lille.shexjava.validation.RefineValidation;
@@ -62,7 +63,7 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
  */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExJ_Jena_Refine {
-	protected static final RDFFactory RDF_FACTORY = RDFFactory.getInstance();
+	protected static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
 	
 	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
 	
@@ -148,22 +149,26 @@ public class TestValidation_ShExJ_Jena_Refine {
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     			return;
     		}
+    		CommonFactory myFactory = new CommonFactory();
     		
-    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-    		RDFGraph dataGraph = getRDFGraph();
+    		ShexSchema schema = GenParser.parseSchema(myFactory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		Graph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
 	
     		// Fix for dealing with the absence of namespace specification in jena.
-    		if (testCase.focusNode.stringValue().startsWith(GITHUB_URL)) {
-    			if (TEST_DIR.contains(":")) {
-    				String newURI = TEST_DIR.substring(0,TEST_DIR.indexOf(":")+1);
-    				newURI += testCase.focusNode.stringValue().substring(GITHUB_URL.length()+11);
-    				testCase.focusNode = RDF_FACTORY.createIRI(newURI);
-    			}else {
-        			Path fullpath = Paths.get(TEST_DIR,testCase.focusNode.stringValue().substring(GITHUB_URL.length()));
-    				testCase.focusNode = RDF_FACTORY.createIRI("file://"+fullpath.toString());
-    			}
-       		}
+	    	if (testCase.focusNode instanceof org.apache.commons.rdf.api.IRI) {
+	    		org.apache.commons.rdf.api.IRI focus = (org.apache.commons.rdf.api.IRI) testCase.focusNode;
+	    		if (focus.getIRIString().startsWith(GITHUB_URL)) {
+	    			if (TEST_DIR.contains(":")) {
+	    				String newURI = TEST_DIR.substring(0,TEST_DIR.indexOf(":")+1);
+	    				newURI += focus.getIRIString().substring(GITHUB_URL.length()+11);
+	    				testCase.focusNode = myFactory.createIRI(newURI);
+	    			}else {
+	        			Path fullpath = Paths.get(TEST_DIR,focus.getIRIString().substring(GITHUB_URL.length()));
+	    				testCase.focusNode = myFactory.createIRI("file://"+fullpath.toString());
+	    			}
+	       		}
+	    	}
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
     		
     		
@@ -230,13 +235,13 @@ public class TestValidation_ShExJ_Jena_Refine {
 		return result;	
 	}
 	
-	public RDFGraph getRDFGraph() throws IOException {
+	public Graph getRDFGraph() throws IOException {
 		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
 		model.read(getDataFileName(testCase.dataFileName)) ;
-		return new JenaGraph(model);
+		return (new JenaRDF()).asGraph(model);
 	}
 	
-	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, RDFGraph dataGraph ) {
+	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
 		return new RefineValidation(schema, dataGraph);
 	}
 

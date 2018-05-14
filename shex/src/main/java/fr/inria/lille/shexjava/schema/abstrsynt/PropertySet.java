@@ -18,8 +18,6 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.Set;
 
-import fr.inria.lille.shexjava.graph.TCProperty;
-
 /**
  * 
  * @author Iovka Boneva

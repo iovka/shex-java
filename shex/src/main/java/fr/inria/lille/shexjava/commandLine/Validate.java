@@ -27,6 +27,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.rdf4j.RDF4J;
+import org.apache.commons.rdf.simple.SimpleRDF;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -34,7 +38,6 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
-import fr.inria.lille.shexjava.graph.RDF4JGraph;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
@@ -51,7 +54,7 @@ public class Validate {
 	
 	// FIXME not tested
 	
-	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
+	private final static RDF rdfFactory = new SimpleRDF();
 	
 	/** Validates a graph against a schema.
 	 * 
@@ -107,7 +110,7 @@ public class Validate {
 			return;
 		}
 		
-		Resource focusNode = null;
+		RDFTerm focusNode = null;
 		if (parameters.get("-f") != null)
 			focusNode = rdfFactory.createIRI(parameters.get("-f"));
 		
@@ -117,8 +120,8 @@ public class Validate {
 		
 		ValidationAlgorithm val = null;
 		switch (parameters.get("-a")) {
-			case "refine" : val = new RefineValidation(schema, new RDF4JGraph(dataModel)); break;
-			case "recursive" : val = new RecursiveValidation(schema, new RDF4JGraph(dataModel)); break;
+			case "refine" : val = new RefineValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
+			case "recursive" : val = new RecursiveValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
 		}
 		
 		System.out.println("Validating graph " + parameters.get("-d") + " against schema " + parameters.get("-s") + ".");
@@ -148,7 +151,7 @@ public class Validate {
 	private static ShexSchema getSchema (String schemaFileName) {
 		ShexSchema schema;
 		try {
-			schema = GenParser.parseSchema(Paths.get(schemaFileName));
+			schema = GenParser.parseSchema(rdfFactory,Paths.get(schemaFileName));
 		} catch (IOException e) {
 			System.err.println("Error reading the schema file.");
 			System.err.println("Caused by: ");

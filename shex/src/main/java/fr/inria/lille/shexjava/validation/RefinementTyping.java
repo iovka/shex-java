@@ -24,15 +24,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.RDFTerm;
 
-import fr.inria.lille.shexjava.graph.RDFGraph;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
+import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
 
 /** The shape selected by default are the shapes of the set rules, the shapes that appear in a shape ref and the shapes that appear in a triple constraint.
@@ -41,11 +42,11 @@ import fr.inria.lille.shexjava.util.Pair;
  */
 public class RefinementTyping implements Typing {
 	private ShexSchema schema;
-	private RDFGraph graph;
-	private List<Set<Pair<Value, Label>>> theTyping;
+	private Graph graph;
+	private List<Set<Pair<RDFTerm, Label>>> theTyping;
 	private Set<Label> selectedShape;
 	
-	public RefinementTyping(ShexSchema schema, RDFGraph graph) {
+	public RefinementTyping(ShexSchema schema, Graph graph) {
 		this.schema = schema;
 		this.graph = graph;
 		this.theTyping = new ArrayList<>(schema.getNbStratums());
@@ -55,7 +56,7 @@ public class RefinementTyping implements Typing {
 		initSelectedShape(Collections.emptySet());
 	}
 	
-	public RefinementTyping(ShexSchema schema, RDFGraph graph, Set<Label> extraShapes) {
+	public RefinementTyping(ShexSchema schema, Graph graph, Set<Label> extraShapes) {
 		this.schema = schema;
 		this.graph = graph;
 		this.theTyping = new ArrayList<>(schema.getNbStratums());
@@ -82,15 +83,13 @@ public class RefinementTyping implements Typing {
 	}
 	
 
-	public void addAllLabelsFrom(int stratum, Value focusNode) {
+	public void addAllLabelsFrom(int stratum, RDFTerm focusNode) {
 		Set<Label> labels = schema.getStratum(stratum);
-		Set<Pair<Value, Label>> set = theTyping.get(stratum);
+		Set<Pair<RDFTerm, Label>> set = theTyping.get(stratum);
 		for (Label label: labels) {
 			if (selectedShape.contains(label)) {
-				Iterator<Value> ite = graph.listAllNodes();
-				while(ite.hasNext()) {
-					set.add(new Pair<>(ite.next(), label));
-				}
+				for( RDFTerm node:CommonGraph.getAllNodes(graph))			
+					set.add(new Pair<>(node, label));
 				if (focusNode != null)
 					set.add(new Pair<>(focusNode, label));
 			}
@@ -98,21 +97,21 @@ public class RefinementTyping implements Typing {
 	}
 	
 	
-	public Iterator<Pair<Value, Label>> typesIterator (int stratum) {
+	public Iterator<Pair<RDFTerm, Label>> typesIterator (int stratum) {
 		return theTyping.get(stratum).iterator();
 	}
 	
 	
 	@Override
-	public boolean contains (Value node, Label label) {
+	public boolean contains (RDFTerm node, Label label) {
 		return theTyping.get(schema.hasStratum(label)).contains(new Pair<>(node, label));
 	}
 	
 	
 	@Override
-	public Set<Pair<Value, Label>> asSet() {
-		Set<Pair<Value, Label>> set = new HashSet<>();
-		for (Set<Pair<Value, Label>> subset : theTyping)
+	public Set<Pair<RDFTerm, Label>> asSet() {
+		Set<Pair<RDFTerm, Label>> set = new HashSet<>();
+		for (Set<Pair<RDFTerm, Label>> subset : theTyping)
 			set.addAll(subset);
 		
 		return set;

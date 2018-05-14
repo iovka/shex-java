@@ -1,6 +1,8 @@
 package fr.inria.lille.shexjava.util;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +38,17 @@ public class CommonGraph {
 		List<Triple> result = new LinkedList<>();
 		for (IRI pred:predicates)
 			result.addAll(g.stream(null, pred, focusNode).collect(Collectors.toList()));
+		return result;
+	}
+	
+	public static HashSet<RDFTerm> getAllNodes(Graph g){
+		HashSet<RDFTerm> result = new HashSet<RDFTerm>();
+		Iterator<Triple> iter = g.iterate().iterator();
+		while(iter.hasNext()) {
+			Triple next = iter.next();
+			result.add(next.getObject());
+			result.add(next.getSubject());
+		}
 		return result;
 	}
 

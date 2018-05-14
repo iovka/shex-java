@@ -44,7 +44,6 @@ import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
 
-import fr.inria.lille.shexjava.graph.TCProperty;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
@@ -61,6 +60,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
+import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
