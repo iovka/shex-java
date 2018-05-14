@@ -195,7 +195,6 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
-    	fp = fp.substring(0,fp.length()-4)+"json";
 
     	String result = Paths.get(TEST_DIR).toString();
     	Iterator<Path> iter = Paths.get(fp).iterator();
