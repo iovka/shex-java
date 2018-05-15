@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.rdf.api.RDFTerm;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.datatypes.XMLDatatypeUtil;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 
@@ -20,9 +20,9 @@ public class OperatorRestricted extends Operator {
 		super(v1, v2);
 	}
 	
-	public int evaluate(Map<Variable,Value> affectations,
-			Set<Pair<Value, Label>> shapes,
-			Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
+	public int evaluate(Map<Variable, RDFTerm> affectations,
+			Set<Pair<RDFTerm, Label>> shapes,
+			Set<Pair<Pair<RDFTerm, RDFTerm>, Label>> triples) throws Exception {
 		if (affectations.containsKey(v1) && !isCorrectlyDefined(affectations.get(v1)))
 			throw new Exception("Incorrect value for variable: "+v1.name);
 		if (affectations.containsKey(v2) && !isCorrectlyDefined(affectations.get(v2)))
@@ -52,11 +52,11 @@ public class OperatorRestricted extends Operator {
 			XMLSchema.POSITIVE_INTEGER
 	}));
 	
-	public static boolean isCorrectlyDefined(Value v1) {
+	public static boolean isCorrectlyDefined(RDFTerm v1) {
 		return (v1 instanceof Literal) && validateDatatype.contains(((Literal) v1).getDatatype());
 	}
 	
-	public static boolean isStrictlyInferior(Value v1,Value v2) {
+	public static boolean isStrictlyInferior(RDFTerm v1,RDFTerm v2) {
 		Literal lv1 = (Literal) v1;
 		Literal lv2 = (Literal) v2;
 		if (lv1.getDatatype().equals(XMLSchema.STRING))
@@ -64,7 +64,7 @@ public class OperatorRestricted extends Operator {
 		return XMLDatatypeUtil.compare(lv1.stringValue(), lv2.stringValue(), lv1.getDatatype()) < 0;
 	}
 	
-	public static boolean isEqual(Value v1,Value v2) {
+	public static boolean isEqual(RDFTerm v1,RDFTerm v2) {
 		Literal lv1 = (Literal) v1;
 		Literal lv2 = (Literal) v2;
 		if (lv1.getDatatype().equals(XMLSchema.STRING))

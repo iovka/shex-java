@@ -3,7 +3,7 @@ package fr.inria.lille.shexjava.schema.FOL.formula;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
@@ -20,13 +20,13 @@ public class TriplePredicate implements Sentence{
 	}
 
 	@Override
-	public int evaluate(Map<Variable,Value> affectations,
-							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
+	public int evaluate(Map<Variable, RDFTerm> affectations,
+							Set<Pair<RDFTerm, Label>> shapes,
+							Set<Pair<Pair<RDFTerm, RDFTerm>, Label>> triples) throws Exception {
 		if (!affectations.containsKey(variable1) || !affectations.containsKey(variable2) )
 			return 2;
-		Pair<Value,Value> tmp = new Pair<Value,Value>(affectations.get(variable1),affectations.get(variable2));
-		Pair<Pair<Value,Value>, Label> key = new Pair<Pair<Value,Value>, Label>(tmp,label);
+		Pair<RDFTerm,RDFTerm> tmp = new Pair<RDFTerm,RDFTerm>(affectations.get(variable1),affectations.get(variable2));
+		Pair<Pair<RDFTerm,RDFTerm>, Label> key = new Pair<Pair<RDFTerm,RDFTerm>, Label>(tmp,label);
 		if (triples.contains(key))
 			return 1;
 		return 0;

@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.CollectionToString;
@@ -19,7 +19,7 @@ public class Formula {
 	protected ArrayList<Quantifier> quantifiers;
 	protected Sentence sentence;
 	protected Map<Variable,Set<Variable>> sameTypeVariables;
-	private Map<Variable,Value> lastAffectations;
+	private Map<Variable,RDFTerm> lastAffectations;
 
 	public Formula(ArrayList<Quantifier> quantifiers,Sentence sentence) {
 		this.quantifiers = quantifiers;
@@ -28,23 +28,23 @@ public class Formula {
 		recFindOperatorVariables(sentence);
 	}
 	
-	public boolean evaluate(List<Value> possibleValues,
-							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
+	public boolean evaluate(List<RDFTerm> possibleValues,
+							Set<Pair<RDFTerm, Label>> shapes,
+							Set<Pair<Pair<RDFTerm,RDFTerm>, Label>> triples) throws Exception {
 		ArrayList<Quantifier> copy = new ArrayList<Quantifier>();
 		for (Quantifier e:quantifiers)
 			copy.add(e);
-		int result = recEvaluation(copy,new HashMap<Variable,Value>(),possibleValues,shapes,triples);
+		int result = recEvaluation(copy,new HashMap<Variable,RDFTerm>(),possibleValues,shapes,triples);
 		if (result==2)
 			System.err.println("Incomplete evaluation");
 		return result==1;
 	}
 	
 	protected int recEvaluation(ArrayList<Quantifier> left,
-									Map<Variable,Value> affectations,
-									List<Value> possibleValues,
-									Set<Pair<Value, Label>> shapes,
-									Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception
+									Map<Variable,RDFTerm> affectations,
+									List<RDFTerm> possibleValues,
+									Set<Pair<RDFTerm, Label>> shapes,
+									Set<Pair<Pair<RDFTerm,RDFTerm>, Label>> triples) throws Exception
 	{
 		lastAffectations = new HashMap<>(affectations);
 		int currentScore = sentence.evaluate(affectations, shapes, triples);
@@ -56,7 +56,7 @@ public class Formula {
 		}
 		Quantifier first = left.get(0);
 		left.remove(0);
-		for (Value e:possibleValues) {
+		for (RDFTerm e:possibleValues) {
 			if (this.sameTypeVariables.containsKey(first.getVariable())){
 				IRI selectedType=null;
 				for (Variable x:affectations.keySet())
@@ -98,7 +98,7 @@ public class Formula {
 	 * 
 	 * @return
 	 */
-	public Map<Variable, Value> getLastAffectations() {
+	public Map<Variable, RDFTerm> getLastAffectations() {
 		return lastAffectations;
 	}
 

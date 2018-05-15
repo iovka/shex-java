@@ -15,10 +15,10 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.IRI;
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.simple.SimpleRDF;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.FOL.formula.And;
@@ -45,7 +45,7 @@ import fr.inria.lille.shexjava.schema.FOL.parsing.FOLParser.SentenceContext;
 
 
 public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
-	private final static ValueFactory rdfFactory = SimpleValueFactory.getInstance();
+	private final static RDF rdfFactory = new SimpleRDF();
 	private Map<String,String> prefixes;
 	private Set<Variable> definedVariable;
 	
@@ -214,12 +214,12 @@ public class FOLVisitorImpl extends FOLBaseVisitor<Object> {
 		if (ctx.iri()!= null)
 			return new Label((IRI) ctx.iri().accept(this));
 		else
-			return new Label((BNode) ctx.blankNode().accept(this));
+			return new Label((BlankNode) ctx.blankNode().accept(this));
 	}
 	
 	@Override
 	public Object visitBlankNode(FOLParser.BlankNodeContext ctx) { 
-		return rdfFactory.createBNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
+		return rdfFactory.createBlankNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
 	}
 	
 	@Override 

@@ -3,7 +3,7 @@ package fr.inria.lille.shexjava.schema.FOL.formula;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.rdf4j.model.Value;
+import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
@@ -15,9 +15,9 @@ public class OpEqualInf extends OperatorRestricted{
 	}
 
 	@Override
-	public int evaluate(Map<Variable,Value> affectations,
-							Set<Pair<Value, Label>> shapes,
-							Set<Pair<Pair<Value,Value>, Label>> triples) throws Exception {
+	public int evaluate(Map<Variable, RDFTerm> affectations,
+							Set<Pair<RDFTerm, Label>> shapes,
+							Set<Pair<Pair<RDFTerm, RDFTerm>, Label>> triples) throws Exception {
 		int res = super.evaluate(affectations, shapes, triples);
 		if (res !=-1)
 			return res;
