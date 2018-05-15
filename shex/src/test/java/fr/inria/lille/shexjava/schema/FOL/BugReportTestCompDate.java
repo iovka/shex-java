@@ -9,11 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 import org.apache.commons.rdf.rdf4j.RDF4J;
