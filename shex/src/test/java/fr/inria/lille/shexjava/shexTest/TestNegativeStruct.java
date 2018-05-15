@@ -46,8 +46,12 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import fr.inria.lille.shexjava.exception.CyclicReferencesException;
+import fr.inria.lille.shexjava.exception.NotStratifiedException;
+import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
+import fr.inria.lille.shexjava.util.CommonFactory;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 
@@ -66,10 +70,13 @@ public class TestNegativeStruct {
 	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();
 
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-	private static final Resource NEGATIVE_STRUCT = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeStructure");
+	private static final Resource NEGATIVE_STRUCT_PASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeStructureTest");
+	private static final Resource NEGATIVE_STRUCT_FAIL = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeStructureFailure");
+
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
 	private static final IRI TEST_SHEX_IRI = RDF_FACTORY.createIRI("https://shexspec.github.io/shexTest/ns#shex");
 	
+	public static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
 	
@@ -78,11 +85,19 @@ public class TestNegativeStruct {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT).subjects()) {
-	    		Object[] params =  new Object[2];
+			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT_PASS).subjects()) {
+	    		Object[] params =  new Object[3];
 	    		params[0]=getTestName(manifest, testNode);
 	    		params[1]=getSchemaFileName(manifest, testNode);
-		    	parameters.add(params);
+	    		params[2]=true;
+	    		parameters.add(params);
+			}
+			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT_FAIL).subjects()) {
+	    		Object[] params =  new Object[3];
+	    		params[0]=getTestName(manifest, testNode);
+	    		params[1]=getSchemaFileName(manifest, testNode);
+	    		params[2]=false;
+	    		parameters.add(params);
 			}
 	        return parameters;
     	}
@@ -93,21 +108,29 @@ public class TestNegativeStruct {
     @Parameter
     public String testName;
     @Parameter(1)
-    public Path schemaFile;   	
+    public Path schemaFile; 
+    @Parameter(2)
+    public boolean pass;
 	
     @Test
     public void runTest() {
 		ShexSchema schema = null;
 		try {
-			schema = GenParser.parseSchema(new SimpleRDF(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-			//System.out.println("Failing: "+testName);
-			//System.out.println(schema);
-			failed.add(new TestResultForTestReport(testName, false, null, "negativeStructure"));
-			fail("Failing test: "+testName);
+			schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			if (pass){
+    			passed.add(new TestResultForTestReport(testName, true, null, "negativeStructurePass"));
+    		} else {
+				failed.add(new TestResultForTestReport(testName, false, null, "negativeStructureFailure"));					
+    		}
 		}catch (Exception e) {
-			//System.err.println("Exception: "+testName);
-			//System.err.println(e.getClass());
-			errors.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeStructure"));
+			if (pass && ((e instanceof CyclicReferencesException)
+					      || (e instanceof NotStratifiedException)
+					      || (e instanceof UndefinedReferenceException)
+					     ) ) {
+				errors.add(new TestResultForTestReport(testName, false, e.getMessage(), "negativeStructure"));
+			}else {
+				passed.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeStructureFailure"));				
+			}
 		}
 
     }
@@ -115,14 +138,16 @@ public class TestNegativeStruct {
     @AfterClass
 	public static void ending() {
     	System.out.println("Result for negative structure tests:");
-		System.out.println("Failed : "+failed.size());
+		System.out.println("Passed : "+passed.size());
+    	System.out.println("Failed : "+failed.size());
 		printTestCaseNames("  > ",failed);
-		System.out.println("Passed : "+errors.size());
+		System.out.println("Errors : "+errors.size());
+		printTestCaseNames("  > ",errors);
 	}
     
     public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
     	for (TestResultForTestReport report:reports)
-    		System.out.println(prefix+report.name);
+    		System.out.println(prefix+report.name+" ("+report.description+")");
     }
 	
 	
