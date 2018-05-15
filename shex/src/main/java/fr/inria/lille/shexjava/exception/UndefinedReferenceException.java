@@ -21,6 +21,7 @@ package fr.inria.lille.shexjava.exception;
  *
  */
 public class UndefinedReferenceException extends Exception {
+	private static final long serialVersionUID = -1318023734011013852L;
 
 	public UndefinedReferenceException() {
 		super();

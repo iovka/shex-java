@@ -47,10 +47,7 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
  * @author Iovka Boneva
  * @author Jérémie Dusart
  */
-public class Validate {
-	
-	// FIXME not tested
-	
+public class Validate {	
 	private final static RDF rdfFactory = new SimpleRDF();
 	
 	/** Validates a graph against a schema.

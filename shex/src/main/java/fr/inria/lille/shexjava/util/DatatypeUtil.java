@@ -15,6 +15,12 @@ public class DatatypeUtil {
 		return XMLDatatypeUtil.isValidValue(lnode.getLexicalForm(), rdfFact.createIRI(lnode.getDatatype().getIRIString()));
 	}
 	
+	public static String normalize(Literal lnode) {
+		String value = lnode.getLexicalForm();
+		IRI datatype = lnode.getDatatype();
+		return XMLDatatypeUtil.normalize(value, rdfFact.createIRI(datatype.getIRIString()));	
+	}
+	
 	public static boolean isValidDouble(Literal lnode) {
 		return XMLDatatypeUtil.isValidDouble(lnode.getLexicalForm());
 	}
@@ -27,12 +33,6 @@ public class DatatypeUtil {
 		String value = lnode.getLexicalForm();
 		IRI datatype = lnode.getDatatype();
 		return rdfFact.createLiteral(value, rdfFact.createIRI(datatype.getIRIString())).decimalValue();
-	}
-	
-	public static String normalize(Literal lnode) {
-		String value = lnode.getLexicalForm();
-		IRI datatype = lnode.getDatatype();
-		return XMLDatatypeUtil.normalize(value, rdfFact.createIRI(datatype.getIRIString()));	
 	}
 
 	public static boolean getBooleanValue(Literal lnode) {

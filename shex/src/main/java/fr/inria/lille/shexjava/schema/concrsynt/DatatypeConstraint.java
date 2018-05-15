@@ -37,29 +37,31 @@ import fr.inria.lille.shexjava.util.DatatypeUtil;
  */
 public class DatatypeConstraint implements Constraint {
 	public static final RDF rdfFactory = new SimpleRDF();
-	public static final Set<IRI> validatedDatatype = new HashSet<IRI>(){{
-					add(Types.XSD_INTEGER);
-					add(Types.XSD_DECIMAL);
-					add(Types.XSD_FLOAT);
-					add(Types.XSD_DOUBLE);
-					add(Types.XSD_STRING);
-					add(Types.XSD_BOOLEAN);
-					add(Types.XSD_DATETIME);
-					add(Types.XSD_NONPOSITIVEINTEGER);
-					add(Types.XSD_NEGATIVEINTEGER);
-					add(Types.XSD_LONG);
-					add(Types.XSD_INT);
-					add(Types.XSD_SHORT);
-					add(Types.XSD_BYTE);
-					add(Types.XSD_NONNEGATIVEINTEGER);
-					add(Types.XSD_UNSIGNEDLONG);
-					add(Types.XSD_UNSIGNEDINT);
-					add(Types.XSD_UNSIGNEDSHORT);
-					add(Types.XSD_UNSIGNEDBYTE);
-					add(Types.XSD_POSITIVEINTEGER);
-					add(Types.XSD_TIME);
-					add(Types.XSD_DATE);
-			}};
+	public static final Set<IRI> validatedDatatype = new HashSet<IRI>(){
+		private static final long serialVersionUID = -661008187271209543L;
+		{
+						add(Types.XSD_INTEGER);
+						add(Types.XSD_DECIMAL);
+						add(Types.XSD_FLOAT);
+						add(Types.XSD_DOUBLE);
+						add(Types.XSD_STRING);
+						add(Types.XSD_BOOLEAN);
+						add(Types.XSD_DATETIME);
+						add(Types.XSD_NONPOSITIVEINTEGER);
+						add(Types.XSD_NEGATIVEINTEGER);
+						add(Types.XSD_LONG);
+						add(Types.XSD_INT);
+						add(Types.XSD_SHORT);
+						add(Types.XSD_BYTE);
+						add(Types.XSD_NONNEGATIVEINTEGER);
+						add(Types.XSD_UNSIGNEDLONG);
+						add(Types.XSD_UNSIGNEDINT);
+						add(Types.XSD_UNSIGNEDSHORT);
+						add(Types.XSD_UNSIGNEDBYTE);
+						add(Types.XSD_POSITIVEINTEGER);
+						add(Types.XSD_TIME);
+						add(Types.XSD_DATE);
+				}};
 	
 	private IRI datatypeIri;
 	

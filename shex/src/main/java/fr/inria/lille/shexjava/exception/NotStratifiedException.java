@@ -21,6 +21,7 @@ package fr.inria.lille.shexjava.exception;
  *
  */
 public class NotStratifiedException extends Exception {
+	private static final long serialVersionUID = 6795087867824896108L;
 
 	public NotStratifiedException() {
 	}

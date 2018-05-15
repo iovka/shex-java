@@ -21,6 +21,7 @@ package fr.inria.lille.shexjava.exception;
  *
  */
 public class CyclicReferencesException extends Exception {
+	private static final long serialVersionUID = -6435368195464164833L;
 
 	public CyclicReferencesException() {
 		super();
