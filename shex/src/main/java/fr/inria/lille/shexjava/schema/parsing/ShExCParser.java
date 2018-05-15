@@ -142,7 +142,9 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	//--------------------------------------------
 	// General
 	//--------------------------------------------
-	public Object visitDirective(ShExDocParser.DirectiveContext ctx) { return visitChildren(ctx); 	}
+	public Object visitDirective(ShExDocParser.DirectiveContext ctx) {
+		return visitChildren(ctx); 
+		}
 	
 	public Object visitBaseDecl(ShExDocParser.BaseDeclContext ctx) { 
 		this.base = ctx.IRIREF().getText();

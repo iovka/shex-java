@@ -19,13 +19,16 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
@@ -44,9 +47,15 @@ public class RefinementTyping implements Typing {
 	private ShexSchema schema;
 	private Graph graph;
 	private List<Set<Pair<RDFTerm, Label>>> theTyping;
+	private Map<Label,Set<RDFTerm>> shapeTyping;
+	private Map<RDFTerm,Set<Label>> valueTyping;
+	
 	private Set<Label> selectedShape;
 	
+	private Map<Pair<RDFTerm, Label>,List<Pair<Triple,Label>>> matching;
+
 	public RefinementTyping(ShexSchema schema, Graph graph) {
+		matching = new HashMap<Pair<RDFTerm, Label>,List<Pair<Triple,Label>>>();
 		this.schema = schema;
 		this.graph = graph;
 		this.theTyping = new ArrayList<>(schema.getNbStratums());
@@ -57,6 +66,7 @@ public class RefinementTyping implements Typing {
 	}
 	
 	public RefinementTyping(ShexSchema schema, Graph graph, Set<Label> extraShapes) {
+		matching = new HashMap<Pair<RDFTerm, Label>,List<Pair<Triple,Label>>>();
 		this.schema = schema;
 		this.graph = graph;
 		this.theTyping = new ArrayList<>(schema.getNbStratums());
@@ -113,8 +123,24 @@ public class RefinementTyping implements Typing {
 		Set<Pair<RDFTerm, Label>> set = new HashSet<>();
 		for (Set<Pair<RDFTerm, Label>> subset : theTyping)
 			set.addAll(subset);
-		
 		return set;
+	}
+	
+	@Override
+	public List<Pair<Triple, Label>> getMatch(RDFTerm node, Label label) {
+		if (matching.containsKey(new Pair<RDFTerm, Label>(node,label)))
+			return matching.get(new Pair<RDFTerm, Label>(node,label));		
+		return null;
+	}
+
+	@Override
+	public void setMatch(RDFTerm node, Label label, List<Pair<Triple, Label>> match) {
+		matching.put(new Pair<RDFTerm, Label>(node,label), match);	
+	}
+
+	@Override
+	public void removeMatch(RDFTerm node, Label label) {
+		matching.remove(new Pair<RDFTerm, Label>(node,label));	
 	}
 	
 	@Override

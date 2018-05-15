@@ -17,9 +17,11 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
@@ -59,6 +61,21 @@ public class RecursiveTyping implements Typing {
 	
 	public void removeHypothesis(Set<Pair<RDFTerm,Label>> hypothesis) {
 		typing.removeAll(hypothesis);
+	}
+
+	@Override
+	public void setMatch(RDFTerm node, Label label, List<Pair<Triple, Label>> match) {
+		
+	}
+
+	@Override
+	public List<Pair<Triple, Label>> getMatch(RDFTerm node, Label label) {
+		return null;
+	}
+
+	@Override
+	public void removeMatch(RDFTerm node, Label label) {
+		
 	}	
 
 }

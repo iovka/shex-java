@@ -44,7 +44,7 @@ import fr.inria.lille.shexjava.util.Interval;
 public class SORBEGenerator {
 	private static final RDF rdfFactory = new SimpleRDF();
 	private static int tripleLabelNb = 0;
-	private static String TRIPLE_LABEL_PREFIX = "LABEL_FOR_SORBE_GENERATED";
+	public static String SORBE_TRIPLE_LABEL_SUFFIXE = "_SORBE_";
 	
 	private Map<Label,TripleExpr> sorbeMap;
 	
@@ -80,7 +80,7 @@ public class SORBEGenerator {
 	
 	private TripleExpr generateEmptyTripleExpression(EmptyTripleExpression expr ) {
 		TripleExpr result = new EmptyTripleExpression();
-		setTripleLabel(result);
+		setTripleLabel(result,expr);
 		return result;
 	}
 	
@@ -91,7 +91,7 @@ public class SORBEGenerator {
 			newSubExprs.add(generateTripleExpr(subExpr));
 		}
 		TripleExpr result = new EachOf(newSubExprs);
-		setTripleLabel(result);
+		setTripleLabel(result,expr);
 		return result;
 	}
 	
@@ -102,14 +102,14 @@ public class SORBEGenerator {
 			newSubExprs.add(generateTripleExpr(subExpr));
 		}
 		TripleExpr result = new OneOf(newSubExprs);
-		setTripleLabel(result);
+		setTripleLabel(result,expr);
 		return result;
 	}
 	
 	
 	private TripleExpr generateTripleConstraint(TripleConstraint expr) {
 		TripleExpr result = expr.clone();
-		setTripleLabel(result);
+		setTripleLabel(result,expr);
 		return result;
 	}
 	
@@ -119,13 +119,13 @@ public class SORBEGenerator {
 		expr.accept(visitor);
 		if (expr.getCardinality().equals(Interval.PLUS) & visitor.result) {
 			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),Interval.STAR);
-			setTripleLabel(result);
+			setTripleLabel(result,expr);
 			return result;
 		} else if(expr.getCardinality().equals(Interval.PLUS)
 				  || expr.getCardinality().equals(Interval.STAR)
 				  || expr.getCardinality().equals(Interval.OPT)){
 			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),expr.getCardinality());
-			setTripleLabel(result);
+			setTripleLabel(result,expr);
 			return result;
 		}else {
 			Interval card = expr.getCardinality();
@@ -135,7 +135,7 @@ public class SORBEGenerator {
 			if (card.max == Interval.UNBOUND) {
 				nbClones = card.min -1;
 				TripleExpr tmp = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()), Interval.PLUS);
-				setTripleLabel(tmp);
+				setTripleLabel(tmp,expr);
 				clones.add(tmp);
 			}else {
 				nbClones = card.min;
@@ -147,21 +147,35 @@ public class SORBEGenerator {
 			}
 			for (int i=0; i<nbOptClones;i++) {
 				TripleExpr tmp = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()), Interval.OPT);
-				setTripleLabel(tmp);
+				setTripleLabel(tmp,expr);
 				clones.add(tmp);
 			}
 			TripleExpr result = new EachOf(clones);
-			setTripleLabel(result);
+			setTripleLabel(result,expr);
 			return result;
 		}
 	}
 	
 
-	private void setTripleLabel(TripleExpr triple) {
-		triple.setId(new Label(rdfFactory.createBlankNode(TRIPLE_LABEL_PREFIX+"_"+tripleLabelNb),true));
+	private void setTripleLabel(TripleExpr newTriple,TripleExpr oldTriple) {
+		if (oldTriple.getId().isBlankNode())
+			newTriple.setId(new Label(rdfFactory.createBlankNode(oldTriple.getId().stringValue()+SORBE_TRIPLE_LABEL_SUFFIXE+tripleLabelNb),
+									  oldTriple.getId().isGenerated()));
+		if (oldTriple.getId().isIri())
+			newTriple.setId(new Label(rdfFactory.createIRI(oldTriple.getId().stringValue()+SORBE_TRIPLE_LABEL_SUFFIXE+tripleLabelNb),
+									  oldTriple.getId().isGenerated()));
 		tripleLabelNb++;
 	}
 	
+	public static Label removeSORBESuffixe(Label label) {
+		if (label.isBlankNode()) {
+			return new Label(rdfFactory.createBlankNode(label.stringValue().split(SORBE_TRIPLE_LABEL_SUFFIXE)[0]),
+													label.isGenerated());
+		}
+		return new Label(rdfFactory.createIRI(label.stringValue().split(SORBE_TRIPLE_LABEL_SUFFIXE)[0]),
+											  label.isGenerated());
+	}
+		
 	class CheckIfContainsEmpty extends TripleExpressionVisitor<Boolean>{
 		private boolean result ;
 

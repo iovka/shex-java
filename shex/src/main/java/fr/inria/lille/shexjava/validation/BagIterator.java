@@ -16,11 +16,16 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.rdf.api.Triple;
+
+import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
+import fr.inria.lille.shexjava.util.Pair;
 
 /**
  * 
@@ -30,11 +35,13 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 public class BagIterator implements Iterator<Bag>{
 
 	private List<List<TripleConstraint>> allMatches;
+	private ArrayList<Triple> neighbourhood;
 	private int[] currentIndexes;
 	private int[] sizes;
 	
-	public BagIterator(List<List<TripleConstraint>> allMatches) {
+	public BagIterator(ArrayList<Triple> neighbourhood,List<List<TripleConstraint>> allMatches) {
 		this.allMatches = allMatches;
+		this.neighbourhood = neighbourhood;
 		currentIndexes = new int[allMatches.size()+1]; // Adding an artificial first column allows to write more easily all the operations
 		sizes = new int[allMatches.size()+1];
 		for (int i = 0; i < currentIndexes.length-1; i++) {
@@ -78,5 +85,17 @@ public class BagIterator implements Iterator<Bag>{
 		goToNext();
 		
 		return next;
+	}
+	
+	public ArrayList<Pair<Triple,Label>> getCurrentBag(){
+		ArrayList<Pair<Triple,Label>> currentMatch = new ArrayList<Pair<Triple,Label>>();
+		Iterator<List<TripleConstraint>> ite = allMatches.iterator();
+		Iterator<Triple> iteNeigh = neighbourhood.iterator();
+		for (int i = 1; i < currentIndexes.length; i++) {
+			List<TripleConstraint> tmp = ite.next();
+			Triple tmp2 = iteNeigh.next();
+			currentMatch.add(new Pair<Triple, Label>(tmp2,tmp.get(currentIndexes[i]).getId()));
+		}
+		return currentMatch;
 	}
 }

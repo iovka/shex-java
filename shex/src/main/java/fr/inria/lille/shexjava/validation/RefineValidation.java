@@ -114,9 +114,11 @@ public class RefineValidation implements ValidationAlgorithm {
 						
 						if (! isLocallyValid(nl)) {
 							typesIt.remove();
+							typing.removeMatch(nl.one, nl.two);
 							changed = true;
 						}
 					}
+	
 				} while (changed);
 			}
 		}		
@@ -217,8 +219,8 @@ public class RefineValidation implements ValidationAlgorithm {
 			else
 				inversePredicate.add(tc.getProperty().getIri());
 
-		
-		List<Triple> neighbourhood = CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate);
+		ArrayList<Triple> neighbourhood = new ArrayList<>();
+		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
 		if (shape.isClosed())
 			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
 		else
@@ -247,14 +249,19 @@ public class RefineValidation implements ValidationAlgorithm {
 		ArrayList<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
 		for(Triple nt:matchingTC.keySet())
 			listMatchingTC.add(matchingTC.get(nt));
-		
-		BagIterator bagIt = new BagIterator(listMatchingTC);
+
+		BagIterator bagIt = new BagIterator(neighbourhood,listMatchingTC);
+
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 		
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
 			tripleExpression.accept(intervalComputation, bag, this);
 			if (intervalComputation.getResult().contains(1)) {
+				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
+				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
+					result.add(new Pair<Triple,Label>(pair.one,SORBEGenerator.removeSORBESuffixe(pair.two)));
+				typing.setMatch(node, shape.getId(), result);
 				return true;
 			}
 		}

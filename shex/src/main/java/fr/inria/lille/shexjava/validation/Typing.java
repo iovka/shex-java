@@ -16,9 +16,11 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
@@ -28,7 +30,7 @@ import fr.inria.lille.shexjava.util.Pair;
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
- *
+ * @author Jérémie Dusart
  */
 public interface Typing {
 
@@ -43,5 +45,29 @@ public interface Typing {
 	 * 
 	 */
 	public Set<Pair<RDFTerm, Label>> asSet(); // For testing purposes
+	
+	/** add the match (list of neighbor and triple constraint pair) for the node-label association to the typing.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
+	public void setMatch(RDFTerm node, Label label, List<Pair<Triple,Label>> match);
+	
+	/** return the match (list of neighbor and triple constraint pair) for the node-label association.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
+	public List<Pair<Triple,Label>> getMatch(RDFTerm node, Label label);
+	
+	/** remove the match (list of neighbor and triple constraint pair) for the node-label association to the typing.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
+	public void removeMatch(RDFTerm node, Label label);
 
 }
