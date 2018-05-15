@@ -14,9 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.inria.lille.shexjava.schema.parsing;
-
-import static org.junit.Assert.fail;
+package fr.inria.lille.shexjava.shexTest;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,7 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -49,11 +48,13 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.CommonFactory;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
-import fr.inria.lille.shexjava.util.SchemaEquality;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
+import fr.inria.lille.shexjava.validation.RecursiveValidation;
+import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
 
 
 /** Run the validation tests of the shexTest suite using ShExC parser, RDF4JGraph and recursive validation.
@@ -61,16 +62,12 @@ import fr.inria.lille.shexjava.util.TestResultForTestReport;
  *
  */
 @RunWith(Parameterized.class)
-public class TestShExJParserShExJSerializer {
+public class TestValidation_ShExR_RDF4J_Recursive {
 	protected static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
-	
-	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
-	
+	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();	
 	protected static String MANIFEST_FILE = Paths.get(TEST_DIR,"validation","manifest.ttl").toString();
-	
 	protected static final String DATA_DIR = Paths.get(TEST_DIR,"validation").toString();
 	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();
-
 	protected static final String GITHUB_URL = "https://raw.githubusercontent.com/shexSpec/shexTest/master/";
 	protected static final Resource VALIDATION_FAILURE_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationFailure");
 	protected static final Resource VALIDATION_TEST_CLASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#ValidationTest");
@@ -99,14 +96,14 @@ public class TestShExJParserShExJSerializer {
 			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 			List<Object[]> parameters = new ArrayList<Object[]>();
 			String selectedTest = "";
-			for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-				TestCase tc = new TestCase(manifest,testNode);
+	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
+	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
 			}
-			for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-				TestCase tc = new TestCase(manifest,testNode);
+	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
+	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
@@ -139,42 +136,50 @@ public class TestShExJParserShExJSerializer {
     		failed.add(new TestResultForTestReport(testCase.testName, false, "Incorrect test definition.", "validation"));
     		return;
     	}
-    	ShexSchema fromJson = null;
-		ShexSchema toJson = null;
+
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
+    		Path dataFile = Paths.get(getDataFileName(testCase.dataFileName));
 
     		if(! schemaFile.toFile().exists()) {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
+    			return;
     		}
-    		
-    		RDF factory = new CommonFactory();
-    					
-			fromJson = GenParser.parseSchema(factory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-			Path tmp = Paths.get("tmp_fromjson.json");
-			ShExJSerializer.ToJson(fromJson, tmp);
-			toJson = GenParser.parseSchema(factory,tmp);
-			tmp.toFile().delete();
-	
-    		if (SchemaEquality.areEquals(fromJson, toJson)){
-    			passed.add(new TestResultForTestReport(testCase.testName, true, null, "same"));
-			} else {
-    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "failed"));
-    			fail("Failed: "+testCase.testName);
-			}
+    		if(schemaFile.toString().equals(dataFile.toString())) {
+    			String message = "Skipping test because schema file == dataFile.";	
+    			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
+    			return;
+    		}
+    		CommonFactory myFactory = new CommonFactory();
 
+    		ShexSchema schema = GenParser.parseSchema(myFactory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+ 
+    		//System.out.println(dataGraph.stream().collect(Collectors.toList()));
+    		Graph dataGraph = getRDFGraph();    		
+    		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
+    		
+    		validation.validate(testCase.focusNode, testCase.shapeLabel);
+
+    		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
+    				validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
+    				||
+    				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
+    						! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))){
+    			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
+    		} else {
+    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
+    		}			
     	}catch (Exception e) {
-    		e.printStackTrace();
+    		System.err.println(e.getMessage());
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
-			fail("Exception: "+testCase.testName);
     	}
     }
     
 	
     @AfterClass
 	public static void ending() {
-    	System.out.println("Result for ShExJ parser-serialiser tests:");
+    	System.out.println("Result for validation (ShExC, RDF4J, recursive) tests:");
 		System.out.println("Skipped: "+skiped.size());
 		printTestCaseNames("  > ",skiped);
 		System.out.println("Passed : "+passed.size());
@@ -189,13 +194,14 @@ public class TestShExJParserShExJSerializer {
     		System.out.println(prefix+report.name);
     }
 	
+	
 	//--------------------------------------------------
 	// Utils functions for test
 	//--------------------------------------------------
 
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
-    	fp = fp.substring(0,fp.length()-4)+"json";
+    	fp = fp.substring(0,fp.length()-4)+"ttl";
 
     	String result = Paths.get(TEST_DIR).toString();
     	Iterator<Path> iter = Paths.get(fp).iterator();
@@ -204,6 +210,28 @@ public class TestShExJParserShExJSerializer {
     	
 		return result;
 	}
+	
+	public Graph getRDFGraph() throws IOException {
+		Model data = parseTurtleFile(getDataFileName(testCase.dataFileName),GITHUB_URL+"validation/");
+		return (new RDF4J()).asGraph(data);
+	}
+	
+	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
+		return new RecursiveValidation(schema, dataGraph);
+	}
+	
+
+	public String getDataFileName (Resource res) {
+		String fp = res.toString().substring(GITHUB_URL.length());
+		
+		String result = Paths.get(TEST_DIR).toString();
+    	Iterator<Path> iter = Paths.get(fp).iterator();
+    	while(iter.hasNext())
+    		result = Paths.get(result,iter.next().toString()).toString();
+    	
+		return result;	
+	}
+
 
 	public static Model parseTurtleFile(String filename,String baseURI) throws IOException{
 		Path fp = Paths.get(filename);

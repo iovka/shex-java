@@ -31,27 +31,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
+import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
+import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
-import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.Triple;
 import org.apache.commons.rdf.rdf4j.RDF4J;
-import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.simple.SimpleRDF;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.rio.ParserConfig;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.EmptyShape;
@@ -65,6 +60,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
+import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
@@ -108,14 +104,11 @@ public class ShExRParser implements Parser {
 			RDFFormat.TURTLE
 	});
 
-	private static final RDF GlobalRDFFactory = new SimpleRDF();
-	private static IRI TYPE_IRI = GlobalRDFFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-	
+	private RDF rdfFactory;
 	private Graph graph;
 	private List<String> imports;
 	private Set<RDFTerm> shapeSeen;
 	private Set<RDFTerm> tripleSeen;
-	private RDF localRDFFactory;
 	
 	/** Used the first format that contains an extension that ends the provided path in the list of RDFFormats.
 	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(java.nio.file.Path)
@@ -140,11 +133,14 @@ public class ShExRParser implements Parser {
 		return getRules(rdfFactory,is,null);
 	}
 	
-	private static IRI SCHEMA = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#Schema");
-	private static IRI SHAPES = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#shapes");
+	
 	private static String BASE_IRI = "http://base.shex.fr/shex/";
 	public Map<Label, ShapeExpr> getRules(RDF rdfFactory, InputStream is, RDFFormat format) throws Exception {
-		localRDFFactory = rdfFactory;
+		this.rdfFactory = rdfFactory;
+		IRI SCHEMA = rdfFactory.createIRI("http://www.w3.org/ns/shex#Schema");
+		IRI SHAPES = rdfFactory.createIRI("http://www.w3.org/ns/shex#shapes");
+		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		
 		Model model = Rio.parse(isr, BASE_IRI, RDFFormat.TURTLE);
@@ -182,16 +178,18 @@ public class ShExRParser implements Parser {
 	// Schema
 	//---------------------------------------------------------
 
-	private static IRI IMPORTS = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#imports");
 	private void parseImports(RDFTerm value) {
+		IRI IMPORTS = rdfFactory.createIRI("http://www.w3.org/ns/shex#imports");
 		imports = new ArrayList<String>();
 		List<Triple> triples = getTriples(value,IMPORTS);
 		if (triples.size()==0)
 			return ;
 		
 		for (Triple triple:triples) {
-			if (triple.getObject() instanceof IRI)
-				imports.add(((IRI) triple.getObject()).getIRIString().substring(BASE_IRI.length())); 
+			List<Object> tmp = computeListOfObject(triple.getObject());
+			for (Object obj:tmp)
+				if (obj instanceof IRI)
+					imports.add(((IRI) obj).getIRIString().substring(BASE_IRI.length())); 
 		}
 	}
 	
@@ -202,12 +200,15 @@ public class ShExRParser implements Parser {
 	//----------------------------------------------------------
 	
 	
-	private static IRI SHAPE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#Shape");
-	private static IRI SHAPE_AND = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#ShapeAnd");
-	private static IRI SHAPE_OR = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#ShapeOr");
-	private static IRI SHAPE_NOT = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#ShapeNot");
-	private static IRI NODE_CONSTRAINT = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#NodeConstraint");
+	
 	private ShapeExpr parseShapeExpr(RDFTerm value) {
+		IRI SHAPE = rdfFactory.createIRI("http://www.w3.org/ns/shex#Shape");
+		IRI SHAPE_AND = rdfFactory.createIRI("http://www.w3.org/ns/shex#ShapeAnd");
+		IRI SHAPE_OR = rdfFactory.createIRI("http://www.w3.org/ns/shex#ShapeOr");
+		IRI SHAPE_NOT = rdfFactory.createIRI("http://www.w3.org/ns/shex#ShapeNot");
+		IRI NODE_CONSTRAINT = rdfFactory.createIRI("http://www.w3.org/ns/shex#NodeConstraint");
+		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+
 		List<Triple> triples = getTriples(value,null);
 		if (shapeSeen.contains(value) |  triples.size()==0 )
 			return new ShapeExprRef(createLabel(value));
@@ -232,8 +233,8 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI SHAPE_EXPRS = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#shapeExprs");
 	private ShapeExpr parseShapeAnd(RDFTerm value) {
+		IRI SHAPE_EXPRS = rdfFactory.createIRI("http://www.w3.org/ns/shex#shapeExprs");
 		RDFTerm val = getObjects(value,SHAPE_EXPRS).get(0);
 
 		List<ShapeExpr> subExpr = new ArrayList<ShapeExpr>();
@@ -247,6 +248,7 @@ public class ShExRParser implements Parser {
 	
 	
 	private ShapeExpr parseShapeOr(RDFTerm value) {
+		IRI SHAPE_EXPRS = rdfFactory.createIRI("http://www.w3.org/ns/shex#shapeExprs");
 		RDFTerm val = getObjects(value,SHAPE_EXPRS).get(0);
 		List<ShapeExpr> subExpr = new ArrayList<ShapeExpr>();
 		for (Object obj:computeListOfObject(val))
@@ -258,8 +260,8 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI SHAPE_EXPR = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#shapeExpr");
 	private ShapeExpr parseShapeNot(RDFTerm value) {
+		IRI SHAPE_EXPR = rdfFactory.createIRI("http://www.w3.org/ns/shex#shapeExpr");
 		RDFTerm val = getObjects(value,SHAPE_EXPR).get(0);
 		
 		ShapeExpr res = new ShapeNot(parseShapeExpr(val));
@@ -268,10 +270,11 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI TRIPLE_EXPRESSION = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#expression");
-	private static IRI CLOSED = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#closed");
-	private static IRI EXTRA = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#extra");
+	
 	private ShapeExpr parseShape(RDFTerm value) {
+		IRI TRIPLE_EXPRESSION = rdfFactory.createIRI("http://www.w3.org/ns/shex#expression");
+		IRI CLOSED = rdfFactory.createIRI("http://www.w3.org/ns/shex#closed");
+		IRI EXTRA = rdfFactory.createIRI("http://www.w3.org/ns/shex#extra");
 		List<Annotation> annotations = parseAnnotations(value);
 		List<Triple> triples = getTriples(value,TRIPLE_EXPRESSION);
 		
@@ -301,8 +304,8 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI DATATYPE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#datatype");
 	private ShapeExpr parseNodeConstraint(RDFTerm value) {
+		IRI DATATYPE = rdfFactory.createIRI("http://www.w3.org/ns/shex#datatype");
 		List<Constraint> constraints = new ArrayList<Constraint>();
 		
 		Constraint constraint = parseNodeKind(value);
@@ -332,8 +335,8 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI VALUES = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#values");
 	private Constraint parseValues(RDFTerm value) {
+		IRI VALUES = rdfFactory.createIRI("http://www.w3.org/ns/shex#values");
 		if (!testTriples(value,VALUES))
 			return null;
 		
@@ -363,9 +366,14 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI IRI_STEM = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#IriStem");
-	private static IRI IRI_STEM_RANGE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#IriStemRange");
+	
 	private Constraint parseIRIStem(RDFTerm value) {
+		IRI EXCLUSION = rdfFactory.createIRI("http://www.w3.org/ns/shex#exclusion");
+		IRI STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#stem");
+		IRI IRI_STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#IriStem");
+		IRI IRI_STEM_RANGE = rdfFactory.createIRI("http://www.w3.org/ns/shex#IriStemRange");
+		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+
 		RDFTerm type = (RDFTerm) getObjects(value,TYPE_IRI).get(0);
 		if (type.equals(IRI_STEM)) {
 			Literal tmp = (Literal) getObjects(value, STEM).get(0);
@@ -392,8 +400,8 @@ public class ShExRParser implements Parser {
 				if (excl instanceof IRI) {
 					explicitValues.add((IRI) excl);
 				} else {
-					Literal tmp = (Literal) getObjects(excl, STEM).get(0);
-					constraints.add(new IRIStemConstraint(tmp.stringValue()));
+					Literal tmp = (Literal) getObjects((RDFTerm) excl, STEM).get(0);
+					constraints.add(new IRIStemConstraint(tmp.getLexicalForm()));
 				}
 			}
 
@@ -403,9 +411,13 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI LITERAL_STEM = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#LiteralStem");
-	private static IRI LITERAL_STEM_RANGE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#LiteralStemRange");
 	private Constraint parseLiteralStem(RDFTerm value) {
+		IRI EXCLUSION = rdfFactory.createIRI("http://www.w3.org/ns/shex#exclusion");
+		IRI STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#stem");
+		IRI LITERAL_STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#LiteralStem");
+		IRI LITERAL_STEM_RANGE = rdfFactory.createIRI("http://www.w3.org/ns/shex#LiteralStemRange");
+		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+
 		RDFTerm type = (RDFTerm) getObjects(value,TYPE_IRI).get(0);
 		if (type.equals(LITERAL_STEM)) {
 			Literal tmp = (Literal) getObjects(value, STEM).get(0);
@@ -430,8 +442,8 @@ public class ShExRParser implements Parser {
 					explicitValues.add((Literal) excl);
 					//constraints.add(new LanguageSetOfNodes(((Literal)excl).stringValue()));
 				} else {
-					Literal tmp = (Literal) model.filter((Resource) excl, STEM, null).objects().toArray()[0];
-					constraints.add(new LiteralStemConstraint(tmp.stringValue()));
+					Literal tmp = (Literal) getObjects((RDFTerm) excl, STEM).get(0);
+					constraints.add(new LiteralStemConstraint(tmp.getLexicalForm()));
 				}
 			}
 			return new LiteralStemRangeConstraint(stem, explicitValues, constraints);
@@ -440,14 +452,16 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI STEM = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#stem");
-	private static IRI EXCLUSION = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#exclusion");
-	private static IRI LANGUAGE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#Language");
-	private static IRI LANGUAGE_TAG = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#languageTag");
-	private static IRI LANGUAGE_STEM = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#LanguageStem");
-	private static IRI LANGUAGE_STEM_RANGE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#LanguageStemRange");
+	
 	private Constraint parseLanguage(RDFTerm value) {
-		//System.err.println(model.filter((Resource) value,null,null));
+		IRI STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#stem");
+		IRI EXCLUSION = rdfFactory.createIRI("http://www.w3.org/ns/shex#exclusion");
+		IRI LANGUAGE = rdfFactory.createIRI("http://www.w3.org/ns/shex#Language");
+		IRI LANGUAGE_TAG = rdfFactory.createIRI("http://www.w3.org/ns/shex#languageTag");
+		IRI LANGUAGE_STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#LanguageStem");
+		IRI LANGUAGE_STEM_RANGE = rdfFactory.createIRI("http://www.w3.org/ns/shex#LanguageStemRange");
+		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+
 		RDFTerm type = (RDFTerm) getObjects(value,TYPE_IRI).get(0);
 		if (type.equals(LANGUAGE)) {
 			Literal tmp = (Literal)  getObjects(value, LANGUAGE_TAG).get(0);
@@ -473,10 +487,10 @@ public class ShExRParser implements Parser {
 			List<Object> exclusions = computeListOfObject(exclu);
 			for (Object excl:exclusions) {
 				if (excl instanceof Literal) {
-					constraints.add(new LanguageConstraint(((Literal)excl).stringValue()));
+					constraints.add(new LanguageConstraint(((Literal)excl).getLexicalForm()));
 				} else {
-					Literal tmp = (Literal)  getObjects(excl, STEM).get(0);
-					constraints.add(new LanguageStemConstraint(tmp.stringValue()));
+					Literal tmp = (Literal)  getObjects((RDFTerm) excl, STEM).get(0);
+					constraints.add(new LanguageStemConstraint(tmp.getLexicalForm()));
 				}
 			}
 			return new LanguageStemRangeConstraint(stem, explicitValues, constraints);
@@ -485,12 +499,13 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI NODEKIND = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#nodeKind");	
-	private static IRI BNODE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#bnode");
-	private static IRI IRI = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#iri");
-	private static IRI LITERAL = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#literal");
-	private static IRI NONLITERAL = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#nonliteral");
 	private Constraint parseNodeKind(RDFTerm value) {
+		IRI NODEKIND = rdfFactory.createIRI("http://www.w3.org/ns/shex#nodeKind");	
+		IRI BNODE = rdfFactory.createIRI("http://www.w3.org/ns/shex#bnode");
+		IRI IRI = rdfFactory.createIRI("http://www.w3.org/ns/shex#iri");
+		IRI LITERAL = rdfFactory.createIRI("http://www.w3.org/ns/shex#literal");
+		IRI NONLITERAL = rdfFactory.createIRI("http://www.w3.org/ns/shex#nonliteral");
+		
 		if (!testTriples(value,NODEKIND))
 			return null;
 		
@@ -508,13 +523,14 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI LENGTH = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#length");
-	private static IRI MINLENGTH = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#minlength");
-	private static IRI MAXLENGTH = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#maxlength");
-	private static IRI PATTERN = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#pattern");
-	private static IRI FLAGS = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#flags");
 	
 	private Constraint parseStringFacet(RDFTerm value) {
+		IRI LENGTH = rdfFactory.createIRI("http://www.w3.org/ns/shex#length");
+		IRI MINLENGTH = rdfFactory.createIRI("http://www.w3.org/ns/shex#minlength");
+		IRI MAXLENGTH = rdfFactory.createIRI("http://www.w3.org/ns/shex#maxlength");
+		IRI PATTERN = rdfFactory.createIRI("http://www.w3.org/ns/shex#pattern");
+		IRI FLAGS = rdfFactory.createIRI("http://www.w3.org/ns/shex#flags");
+
 		FacetStringConstraint facet = new FacetStringConstraint();
 		boolean changed = false;
 		
@@ -550,13 +566,14 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI MININCLUSIVE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#mininclusive");
-	private static IRI MINEXCLUSIVE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#minexclusive");
-	private static IRI MAXINCLUSIVE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#maxinclusive");
-	private static IRI MAXEXCLUSIVE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#maxexclusive");
-	private static IRI FRACTIONDIGITS = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#fractiondigits");
-	private static IRI TOTALDIGITS = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#totaldigits");
 	private Constraint parseNumericFacet(RDFTerm value) {
+		IRI MININCLUSIVE = rdfFactory.createIRI("http://www.w3.org/ns/shex#mininclusive");
+		IRI MINEXCLUSIVE = rdfFactory.createIRI("http://www.w3.org/ns/shex#minexclusive");
+		IRI MAXINCLUSIVE = rdfFactory.createIRI("http://www.w3.org/ns/shex#maxinclusive");
+		IRI MAXEXCLUSIVE = rdfFactory.createIRI("http://www.w3.org/ns/shex#maxexclusive");
+		IRI FRACTIONDIGITS = rdfFactory.createIRI("http://www.w3.org/ns/shex#fractiondigits");
+		IRI TOTALDIGITS = rdfFactory.createIRI("http://www.w3.org/ns/shex#totaldigits");
+
 		FacetNumericConstraint facet = new FacetNumericConstraint();
 		boolean changed = false;
 				
@@ -607,11 +624,13 @@ public class ShExRParser implements Parser {
 	// Triple
 	//--------------------------------------------------------
 
-	private static IRI TRIPLE_CONSTRAINT = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#TripleConstraint");
-	private static IRI EACH_OF = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#EachOf");
-	private static IRI ONE_OF = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#OneOf");
-	
+		
 	private TripleExpr parseTripleExpr(RDFTerm value) {
+		IRI TRIPLE_CONSTRAINT = rdfFactory.createIRI("http://www.w3.org/ns/shex#TripleConstraint");
+		IRI EACH_OF = rdfFactory.createIRI("http://www.w3.org/ns/shex#EachOf");
+		IRI ONE_OF = rdfFactory.createIRI("http://www.w3.org/ns/shex#OneOf");
+		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+		
 		if (tripleSeen.contains(value) | !testTriples(value,null))
 			return new TripleExprRef(createLabel(value));
 		
@@ -629,9 +648,9 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI EXPRESSIONS = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#expressions");
-	
 	private TripleExpr parseEachOf(RDFTerm value) {
+		IRI EXPRESSIONS = rdfFactory.createIRI("http://www.w3.org/ns/shex#expressions");
+
 		List<Annotation> annotations = parseAnnotations(value);
 
 		RDFTerm val = (RDFTerm) getObjects(value, EXPRESSIONS).get(0);
@@ -650,6 +669,8 @@ public class ShExRParser implements Parser {
 	}
 	
 	private TripleExpr parseOneOf(RDFTerm value) {
+		IRI EXPRESSIONS = rdfFactory.createIRI("http://www.w3.org/ns/shex#expressions");
+		
 		List<Annotation> annotations = parseAnnotations(value);
 
 		RDFTerm val = (RDFTerm) getObjects(value, EXPRESSIONS).get(0);
@@ -668,10 +689,11 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI PREDICATE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#predicate");
-	private static IRI VALUE_EXPR = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#valueExpr");
-	private static IRI INVERSE = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#inverse");
 	private TripleExpr parseTripleConstraint(RDFTerm value) {
+		IRI PREDICATE = rdfFactory.createIRI("http://www.w3.org/ns/shex#predicate");
+		IRI VALUE_EXPR = rdfFactory.createIRI("http://www.w3.org/ns/shex#valueExpr");
+		IRI INVERSE = rdfFactory.createIRI("http://www.w3.org/ns/shex#inverse");
+
 		List<Annotation> annotations = parseAnnotations(value);
 		
 		boolean inverse = false;
@@ -706,17 +728,20 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI ANNOTATION = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#annotation");
-	private static IRI OBJECT = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#object");
 	private List<Annotation> parseAnnotations(RDFTerm value){
+		IRI PREDICATE = rdfFactory.createIRI("http://www.w3.org/ns/shex#predicate");
+		IRI ANNOTATION = rdfFactory.createIRI("http://www.w3.org/ns/shex#annotation");
+		IRI OBJECT = rdfFactory.createIRI("http://www.w3.org/ns/shex#object");
+		
 		List<Annotation> annotations = null;
+		
 		if (testTriples(value, ANNOTATION)) {
 			RDFTerm ann = (RDFTerm) getObjects(value, ANNOTATION).get(0);
 			List<Object> lannot = computeListOfObject(ann);
 			annotations = new ArrayList<Annotation>();
 			for (Object obj:lannot) {
-				IRI predicate = (IRI) getObjects(obj, PREDICATE).get(0);
-				RDFTerm object = (RDFTerm) getObjects(obj, OBJECT).get(0);
+				IRI predicate = (IRI) getObjects((RDFTerm) obj, PREDICATE).get(0);
+				RDFTerm object = (RDFTerm) getObjects((RDFTerm) obj, OBJECT).get(0);
 				annotations.add(new Annotation(predicate,object));
 			}
 		}
@@ -725,9 +750,11 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private static IRI MIN = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#min");
-	private static IRI MAX = GlobalRDFFactory.createIRI("http://www.w3.org/ns/shex#max");
+	
 	private Interval getInterval(RDFTerm value) {
+		IRI MIN = rdfFactory.createIRI("http://www.w3.org/ns/shex#min");
+		IRI MAX = rdfFactory.createIRI("http://www.w3.org/ns/shex#max");
+		
 		Integer  min=null,max=null;
 		if (testTriples(value,MIN))
 			min =  DatatypeUtil.getIntegerValue(((Literal) getObjects(value, MIN).get(0)));
@@ -754,10 +781,11 @@ public class ShExRParser implements Parser {
 	// Utils
 	//--------------------------------------------------------
 	
-	private static IRI FIRST = GlobalRDFFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#first");
-	private static IRI REST = GlobalRDFFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest");	
-	private static IRI NIL = GlobalRDFFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil");
 	private List<Object> computeListOfObject(RDFTerm value) {
+		IRI FIRST = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#first");
+		IRI REST = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#rest");	
+		IRI NIL = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#nil");
+
 		RDFTerm model_first = getObjects(value, FIRST).get(0);
 		RDFTerm model_rest = getObjects(value, REST).get(0);
 

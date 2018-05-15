@@ -1,7 +1,6 @@
 package fr.inria.lille.shexjava.util;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
