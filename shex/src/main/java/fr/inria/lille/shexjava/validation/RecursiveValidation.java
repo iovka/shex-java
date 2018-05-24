@@ -57,7 +57,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	private Graph graph;
 	private SORBEGenerator sorbeGenerator;
 	private ShexSchema schema;
-	private RecursiveTyping typing;
+	private Typing typing;
 	
 	private DynamicCollectorOfTripleConstraint collectorTC;
 	
@@ -68,11 +68,11 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		this.sorbeGenerator = new SORBEGenerator();
 		this.schema = schema;
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
-		this.typing = new RecursiveTyping();
+		this.typing = new Typing();
 	}
 	
 	public void resetTyping() {
-		this.typing = new RecursiveTyping();
+		this.typing = new Typing();
 	}
 	
 	@Override
@@ -87,16 +87,16 @@ public class RecursiveValidation implements ValidationAlgorithm {
 		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
-			this.typing.addHypothesis(focusNode, label);
+			this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
 		}
 		return result;
 	}
 	
 	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
-		this.typing.addHypothesis(focusNode, label);
+		this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
 		schema.getShapeMap().get(label).accept(visitor);
-		this.typing.removeHypothesis(focusNode, label);
+		this.typing.removeNodeLabel(focusNode, label);
 		return visitor.result;
 		
 	}
@@ -192,11 +192,10 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
 
 
-		// Match using only predicate and recursive test. The following line are the only difference with refine validation
-		Set<Pair<RDFTerm, Label>> shapeMap = new HashSet<Pair<RDFTerm, Label>>();
+		// Match using only predicate and recursive test. The following line are the only big difference with refine validation
+		Set<Pair<RDFTerm, Label>> dependencies = new HashSet<Pair<RDFTerm, Label>>();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
-		
 
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
 			if (entry.getValue().isEmpty()) {
@@ -204,25 +203,31 @@ public class RecursiveValidation implements ValidationAlgorithm {
 				for (TCProperty extra : shape.getExtraProperties())
 					if (extra.getIri().equals(entry.getKey().getPredicate()))
 						success = true;
-				if (!success)
+				if (!success) {
+					cleanTyping(dependencies);
 					return false;
+				}
 			}
 			
 			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
-				
-				if (! this.typing.contains(destNode, tc.getShapeExpr().getId())) {
+	
+				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
+					dependencies.add(new Pair<>(destNode, tc.getShapeExpr().getId()));
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
-						shapeMap.add(new Pair<>(destNode, tc.getShapeExpr().getId()));		
+						typing.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);	
+					else
+						typing.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);	
 				}
 			}
+
 		}
 		
+		// end of the big diference with refine
+		
 		// Add the detected node value to the typing
-		this.typing.addHypothesis(shapeMap);
-
 		Matcher matcher2 = new MatcherPredicateAndValue(this.getTyping()); 
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC2 = matcher2.collectMatchingTC(node, neighbourhood, constraints);
 
@@ -236,7 +241,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 					if (extra.getIri().equals(listTC.getKey().getPredicate()))
 						success = true;
 				if (!success) {
-					this.typing.removeHypothesis(shapeMap);
+					cleanTyping(dependencies);
 					return false;
 				}
 				iteMatchingTC.remove();
@@ -260,14 +265,20 @@ public class RecursiveValidation implements ValidationAlgorithm {
 				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
 					result.add(new Pair<Triple,Label>(pair.one,SORBEGenerator.removeSORBESuffixe(pair.two)));
 				typing.setMatch(node, shape.getId(), result);
-				this.typing.removeHypothesis(shapeMap);
+				cleanTyping(dependencies);
 				return true;
 			}
 		}
-		this.typing.removeHypothesis(shapeMap);
+		cleanTyping(dependencies);
 		
 		return false;
 	}	
 
-
+	// Typing util
+	
+	public void cleanTyping(Set<Pair<RDFTerm, Label>> dependencies) {
+		for (Pair<RDFTerm, Label> pair:dependencies) {
+			this.typing.removeNodeLabel(pair.one, pair.two);
+		}
+	}
 }

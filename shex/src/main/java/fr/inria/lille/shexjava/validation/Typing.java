@@ -1,22 +1,10 @@
-/*******************************************************************************
- * Copyright (C) 2018 Université de Lille - Inria
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDFTerm;
@@ -25,49 +13,90 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
 
-/** A set of associations (resource, shape labels).
- * Is produced as result of a validation, see {@link ValidationAlgorithm}
- * 
- * @author Iovka Boneva
- * @author Antonin Durey
- * @author Jérémie Dusart
- */
-public interface Typing {
+public class Typing {
+	private Map<Pair<RDFTerm,Label>,String> messages;
+	private Map<Pair<RDFTerm,Label>,TypingStatus> status;
+	private Map<Label,Set<RDFTerm>> nodes;
+	private Map<RDFTerm,Set<Label>> labels;
+	private Map<Pair<RDFTerm, Label>,List<Pair<Triple,Label>>> matching;
 
-	/** Checks whether a node-label association belongs to the typing. 
-	 * 
-	 * @param node
-	 * @param label
-	 */
-	public boolean contains(RDFTerm node, Label label);
 	
-	/** Returns the typing as a set of pairs (node, label). Use for testing purpose.
-	 * 
-	 */
-	public Set<Pair<RDFTerm, Label>> asSet(); // For testing purposes
+	public Typing() {
+		messages = new HashMap<>();
+		status = new HashMap<>();
+		nodes = new HashMap<>();
+		labels = new HashMap<>();
+		matching = new HashMap<>();
+	}
+
+	public void setStatus(RDFTerm node, Label label,TypingStatus status) {
+		this.status.put(new Pair<RDFTerm,Label>(node,label), status);
+		if (!nodes.containsKey(label))
+			nodes.put(label, new HashSet<>());
+		nodes.get(label).add(node);
+		if (!labels.containsKey(node))
+			labels.put(node, new HashSet<>());
+		labels.get(node).add(label);
+	}
 	
-	/** add the match (list of neighbor and triple constraint pair) for the node-label association to the typing.
-	 * 
-	 * @param node
-	 * @param shape
-	 * @return
-	 */
-	public void setMatch(RDFTerm node, Label label, List<Pair<Triple,Label>> match);
+	public TypingStatus getStatus(RDFTerm node, Label label) {
+		Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(node,label);
+		if (status.containsKey(key))
+			return status.get(key);
+		return TypingStatus.NOTCOMPUTED;
+	}
 	
-	/** return the match (list of neighbor and triple constraint pair) for the node-label association.
-	 * 
-	 * @param node
-	 * @param shape
-	 * @return
-	 */
-	public List<Pair<Triple,Label>> getMatch(RDFTerm node, Label label);
+	public boolean isConformant(RDFTerm node, Label label) {
+		Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(node,label);
+		if (status.containsKey(key))
+			return status.get(key).equals(TypingStatus.CONFORMANT);
+		return false;
+	}
 	
-	/** remove the match (list of neighbor and triple constraint pair) for the node-label association to the typing.
-	 * 
-	 * @param node
-	 * @param shape
-	 * @return
-	 */
-	public void removeMatch(RDFTerm node, Label label);
+	public boolean isNonConformant(RDFTerm node, Label label) {
+		Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(node,label);
+		if (status.containsKey(key))
+			return !status.get(key).equals(TypingStatus.CONFORMANT);
+		return true;
+	}
+	
+	public void setMessage(RDFTerm node, Label label,String message) {
+		this.messages.put(new Pair<RDFTerm,Label>(node,label), message);
+	}
+	
+	public String getMessage(RDFTerm node, Label label) {
+		return messages.get(new Pair<RDFTerm,Label>(node,label));
+	}
+	
+	public Set<Label> getShapesLabel(RDFTerm node){
+		if (labels.containsKey(node))
+			return labels.get(node);
+		return Collections.emptySet();
+	}
+	
+	public Set<RDFTerm> getNodes(Label label){
+		if (nodes.containsKey(label))
+			return nodes.get(label);
+		return Collections.emptySet();
+	}
+	
+	public void setMatch(RDFTerm node, Label label, List<Pair<Triple, Label>> match) {
+		matching.put(new Pair<RDFTerm, Label>(node,label), match);	
+	}
+	
+	public List<Pair<Triple, Label>> getMatch(RDFTerm node, Label label) {
+		return matching.get(new Pair<RDFTerm, Label>(node,label));		
+	}
+
+	public void removeNodeLabel(RDFTerm node, Label label) {
+		Pair<RDFTerm, Label> key = new Pair<RDFTerm, Label>(node,label);
+		status.remove(key);
+		messages.remove(key);
+		matching.remove(key);
+		if (nodes.containsKey(label))
+			nodes.get(label).remove(node);
+		if (labels.containsKey(node))
+			labels.get(node).remove(label);	
+	}
 
 }

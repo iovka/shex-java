@@ -62,8 +62,9 @@ public class RefineValidation implements ValidationAlgorithm {
 	private Graph graph;
 	private SORBEGenerator sorbeGenerator;
 	private ShexSchema schema;
-	private RefinementTyping typing = null;
-	private Set<Label> extraShape;
+	private Typing typing = null;
+	private Set<Label> selectedShape;
+	private Set<Label> extraShapes;
 	private DynamicCollectorOfTripleConstraint collectorTC;
 	
 
@@ -73,17 +74,29 @@ public class RefineValidation implements ValidationAlgorithm {
 		this.schema = schema;
 		this.sorbeGenerator = new SORBEGenerator();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
-		this.extraShape=Collections.emptySet();
-		this.extraShape=Collections.emptySet();
+		this.extraShapes=Collections.emptySet();
+		initSelectedShape();
 	}
 	
-	public RefineValidation(ShexSchema schema, Graph graph,Set<Label> extraShape) {
+	public RefineValidation(ShexSchema schema, Graph graph,Set<Label> extraShapes) {
 		super();
 		this.graph = graph;
 		this.schema = schema;
 		this.sorbeGenerator = new SORBEGenerator();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
-		this.extraShape=extraShape;
+		this.extraShapes=extraShapes;
+		initSelectedShape();
+	}
+	
+	protected void initSelectedShape() {
+		this.selectedShape = new HashSet<Label>(extraShapes);
+		this.selectedShape.addAll(schema.getRules().keySet());
+		for (ShapeExpr expr:schema.getShapeMap().values())
+			if (expr instanceof ShapeExprRef) 
+				selectedShape.add(((ShapeExprRef) expr).getShapeDefinition().getId());
+		for (TripleExpr expr:schema.getTripleMap().values())
+			if (expr instanceof TripleConstraint)
+				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
 	}
 	
 	@Override
@@ -101,24 +114,23 @@ public class RefineValidation implements ValidationAlgorithm {
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label)  throws Exception {
 		if (typing == null) {
-			this.typing = new RefinementTyping(schema, graph, extraShape);
+			this.typing = new Typing();
 			for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
-				typing.addAllLabelsFrom(stratum, focusNode);
-							
+				List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum,focusNode);		
+				//System.out.println(elements);
 				boolean changed;
 				do {
 					changed = false;
-					Iterator<Pair<RDFTerm, Label>> typesIt = typing.typesIterator(stratum);
+					Iterator<Pair<RDFTerm, Label>> typesIt = elements.iterator();
 					while (typesIt.hasNext()) {
 						Pair<RDFTerm, Label> nl = typesIt.next();
-						
 						if (! isLocallyValid(nl)) {
 							typesIt.remove();
-							typing.removeMatch(nl.one, nl.two);
+							typing.setStatus(nl.one, nl.two, TypingStatus.NONCONFORMANT);
 							changed = true;
+							//System.out.println(nl.one+","+nl.two+" > "+typing.getStatus(nl.one, nl.two));
 						}
 					}
-	
 				} while (changed);
 			}
 		}		
@@ -126,7 +138,7 @@ public class RefineValidation implements ValidationAlgorithm {
 			return false;
 		if (!schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		return typing.contains(focusNode, label);
+		return typing.isConformant(focusNode, label);
 	}
 
 	
@@ -136,8 +148,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		return visitor.getResult();
 	}
 	
-	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
-		
+	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {		
 		private RDFTerm node; 
 		private Boolean result;
 		
@@ -185,7 +196,7 @@ public class RefineValidation implements ValidationAlgorithm {
 
 		@Override
 		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
-			result = typing.contains(node, ref.getLabel());
+			result = typing.isConformant(node, ref.getLabel());
 		}
 
 		@Override
@@ -269,4 +280,25 @@ public class RefineValidation implements ValidationAlgorithm {
 		return false;
 	}	
 
+	
+	// Typing utils
+	
+	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum,RDFTerm focusNode) {
+		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<Pair<RDFTerm, Label>>();
+		Set<Label> labels = schema.getStratum(stratum);
+		for (Label label: labels) {
+			if (selectedShape.contains(label)) {
+				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		
+					result.add(new Pair<>(node, label));
+					this.typing.setStatus(node, label, TypingStatus.CONFORMANT);
+				}
+				if (focusNode !=null) {
+					result.add(new Pair<>(focusNode, label));
+					this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+				}
+			}
+		}
+		return result;
+	}
+	
 }

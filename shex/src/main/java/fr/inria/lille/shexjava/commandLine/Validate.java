@@ -123,22 +123,22 @@ public class Validate {
 		System.out.println("Typing constructed.");
 		
 		if (focusNode != null && shapeLabel != null)
-			if (val.getTyping().contains(focusNode, shapeLabel))
+			if (val.getTyping().isConformant(focusNode, shapeLabel))
 				System.out.println(String.format("%s SATISFIES %s", focusNode, shapeLabel));
 			else 
 				System.out.println(String.format("%s DOES NOT SATISFY %s", focusNode, shapeLabel));
 		
 		
-		if (parameters.get("-out") != null) {
-			String output = val.getTyping().asSet().toString();
-			try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(parameters.get("-out")))) {
-			    writer.write(output, 0, output.length());
-			    System.out.println("Typing written in " + parameters.get("-out"));
-			} catch (IOException x) {
-			    System.err.format("I/O Error while writing the output");
-			    return;
-			}
-		}
+//		if (parameters.get("-out") != null) {
+//			String output = val.getTyping().asSet().toString();
+//			try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(parameters.get("-out")))) {
+//			    writer.write(output, 0, output.length());
+//			    System.out.println("Typing written in " + parameters.get("-out"));
+//			} catch (IOException x) {
+//			    System.err.format("I/O Error while writing the output");
+//			    return;
+//			}
+//		}
 	}
 	
 	

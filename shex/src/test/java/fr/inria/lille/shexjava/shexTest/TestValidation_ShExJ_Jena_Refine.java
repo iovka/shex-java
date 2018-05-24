@@ -99,7 +99,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	String selectedTest = "float-1_pass";
+	    	String selectedTest = "";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase(manifest,testNode);
 		    	Object[] params =  {tc};
@@ -143,18 +143,18 @@ public class TestValidation_ShExJ_Jena_Refine {
 
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
-   
+    		//System.out.println(testCase);
     		if(! schemaFile.toFile().exists()) {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     			return;
     		}
     		CommonFactory myFactory = new CommonFactory();
-    		
+    		    		
     		ShexSchema schema = GenParser.parseSchema(myFactory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		Graph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
-	
+	    	
     		// Fix for dealing with the absence of namespace specification in jena.
 	    	if (testCase.focusNode instanceof org.apache.commons.rdf.api.IRI) {
 	    		org.apache.commons.rdf.api.IRI focus = (org.apache.commons.rdf.api.IRI) testCase.focusNode;
@@ -171,13 +171,13 @@ public class TestValidation_ShExJ_Jena_Refine {
 	    	}
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
     		
-    		
+    		//System.out.println(validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel));
     		
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))
-    				||
-    				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    						! validation.getTyping().contains(testCase.focusNode, testCase.shapeLabel))){
+    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
+    			||
+    			(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
+    				validation.getTyping().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
      		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));			
