@@ -129,16 +129,16 @@ public class Validate {
 				System.out.println(String.format("%s DOES NOT SATISFY %s", focusNode, shapeLabel));
 		
 		
-//		if (parameters.get("-out") != null) {
-//			String output = val.getTyping().asSet().toString();
-//			try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(parameters.get("-out")))) {
-//			    writer.write(output, 0, output.length());
-//			    System.out.println("Typing written in " + parameters.get("-out"));
-//			} catch (IOException x) {
-//			    System.err.format("I/O Error while writing the output");
-//			    return;
-//			}
-//		}
+		if (parameters.get("-out") != null) {
+			String output = val.getTyping().getAllStatus().toString();
+			try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(parameters.get("-out")))) {
+			    writer.write(output, 0, output.length());
+			    System.out.println("Typing written in " + parameters.get("-out"));
+			} catch (IOException x) {
+			    System.err.format("I/O Error while writing the output");
+			    return;
+			}
+		}
 	}
 	
 	

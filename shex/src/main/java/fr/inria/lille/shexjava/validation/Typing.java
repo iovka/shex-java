@@ -98,5 +98,9 @@ public class Typing {
 		if (labels.containsKey(node))
 			labels.get(node).remove(label);	
 	}
+	
+	public Map<Pair<RDFTerm, Label>, TypingStatus> getAllStatus() {
+		return status;
+	}
 
 }
