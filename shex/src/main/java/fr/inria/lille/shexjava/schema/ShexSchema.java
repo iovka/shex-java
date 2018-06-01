@@ -34,6 +34,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.builder.GraphBuilder;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.exception.CyclicReferencesException;
 import fr.inria.lille.shexjava.exception.NotStratifiedException;
 import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
@@ -73,7 +74,11 @@ public class ShexSchema {
 	private Map<Label,ShapeExpr> shapeMap;
 	private Map<Label,TripleExpr> tripleMap;
 	private RDF rdfFactory;
-
+	
+	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		initialize(GlobalFactory.RDFFactory, rules);
+	}
+	
 	/** The constructor try to instantiate a well-defined schema. Label are generated for all shapeExpr and tripleExpr without and ID. References are resolved and a verification that there is no cycles in the references is performed. The stratification of the set of rules is stratified is computed. Rules cannot be modified after initialization
 	 * @param rules
 	 * @throws UndefinedReferenceException
@@ -81,6 +86,10 @@ public class ShexSchema {
 	 * @throws NotStratifiedException
 	 */
 	public ShexSchema(RDF rdfFactory,Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		initialize(rdfFactory, rules);
+	}
+	
+	protected void initialize(RDF rdfFactory,Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		this.rdfFactory = rdfFactory;
 		//check that id are unique
 		
@@ -137,10 +146,6 @@ public class ShexSchema {
 		CycleDetector<Label, DefaultEdge> detector = new CycleDetector<>(referencesGraph);
 		if (detector.detectCycles())
 			throw new CyclicReferencesException("Cyclic dependencies of refences found." );
-//		TarjanSimpleCycles<Label,DefaultEdge> cyclesFinder = new TarjanSimpleCycles<Label,DefaultEdge>(referencesGraph);
-//		List<List<Label>> allcycles = cyclesFinder.findSimpleCycles();
-//		if (! allcycles.isEmpty())
-//			throw new CyclicReferencesException("Cyclic dependencies of refences found: " + allcycles);
 		
 		//Starting to check and compute stratification
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.computeDependencesGraph();

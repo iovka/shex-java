@@ -44,6 +44,7 @@ import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
@@ -105,11 +106,23 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	private String base;
 	private Path filename;
 	
+	
+	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
+		return getRules(GlobalFactory.RDFFactory,path);
+	}
+	
+	
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, Path path) throws Exception{
 		this.filename=path;
 		InputStream is = new FileInputStream(path.toFile());
 		return getRules(rdfFactory,is);		
 	}
+	
+	
+	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
+		return getRules(GlobalFactory.RDFFactory,is);
+	}
+	
 	
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
 		this.rdfFactory = rdfFactory;

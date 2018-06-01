@@ -45,6 +45,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
@@ -110,6 +111,10 @@ public class ShExRParser implements Parser {
 	private Set<RDFTerm> shapeSeen;
 	private Set<RDFTerm> tripleSeen;
 	
+	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
+		return getRules(GlobalFactory.RDFFactory,path);
+	}
+	
 	/** Used the first format that contains an extension that ends the provided path in the list of RDFFormats.
 	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(java.nio.file.Path)
 	 */
@@ -129,6 +134,11 @@ public class ShExRParser implements Parser {
 	/** Used null as format.
 	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(java.nio.file.Path)
 	 */
+	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
+		return getRules(GlobalFactory.RDFFactory,is);
+	}
+	
+	
 	public Map<Label, ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception {
 		return getRules(rdfFactory,is,null);
 	}

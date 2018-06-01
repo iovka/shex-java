@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.rdf4j.rio.RDFFormat;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
@@ -40,9 +41,18 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
  */
 public class GenParser {
 	
+	public static ShexSchema parseSchema(Path filepath) throws Exception{
+		return parseSchema(GlobalFactory.RDFFactory,filepath,Collections.emptyList());
+	}
 	
 	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath) throws Exception{
 		return parseSchema(rdfFactory,filepath,Collections.emptyList());
+	}
+	
+	public static ShexSchema parseSchema(Path filepath, Path importDir) throws Exception{
+		List<Path> importDirs = new ArrayList<>();
+		importDirs.add(importDir);
+		return parseSchema(GlobalFactory.RDFFactory,filepath,importDirs);
 	}
 	
 	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath, Path importDir) throws Exception{
@@ -51,6 +61,10 @@ public class GenParser {
 		return parseSchema(rdfFactory,filepath,importDirs);
 	}
 	
+	
+	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{
+		return parseSchema(GlobalFactory.RDFFactory,filepath,importDirectories);
+	}
 	
 	/** The function try to find the imports, if any, in the list of directories provided. The format of the schema is infer from the file extension.
 	 * @param filepath

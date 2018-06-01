@@ -36,6 +36,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 import com.github.jsonldjava.utils.JsonUtils;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
@@ -88,12 +89,21 @@ public class ShExJParser implements Parser{
 	// 	PARSING
 	// --------------------------------------------------------------------
 
+	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
+		return getRules(GlobalFactory.RDFFactory,path);
+	}
+	
 	// Schema 	{ 	startActs:[SemAct]? start: shapeExpr? shapes:[shapeExpr+]? }
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, Path path) throws Exception  {
 		InputStream inputStream = new FileInputStream(path.toFile());
 		return getRules(rdfFactory,inputStream);
 	}
-		
+	
+	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
+		return getRules(GlobalFactory.RDFFactory,is);
+	}
+	
+	
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
 		this.rdfFactory = rdfFactory;
 		imports = new ArrayList<>();

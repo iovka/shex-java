@@ -1,9 +1,12 @@
 package fr.inria.lille.shexjava;
 
-public class GlobalFactory {
+import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.rdf4j.RDF4J;
 
-	public GlobalFactory() {
-		// TODO Auto-generated constructor stub
+public class GlobalFactory {
+	public static RDF RDFFactory = new RDF4J();
+	
+	protected GlobalFactory() {
 	}
 
 }
