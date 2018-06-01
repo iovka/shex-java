@@ -129,8 +129,12 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 		}
 
 		else if (card.equals(Interval.EMPTY)) {
-			throw new UnsupportedOperationException("not yet implemented");
-			// FIXME
+			//throw new UnsupportedOperationException("not yet implemented");
+			if (isEmptySubbag(bag, expression)) {
+				this.result = Interval.STAR;
+			} else {
+				this.result = Interval.EMPTY;
+			}
 		}
 		
 		else {

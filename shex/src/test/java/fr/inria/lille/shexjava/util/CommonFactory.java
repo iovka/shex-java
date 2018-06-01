@@ -8,6 +8,6 @@ public class CommonFactory extends SimpleRDF{
 	@Override
 	public BlankNode createBlankNode(final String name) {
         return new MyBlankNodeImpl(name);
-}
+	}
 	
 }

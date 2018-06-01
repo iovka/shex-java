@@ -123,7 +123,8 @@ public class SORBEGenerator {
 			return result;
 		} else if(expr.getCardinality().equals(Interval.PLUS)
 				  || expr.getCardinality().equals(Interval.STAR)
-				  || expr.getCardinality().equals(Interval.OPT)){
+				  || expr.getCardinality().equals(Interval.OPT)
+				  || expr.getCardinality().equals(Interval.EMPTY)){
 			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),expr.getCardinality());
 			setTripleLabel(result,expr);
 			return result;

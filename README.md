@@ -79,11 +79,21 @@ Command line example to run the tests and create the report for shexTest:
 You have an online validator available at http://shexjava.lille.inria.fr/ with predefined examples.
 
 
-## Command line validation with maven
+## Command line validation
+
+### With execution through maven
 
  Command line example to run a validation:
  >  mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.inria.lille.shexjava.commandLine.Validate" -Dexec.args="-s  ../../shexTest/schemas/1dotSemi.shex -d file:///home/jdusart/Documents/Shex/workspace/shexTest/validation/Is1_Ip1_Io1.ttl -l http://a.example/S1 -f http://a.example/s1 -a recursive" 
 
+### With execution without maven
+
+``sh
+mvn package
+mvn dependency:build-classpath -Dmdep.includeScope=runtime -Dmdep.outputFile=cp.txt
+SHEXCP="target/shexjava-core-1.1.jar:"`cat cp.txt`
+java -cp $SHEXCP fr.inria.lille.shexjava.commandLine.Validate -s ../../shexTest/schemas/1dotSemi.shex -d https://raw.githubusercontent.com/shexSpec/shexTest/master/validation/Is1_Ip1_Io1.ttl   -l http://a.example/S1 -f http://a.example/s1 -a recursive
+``
 
 ## Code Exemple
 

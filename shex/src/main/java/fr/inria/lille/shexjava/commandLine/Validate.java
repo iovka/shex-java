@@ -100,7 +100,7 @@ public class Validate {
 		
 		Model dataModel = getData(parameters.get("-d"));
 		if (dataModel == null) {
-			System.err.println("Was unable to the parse data. Aborting.");
+			System.err.println("Was unable to parse the data. Aborting.");
 			return;
 		}
 		

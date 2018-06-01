@@ -770,6 +770,8 @@ public class ShExRParser implements Parser {
 			return Interval.STAR;
 		if (min==1 & max==-1)
 			return Interval.PLUS;
+		if (min==2 & max==1)
+			return Interval.EMPTY;
 		if (max ==-1)
 			max = Interval.UNBOUND;
 		return new Interval(min,max);

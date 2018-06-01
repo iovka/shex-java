@@ -776,6 +776,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 				return new Interval(min,Integer.parseInt(ctx.repeatRange().max_range().getText())); 
 			return new Interval(min,Interval.UNBOUND);
 		}
+		if (min==0)
+			return Interval.EMPTY;
 		return new Interval(min,min);
 	}
 
