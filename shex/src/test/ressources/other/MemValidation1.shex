@@ -1,0 +1,9 @@
+PREFIX : <http://a.example/>
+
+:S {
+    :a @:T; :c IRI
+}
+
+:T {
+    :a @:T | :b @:S
+}

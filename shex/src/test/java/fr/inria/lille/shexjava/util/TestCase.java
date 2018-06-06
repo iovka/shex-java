@@ -18,7 +18,6 @@ package fr.inria.lille.shexjava.util;
 
 import java.util.Set;
 
-import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.BNode;

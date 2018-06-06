@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -112,13 +113,9 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 			return results.get(key);
 		
 		if (schema.getShapeMap().get(label) instanceof NodeConstraint) {
-			if (((NodeConstraint)schema.getShapeMap().get(label)).contains(focusNode)) {
-				this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
-				return true;
-			}else {
-				this.typing.setStatus(focusNode, label, TypingStatus.NONCONFORMANT);
-				return false;				
-			}
+			boolean res = ((NodeConstraint)schema.getShapeMap().get(label)).contains(focusNode);
+			updateGraph(focusNode, label, Collections.emptySet(), res, hyp, g, results, lowestDep);		
+			return res;		
 		}
 		
 		hyp.addLast(key);
@@ -144,42 +141,6 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 	}
 	
 	
-	protected void memorize(RDFTerm focusNode, 
-			  Label label, 
-			  LinkedList<Pair<RDFTerm,Label>> hyp,
-			  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			  Map<Pair<RDFTerm,Label>,Boolean> results,
-			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
-		LinkedList<Pair<RDFTerm,Label>> S = new LinkedList<>();
-		S.add(new Pair<>(focusNode,label));
-		if (results.get(new Pair<>(focusNode,label))) {
-			while (S.size()>0) {
-				Pair<RDFTerm,Label> key = S.pollFirst();
-				if (this.typing.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED) &&
-						!hyp.contains(lowestDep.get(key))) {
-					if (results.get(key))
-						this.typing.setStatus(key.one, key.two, TypingStatus.CONFORMANT);
-					else
-						this.typing.setStatus(key.one, key.two, TypingStatus.NONCONFORMANT);
-				}
-				if (this.typing.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED)) {
-					for(DefaultEdge edge: g.incomingEdgesOf(key))
-						S.add(g.getEdgeSource(edge));
-				}
-			}
-		}else {
-			while (S.size()>0) {
-				Pair<RDFTerm,Label> key = S.pollFirst();
-				if (this.typing.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED)) {
-					for(DefaultEdge edge: g.incomingEdgesOf(key))
-						S.add(g.getEdgeSource(edge));
-				}
-				g.removeVertex(key);
-			}
-		}
-	}
-	
-	
 	protected boolean recursiveValidationShapeNot(RDFTerm focusNode, 
 			  Label label, 
 			  LinkedList<Pair<RDFTerm,Label>> hyp,
@@ -192,9 +153,8 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 		boolean res = ! this.recursiveValidation(focusNode, shape.getSubExpression().getId(),hyp,g,results,lowestDep);
 				
 		Set<Label> required = new HashSet<>();
-		if (this.typing.getStatus(focusNode, shape.getSubExpression().getId()).equals(TypingStatus.NOTCOMPUTED)){
-			required.add(shape.getSubExpression().getId());
-		}
+		required.add(shape.getSubExpression().getId());
+		
 		
 		updateGraph(focusNode, label, required, res, hyp, g, results, lowestDep);			
 		
@@ -215,9 +175,8 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 		boolean res = this.recursiveValidation(focusNode, shape.getLabel(),hyp,g,results,lowestDep);
 		
 		Set<Label> required = new HashSet<>();
-		if (this.typing.getStatus(focusNode, shape.getLabel()).equals(TypingStatus.NOTCOMPUTED)){
-			required.add(shape.getLabel());
-		}
+		required.add(shape.getLabel());
+		
 		
 		updateGraph(focusNode, label, required, res, hyp, g, results, lowestDep);			
 		
@@ -380,9 +339,7 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 					// Looking at the calls that fails
 					for (TripleConstraint tc:matchingTC1.get(listTC.getKey())){
 						RDFTerm destNode = listTC.getKey().getObject();
-						if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
-							required.add(new Pair<>(destNode,tc.getShapeExpr().getId()));
-						}
+						required.add(new Pair<>(destNode,tc.getShapeExpr().getId()));
 					}
 					updateGraphShape(node, label, required, false, hyp, g, results, lowestDep);
 					return false;
@@ -446,11 +403,41 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 	}
 	
 	
-	private  RDFTerm getOther(Triple t, RDFTerm n){
-		if (t.getObject().equals(n))
-			return t.getSubject();
-		else
-			return t.getObject();
+
+	// for updating the graph
+	
+	protected void memorize(RDFTerm focusNode, 
+			  Label label, 
+			  LinkedList<Pair<RDFTerm,Label>> hyp,
+			  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
+			  Map<Pair<RDFTerm,Label>,Boolean> results,
+			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
+		
+		LinkedList<Pair<RDFTerm,Label>> S = new LinkedList<>();
+		S.add(new Pair<>(focusNode,label));
+		if (results.get(new Pair<>(focusNode,label))) {
+			while (S.size()>0) {
+				Pair<RDFTerm,Label> key = S.pollFirst();
+				if (this.typing.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED) &&
+						!hyp.contains(lowestDep.get(key))) {
+					if (results.get(key))
+						this.typing.setStatus(key.one, key.two, TypingStatus.CONFORMANT);
+					else
+						this.typing.setStatus(key.one, key.two, TypingStatus.NONCONFORMANT);
+				}
+				if (this.typing.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED)) {
+					for(DefaultEdge edge: g.incomingEdgesOf(key))
+						S.add(g.getEdgeSource(edge));
+				}
+			}
+		} else {
+			while (S.size()>0) {
+				Pair<RDFTerm,Label> key = S.pollFirst();
+				for(DefaultEdge edge: g.incomingEdgesOf(key))
+					S.add(g.getEdgeSource(edge));	
+				g.removeVertex(key);
+			}
+		}
 	}
 	
 	// Update the graph of dependencies
@@ -474,14 +461,28 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 					g.addVertex(key2);
 				results.put(key2, res);
 				g.addEdge(key1, key2);
-				if (!lowestDep.containsKey(key1))
-					lowestDep.put(key1, lowestDep.get(key2));
-				else if (hyp.indexOf(lowestDep.get(key1))>hyp.indexOf(lowestDep.get(key2)))
-					lowestDep.put(key1, lowestDep.get(key2));
+				if (!lowestDep.containsKey(key1)) {	
+					if (lowestDep.containsKey(key2)) {
+						lowestDep.put(key1, lowestDep.get(key2));
+					} else { //key2 must be in hyp since not in typing and not in g
+						lowestDep.put(key1, key2);
+					}
+					
+				} else {
+					if (lowestDep.containsKey(key2)) {
+						if (hyp.indexOf(lowestDep.get(key1))>hyp.indexOf(lowestDep.get(key2))) {
+							lowestDep.put(key1, lowestDep.get(key2));
+						}
+					} else { //key2 must be in hyp since not in typing and not in g
+						if (hyp.indexOf(lowestDep.get(key1))>hyp.indexOf(key2)) {
+							lowestDep.put(key1, key2);
+						}
+					}
+				}
 				canSave = false;
 			}
 		}
-		
+
 		if (canSave) {
 			if (res) {
 				this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
@@ -500,6 +501,7 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 			Map<Pair<RDFTerm,Label>,Boolean> results,
 			Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
 		Pair<RDFTerm,Label> key1 = new Pair<>(focusNode,label);
+
 		boolean canSave = true;
 		for(Pair<RDFTerm,Label> key2:required) {
 			if (this.typing.getStatus(key2.one, key2.two).equals(TypingStatus.NOTCOMPUTED)) {
@@ -509,14 +511,27 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 					g.addVertex(key2);
 				results.put(key2, res);
 				g.addEdge(key1, key2);
-				if (!lowestDep.containsKey(key1))
-					lowestDep.put(key1, lowestDep.get(key2));
-				else if (hyp.indexOf(lowestDep.get(key1))>hyp.indexOf(lowestDep.get(key2)))
-					lowestDep.put(key1, lowestDep.get(key2));
+				if (!lowestDep.containsKey(key1)) {	
+					if (lowestDep.containsKey(key2)) {
+						lowestDep.put(key1, lowestDep.get(key2));
+					} else { //key2 must be in hyp since not in typing and not in g
+						lowestDep.put(key1, key2);
+					}
+					
+				} else {
+					if (lowestDep.containsKey(key2)) {
+						if (hyp.indexOf(lowestDep.get(key1))>hyp.indexOf(lowestDep.get(key2))) {
+							lowestDep.put(key1, lowestDep.get(key2));
+						}
+					} else { //key2 must be in hyp since not in typing and not in g
+						if (hyp.indexOf(lowestDep.get(key1))>hyp.indexOf(key2)) {
+							lowestDep.put(key1, key2);
+						}
+					}
+				}
 				canSave = false;
 			}
 		}
-		
 		if (canSave) {
 			if (res) {
 				this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
@@ -524,5 +539,14 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 				this.typing.setStatus(focusNode, label, TypingStatus.NONCONFORMANT);
 			}
 		}
+	}
+	
+	// Util
+	
+	private  RDFTerm getOther(Triple t, RDFTerm n){
+		if (t.getObject().equals(n))
+			return t.getSubject();
+		else
+			return t.getObject();
 	}
 }

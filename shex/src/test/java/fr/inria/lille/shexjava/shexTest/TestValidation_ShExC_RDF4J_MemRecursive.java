@@ -29,10 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -50,11 +48,8 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.util.CommonFactory;
-import fr.inria.lille.shexjava.util.Pair;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
@@ -149,21 +144,12 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
-//    		System.out.println(testCase);
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-//    		for (Label key:schema.getShapeMap().keySet()) {
-//        		System.out.println(key+"  :  "+schema.getShapeMap().get(key));
-//    		}
 
     		Graph dataGraph = getRDFGraph();    		
-//    		System.out.println(dataGraph.stream().collect(Collectors.toList()));
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
     		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
-//    		System.out.println("Typing:");
-//    		for(Pair<RDFTerm, Label> key:validation.getTyping().getAllStatus().keySet()) {
-//    			System.out.println(key+": "+validation.getTyping().getStatus(key.one, key.two));
-//    		}
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
     				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
