@@ -40,7 +40,7 @@ public class TestMemorizationAlgorithm {
 		validation.validate(n1, new Label(rdfFactory.createIRI("http://a.example/S")));
 
 		if (validation.getTyping().isConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
-				fail();
+			fail();
 	}
 	
 	@Test
@@ -67,7 +67,7 @@ public class TestMemorizationAlgorithm {
 		//	System.out.println(key+":"+validation.getTyping().getStatus(key.one, key.two));
 		
 		if (validation.getTyping().isNonConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
-				fail();
+			fail();
 	}
 	
 }
