@@ -42,8 +42,10 @@ import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.rio.ParserConfig;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
@@ -81,6 +83,7 @@ import fr.inria.lille.shexjava.schema.concrsynt.ValueSetValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.WildcardConstraint;
 import fr.inria.lille.shexjava.util.DatatypeUtil;
 import fr.inria.lille.shexjava.util.Interval;
+import fr.inria.lille.shexjava.util.RDF4JFactory;
 
 
 /** Parses a {@link ShexSchema} from its rdf representation. 
@@ -153,7 +156,7 @@ public class ShExRParser implements Parser {
 		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		
-		Model model = Rio.parse(isr, BASE_IRI, RDFFormat.TURTLE);
+		Model model = Rio.parse(isr, BASE_IRI, format, new ParserConfig(), RDF4JFactory.getInstance(), new ParseErrorLogger());
 		RDF4J tmp = new RDF4J();
 		graph = tmp.asGraph(model);
 			
@@ -220,8 +223,9 @@ public class ShExRParser implements Parser {
 		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
 		List<Triple> triples = getTriples(value,null);
-		if (shapeSeen.contains(value) |  triples.size()==0 )
+		if (shapeSeen.contains(value) |  triples.size()==0 ) {
 			return new ShapeExprRef(createLabel(value));
+		}
 		
 		triples = getTriples(value,TYPE_IRI);
 		RDFTerm type = (RDFTerm) triples.get(0).getObject();
@@ -309,7 +313,7 @@ public class ShExRParser implements Parser {
 		RDFTerm val = (RDFTerm) getObjects(value,TRIPLE_EXPRESSION).get(0);
 		
 		Shape res = new Shape(parseTripleExpr(val),extras,closed,annotations);
-		setLabel(res,value);	
+		setLabel(res,value);
 		return res;
 	}
 	
@@ -771,19 +775,14 @@ public class ShExRParser implements Parser {
 		if (testTriples(value,MAX))
 			max =  DatatypeUtil.getIntegerValue(((Literal) getObjects(value, MAX).get(0)));
 		
-		if (min==null & max==null)
+		if (min==null && max==null)
 			return null;
-		
-		if (min==0 & max==1)
-			return Interval.OPT;
-		if (min==0 & max==-1)
-			return Interval.STAR;
-		if (min==1 & max==-1)
-			return Interval.PLUS;
-		if (min==2 & max==1)
-			return Interval.EMPTY;
+		if (min==null)
+			min=0;
 		if (max ==-1)
 			max = Interval.UNBOUND;
+		if (max==null)
+			max=min;	
 		return new Interval(min,max);
 	}
 	
@@ -814,16 +813,18 @@ public class ShExRParser implements Parser {
 		if (value instanceof IRI)
 			return new Label((IRI) value);
 		if (value instanceof BlankNode)
-			return new Label((BlankNode) value);
+			return new Label(rdfFactory.createBlankNode(((BlankNode) value).ntriplesString().substring(2)));
+		
 		return null;
 	}
 	
 	
 	private void setLabel(ShapeExpr shape,RDFTerm value) {
-		if (value instanceof IRI)
-			shape.setId(new Label((IRI) value));
-		if (value instanceof BlankNode & ! value.ntriplesString().startsWith("gen-id"))
-			shape.setId(new  Label((BlankNode) value));
+		//if (value instanceof IRI)
+		//	shape.setId(new Label((IRI) value));
+		//if (value instanceof BlankNode & ! value.ntriplesString().startsWith("gen-id"))
+		//	shape.setId(new  Label((BlankNode) value));
+		shape.setId(createLabel(value));
 	}
 	
 	

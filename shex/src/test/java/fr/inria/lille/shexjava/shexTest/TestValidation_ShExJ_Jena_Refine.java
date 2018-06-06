@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.jena.JenaRDF;
+import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -48,6 +49,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.CommonFactory;
@@ -101,13 +103,13 @@ public class TestValidation_ShExJ_Jena_Refine {
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
 	    	String selectedTest = "";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-	    		TestCase tc = new TestCase(manifest,testNode);
+	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
 			}
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-	    		TestCase tc = new TestCase(manifest,testNode);
+	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
@@ -149,9 +151,8 @@ public class TestValidation_ShExJ_Jena_Refine {
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     			return;
     		}
-    		CommonFactory myFactory = new CommonFactory();
     		    		
-    		ShexSchema schema = GenParser.parseSchema(myFactory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		Graph dataGraph = getRDFGraph();
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
 	    	
@@ -162,10 +163,10 @@ public class TestValidation_ShExJ_Jena_Refine {
 	    			if (TEST_DIR.contains(":")) {
 	    				String newURI = TEST_DIR.substring(0,TEST_DIR.indexOf(":")+1);
 	    				newURI += focus.getIRIString().substring(GITHUB_URL.length()+11);
-	    				testCase.focusNode = myFactory.createIRI(newURI);
+	    				testCase.focusNode = GlobalFactory.RDFFactory.createIRI(newURI);
 	    			}else {
 	        			Path fullpath = Paths.get(TEST_DIR,focus.getIRIString().substring(GITHUB_URL.length()));
-	    				testCase.focusNode = myFactory.createIRI("file://"+fullpath.toString());
+	    				testCase.focusNode = GlobalFactory.RDFFactory.createIRI("file://"+fullpath.toString());
 	    			}
 	       		}
 	    	}

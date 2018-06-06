@@ -30,8 +30,8 @@ public class RepeatedTripleExpression extends TripleExpr {
 	private Interval card;
 	
 	public RepeatedTripleExpression (TripleExpr subExpr, Interval card) {
-		if ((card.min ==0) && (card.max==0))
-			throw new IllegalStateException("Current implementation do not support 0-0 repetition. To forbid a triple constraint, you can use ShapeNot aand ShapeAnd.");
+		//if ((card.min ==0) && (card.max==0))
+		//	throw new IllegalStateException("Current implementation do not support 0-0 repetition. To forbid a triple constraint, you can use ShapeNot aand ShapeAnd.");
 		this.subExpr = subExpr;
 		this.card = card;
 	}

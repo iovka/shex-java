@@ -103,6 +103,7 @@ public class ShexSchema {
 				throw new IllegalArgumentException("Label "+shexp.getId()+" allready used.");
 			shapeMapTmp.put(shexp.getId(),shexp);
 		}
+
 		this.shapeMap = Collections.unmodifiableMap(new HashMap<Label, ShapeExpr>(shapeMapTmp));
 		// Check that all the shape references are defined
 		for (Map.Entry<Label,ShapeExpr> entry:shapeMap.entrySet()){
@@ -225,6 +226,10 @@ public class ShexSchema {
 		return tripleMap;
 	}
 	
+	public RDF getRdfFactory() {
+		return rdfFactory;
+	}
+
 	@Override
 	public String toString() {
 		return rules.toString();

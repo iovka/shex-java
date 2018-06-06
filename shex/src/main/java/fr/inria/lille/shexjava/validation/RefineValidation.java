@@ -72,7 +72,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		super();
 		this.graph = graph;
 		this.schema = schema;
-		this.sorbeGenerator = new SORBEGenerator();
+		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.extraShapes=Collections.emptySet();
 		initSelectedShape();
@@ -82,7 +82,7 @@ public class RefineValidation implements ValidationAlgorithm {
 		super();
 		this.graph = graph;
 		this.schema = schema;
-		this.sorbeGenerator = new SORBEGenerator();
+		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.extraShapes=extraShapes;
 		initSelectedShape();
@@ -271,7 +271,7 @@ public class RefineValidation implements ValidationAlgorithm {
 			if (intervalComputation.getResult().contains(1)) {
 				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
 				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
-					result.add(new Pair<Triple,Label>(pair.one,SORBEGenerator.removeSORBESuffixe(pair.two)));
+					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
 				typing.setMatch(node, shape.getId(), result);
 				return true;
 			}

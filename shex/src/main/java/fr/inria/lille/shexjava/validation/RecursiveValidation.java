@@ -65,7 +65,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	public RecursiveValidation(ShexSchema schema, Graph graph) {
 		super();
 		this.graph = graph;
-		this.sorbeGenerator = new SORBEGenerator();
+		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
 		this.schema = schema;
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.typing = new Typing();
@@ -192,7 +192,8 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
 
 
-		// Match using only predicate and recursive test. The following line are the only big difference with refine validation
+		// Match using only predicate and recursive test. The following line are the only big difference with refine validation. 
+		// The others differences are the cleanTyping calls.
 		Set<Pair<RDFTerm, Label>> dependencies = new HashSet<Pair<RDFTerm, Label>>();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
@@ -224,8 +225,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			}
 
 		}
-		
-		// end of the big diference with refine
+		// end of the big difference with refine
 		
 		// Add the detected node value to the typing
 		Matcher matcher2 = new MatcherPredicateAndValue(this.getTyping()); 
@@ -263,7 +263,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 			if (intervalComputation.getResult().contains(1)) {
 				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
 				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
-					result.add(new Pair<Triple,Label>(pair.one,SORBEGenerator.removeSORBESuffixe(pair.two)));
+					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
 				typing.setMatch(node, shape.getId(), result);
 				cleanTyping(dependencies);
 				return true;

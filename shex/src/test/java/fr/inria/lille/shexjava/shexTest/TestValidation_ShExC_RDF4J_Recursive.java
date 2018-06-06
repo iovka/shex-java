@@ -47,6 +47,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.CommonFactory;
@@ -97,13 +98,13 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 			List<Object[]> parameters = new ArrayList<Object[]>();
 			String selectedTest = "";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-	    		TestCase tc = new TestCase(manifest,testNode);
+	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
 			}
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-	    		TestCase tc = new TestCase(manifest,testNode);
+	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
@@ -144,8 +145,9 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
+    		//System.out.println(testCase.shapeLabel);
     		//System.out.println(testCase);
-    		ShexSchema schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		//System.out.println(schema.getRules());
  
     		//System.out.println(dataGraph.stream().collect(Collectors.toList()));

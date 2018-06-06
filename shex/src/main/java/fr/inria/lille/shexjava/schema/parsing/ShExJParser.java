@@ -711,9 +711,10 @@ public class ShExJParser implements Parser{
 			return null;
 		if (min == null)
 			min = 0;
-		if (max == null || max == -1)
+		if (max == -1)
 			max = Interval.UNBOUND;
-
+		if (max == null)
+			max = min;
 		return new Interval(min, max);
 	}
 

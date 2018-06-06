@@ -126,7 +126,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
 		this.rdfFactory = rdfFactory;
-		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		ANTLRInputStream inputStream = new ANTLRInputStream(isr);
         ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
@@ -389,8 +388,9 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		}
 		if (ctx.ATPNAME_NS()!=null) {
 			String prefix = ctx.getText().substring(1);
-			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)))); 		}
-		
+			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)))); 
+		}
+
 		return new ShapeExprRef((Label) ctx.shapeExprLabel().accept(this)); 
 	}
 	
@@ -789,8 +789,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 				return new Interval(min,Integer.parseInt(ctx.repeatRange().max_range().getText())); 
 			return new Interval(min,Interval.UNBOUND);
 		}
-		if (min==0)
-			return Interval.EMPTY;
 		return new Interval(min,min);
 	}
 

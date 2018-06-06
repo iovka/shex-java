@@ -47,9 +47,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.util.CommonFactory;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
@@ -97,13 +97,13 @@ public class TestValidation_ShExR_RDF4J_Recursive {
 			List<Object[]> parameters = new ArrayList<Object[]>();
 			String selectedTest = "";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-	    		TestCase tc = new TestCase(manifest,testNode);
+	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
 			}
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-	    		TestCase tc = new TestCase(manifest,testNode);
+	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
@@ -151,10 +151,10 @@ public class TestValidation_ShExR_RDF4J_Recursive {
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     			return;
     		}
-    		CommonFactory myFactory = new CommonFactory();
+    		//System.out.println(testCase);
 
-    		ShexSchema schema = GenParser.parseSchema(myFactory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
- 
+    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		//System.out.println(schema);
     		//System.out.println(dataGraph.stream().collect(Collectors.toList()));
     		Graph dataGraph = getRDFGraph();    		
     		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
@@ -171,6 +171,7 @@ public class TestValidation_ShExR_RDF4J_Recursive {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
     		}			
     	}catch (Exception e) {
+    		e.printStackTrace();
     		System.err.println(e.getMessage());
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
     	}

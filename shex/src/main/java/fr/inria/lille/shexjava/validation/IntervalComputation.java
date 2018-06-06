@@ -128,12 +128,16 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 			this.result = div(nbOcc, card);
 		}
 
-		else if (card.equals(Interval.EMPTY)) {
+		else if (card.equals(Interval.ZERO)) {
 			//throw new UnsupportedOperationException("not yet implemented");
 			if (isEmptySubbag(bag, expression)) {
 				this.result = Interval.STAR;
 			} else {
-				this.result = Interval.EMPTY;
+				subExpr.accept(this, arguments);
+				if (this.result.equals(Interval.EMPTY)) 
+					this.result = Interval.STAR;
+				else
+					this.result = Interval.EMPTY;
 			}
 		}
 		

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.simple.SimpleRDF;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
@@ -42,13 +41,14 @@ import fr.inria.lille.shexjava.util.Interval;
  * @author Jérémie Dusart
  */
 public class SORBEGenerator {
-	private static final RDF rdfFactory = new SimpleRDF();
-	private static int tripleLabelNb = 0;
-	public static String SORBE_TRIPLE_LABEL_SUFFIXE = "_SORBE_";
+	private RDF rdfFactory;
+	private int tripleLabelNb = 0;
+	public  String SORBE_TRIPLE_LABEL_SUFFIXE = "_SORBE_";
 	
 	private Map<Label,TripleExpr> sorbeMap;
 	
-	public SORBEGenerator() {
+	public SORBEGenerator(RDF rdfFactory) {
+		this.rdfFactory=rdfFactory;
 		this.sorbeMap=new HashMap<Label,TripleExpr>();
 	}
 	
@@ -124,7 +124,7 @@ public class SORBEGenerator {
 		} else if(expr.getCardinality().equals(Interval.PLUS)
 				  || expr.getCardinality().equals(Interval.STAR)
 				  || expr.getCardinality().equals(Interval.OPT)
-				  || expr.getCardinality().equals(Interval.EMPTY)){
+				  || expr.getCardinality().equals(Interval.ZERO)){
 			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),expr.getCardinality());
 			setTripleLabel(result,expr);
 			return result;
@@ -159,18 +159,20 @@ public class SORBEGenerator {
 	
 
 	private void setTripleLabel(TripleExpr newTriple,TripleExpr oldTriple) {
-		if (oldTriple.getId().isBlankNode())
-			newTriple.setId(new Label(rdfFactory.createBlankNode(oldTriple.getId().stringValue()+SORBE_TRIPLE_LABEL_SUFFIXE+tripleLabelNb),
+		if (oldTriple.getId().isBlankNode()) {
+			String old = oldTriple.getId().stringValue().substring(2);
+			newTriple.setId(new Label(rdfFactory.createBlankNode(old+SORBE_TRIPLE_LABEL_SUFFIXE+tripleLabelNb),
 									  oldTriple.getId().isGenerated()));
+		}
 		if (oldTriple.getId().isIri())
 			newTriple.setId(new Label(rdfFactory.createIRI(oldTriple.getId().stringValue()+SORBE_TRIPLE_LABEL_SUFFIXE+tripleLabelNb),
 									  oldTriple.getId().isGenerated()));
 		tripleLabelNb++;
 	}
 	
-	public static Label removeSORBESuffixe(Label label) {
+	public Label removeSORBESuffixe(Label label) {
 		if (label.isBlankNode()) {
-			return new Label(rdfFactory.createBlankNode(label.stringValue().split(SORBE_TRIPLE_LABEL_SUFFIXE)[0]),
+			return new Label(rdfFactory.createBlankNode(label.stringValue().split(SORBE_TRIPLE_LABEL_SUFFIXE)[0].substring(2)),
 													label.isGenerated());
 		}
 		return new Label(rdfFactory.createIRI(label.stringValue().split(SORBE_TRIPLE_LABEL_SUFFIXE)[0]),

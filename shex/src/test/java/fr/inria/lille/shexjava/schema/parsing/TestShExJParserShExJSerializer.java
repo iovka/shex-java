@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Resource;
@@ -48,6 +49,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.util.CommonFactory;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
@@ -100,13 +102,13 @@ public class TestShExJParserShExJSerializer {
 			List<Object[]> parameters = new ArrayList<Object[]>();
 			String selectedTest = "";
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
-				TestCase tc = new TestCase(manifest,testNode);
+				TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
 			}
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
-				TestCase tc = new TestCase(manifest,testNode);
+				TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
 		    	if (selectedTest.equals("") || tc.testName.equals(selectedTest))
 		    		parameters.add(params);
