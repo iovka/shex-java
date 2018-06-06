@@ -105,8 +105,10 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 										  Map<Pair<RDFTerm,Label>,Boolean> results,
 										  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
 		Pair<RDFTerm,Label> key = new Pair<>(focusNode,label);
-		if (hyp.contains(key))
+		if (hyp.contains(key)) {
+			//System.out.println("in hyp");
 			return true;
+		}
 		if (!this.typing.getStatus(focusNode, label).equals(TypingStatus.NOTCOMPUTED))
 			return this.typing.isConformant(focusNode, label);
 		if (g.containsVertex(key))
@@ -306,6 +308,7 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 			
 			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
+
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 	
@@ -425,9 +428,10 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 					else
 						this.typing.setStatus(key.one, key.two, TypingStatus.NONCONFORMANT);
 				}
-				if (this.typing.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED)) {
-					for(DefaultEdge edge: g.incomingEdgesOf(key))
-						S.add(g.getEdgeSource(edge));
+				for(DefaultEdge edge: g.incomingEdgesOf(key)) {
+					Pair<RDFTerm,Label> dest = g.getEdgeSource(edge);
+					if (this.typing.getStatus(dest.one, dest.two).equals(TypingStatus.NOTCOMPUTED))
+						S.add(dest);
 				}
 			}
 		} else {

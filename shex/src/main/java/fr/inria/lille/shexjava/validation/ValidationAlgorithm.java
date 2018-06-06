@@ -25,10 +25,10 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 /** <p>Allows to validate a graph against a ShEx schema.</p>
  * 
  * <p>A {@link ValidationAlgorithm} must be initialized with an {@link RDFGraph} and a {@link ShexSchema}.
- * Then the {@link #validate(Value, Label)} method allows to construct a typing of the graph by the schema.
- * The {@link #getTyping()} method allows to retrieve the typing constructed by {@link #validate(Value, Label)}.</p>
+ * Then the {@link #validate(RDFTerm, Label)} method allows to construct a typing of the graph by the schema.
+ * The {@link #getTyping()} method allows to retrieve the typing constructed by {@link #validate(RDFTerm, Label)}.</p>
  * 
- * <p>The method {@link #validate(Value, Label)} can take as parameter a node and a shape label, which both can be <code>null</code>.</p>
+ * <p>The method {@link #validate(RDFTerm, Label)} can take as parameter a node and a shape label, which both can be <code>null</code>.</p>
  * 
  * 
   * 
@@ -47,7 +47,7 @@ public interface ValidationAlgorithm {
 	 */
 	public boolean validate(RDFTerm focusNode, Label label)  throws Exception;
 	
-	/** Retrieves the typing constructed by a previous call of {@link #validate(Value, Label)}.
+	/** Retrieves the typing constructed by a previous call of {@link #validate(RDFTerm, Label)}.
 	 * 
 	 */
 	public Typing getTyping();

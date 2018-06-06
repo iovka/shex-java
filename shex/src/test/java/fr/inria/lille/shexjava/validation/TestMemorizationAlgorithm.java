@@ -43,4 +43,31 @@ public class TestMemorizationAlgorithm {
 				fail();
 	}
 	
+	@Test
+	public void test0Cardinality2() throws Exception {
+		Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"other","MemValidation1.shex");
+		ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+
+
+		Model model = new LinkedHashModel();
+		Graph graph = (new RDF4J()).asGraph(model);
+
+		//create an user
+		BlankNodeOrIRI n1 =  rdfFactory.createIRI("http://a.example/n1");
+		BlankNodeOrIRI n2 =  rdfFactory.createIRI("http://a.example/n2");
+		graph.add(n1,rdfFactory.createIRI("http://a.example/a"),n2);
+		graph.add(n2,rdfFactory.createIRI("http://a.example/b"),n1);		
+		graph.add(n1,rdfFactory.createIRI("http://a.example/c"),rdfFactory.createIRI("http://a.example/cv"));
+		
+		
+		ValidationAlgorithm validation = new RecursiveMemValidation(schema,graph);
+		validation.validate(n1, new Label(rdfFactory.createIRI("http://a.example/S")));
+ 
+		//for (Pair<RDFTerm, Label> key:validation.getTyping().getAllStatus().keySet())
+		//	System.out.println(key+":"+validation.getTyping().getStatus(key.one, key.two));
+		
+		if (validation.getTyping().isNonConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
+				fail();
+	}
+	
 }
