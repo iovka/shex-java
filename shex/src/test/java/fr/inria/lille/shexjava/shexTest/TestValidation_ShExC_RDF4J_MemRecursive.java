@@ -53,7 +53,7 @@ import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
-import fr.inria.lille.shexjava.validation.RecursiveMemValidation;
+import fr.inria.lille.shexjava.validation.RecursiveValidationWithMemorization;
 import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
 
 
@@ -207,7 +207,7 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
 	}
 	
 	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
-		return new RecursiveMemValidation(schema, dataGraph);
+		return new RecursiveValidationWithMemorization(schema, dataGraph);
 	}
 	
 

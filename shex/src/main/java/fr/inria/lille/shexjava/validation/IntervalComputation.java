@@ -133,11 +133,7 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 			if (isEmptySubbag(bag, expression)) {
 				this.result = Interval.STAR;
 			} else {
-				subExpr.accept(this, arguments);
-				if (this.result.equals(Interval.EMPTY)) 
-					this.result = Interval.STAR;
-				else
-					this.result = Interval.EMPTY;
+				this.result = Interval.EMPTY;
 			}
 		}
 		

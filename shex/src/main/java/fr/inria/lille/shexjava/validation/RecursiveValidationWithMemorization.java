@@ -56,7 +56,7 @@ import fr.inria.lille.shexjava.util.Pair;
  * 
  * @author Jérémie Dusart 
  */
-public class RecursiveMemValidation implements ValidationAlgorithm {
+public class RecursiveValidationWithMemorization implements ValidationAlgorithm {
 	private Graph graph;
 	private SORBEGenerator sorbeGenerator;
 	private ShexSchema schema;
@@ -65,7 +65,7 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 	private DynamicCollectorOfTripleConstraint collectorTC;
 	
 	
-	public RecursiveMemValidation(ShexSchema schema, Graph graph) {
+	public RecursiveValidationWithMemorization(ShexSchema schema, Graph graph) {
 		super();
 		this.graph = graph;
 		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
@@ -431,6 +431,8 @@ public class RecursiveMemValidation implements ValidationAlgorithm {
 				g.removeVertex(new Pair<>(focusNode,label));
 		}
 	}
+	
+	
 	
 	// Update the graph of dependencies
 	
