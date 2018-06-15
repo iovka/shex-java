@@ -56,32 +56,12 @@ import fr.inria.lille.shexjava.util.Pair;
  * 
  * @author Jérémie Dusart 
  */
-public class RecursiveValidationWithMemorization implements ValidationAlgorithm {
-	private Graph graph;
-	private SORBEGenerator sorbeGenerator;
-	private ShexSchema schema;
-	private Typing typing;
-	
-	private DynamicCollectorOfTripleConstraint collectorTC;
-	
+public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	
 	public RecursiveValidationWithMemorization(ShexSchema schema, Graph graph) {
-		super();
-		this.graph = graph;
-		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
-		this.schema = schema;
-		this.collectorTC = new DynamicCollectorOfTripleConstraint();
-		this.typing = new Typing();
+		super(schema,graph);
 	}
 	
-	public void resetTyping() {
-		this.typing = new Typing();
-	}
-	
-	@Override
-	public Typing getTyping() {
-		return typing;
-	}	
 	
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
@@ -253,30 +233,15 @@ public class RecursiveValidationWithMemorization implements ValidationAlgorithm 
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
-		if (constraints.size() == 0) {
-			if (!shape.isClosed()) {
-				updateGraph(node, label, required, true, hyp, g, results, lowestDep);		
-				return true;
-			} else {
-				if (CommonGraph.getOutNeighbours(graph, node).size()==0) {
-					updateGraph(node, label, required, true, hyp, g, results, lowestDep);		
-					return true;
-				} else {
-					updateGraph(node, label, required, false, hyp, g, results, lowestDep);		
-					return false;
-				}
-			}
-		}
-				
+		
+		
 		Set<IRI> inversePredicate = new HashSet<IRI>();
 		Set<IRI> forwardPredicate = new HashSet<IRI>();
 		for (TripleConstraint tc:constraints)
 			if (tc.getProperty().isForward())
 				forwardPredicate.add(tc.getProperty().getIri());
 			else
-				inversePredicate.add(tc.getProperty().getIri());
-
-		
+				inversePredicate.add(tc.getProperty().getIri());	
 		ArrayList<Triple> neighbourhood = new ArrayList<>();
 		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
 		if (shape.isClosed())
@@ -289,18 +254,8 @@ public class RecursiveValidationWithMemorization implements ValidationAlgorithm 
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 
-		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
-			if (entry.getValue().isEmpty()) {
-				boolean success = false;
-				for (TCProperty extra : shape.getExtraProperties())
-					if (extra.getIri().equals(entry.getKey().getPredicate()))
-						success = true;
-				if (!success) {
-					updateGraph(node, label, required, false, hyp, g, results, lowestDep);		
-					return false;
-				}
-			}
-			
+		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {			
+			int nb=0;
 			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
 
@@ -308,85 +263,59 @@ public class RecursiveValidationWithMemorization implements ValidationAlgorithm 
 					destNode = entry.getKey().getSubject();
 	
 				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
-					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId(),hyp,g,results,lowestDep)) 
+					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId(),hyp,g,results,lowestDep)) {
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);
-					else
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);	
+						nb++;
+					} else {
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);
+					}
 				} else {
 					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
+					if (typing.isConformant(destNode, tc.getShapeExpr().getId()))
+						nb++;
 				}
 			}
-
-		}
-		
-		// Add the detected node value to the typing
-		Matcher matcher2 = new MatcherPredicateAndValue(localTyping); 
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC2 = matcher2.collectMatchingTC(node, neighbourhood, constraints);
-
-		// Check that the neighbor that cannot be match to a constraint are in extra
-		Iterator<Map.Entry<Triple,List<TripleConstraint>>> iteMatchingTC = matchingTC2.entrySet().iterator();
-		while(iteMatchingTC.hasNext()) {
-			Entry<Triple, List<TripleConstraint>> listTC = iteMatchingTC.next();
-			if (listTC.getValue().isEmpty()) {
-				extraNeighbours.add(listTC.getKey());
+			
+			if (nb==0) {
 				boolean success = false;
 				for (TCProperty extra : shape.getExtraProperties())
-					if (extra.getIri().equals(listTC.getKey().getPredicate()))
+					if (extra.getIri().equals(entry.getKey().getPredicate()))
 						success = true;
 				if (!success) {
 					// Looking at the calls that fails
-					for (TripleConstraint tc:matchingTC1.get(listTC.getKey())){
-						RDFTerm destNode = listTC.getKey().getObject();
+					for (TripleConstraint tc:matchingTC1.get(entry.getKey())){
+						RDFTerm destNode = entry.getKey().getObject();
 						required.add(new Pair<>(destNode,tc.getShapeExpr().getId()));
 					}
 					updateGraph(node, label, required, false, hyp, g, results, lowestDep);
 					return false;
 				}
-				
-				iteMatchingTC.remove();
 			}
-		}
-		
-		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		ArrayList<Triple> selectedNeighbourhood = new ArrayList<Triple>();
-		ArrayList<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
-		for(Triple nt:matchingTC2.keySet()) {
-			selectedNeighbourhood.add(nt);
-			listMatchingTC.add(matchingTC2.get(nt));
-		}
-		
-		BagIterator bagIt = new BagIterator(selectedNeighbourhood,listMatchingTC);
-		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);	
-		while(bagIt.hasNext()){
-			Bag bag = bagIt.next();
-			tripleExpression.accept(intervalComputation, bag, this);
-			if (intervalComputation.getResult().contains(1)) {
-				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
-				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
-					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
-				typing.setMatch(node, shape.getId(), result);
-				// Update the graph if necessary
-				for (Pair<Triple,Label> pair:result) {
-					Label depLabel = ((TripleConstraint) schema.getTripleMap().get(pair.two)).getShapeExpr().getId();
-					required.add(new Pair<>(getOther(pair.one,node), depLabel));
-				}
-				for (Triple tri:extraNeighbours) {
-					RDFTerm other = getOther(tri,node);
-					for (Label l:localTyping.getShapesLabel(other))
-						required.add(new Pair<>(other, l));
-				}
-				updateGraph(node, label, required, true, hyp, g, results, lowestDep);		
 
-				return true;
-			}
 		}
+		
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping);
+		if (result!=null) {
+			for (Pair<Triple,Label> pair:result) {
+				Label depLabel = ((TripleConstraint) schema.getTripleMap().get(pair.two)).getShapeExpr().getId();
+				required.add(new Pair<>(getOther(pair.one,node), depLabel));
+			}
+			for (Triple tri:extraNeighbours) {
+				RDFTerm other = getOther(tri,node);
+				for (Label l:localTyping.getShapesLabel(other))
+					required.add(new Pair<>(other, l));
+			}
+			updateGraph(node, label, required, true, hyp, g, results, lowestDep);		
+
+			return true;
+		}
+		
 		// Update the graph if necessary
 		for (Pair<RDFTerm,Label> pair:localTyping.getAllStatus().keySet())
 			if (localTyping.isNonConformant(pair.one,pair.two))
 				required.add(pair);		
 		updateGraph(node, label, required, false, hyp, g, results, lowestDep);		
-		
-		
+				
 		return false;
 	}
 	

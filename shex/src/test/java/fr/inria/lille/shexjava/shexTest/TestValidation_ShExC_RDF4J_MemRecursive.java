@@ -170,7 +170,7 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
 	
     @AfterClass
 	public static void ending() {
-    	System.out.println("Result for validation (ShExC, RDF4J, recursive) tests:");
+    	System.out.println("Result for validation with memorization (ShExC, RDF4J, MemRecursive) tests:");
 		System.out.println("Skipped: "+skiped.size());
 		printTestCaseNames("  > ",skiped);
 		System.out.println("Passed : "+passed.size());

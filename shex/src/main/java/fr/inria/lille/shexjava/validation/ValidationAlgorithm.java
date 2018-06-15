@@ -17,6 +17,9 @@
 package fr.inria.lille.shexjava.validation;
 
 
+import java.util.Set;
+
+import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
@@ -36,7 +39,19 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
  * @author Antonin Durey
  *
  */
-public interface ValidationAlgorithm {
+public abstract  class  ValidationAlgorithm {
+	protected Graph graph;
+	protected ShexSchema schema;
+	protected Typing typing;
+	protected Set<MatchingCollector> mc;
+	protected DynamicCollectorOfTripleConstraint collectorTC;
+
+	public ValidationAlgorithm(ShexSchema schema, Graph graph) {
+		this.graph = graph;
+		this.schema = schema;
+		this.typing = new Typing();
+		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+	}
 
 	/** Constructs a typing that allows to validate a focus node against a type.
 	 * return true is focusNode has shape label, false otherwise.
@@ -45,10 +60,37 @@ public interface ValidationAlgorithm {
 	 * @param focusNode The focus node for which the typing is to be complete. If null, then the typing will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
 	 * @param label The label for which the typing is to be complete. If null, then the typing will be complete for all labels.
 	 */
-	public boolean validate(RDFTerm focusNode, Label label)  throws Exception;
+	public abstract boolean validate(RDFTerm focusNode, Label label)  throws Exception;
 	
 	/** Retrieves the typing constructed by a previous call of {@link #validate(RDFTerm, Label)}.
 	 * 
 	 */
-	public Typing getTyping();
+	public Typing getTyping() {
+		return typing;
+	}
+	
+	public void resetTyping() {
+		this.typing = new Typing();
+	}
+	
+	/** Add a collector for the matching computed by the validation algorithm.
+	 * 
+	 */
+	public void addMatchingCollector(MatchingCollector m) {
+		mc.add(m);
+	}
+	
+	/** remove a collector for the matching computed by the validation algorithm.
+	 * 
+	 */
+	public void removeMatchingCollector(MatchingCollector m){
+		mc.remove(m);
+	}
+	
+	/** remove a collector for the matching computed by the validation algorithm.
+	 * 
+	 */
+	public Set<MatchingCollector> getMatchingCollector(MatchingCollector m) {
+		return mc;
+	}
 }

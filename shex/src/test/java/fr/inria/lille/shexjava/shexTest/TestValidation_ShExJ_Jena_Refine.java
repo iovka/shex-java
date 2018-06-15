@@ -144,7 +144,6 @@ public class TestValidation_ShExJ_Jena_Refine {
 
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
-    		//System.out.println(testCase);
     		if(! schemaFile.toFile().exists()) {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
@@ -170,9 +169,7 @@ public class TestValidation_ShExJ_Jena_Refine {
 	       		}
 	    	}
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
-    		
-    		//System.out.println(validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel));
-    		
+    		   		
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
     				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
     			||

@@ -18,7 +18,6 @@ public class Typing {
 	private Map<Pair<RDFTerm,Label>,TypingStatus> status;
 	private Map<Label,Set<RDFTerm>> nodes;
 	private Map<RDFTerm,Set<Label>> labels;
-	private Map<Pair<RDFTerm, Label>,List<Pair<Triple,Label>>> matching;
 
 	
 	public Typing() {
@@ -26,7 +25,6 @@ public class Typing {
 		status = new HashMap<>();
 		nodes = new HashMap<>();
 		labels = new HashMap<>();
-		matching = new HashMap<>();
 	}
 
 	public void setStatus(RDFTerm node, Label label,TypingStatus status) {
@@ -80,19 +78,11 @@ public class Typing {
 		return Collections.emptySet();
 	}
 	
-	public void setMatch(RDFTerm node, Label label, List<Pair<Triple, Label>> match) {
-		matching.put(new Pair<RDFTerm, Label>(node,label), match);	
-	}
 	
-	public List<Pair<Triple, Label>> getMatch(RDFTerm node, Label label) {
-		return matching.get(new Pair<RDFTerm, Label>(node,label));		
-	}
-
 	public void removeNodeLabel(RDFTerm node, Label label) {
 		Pair<RDFTerm, Label> key = new Pair<RDFTerm, Label>(node,label);
 		status.remove(key);
 		messages.remove(key);
-		matching.remove(key);
 		if (nodes.containsKey(label))
 			nodes.get(label).remove(node);
 		if (labels.containsKey(node))

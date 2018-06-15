@@ -53,33 +53,13 @@ import fr.inria.lille.shexjava.util.Pair;
  * 
  * @author Jérémie Dusart 
  */
-public class RecursiveValidation implements ValidationAlgorithm {
-	private Graph graph;
-	private SORBEGenerator sorbeGenerator;
-	private ShexSchema schema;
-	private Typing typing;
-	
-	private DynamicCollectorOfTripleConstraint collectorTC;
-	
+public class RecursiveValidation extends SORBEBasedValidation {
 	
 	public RecursiveValidation(ShexSchema schema, Graph graph) {
-		super();
-		this.graph = graph;
-		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
-		this.schema = schema;
-		this.collectorTC = new DynamicCollectorOfTripleConstraint();
-		this.typing = new Typing();
+		super(schema,graph);
 	}
 	
-	public void resetTyping() {
-		this.typing = new Typing();
-	}
-	
-	@Override
-	public Typing getTyping() {
-		return typing;
-	}	
-	
+
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
 		if (label == null || !schema.getShapeMap().containsKey(label))
@@ -162,18 +142,7 @@ public class RecursiveValidation implements ValidationAlgorithm {
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
-		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
-		if (constraints.size() == 0) {
-			if (!shape.isClosed())
-				return true;
-			else {
-				if (CommonGraph.getOutNeighbours(graph, node).size()==0)
-					return true;
-				 else
-					return false;
-			}
-		}
-		
+		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);	
 		
 		Set<IRI> inversePredicate = new HashSet<IRI>();
 		Set<IRI> forwardPredicate = new HashSet<IRI>();
@@ -194,91 +163,34 @@ public class RecursiveValidation implements ValidationAlgorithm {
 
 		// Match using only predicate and recursive test. The following line are the only big difference with refine validation. 
 		// The others differences are the cleanTyping calls.
-		Set<Pair<RDFTerm, Label>> dependencies = new HashSet<Pair<RDFTerm, Label>>();
+		Typing localTyping = new Typing();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 
-		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
-			if (entry.getValue().isEmpty()) {
-				boolean success = false;
-				for (TCProperty extra : shape.getExtraProperties())
-					if (extra.getIri().equals(entry.getKey().getPredicate()))
-						success = true;
-				if (!success) {
-					cleanTyping(dependencies);
-					return false;
-				}
-			}
-			
+		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
 			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 	
 				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
-					dependencies.add(new Pair<>(destNode, tc.getShapeExpr().getId()));
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
-						typing.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);	
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);	
 					else
-						typing.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);	
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);	
+				} else {
+					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
 				}
 			}
 
 		}
 		// end of the big difference with refine
 		
-		// Add the detected node value to the typing
-		Matcher matcher2 = new MatcherPredicateAndValue(this.getTyping()); 
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC2 = matcher2.collectMatchingTC(node, neighbourhood, constraints);
-
-		// Check that the neighbor that cannot be match to a constraint are in extra
-		Iterator<Map.Entry<Triple,List<TripleConstraint>>> iteMatchingTC = matchingTC2.entrySet().iterator();
-		while(iteMatchingTC.hasNext()) {
-			Entry<Triple, List<TripleConstraint>> listTC = iteMatchingTC.next();
-			if (listTC.getValue().isEmpty()) {
-				boolean success = false;
-				for (TCProperty extra : shape.getExtraProperties())
-					if (extra.getIri().equals(listTC.getKey().getPredicate()))
-						success = true;
-				if (!success) {
-					cleanTyping(dependencies);
-					return false;
-				}
-				iteMatchingTC.remove();
-			}
-		}
-		
-		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		ArrayList<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
-		for(Triple nt:matchingTC2.keySet())
-			listMatchingTC.add(matchingTC2.get(nt));
-		
-		BagIterator bagIt = new BagIterator(neighbourhood,listMatchingTC);
-
-		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
-		
-		while(bagIt.hasNext()){
-			Bag bag = bagIt.next();
-			tripleExpression.accept(intervalComputation, bag, this);
-			if (intervalComputation.getResult().contains(1)) {
-				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
-				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
-					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
-				typing.setMatch(node, shape.getId(), result);
-				cleanTyping(dependencies);
-				return true;
-			}
-		}
-		cleanTyping(dependencies);
-		
-		return false;
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping);
+		if (result == null)
+			return false;
+		return true;
 	}	
 
-	// Typing util
 	
-	public void cleanTyping(Set<Pair<RDFTerm, Label>> dependencies) {
-		for (Pair<RDFTerm, Label> pair:dependencies) {
-			this.typing.removeNodeLabel(pair.one, pair.two);
-		}
-	}
 }

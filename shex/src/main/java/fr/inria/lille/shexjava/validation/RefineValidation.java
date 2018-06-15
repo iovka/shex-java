@@ -58,32 +58,20 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author Antonin Durey
  * 
  */
-public class RefineValidation implements ValidationAlgorithm {
-	private Graph graph;
-	private SORBEGenerator sorbeGenerator;
-	private ShexSchema schema;
-	private Typing typing = null;
+public class RefineValidation extends SORBEBasedValidation {	
 	private Set<Label> selectedShape;
 	private Set<Label> extraShapes;
-	private DynamicCollectorOfTripleConstraint collectorTC;
-	
+	private boolean computed = false;
 
 	public RefineValidation(ShexSchema schema, Graph graph) {
-		super();
-		this.graph = graph;
-		this.schema = schema;
-		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
-		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		super(schema,graph);
+		
 		this.extraShapes=Collections.emptySet();
 		initSelectedShape();
 	}
 	
 	public RefineValidation(ShexSchema schema, Graph graph,Set<Label> extraShapes) {
-		super();
-		this.graph = graph;
-		this.schema = schema;
-		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
-		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		super(schema,graph);
 		this.extraShapes=extraShapes;
 		initSelectedShape();
 	}
@@ -100,21 +88,14 @@ public class RefineValidation implements ValidationAlgorithm {
 	}
 	
 	@Override
-	public Typing getTyping () {
-		return typing;
-	}
-	
-	/** Reset typing to null.
-	 * 
-	 */
 	public void resetTyping() {
-		this.typing = null;
+		this.typing = new Typing();
+		computed = false;
 	}
 	
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label)  throws Exception {
-		if (typing == null) {
-			this.typing = new Typing();
+		if (!computed) {
 			for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
 				List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum,focusNode);		
 				//System.out.println(elements);
@@ -133,6 +114,7 @@ public class RefineValidation implements ValidationAlgorithm {
 					}
 				} while (changed);
 			}
+			computed=true;
 		}		
 		if (focusNode==null || label==null)
 			return false;
@@ -207,77 +189,11 @@ public class RefineValidation implements ValidationAlgorithm {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-
-		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
-		if (constraints.size() == 0) {
-			if (!shape.isClosed())
-				return true;
-			else {
-				if (CommonGraph.getOutNeighbours(graph, node).size()==0)
-					return true;
-				 else
-					return false;
-			}
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getTyping());
+		if (result == null) {
+			return false;
 		}
-		
-		
-		Set<IRI> inversePredicate = new HashSet<IRI>();
-		Set<IRI> forwardPredicate = new HashSet<IRI>();
-		for (TripleConstraint tc:constraints)
-			if (tc.getProperty().isForward())
-				forwardPredicate.add(tc.getProperty().getIri());
-			else
-				inversePredicate.add(tc.getProperty().getIri());
-
-		ArrayList<Triple> neighbourhood = new ArrayList<>();
-		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
-		if (shape.isClosed())
-			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
-		else
-			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-
-		
-		Matcher matcher = new MatcherPredicateAndValue(this.getTyping()); 
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC = matcher.collectMatchingTC(node, neighbourhood, constraints);
-		// Check that the neighbor that cannot be match to a constraint are in extra
-		Iterator<Map.Entry<Triple,List<TripleConstraint>>> iteMatchingTC = matchingTC.entrySet().iterator();
-		while(iteMatchingTC.hasNext()) {
-			Entry<Triple, List<TripleConstraint>> listTC = iteMatchingTC.next();
-			if (listTC.getValue().isEmpty()) {
-				boolean success = false;
-				for (TCProperty extra : shape.getExtraProperties())
-					if (extra.getIri().equals(listTC.getKey().getPredicate()))
-						success = true;
-				if (!success) {
-					return false;
-				}
-				iteMatchingTC.remove();
-			}
-		}
-
-		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		ArrayList<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
-		for(Triple nt:matchingTC.keySet())
-			listMatchingTC.add(matchingTC.get(nt));
-
-		BagIterator bagIt = new BagIterator(neighbourhood,listMatchingTC);
-
-		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
-		
-		while(bagIt.hasNext()){
-			Bag bag = bagIt.next();
-			tripleExpression.accept(intervalComputation, bag, this);
-			if (intervalComputation.getResult().contains(1)) {
-				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
-				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
-					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
-				typing.setMatch(node, shape.getId(), result);
-				return true;
-			}
-		}
-		
-		return false;
+		return true;
 	}	
 
 	
@@ -299,6 +215,12 @@ public class RefineValidation implements ValidationAlgorithm {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public void addMatchingCollector(MatchingCollector m) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
