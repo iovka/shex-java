@@ -60,7 +60,6 @@ public class RefineValidation extends SORBEBasedValidation {
 
 	public RefineValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
-		
 		this.extraShapes=Collections.emptySet();
 		initSelectedShape();
 	}
@@ -104,7 +103,6 @@ public class RefineValidation extends SORBEBasedValidation {
 							typesIt.remove();
 							shapeMap.setStatus(nl.one, nl.two, TypingStatus.NONCONFORMANT);
 							changed = true;
-							//System.out.println(nl.one+","+nl.two+" > "+typing.getStatus(nl.one, nl.two));
 						}
 					}
 				} while (changed);
