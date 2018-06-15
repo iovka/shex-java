@@ -20,14 +20,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
@@ -41,7 +37,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
@@ -88,8 +83,8 @@ public class RefineValidation extends SORBEBasedValidation {
 	}
 	
 	@Override
-	public void resetTyping() {
-		this.typing = new Typing();
+	public void resetShapeMap() {
+		this.shapeMap = new ShapeMap();
 		computed = false;
 	}
 	
@@ -107,7 +102,7 @@ public class RefineValidation extends SORBEBasedValidation {
 						Pair<RDFTerm, Label> nl = typesIt.next();
 						if (! isLocallyValid(nl)) {
 							typesIt.remove();
-							typing.setStatus(nl.one, nl.two, TypingStatus.NONCONFORMANT);
+							shapeMap.setStatus(nl.one, nl.two, TypingStatus.NONCONFORMANT);
 							changed = true;
 							//System.out.println(nl.one+","+nl.two+" > "+typing.getStatus(nl.one, nl.two));
 						}
@@ -120,7 +115,7 @@ public class RefineValidation extends SORBEBasedValidation {
 			return false;
 		if (!schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		return typing.isConformant(focusNode, label);
+		return shapeMap.isConformant(focusNode, label);
 	}
 
 	
@@ -178,7 +173,7 @@ public class RefineValidation extends SORBEBasedValidation {
 
 		@Override
 		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
-			result = typing.isConformant(node, ref.getLabel());
+			result = shapeMap.isConformant(node, ref.getLabel());
 		}
 
 		@Override
@@ -189,7 +184,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getTyping());
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getShapeMap());
 		if (result == null) {
 			return false;
 		}
@@ -206,11 +201,11 @@ public class RefineValidation extends SORBEBasedValidation {
 			if (selectedShape.contains(label)) {
 				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		
 					result.add(new Pair<>(node, label));
-					this.typing.setStatus(node, label, TypingStatus.CONFORMANT);
+					this.shapeMap.setStatus(node, label, TypingStatus.CONFORMANT);
 				}
 				if (focusNode !=null) {
 					result.add(new Pair<>(focusNode, label));
-					this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+					this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
 				}
 			}
 		}

@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
@@ -34,7 +34,7 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 	}
 	
 	
-	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, Typing typing) {
+	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, ShapeMap typing) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
@@ -48,23 +48,8 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 					return null;
 			}
 		}
-		
-		
-		Set<IRI> inversePredicate = new HashSet<IRI>();
-		Set<IRI> forwardPredicate = new HashSet<IRI>();
-		for (TripleConstraint tc:constraints)
-			if (tc.getProperty().isForward())
-				forwardPredicate.add(tc.getProperty().getIri());
-			else
-				inversePredicate.add(tc.getProperty().getIri());
-
-		ArrayList<Triple> neighbourhood = new ArrayList<>();
-		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
-		if (shape.isClosed())
-			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
-		else
-			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-
+				
+		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 		
 		Matcher matcher = new MatcherPredicateAndValue(typing); 
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC = matcher.collectMatchingTC(node, neighbourhood, constraints);
@@ -110,4 +95,26 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 		return null;
 	}
 
+	
+	protected ArrayList<Triple> getNeighbourhood(RDFTerm node, Shape shape) {
+		List<TripleConstraint> constraints = collectorTC.getResult(this.sorbeGenerator.getSORBETripleExpr(shape));
+		
+		Set<IRI> inversePredicate = new HashSet<IRI>();
+		Set<IRI> forwardPredicate = new HashSet<IRI>();
+		for (TripleConstraint tc:constraints)
+			if (tc.getProperty().isForward())
+				forwardPredicate.add(tc.getProperty().getIri());
+			else
+				inversePredicate.add(tc.getProperty().getIri());
+
+		ArrayList<Triple> neighbourhood = new ArrayList<>();
+		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
+		if (shape.isClosed())
+			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
+		else
+			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
+		
+		return neighbourhood;
+	}
+	
 }

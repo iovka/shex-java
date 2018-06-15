@@ -26,20 +26,20 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * @author Jérémie Dusart
  */
 public class MatcherPredicateAndValue extends Matcher {
-	private Typing typing;
+	private ShapeMap shapeMap;
 	
-	public MatcherPredicateAndValue(Typing typing) {
-		this.typing = typing;
+	public MatcherPredicateAndValue(ShapeMap shapeMap) {
+		this.shapeMap = shapeMap;
 	}
 	
 	@Override
 	public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc) {
 		if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString()))
 			if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString())) 
-				return typing.isConformant(triple.getObject(), tc.getShapeExpr().getId());
+				return shapeMap.isConformant(triple.getObject(), tc.getShapeExpr().getId());
 		if (!tc.getProperty().isForward() && triple.getObject().ntriplesString().equals(focusNode.ntriplesString()))
 			if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString())) 
-				return typing.isConformant(triple.getSubject(), tc.getShapeExpr().getId());
+				return shapeMap.isConformant(triple.getSubject(), tc.getShapeExpr().getId());
 		return false;
 	}
 

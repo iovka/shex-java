@@ -28,8 +28,8 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 /** <p>Allows to validate a graph against a ShEx schema.</p>
  * 
  * <p>A {@link ValidationAlgorithm} must be initialized with an {@link RDFGraph} and a {@link ShexSchema}.
- * Then the {@link #validate(RDFTerm, Label)} method allows to construct a typing of the graph by the schema.
- * The {@link #getTyping()} method allows to retrieve the typing constructed by {@link #validate(RDFTerm, Label)}.</p>
+ * Then the {@link #validate(RDFTerm, Label)} method allows to construct a shape map of the graph by the schema.
+ * The {@link #getShapeMap()} method allows to retrieve the shape map constructed by {@link #validate(RDFTerm, Label)}.</p>
  * 
  * <p>The method {@link #validate(RDFTerm, Label)} can take as parameter a node and a shape label, which both can be <code>null</code>.</p>
  * 
@@ -42,35 +42,35 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 public abstract  class  ValidationAlgorithm {
 	protected Graph graph;
 	protected ShexSchema schema;
-	protected Typing typing;
+	protected ShapeMap shapeMap;
 	protected Set<MatchingCollector> mc;
 	protected DynamicCollectorOfTripleConstraint collectorTC;
 
 	public ValidationAlgorithm(ShexSchema schema, Graph graph) {
 		this.graph = graph;
 		this.schema = schema;
-		this.typing = new Typing();
+		this.shapeMap = new ShapeMap();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 	}
 
-	/** Constructs a typing that allows to validate a focus node against a type.
+	/** Constructs a shape map that allows to validate a focus node against a type.
 	 * return true is focusNode has shape label, false otherwise.
-	 * The constructed typing can be retrieved using {@link #getTyping()}
+	 * The constructed shape map can be retrieved using {@link #getShapeMap()}
 	 * 
-	 * @param focusNode The focus node for which the typing is to be complete. If null, then the typing will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
-	 * @param label The label for which the typing is to be complete. If null, then the typing will be complete for all labels.
+	 * @param focusNode The focus node for which the shape map is to be complete. If null, then the shape map will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
+	 * @param label The label for which the shape map is to be complete. If null, then the shape map will be complete for all labels.
 	 */
 	public abstract boolean validate(RDFTerm focusNode, Label label)  throws Exception;
 	
-	/** Retrieves the typing constructed by a previous call of {@link #validate(RDFTerm, Label)}.
+	/** Retrieves the shape map constructed by a previous call of {@link #validate(RDFTerm, Label)}.
 	 * 
 	 */
-	public Typing getTyping() {
-		return typing;
+	public ShapeMap getShapeMap() {
+		return shapeMap;
 	}
 	
-	public void resetTyping() {
-		this.typing = new Typing();
+	public void resetShapeMap() {
+		this.shapeMap = new ShapeMap();
 	}
 	
 	/** Add a collector for the matching computed by the validation algorithm.

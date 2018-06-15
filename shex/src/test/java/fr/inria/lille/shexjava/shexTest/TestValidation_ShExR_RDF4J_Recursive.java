@@ -162,10 +162,10 @@ public class TestValidation_ShExR_RDF4J_Recursive {
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
+    				validation.getShapeMap().isConformant(testCase.focusNode, testCase.shapeLabel))
     			||
     			(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    				validation.getTyping().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
+    				validation.getShapeMap().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.inria.lille.shexjava.validation;
+package fr.inria.lille.shexjava.validation.experimental;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +49,11 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
+import fr.inria.lille.shexjava.validation.Matcher;
+import fr.inria.lille.shexjava.validation.MatcherPredicateOnly;
+import fr.inria.lille.shexjava.validation.SORBEBasedValidation;
+import fr.inria.lille.shexjava.validation.ShapeMap;
+import fr.inria.lille.shexjava.validation.TypingStatus;
 
 
 /** Implements the Recursive validation algorithm.
@@ -67,7 +72,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
 		if (label == null || !schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		this.resetTyping();
+		this.resetShapeMap();
 		boolean result = recursiveValidation(focusNode,
 											 label,
 									 		 new LinkedList<>(),
@@ -88,8 +93,8 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		if (hyp.contains(key)) {
 			return true;
 		}
-		if (!this.typing.getStatus(focusNode, label).equals(TypingStatus.NOTCOMPUTED))
-			return this.typing.isConformant(focusNode, label);
+		if (!this.shapeMap.getStatus(focusNode, label).equals(TypingStatus.NOTCOMPUTED))
+			return this.shapeMap.isConformant(focusNode, label);
 		if (g.containsVertex(key))
 			return results.get(key);
 		
@@ -230,27 +235,13 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		List<Triple> extraNeighbours = new ArrayList<>();
 		
 		Shape shape = (Shape) schema.getShapeMap().get(label);
+		
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-
-		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
-		
-		
-		Set<IRI> inversePredicate = new HashSet<IRI>();
-		Set<IRI> forwardPredicate = new HashSet<IRI>();
-		for (TripleConstraint tc:constraints)
-			if (tc.getProperty().isForward())
-				forwardPredicate.add(tc.getProperty().getIri());
-			else
-				inversePredicate.add(tc.getProperty().getIri());	
-		ArrayList<Triple> neighbourhood = new ArrayList<>();
-		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
-		if (shape.isClosed())
-			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
-		else
-			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
+		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);		
+		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 
 		// Match using only predicate and recursive test.
-		Typing localTyping = new Typing();
+		ShapeMap localTyping = new ShapeMap();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 
@@ -262,7 +253,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 	
-				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
+				if (this.shapeMap.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId(),hyp,g,results,lowestDep)) {
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);
 						nb++;
@@ -270,8 +261,8 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);
 					}
 				} else {
-					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
-					if (typing.isConformant(destNode, tc.getShapeExpr().getId()))
+					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), shapeMap.getStatus(destNode, tc.getShapeExpr().getId()));
+					if (shapeMap.isConformant(destNode, tc.getShapeExpr().getId()))
 						nb++;
 				}
 			}
@@ -335,16 +326,16 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		if (results.get(new Pair<>(focusNode,label))) {
 			while (S.size()>0) {
 				Pair<RDFTerm,Label> key = S.pollFirst();
-				if (this.typing.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED) &&
+				if (this.shapeMap.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED) &&
 						!hyp.contains(lowestDep.get(key))) {
 					if (results.get(key))
-						this.typing.setStatus(key.one, key.two, TypingStatus.CONFORMANT);
+						this.shapeMap.setStatus(key.one, key.two, TypingStatus.CONFORMANT);
 					else
-						this.typing.setStatus(key.one, key.two, TypingStatus.NONCONFORMANT);
+						this.shapeMap.setStatus(key.one, key.two, TypingStatus.NONCONFORMANT);
 				}
 				for(DefaultEdge edge: g.incomingEdgesOf(key)) {
 					Pair<RDFTerm,Label> dest = g.getEdgeSource(edge);
-					if (this.typing.getStatus(dest.one, dest.two).equals(TypingStatus.NOTCOMPUTED))
+					if (this.shapeMap.getStatus(dest.one, dest.two).equals(TypingStatus.NOTCOMPUTED))
 						S.add(dest);
 				}
 			}
@@ -378,7 +369,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 		boolean canSave = true;
 		for(Pair<RDFTerm,Label> key2:required) {
-			if (this.typing.getStatus(key2.one, key2.two).equals(TypingStatus.NOTCOMPUTED)) {
+			if (this.shapeMap.getStatus(key2.one, key2.two).equals(TypingStatus.NOTCOMPUTED)) {
 				if (!g.containsVertex(key1))
 					g.addVertex(key1);
 				if (!g.containsVertex(key2))
@@ -404,9 +395,9 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		}
 		if (canSave) 
 			if (res) 
-				this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+				this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
 			else 
-				this.typing.setStatus(focusNode, label, TypingStatus.NONCONFORMANT);
+				this.shapeMap.setStatus(focusNode, label, TypingStatus.NONCONFORMANT);
 	}
 	
 	// Util

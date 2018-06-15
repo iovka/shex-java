@@ -18,10 +18,8 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -40,7 +38,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
@@ -64,22 +61,24 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
 		if (label == null || !schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		this.resetTyping();
+		this.resetShapeMap();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
-			this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+			this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
 		}
 		return result;
 	}
 	
+	
 	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
-		this.typing.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+		this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
 		schema.getShapeMap().get(label).accept(visitor);
-		this.typing.removeNodeLabel(focusNode, label);
+		this.shapeMap.removeNodeLabel(focusNode, label);
 		return visitor.result;
 		
 	}
+	
 	
 	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
 		private RDFTerm node; 
@@ -143,27 +142,10 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);	
-		
-		Set<IRI> inversePredicate = new HashSet<IRI>();
-		Set<IRI> forwardPredicate = new HashSet<IRI>();
-		for (TripleConstraint tc:constraints)
-			if (tc.getProperty().isForward())
-				forwardPredicate.add(tc.getProperty().getIri());
-			else
-				inversePredicate.add(tc.getProperty().getIri());
+		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 
-		
-		ArrayList<Triple> neighbourhood = new ArrayList<>();
-		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
-		if (shape.isClosed())
-			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
-		else
-			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-
-
-		// Match using only predicate and recursive test. The following line are the only big difference with refine validation. 
-		// The others differences are the cleanTyping calls.
-		Typing localTyping = new Typing();
+		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
+		ShapeMap localTyping = new ShapeMap();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 
@@ -173,18 +155,17 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 	
-				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
+				if (this.shapeMap.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);	
 					else
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);	
 				} else {
-					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
+					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), shapeMap.getStatus(destNode, tc.getShapeExpr().getId()));
 				}
 			}
 
 		}
-		// end of the big difference with refine
 		
 		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping);
 		if (result == null)

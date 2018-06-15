@@ -3,25 +3,21 @@ package fr.inria.lille.shexjava.validation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDFTerm;
-import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
 
-public class Typing {
-	private Map<Pair<RDFTerm,Label>,String> messages;
+public class ShapeMap {
 	private Map<Pair<RDFTerm,Label>,TypingStatus> status;
 	private Map<Label,Set<RDFTerm>> nodes;
 	private Map<RDFTerm,Set<Label>> labels;
 
 	
-	public Typing() {
-		messages = new HashMap<>();
+	public ShapeMap() {
 		status = new HashMap<>();
 		nodes = new HashMap<>();
 		labels = new HashMap<>();
@@ -57,15 +53,7 @@ public class Typing {
 			return !status.get(key).equals(TypingStatus.CONFORMANT);
 		return true;
 	}
-	
-	public void setMessage(RDFTerm node, Label label,String message) {
-		this.messages.put(new Pair<RDFTerm,Label>(node,label), message);
-	}
-	
-	public String getMessage(RDFTerm node, Label label) {
-		return messages.get(new Pair<RDFTerm,Label>(node,label));
-	}
-	
+		
 	public Set<Label> getShapesLabel(RDFTerm node){
 		if (labels.containsKey(node))
 			return labels.get(node);
@@ -82,7 +70,6 @@ public class Typing {
 	public void removeNodeLabel(RDFTerm node, Label label) {
 		Pair<RDFTerm, Label> key = new Pair<RDFTerm, Label>(node,label);
 		status.remove(key);
-		messages.remove(key);
 		if (nodes.containsKey(label))
 			nodes.get(label).remove(node);
 		if (labels.containsKey(node))

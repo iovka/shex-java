@@ -53,8 +53,8 @@ import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
-import fr.inria.lille.shexjava.validation.RecursiveValidationWithMemorization;
 import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
+import fr.inria.lille.shexjava.validation.experimental.RecursiveValidationWithMemorization;
 
 
 /** Run the validation tests of the shexTest suite using ShExC parser, RDF4JGraph and recursive validation.
@@ -152,10 +152,10 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
+    				validation.getShapeMap().isConformant(testCase.focusNode, testCase.shapeLabel))
     				||
     				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    						validation.getTyping().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
+    						validation.getShapeMap().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
