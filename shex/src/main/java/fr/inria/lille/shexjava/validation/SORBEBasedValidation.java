@@ -1,16 +1,13 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
@@ -45,13 +42,22 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
 		if (constraints.size() == 0) {
-			if (!shape.isClosed())
-				return new ArrayList<Pair<Triple,Label>>();
-			else {
-				if (CommonGraph.getOutNeighbours(graph, node).size()==0)
-					return new ArrayList<Pair<Triple,Label>>();
-				 else
+			if (!shape.isClosed()) {
+				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
+				for (MatchingCollector m:mcs)
+					m.setMatch(node, shape.getId(), result);
+				return result;
+			} else {
+				if (CommonGraph.getOutNeighbours(graph, node).size()==0) {
+					List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
+					for (MatchingCollector m:mcs)
+						m.setMatch(node, shape.getId(), result);
+					return result;
+				} else {
+					for (FailureAnalyzer fr:frcs)
+						fr.setReport(new FailureReport(node,shape.getId(),"Shape is closed with no constraint, but "+node+" has neighbour"));
 					return null;
+				}
 			}
 		}
 				
@@ -69,6 +75,8 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 					if (extra.getIri().equals(listTC.getKey().getPredicate()))
 						success = true;
 				if (!success) {
+					for (FailureAnalyzer fr:frcs)
+						fr.addFailureReportNoTCFound(node, shape, typing, listTC.getKey());
 					return null;
 				}
 				iteMatchingTC.remove();
@@ -91,41 +99,17 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
 				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
 					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
-				if (mcs !=null)
-					for (MatchingCollector m:mcs)
-						m.setMatch(node, shape.getId(), result);
+				for (MatchingCollector m:mcs)
+					m.setMatch(node, shape.getId(), result);
 				return result;
 			}
 		}
 		
+		for (FailureAnalyzer fr:frcs)
+			fr.addFailureReportNoMatchingFound(node, shape, typing, neighbourhood);
+		
 		return null;
 	}
 
-	/** Select the neighborhood that must be matched.
-	 * 
-	 * @param node
-	 * @param shape
-	 * @return
-	 */
-	protected ArrayList<Triple> getNeighbourhood(RDFTerm node, Shape shape) {
-		List<TripleConstraint> constraints = collectorTC.getResult(this.sorbeGenerator.getSORBETripleExpr(shape));
-		
-		Set<IRI> inversePredicate = new HashSet<IRI>();
-		Set<IRI> forwardPredicate = new HashSet<IRI>();
-		for (TripleConstraint tc:constraints)
-			if (tc.getProperty().isForward())
-				forwardPredicate.add(tc.getProperty().getIri());
-			else
-				inversePredicate.add(tc.getProperty().getIri());
-
-		ArrayList<Triple> neighbourhood = new ArrayList<>();
-		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
-		if (shape.isClosed())
-			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
-		else
-			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-		
-		return neighbourhood;
-	}
 	
 }

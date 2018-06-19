@@ -16,7 +16,6 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.validation.experimental.RecursiveValidationWithMemorization;
 
 public class TestMemorizationAlgorithm {
 	private final static RDF4J rdfFactory = new RDF4J();

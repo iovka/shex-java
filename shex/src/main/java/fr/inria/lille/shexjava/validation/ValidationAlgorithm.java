@@ -17,14 +17,21 @@
 package fr.inria.lille.shexjava.validation;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
+import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
+import fr.inria.lille.shexjava.util.CommonGraph;
 
 /** <p>Allows to validate a graph against a ShEx schema.</p>
  * 
@@ -46,7 +53,7 @@ public abstract  class  ValidationAlgorithm {
 	protected ShapeMap shapeMap;
 	
 	protected Set<MatchingCollector> mcs;
-	protected Set<FailureReportsCollector> frcs;
+	protected Set<FailureAnalyzer> frcs;
 	
 	protected DynamicCollectorOfTripleConstraint collectorTC;
 
@@ -68,7 +75,32 @@ public abstract  class  ValidationAlgorithm {
 	 */
 	public abstract boolean validate(RDFTerm focusNode, Label label)  throws Exception;
 	
-	
+	/** Select the neighborhood that must be matched.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
+	protected ArrayList<Triple> getNeighbourhood(RDFTerm node, Shape shape) {
+		List<TripleConstraint> constraints = collectorTC.getResult(shape.getTripleExpression());
+		
+		Set<IRI> inversePredicate = new HashSet<IRI>();
+		Set<IRI> forwardPredicate = new HashSet<IRI>();
+		for (TripleConstraint tc:constraints)
+			if (tc.getProperty().isForward())
+				forwardPredicate.add(tc.getProperty().getIri());
+			else
+				inversePredicate.add(tc.getProperty().getIri());
+
+		ArrayList<Triple> neighbourhood = new ArrayList<>();
+		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
+		if (shape.isClosed())
+			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
+		else
+			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
+		
+		return neighbourhood;
+	}
 	
 	/** Retrieves the shape map constructed by a previous call of {@link #validate(RDFTerm, Label)}.
 	 * 
@@ -105,21 +137,21 @@ public abstract  class  ValidationAlgorithm {
 	/** Add a failure reports collector.
 	 * 
 	 */
-	public void addFailureReportsCollector(FailureReportsCollector frc) {
+	public void addFailureReportsCollector(FailureAnalyzer frc) {
 		frcs.add(frc);
 	}
 	
 	/** remove a failure reports collector.
 	 * 
 	 */
-	public void removeFailureReportsCollector(FailureReportsCollector frc){
+	public void removeFailureReportsCollector(FailureAnalyzer frc){
 		frcs.remove(frc);
 	}
 	
 	/** Get the set of the current failure reports collectors.
 	 * 
 	 */
-	public Set<FailureReportsCollector> getFailureReportsCollector() {
+	public Set<FailureAnalyzer> getFailureReportsCollector() {
 		return frcs;
 	}
 }

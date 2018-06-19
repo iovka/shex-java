@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.inria.lille.shexjava.validation.experimental;
+package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,14 +47,9 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.util.Pair;
-import fr.inria.lille.shexjava.validation.Matcher;
-import fr.inria.lille.shexjava.validation.MatcherPredicateOnly;
-import fr.inria.lille.shexjava.validation.SORBEBasedValidation;
-import fr.inria.lille.shexjava.validation.ShapeMap;
-import fr.inria.lille.shexjava.validation.Status;
 
 
-/** Implements the Recursive validation algorithm.
+/** Implements the Recursive validation algorithm with memorization.
  * This algorithm will check only the shape definition necessary, but can return false positive.
  * 
  * @author Jérémie Dusart 
