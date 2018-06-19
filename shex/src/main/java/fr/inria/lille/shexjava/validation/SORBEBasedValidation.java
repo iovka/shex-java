@@ -33,7 +33,13 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 	}
 	
-	
+	/** Try to find a matching for the shape on the node using the typing. See also the MatchingCollector or FailureReportsCollecto.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @param typing
+	 * @return a matching or null if none was found or cannot be found. 
+	 */
 	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, ShapeMap typing) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
@@ -85,8 +91,8 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
 				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
 					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
-				if (mc !=null)
-					for (MatchingCollector m:mc)
+				if (mcs !=null)
+					for (MatchingCollector m:mcs)
 						m.setMatch(node, shape.getId(), result);
 				return result;
 			}
@@ -95,7 +101,12 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 		return null;
 	}
 
-	
+	/** Select the neighborhood that must be matched.
+	 * 
+	 * @param node
+	 * @param shape
+	 * @return
+	 */
 	protected ArrayList<Triple> getNeighbourhood(RDFTerm node, Shape shape) {
 		List<TripleConstraint> constraints = collectorTC.getResult(this.sorbeGenerator.getSORBETripleExpr(shape));
 		

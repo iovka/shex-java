@@ -12,7 +12,7 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
 
 public class ShapeMap {
-	private Map<Pair<RDFTerm,Label>,TypingStatus> status;
+	private Map<Pair<RDFTerm,Label>,Status> status;
 	private Map<Label,Set<RDFTerm>> nodes;
 	private Map<RDFTerm,Set<Label>> labels;
 
@@ -23,7 +23,7 @@ public class ShapeMap {
 		labels = new HashMap<>();
 	}
 
-	public void setStatus(RDFTerm node, Label label,TypingStatus status) {
+	public void setStatus(RDFTerm node, Label label,Status status) {
 		this.status.put(new Pair<RDFTerm,Label>(node,label), status);
 		if (!nodes.containsKey(label))
 			nodes.put(label, new HashSet<>());
@@ -33,24 +33,24 @@ public class ShapeMap {
 		labels.get(node).add(label);
 	}
 	
-	public TypingStatus getStatus(RDFTerm node, Label label) {
+	public Status getStatus(RDFTerm node, Label label) {
 		Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(node,label);
 		if (status.containsKey(key))
 			return status.get(key);
-		return TypingStatus.NOTCOMPUTED;
+		return Status.NOTCOMPUTED;
 	}
 	
 	public boolean isConformant(RDFTerm node, Label label) {
 		Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(node,label);
 		if (status.containsKey(key))
-			return status.get(key).equals(TypingStatus.CONFORMANT);
+			return status.get(key).equals(Status.CONFORMANT);
 		return false;
 	}
 	
 	public boolean isNonConformant(RDFTerm node, Label label) {
 		Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(node,label);
 		if (status.containsKey(key))
-			return !status.get(key).equals(TypingStatus.CONFORMANT);
+			return !status.get(key).equals(Status.CONFORMANT);
 		return true;
 	}
 		
@@ -76,7 +76,7 @@ public class ShapeMap {
 			labels.get(node).remove(label);	
 	}
 	
-	public Map<Pair<RDFTerm, Label>, TypingStatus> getAllStatus() {
+	public Map<Pair<RDFTerm, Label>, Status> getAllStatus() {
 		return status;
 	}
 

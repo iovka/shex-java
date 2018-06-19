@@ -101,7 +101,7 @@ public class RefineValidation extends SORBEBasedValidation {
 						Pair<RDFTerm, Label> nl = typesIt.next();
 						if (! isLocallyValid(nl)) {
 							typesIt.remove();
-							shapeMap.setStatus(nl.one, nl.two, TypingStatus.NONCONFORMANT);
+							shapeMap.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
 							changed = true;
 						}
 					}
@@ -199,11 +199,11 @@ public class RefineValidation extends SORBEBasedValidation {
 			if (selectedShape.contains(label)) {
 				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		
 					result.add(new Pair<>(node, label));
-					this.shapeMap.setStatus(node, label, TypingStatus.CONFORMANT);
+					this.shapeMap.setStatus(node, label, Status.CONFORMANT);
 				}
 				if (focusNode !=null) {
 					result.add(new Pair<>(focusNode, label));
-					this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+					this.shapeMap.setStatus(focusNode, label, Status.CONFORMANT);
 				}
 			}
 		}

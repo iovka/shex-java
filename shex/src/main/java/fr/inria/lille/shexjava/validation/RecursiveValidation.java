@@ -60,14 +60,14 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		this.resetShapeMap();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
-			this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+			this.shapeMap.setStatus(focusNode, label, Status.CONFORMANT);
 		}
 		return result;
 	}
 	
 	
 	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
-		this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+		this.shapeMap.setStatus(focusNode, label, Status.CONFORMANT);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
 		schema.getShapeMap().get(label).accept(visitor);
 		this.shapeMap.removeNodeLabel(focusNode, label);
@@ -151,11 +151,11 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 	
-				if (this.shapeMap.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
+				if (this.shapeMap.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);	
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
 					else
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);	
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);	
 				} else {
 					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), shapeMap.getStatus(destNode, tc.getShapeExpr().getId()));
 				}

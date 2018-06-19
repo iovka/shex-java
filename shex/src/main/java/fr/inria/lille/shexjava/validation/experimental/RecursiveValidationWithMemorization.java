@@ -51,7 +51,7 @@ import fr.inria.lille.shexjava.validation.Matcher;
 import fr.inria.lille.shexjava.validation.MatcherPredicateOnly;
 import fr.inria.lille.shexjava.validation.SORBEBasedValidation;
 import fr.inria.lille.shexjava.validation.ShapeMap;
-import fr.inria.lille.shexjava.validation.TypingStatus;
+import fr.inria.lille.shexjava.validation.Status;
 
 
 /** Implements the Recursive validation algorithm.
@@ -91,7 +91,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		if (hyp.contains(key)) {
 			return true;
 		}
-		if (!this.shapeMap.getStatus(focusNode, label).equals(TypingStatus.NOTCOMPUTED))
+		if (!this.shapeMap.getStatus(focusNode, label).equals(Status.NOTCOMPUTED))
 			return this.shapeMap.isConformant(focusNode, label);
 		if (g.containsVertex(key))
 			return results.get(key);
@@ -251,12 +251,12 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 	
-				if (this.shapeMap.getStatus(destNode, tc.getShapeExpr().getId()).equals(TypingStatus.NOTCOMPUTED)) {
+				if (this.shapeMap.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId(),hyp,g,results,lowestDep)) {
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.CONFORMANT);
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);
 						nb++;
 					} else {
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),TypingStatus.NONCONFORMANT);
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);
 					}
 				} else {
 					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), shapeMap.getStatus(destNode, tc.getShapeExpr().getId()));
@@ -324,16 +324,16 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		if (results.get(new Pair<>(focusNode,label))) {
 			while (S.size()>0) {
 				Pair<RDFTerm,Label> key = S.pollFirst();
-				if (this.shapeMap.getStatus(key.one, key.two).equals(TypingStatus.NOTCOMPUTED) &&
+				if (this.shapeMap.getStatus(key.one, key.two).equals(Status.NOTCOMPUTED) &&
 						!hyp.contains(lowestDep.get(key))) {
 					if (results.get(key))
-						this.shapeMap.setStatus(key.one, key.two, TypingStatus.CONFORMANT);
+						this.shapeMap.setStatus(key.one, key.two, Status.CONFORMANT);
 					else
-						this.shapeMap.setStatus(key.one, key.two, TypingStatus.NONCONFORMANT);
+						this.shapeMap.setStatus(key.one, key.two, Status.NONCONFORMANT);
 				}
 				for(DefaultEdge edge: g.incomingEdgesOf(key)) {
 					Pair<RDFTerm,Label> dest = g.getEdgeSource(edge);
-					if (this.shapeMap.getStatus(dest.one, dest.two).equals(TypingStatus.NOTCOMPUTED))
+					if (this.shapeMap.getStatus(dest.one, dest.two).equals(Status.NOTCOMPUTED))
 						S.add(dest);
 				}
 			}
@@ -367,7 +367,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 		boolean canSave = true;
 		for(Pair<RDFTerm,Label> key2:required) {
-			if (this.shapeMap.getStatus(key2.one, key2.two).equals(TypingStatus.NOTCOMPUTED)) {
+			if (this.shapeMap.getStatus(key2.one, key2.two).equals(Status.NOTCOMPUTED)) {
 				if (!g.containsVertex(key1))
 					g.addVertex(key1);
 				if (!g.containsVertex(key2))
@@ -393,9 +393,9 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		}
 		if (canSave) 
 			if (res) 
-				this.shapeMap.setStatus(focusNode, label, TypingStatus.CONFORMANT);
+				this.shapeMap.setStatus(focusNode, label, Status.CONFORMANT);
 			else 
-				this.shapeMap.setStatus(focusNode, label, TypingStatus.NONCONFORMANT);
+				this.shapeMap.setStatus(focusNode, label, Status.NONCONFORMANT);
 	}
 	
 	// Util

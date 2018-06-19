@@ -1,5 +1,5 @@
 package fr.inria.lille.shexjava.validation;
 
-public enum TypingStatus {
+public enum Status {
 	CONFORMANT,NONCONFORMANT,NOTCOMPUTED;
 }

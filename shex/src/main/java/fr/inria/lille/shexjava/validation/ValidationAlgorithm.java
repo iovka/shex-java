@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.validation;
 
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
@@ -43,7 +44,10 @@ public abstract  class  ValidationAlgorithm {
 	protected Graph graph;
 	protected ShexSchema schema;
 	protected ShapeMap shapeMap;
-	protected Set<MatchingCollector> mc;
+	
+	protected Set<MatchingCollector> mcs;
+	protected Set<FailureReportsCollector> frcs;
+	
 	protected DynamicCollectorOfTripleConstraint collectorTC;
 
 	public ValidationAlgorithm(ShexSchema schema, Graph graph) {
@@ -51,6 +55,8 @@ public abstract  class  ValidationAlgorithm {
 		this.schema = schema;
 		this.shapeMap = new ShapeMap();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		this.mcs = new HashSet<>();
+		this.frcs = new HashSet<>();
 	}
 
 	/** Constructs a shape map that allows to validate a focus node against a type.
@@ -61,6 +67,8 @@ public abstract  class  ValidationAlgorithm {
 	 * @param label The label for which the shape map is to be complete. If null, then the shape map will be complete for all labels.
 	 */
 	public abstract boolean validate(RDFTerm focusNode, Label label)  throws Exception;
+	
+	
 	
 	/** Retrieves the shape map constructed by a previous call of {@link #validate(RDFTerm, Label)}.
 	 * 
@@ -77,20 +85,41 @@ public abstract  class  ValidationAlgorithm {
 	 * 
 	 */
 	public void addMatchingCollector(MatchingCollector m) {
-		mc.add(m);
+		mcs.add(m);
 	}
 	
 	/** remove a collector for the matching computed by the validation algorithm.
 	 * 
 	 */
 	public void removeMatchingCollector(MatchingCollector m){
-		mc.remove(m);
+		mcs.remove(m);
 	}
 	
-	/** remove a collector for the matching computed by the validation algorithm.
+	/** get the set of the current matching collectors.
 	 * 
 	 */
-	public Set<MatchingCollector> getMatchingCollector(MatchingCollector m) {
-		return mc;
+	public Set<MatchingCollector> getMatchingCollector() {
+		return mcs;
+	}
+	
+	/** Add a failure reports collector.
+	 * 
+	 */
+	public void addFailureReportsCollector(FailureReportsCollector frc) {
+		frcs.add(frc);
+	}
+	
+	/** remove a failure reports collector.
+	 * 
+	 */
+	public void removeFailureReportsCollector(FailureReportsCollector frc){
+		frcs.remove(frc);
+	}
+	
+	/** Get the set of the current failure reports collectors.
+	 * 
+	 */
+	public Set<FailureReportsCollector> getFailureReportsCollector() {
+		return frcs;
 	}
 }
