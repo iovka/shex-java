@@ -49,8 +49,8 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.util.Pair;
 
 
-/** Implements the Recursive validation algorithm with memorization.
- * This algorithm will check only the shape definition necessary, but can return false positive.
+/** Implements the Recursive validation algorithm with memorization of the result by recursive call if they are correct.
+ * This algorithm will check only the shape definition necessary.
  * 
  * @author Jérémie Dusart 
  */
@@ -337,11 +337,21 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				Pair<RDFTerm,Label> key = S.pollFirst();
 				for(DefaultEdge edge: g.incomingEdgesOf(key))
 					S.add(g.getEdgeSource(edge));	
-				if (!key.equals(new Pair<>(focusNode,label)))
+				if (!key.equals(new Pair<>(focusNode,label))) {
 					g.removeVertex(key);
+					for (MatchingCollector m:mcs)
+						m.removeMatch(key.one, key.two);
+					for (FailureAnalyzer fr:frcs)
+						fr.removeReport(key.one, key.two);
+				}
 			}
-			if (g.outDegreeOf(new Pair<>(focusNode,label))==0)
+			if (g.outDegreeOf(new Pair<>(focusNode,label))==0) {
 				g.removeVertex(new Pair<>(focusNode,label));
+				for (MatchingCollector m:mcs)
+					m.removeMatch(focusNode, label);
+				for (FailureAnalyzer fr:frcs)
+					fr.removeReport(focusNode,label);
+			}
 		}
 	}
 	

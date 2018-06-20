@@ -35,7 +35,7 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 
-/** For all the functions, the parser used depend of the file extension of the files.
+/** For all the functions, the parser used depend of the file extension.
  * @author Jérémie Dusart
  *
  */

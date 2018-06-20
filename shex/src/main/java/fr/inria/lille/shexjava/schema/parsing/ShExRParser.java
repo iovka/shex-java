@@ -146,6 +146,9 @@ public class ShExRParser implements Parser {
 		return getRules(rdfFactory,is,null);
 	}
 	
+	public Map<Label,ShapeExpr> getRules(InputStream is, RDFFormat format) throws Exception{
+		return getRules(GlobalFactory.RDFFactory,is,format);
+	}
 	
 	private static String BASE_IRI = "http://base.shex.fr/shex/";
 	public Map<Label, ShapeExpr> getRules(RDF rdfFactory, InputStream is, RDFFormat format) throws Exception {

@@ -1,8 +1,22 @@
+/*******************************************************************************
+ * Copyright (C) 2018 Université de Lille - Inria
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,12 +24,6 @@ import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.util.Pair;
 
 public class MatchingCollector {
@@ -33,58 +41,8 @@ public class MatchingCollector {
 		return matchings.get(new Pair<RDFTerm, Label>(node,label));		
 	}
 	
-	public void tryToGuess(RDFTerm node, Shape shape, ShapeMap typing, List<TripleConstraint> constraints, List<Triple> neighbourhood) {
-		if (shape.getTripleExpression() instanceof EachOf) {			
-			EachOf root = (EachOf) shape.getTripleExpression();
-			
-			Matcher matcher1 = new MatcherPredicateOnly();
-			LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher1.collectMatchingTC(node, neighbourhood, constraints);	
-			Map<TripleConstraint,List<Triple>> countTC1 = countTC(matchingTC1);
-			
-			Matcher matcher2 = new MatcherPredicateAndValue(typing); 
-			LinkedHashMap<Triple,List<TripleConstraint>> matchingTC2 = matcher2.collectMatchingTC(node, neighbourhood, constraints);
-			Map<TripleConstraint,List<Triple>> countTC2 = countTC(matchingTC2);
-			
-			for (TripleExpr sub:root.getSubExpressions()) {
-				if (sub instanceof RepeatedTripleExpression) {
-					RepeatedTripleExpression rep = (RepeatedTripleExpression) sub;
-					if(rep.getSubExpression() instanceof TripleConstraint) {
-						TripleConstraint key = (TripleConstraint) rep.getSubExpression();
-						if (countTC2.get(key).size()<rep.getCardinality().min) {
-							// Not enough neighbour with type 
-						} else if (rep.getCardinality().max<countTC2.get(key).size()) {
-							boolean success = false;
-							for (TCProperty extra : shape.getExtraProperties())
-								if (extra.getIri().equals(key.getProperty().getIri()))
-									success = true;
-							if(!success ) {
-								// Too many neighbor with type 
-							}
-						} 						
-					} else if(sub instanceof TripleConstraint) {
-						if (countTC2.get(sub).size()==0) {
-							// no neighbour to match the TC2
-							
-						} else if (countTC2.get(sub).size()>1) {
-							// too many neighbour to match the TC
-						}
-					}
-				}
-			}
-		}
-	}
-
-	
-	protected Map<TripleConstraint,List<Triple>> countTC(LinkedHashMap<Triple,List<TripleConstraint>> matchingTC) {
-		Map<TripleConstraint,List<Triple>> counts = new HashMap<TripleConstraint,List<Triple>>();
-		for (Triple tr:matchingTC.keySet()) {
-			for(TripleConstraint tc:matchingTC.get(tr)) {
-				if (!counts.containsKey(tc))
-					counts.put(tc,new ArrayList<Triple>());	
-				counts.get(tc).add(tr);					
-			}
-		}
-		return counts;
+	public void removeMatch(RDFTerm node, Label label) {
+		matchings.remove(new Pair<RDFTerm, Label>(node,label));	
 	}
 	
 }

@@ -63,6 +63,7 @@ public abstract  class  ValidationAlgorithm {
 		this.shapeMap = new ShapeMap();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.mcs = new HashSet<>();
+		this.mcs.add(new MatchingCollector());
 		this.frcs = new HashSet<>();
 	}
 

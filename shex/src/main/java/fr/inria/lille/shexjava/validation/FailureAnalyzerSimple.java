@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (C) 2018 Université de Lille - Inria
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
@@ -13,6 +29,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 
+
 public class FailureAnalyzerSimple extends FailureAnalyzer{
 	public FailureAnalyzerSimple() {
 		super();
@@ -26,14 +43,15 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 	
 	public void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, ShapeMap typing, ArrayList<Triple> neighbourhood) {
 		List<TripleConstraint> constraints = collectorTC.getResult(shape.getTripleExpression());
-		Matcher matcher = new MatcherPredicateAndValue(typing); 
+		Matcher matcher = new MatcherPredicateAndValue(typing);
+		
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC = matcher.collectMatchingTC(node, neighbourhood, constraints);
 		
 		LinkedHashMap<TripleConstraint,List<Triple>> revMatchingTC = new LinkedHashMap<>();
+		for (TripleConstraint tc:constraints)
+			revMatchingTC.put(tc, new ArrayList<Triple>());
 		for (Triple tr:neighbourhood) {
 			for (TripleConstraint tc:matchingTC.get(tr)) {
-				if (!revMatchingTC.containsKey(tc))
-					revMatchingTC.put(tc, new ArrayList<Triple>());
 				revMatchingTC.get(tc).add(tr);
 			}
 		}
@@ -55,7 +73,7 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 						if (neighbour != null)
 							message += " A neighbour with the right predicate has been found, maybe the shape for "+getOther(neighbour,node)+" need to be checked.";
 						else
-							message += " No neighbour found the right predicate, maybe the graph need to be corrected.";					
+							message += " No neighbour found with the right predicate, maybe the graph need to be corrected.";					
 						this.setReport(new FailureReport(node,shape.getId(),message));
 						return;
 					}

@@ -23,7 +23,6 @@ import java.util.List;
 import fr.inria.lille.shexjava.schema.Label;
 
 /**
- * 
  * @author Iovka Boneva
  * @author Antonin Durey
  *
