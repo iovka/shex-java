@@ -34,10 +34,9 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 public abstract class Matcher {
 
 	/** Constructs a list that for all neighbor triple contains the list of triple constraints that the triple matches according to the matcher given as parameter.
-	 * 
+	 * @param focusNode
 	 * @param neighbourhood
 	 * @param constraints
-	 * @param matcher
 	 */
 	public LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTC (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints) {
 		

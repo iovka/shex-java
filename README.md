@@ -49,6 +49,40 @@ mvn clean package
 
 After that, the jar file can be found in the target directory.
 
+# Quick guide to update to version 1.1 from 1.0
+
+## What is broken and requires some changes
+
+The api now uses commonsRDF (https://commons.apache.org/proper/commons-rdf/) as the core api and this allows for support for Jena, OWL, Apache Clerezza, JSONLD-Java.
+
+The api works with a factory that implements the RDF interface of the commonsRDF api. This factory is the field RDFFactory of the class fr.inria.lille.shexjava.GlobalFactory. By default it is an RDF4J factory but can be change to Jena to something else. All the functions of the api that need to create RDF objects will use the GlobalFactory or the one passed in arguments if you want to use different factories.
+
+Code example to set the factory: 
+org.apache.commons.rdf.rdf4j.RDF4J factory = new org.apache.commons.rdf.rdf4j.RDF4J();
+GlobalFactory.RDFFactory = factory;
+
+The import org.eclipse.rdf4j.model.IRI; need to change import org.apache.commons.rdf.api.IRI;. Same for Literal or BlankNode.
+
+Remove all imports to class of the package fr.inria.lille.shexjava.graph. The graph class used is now org.apache.commons.rdf.api.Graph. 
+
+Code example to create the graph: 
+Graph dataGraph = factory.asGraph(data);
+
+A complete small code example can be found in https://github.com/jdusart/DatatypesShExJava
+
+## What is new
+
+The matching found beetween the triple constraints and the RDF triple can now be access using the MatchingCollector of the ValidationAlgorithm. You can remove this functionality by removing them.
+
+Similarly, a FailureAnalyzer can be add to the ValidationAlgorithm to try to find the reason of the failure and store the report.
+
+Code example:
+validation.addFailureReportsCollector(new FailureAnalyzerSimple());
+
+A new algorithm for validation as been introduced: RecursiveValidationWithMemorization.
+
+
+
 # shexTest
 
 To test the package, the shexTest suite must be in the same directories as shex-java.
@@ -96,8 +130,6 @@ java -cp $SHEXCP fr.inria.lille.shexjava.commandLine.Validate -s ../../shexTest/
 ``
 
 ## Code Exemple
-
-Current implementation used RDF4J framework for the RDF manipulation. It is possible to used JENA using JenaGraph class, but we recommend the use of RDF4J.
 
 You can find two small projects that use the implementation:
  - https://github.com/jdusart/DatatypesShExJava

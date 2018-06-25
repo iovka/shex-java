@@ -82,8 +82,8 @@ public class RefineValidation extends SORBEBasedValidation {
 	}
 	
 	@Override
-	public void resetShapeMap() {
-		this.shapeMap = new ShapeMap();
+	public void resetTyping() {
+		this.typing = new Typing();
 		computed = false;
 	}
 	
@@ -101,7 +101,7 @@ public class RefineValidation extends SORBEBasedValidation {
 						Pair<RDFTerm, Label> nl = typesIt.next();
 						if (! isLocallyValid(nl)) {
 							typesIt.remove();
-							shapeMap.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
+							typing.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
 							changed = true;
 						}
 					}
@@ -113,7 +113,7 @@ public class RefineValidation extends SORBEBasedValidation {
 			return false;
 		if (!schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		return shapeMap.isConformant(focusNode, label);
+		return typing.isConformant(focusNode, label);
 	}
 
 	
@@ -171,7 +171,7 @@ public class RefineValidation extends SORBEBasedValidation {
 
 		@Override
 		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
-			result = shapeMap.isConformant(node, ref.getLabel());
+			result = typing.isConformant(node, ref.getLabel());
 		}
 
 		@Override
@@ -182,7 +182,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getShapeMap());
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getTyping());
 		if (result == null) {
 			return false;
 		}
@@ -199,11 +199,11 @@ public class RefineValidation extends SORBEBasedValidation {
 			if (selectedShape.contains(label)) {
 				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		
 					result.add(new Pair<>(node, label));
-					this.shapeMap.setStatus(node, label, Status.CONFORMANT);
+					this.typing.setStatus(node, label, Status.CONFORMANT);
 				}
 				if (focusNode !=null) {
 					result.add(new Pair<>(focusNode, label));
-					this.shapeMap.setStatus(focusNode, label, Status.CONFORMANT);
+					this.typing.setStatus(focusNode, label, Status.CONFORMANT);
 				}
 			}
 		}

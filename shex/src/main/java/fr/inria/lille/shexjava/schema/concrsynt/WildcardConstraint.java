@@ -26,7 +26,7 @@ public class WildcardConstraint implements Constraint {
 	
 	
 	/** Return always true.
-	 * @see fr.inria.lille.shexjava.schema.concrsynt.Constraint#contains(org.eclipse.rdf4j.model.Value)
+	 * @see fr.inria.lille.shexjava.schema.concrsynt.Constraint#contains(org.apache.commons.rdf.api.RDFTerm)
 	 */
 	@Override
 	public boolean contains(RDFTerm node) {

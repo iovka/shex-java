@@ -32,13 +32,13 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author jdusart
  *
  */
-public class ShapeMap {
+public class Typing {
 	private Map<Pair<RDFTerm,Label>,Status> status;
 	private Map<Label,Set<RDFTerm>> nodes;
 	private Map<RDFTerm,Set<Label>> labels;
 
 	
-	public ShapeMap() {
+	public Typing() {
 		status = new HashMap<>();
 		nodes = new HashMap<>();
 		labels = new HashMap<>();
@@ -59,6 +59,14 @@ public class ShapeMap {
 		if (status.containsKey(key))
 			return status.get(key);
 		return Status.NOTCOMPUTED;
+	}
+	
+	/**
+	 * @deprecated  As of release 1.1a, replaced by {@link #isConformant(RDFTerm,Label)}
+	 */
+	@Deprecated
+	public boolean contains(RDFTerm node, Label label) {
+		return isConformant(node, label);
 	}
 	
 	public boolean isConformant(RDFTerm node, Label label) {

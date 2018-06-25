@@ -47,9 +47,13 @@ public abstract class FailureAnalyzer {
 	public void removeReport(RDFTerm node, Label label) {
 		failureReports.remove(new Pair<RDFTerm, Label>(node,label));	
 	}
-
-	public abstract void addFailureReportNoTCFound(RDFTerm node, Shape shape, ShapeMap typing, Triple neighbour) ;
 	
-	public abstract void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, ShapeMap typing, ArrayList<Triple> neighbourhood);
+	public boolean hasReport(RDFTerm node, Label label) {
+		return failureReports.containsKey(new Pair<RDFTerm, Label>(node,label));	
+	}
+
+	public abstract void addFailureReportNoTCFound(RDFTerm node, Shape shape, Typing typing, Triple neighbour) ;
+	
+	public abstract void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, ArrayList<Triple> neighbourhood);
 	
 }

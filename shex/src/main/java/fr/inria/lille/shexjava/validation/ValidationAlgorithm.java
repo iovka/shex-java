@@ -35,9 +35,9 @@ import fr.inria.lille.shexjava.util.CommonGraph;
 
 /** <p>Allows to validate a graph against a ShEx schema.</p>
  * 
- * <p>A {@link ValidationAlgorithm} must be initialized with an {@link RDFGraph} and a {@link ShexSchema}.
+ * <p>A {@link ValidationAlgorithm} must be initialized with an {@link Graph} and a {@link ShexSchema}.
  * Then the {@link #validate(RDFTerm, Label)} method allows to construct a shape map of the graph by the schema.
- * The {@link #getShapeMap()} method allows to retrieve the shape map constructed by {@link #validate(RDFTerm, Label)}.</p>
+ * The {@link #getTyping()} method allows to retrieve the shape map constructed by {@link #validate(RDFTerm, Label)}.</p>
  * 
  * <p>The method {@link #validate(RDFTerm, Label)} can take as parameter a node and a shape label, which both can be <code>null</code>.</p>
  * 
@@ -50,7 +50,7 @@ import fr.inria.lille.shexjava.util.CommonGraph;
 public abstract  class  ValidationAlgorithm {
 	protected Graph graph;
 	protected ShexSchema schema;
-	protected ShapeMap shapeMap;
+	protected Typing typing;
 	
 	protected Set<MatchingCollector> mcs;
 	protected Set<FailureAnalyzer> frcs;
@@ -60,7 +60,7 @@ public abstract  class  ValidationAlgorithm {
 	public ValidationAlgorithm(ShexSchema schema, Graph graph) {
 		this.graph = graph;
 		this.schema = schema;
-		this.shapeMap = new ShapeMap();
+		this.typing = new Typing();
 		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 		this.mcs = new HashSet<>();
 		this.mcs.add(new MatchingCollector());
@@ -69,7 +69,7 @@ public abstract  class  ValidationAlgorithm {
 
 	/** Constructs a shape map that allows to validate a focus node against a type.
 	 * return true is focusNode has shape label, false otherwise.
-	 * The constructed shape map can be retrieved using {@link #getShapeMap()}
+	 * The constructed shape map can be retrieved using {@link #getTyping()}
 	 * 
 	 * @param focusNode The focus node for which the shape map is to be complete. If null, then the shape map will be complete for all nodes. The node might not belong to the graph, in which case it does not have a neighborhood.
 	 * @param label The label for which the shape map is to be complete. If null, then the shape map will be complete for all labels.
@@ -106,12 +106,12 @@ public abstract  class  ValidationAlgorithm {
 	/** Retrieves the shape map constructed by a previous call of {@link #validate(RDFTerm, Label)}.
 	 * 
 	 */
-	public ShapeMap getShapeMap() {
-		return shapeMap;
+	public Typing getTyping() {
+		return typing;
 	}
 	
-	public void resetShapeMap() {
-		this.shapeMap = new ShapeMap();
+	public void resetTyping() {
+		this.typing = new Typing();
 	}
 	
 	/** Add a collector for the matching computed by the validation algorithm.

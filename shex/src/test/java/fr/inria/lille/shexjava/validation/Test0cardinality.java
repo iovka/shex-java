@@ -50,7 +50,7 @@ public class Test0cardinality {
 		RefineValidation validation = new RefineValidation(schema,graph);
 		validation.validate(s1, new Label(rdfFactory.createIRI("http://a.example/S")));
 
-		if (validation.getShapeMap().isConformant(s1, new Label(rdfFactory.createIRI("http://a.example/S"))))
+		if (validation.getTyping().isConformant(s1, new Label(rdfFactory.createIRI("http://a.example/S"))))
 				fail();
 	}
 	
@@ -69,7 +69,7 @@ public class Test0cardinality {
 		RefineValidation validation = new RefineValidation(schema,graph);
 		validation.validate(s1, new Label(rdfFactory.createIRI("http://a.example/S")));
 		
-		if (validation.getShapeMap().isConformant(s1, new Label(rdfFactory.createIRI("http://a.example/S"))))
+		if (validation.getTyping().isConformant(s1, new Label(rdfFactory.createIRI("http://a.example/S"))))
 			fail();
 	}
 

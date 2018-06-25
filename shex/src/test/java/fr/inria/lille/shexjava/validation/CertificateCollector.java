@@ -39,7 +39,7 @@ import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.Pair;
 
-public class TestCertificateCollector {
+public class CertificateCollector {
 	private final static RDF4J rdfFactory = new RDF4J();
 	private final static ValueFactory rdf4JFactory = SimpleValueFactory.getInstance();
 	
@@ -90,10 +90,10 @@ public class TestCertificateCollector {
 		validation.validate(bug1, new Label(rdfFactory.createIRI("http://a.example/BugReport")));
 		System.out.println();
 		System.out.println("TYPING:");
-		for (Pair<RDFTerm,Label> pair:validation.getShapeMap().getAllStatus().keySet())
+		for (Pair<RDFTerm,Label> pair:validation.getTyping().getAllStatus().keySet())
 			if (!pair.two.isGenerated())
-				if (validation.getShapeMap().isNonConformant(pair.one, pair.two)) {
-					System.out.println(pair+" > "+validation.getShapeMap().getStatus(pair.one, pair.two));
+				if (validation.getTyping().isNonConformant(pair.one, pair.two)) {
+					System.out.println(pair+" > "+validation.getTyping().getStatus(pair.one, pair.two));
 					System.out.println(fa.getReport(pair.one, pair.two));
 				}
 	}

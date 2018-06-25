@@ -57,7 +57,7 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 	 * @param typing
 	 * @return a matching or null if none was found or cannot be found. 
 	 */
-	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, ShapeMap typing) {
+	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, Typing typing) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);

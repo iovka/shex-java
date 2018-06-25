@@ -33,9 +33,25 @@ public interface Parser {
 	 * @return the set of rules contains in the file
 	 * @throws Exception
 	 */
+	public Map<Label,ShapeExpr> getRules(Path path) throws Exception;
+	
+	/** Return the set of rules contains in the file.
+	 * @param rdfFactory the factory used to create the RDF objects.
+	 * @param path
+	 * @return the set of rules contains in the file
+	 * @throws Exception
+	 */
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, Path path) throws Exception;
 	
 	/** Return the set of rules contains in the inputstream.
+	 * @param is
+	 * @return the set of rules contains in the inputstream
+	 * @throws Exception
+	 */
+	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception;
+	
+	/** Return the set of rules contains in the inputstream.
+	 * @param rdfFactory the factory used to create the RDF objects.
 	 * @param is
 	 * @return the set of rules contains in the inputstream
 	 * @throws Exception

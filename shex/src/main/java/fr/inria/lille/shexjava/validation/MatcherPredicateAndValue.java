@@ -26,9 +26,9 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * @author Jérémie Dusart
  */
 public class MatcherPredicateAndValue extends Matcher {
-	private ShapeMap shapeMap;
+	private Typing shapeMap;
 	
-	public MatcherPredicateAndValue(ShapeMap shapeMap) {
+	public MatcherPredicateAndValue(Typing shapeMap) {
 		this.shapeMap = shapeMap;
 	}
 	

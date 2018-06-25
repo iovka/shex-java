@@ -19,7 +19,6 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 import org.apache.commons.rdf.api.IRI;
 
 /** Represents a property with an orientation which is forward or backward.
- * Used as predicate in a {@link NeighborTriple}.
  * 
  * @author Iovka Boneva
  * @author Antonin Durey

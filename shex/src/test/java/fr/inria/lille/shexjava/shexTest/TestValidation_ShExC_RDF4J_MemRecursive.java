@@ -152,10 +152,10 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getShapeMap().isConformant(testCase.focusNode, testCase.shapeLabel))
+    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
     				||
     				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    						validation.getShapeMap().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
+    						validation.getTyping().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));

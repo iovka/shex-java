@@ -42,7 +42,7 @@ import fr.inria.lille.shexjava.util.Pair;
 
 
 /** Implements the Recursive validation algorithm.
- * This algorithm will check only the shape definition necessary, but can return false positive.
+ * This algorithm will check only the shape definition necessary. The result is store in a shape map and will contain only the result for the (node, label) the validate function is called by the user. The result obtain  by recursive calls are not store since some can be false positive. To have the store of recursive call, see the algorithm RecursivveValidationWithMemorization.                
  * 
  * @author Jérémie Dusart 
  */
@@ -57,20 +57,20 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
 		if (label == null || !schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		this.resetShapeMap();
+		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
-			this.shapeMap.setStatus(focusNode, label, Status.CONFORMANT);
+			this.typing.setStatus(focusNode, label, Status.CONFORMANT);
 		}
 		return result;
 	}
 	
 	
 	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
-		this.shapeMap.setStatus(focusNode, label, Status.CONFORMANT);
+		this.typing.setStatus(focusNode, label, Status.CONFORMANT);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
 		schema.getShapeMap().get(label).accept(visitor);
-		this.shapeMap.removeNodeLabel(focusNode, label);
+		this.typing.removeNodeLabel(focusNode, label);
 		return visitor.result;
 		
 	}
@@ -141,7 +141,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
-		ShapeMap localTyping = new ShapeMap();
+		Typing localTyping = new Typing();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 
@@ -151,13 +151,13 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
 	
-				if (this.shapeMap.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
+				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
 					else
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);	
 				} else {
-					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), shapeMap.getStatus(destNode, tc.getShapeExpr().getId()));
+					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
 				}
 			}
 

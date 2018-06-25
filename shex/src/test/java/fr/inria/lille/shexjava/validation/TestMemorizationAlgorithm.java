@@ -55,7 +55,7 @@ public class TestMemorizationAlgorithm {
 		ValidationAlgorithm validation = new RecursiveValidationWithMemorization(schema,graph);
 		validation.validate(n1, new Label(rdfFactory.createIRI("http://a.example/S")));
 
-		if (validation.getShapeMap().isConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
+		if (validation.getTyping().isConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
 			fail();
 	}
 	
@@ -82,7 +82,7 @@ public class TestMemorizationAlgorithm {
 		//for (Pair<RDFTerm, Label> key:validation.getTyping().getAllStatus().keySet())
 		//	System.out.println(key+":"+validation.getTyping().getStatus(key.one, key.two));
 		
-		if (validation.getShapeMap().isNonConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
+		if (validation.getTyping().isNonConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
 			fail();
 	}
 	

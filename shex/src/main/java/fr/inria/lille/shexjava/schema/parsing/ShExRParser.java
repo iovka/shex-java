@@ -119,7 +119,7 @@ public class ShExRParser implements Parser {
 	}
 	
 	/** Used the first format that contains an extension that ends the provided path in the list of RDFFormats.
-	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(java.nio.file.Path)
+	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(org.apache.commons.rdf.api.RDF,java.nio.file.Path)
 	 */
 	public Map<Label, ShapeExpr> getRules(RDF rdfFactory, Path path) throws Exception {
 		RDFFormat foundformat = null;
@@ -135,7 +135,7 @@ public class ShExRParser implements Parser {
 	}
 	
 	/** Used null as format.
-	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(java.nio.file.Path)
+	 * @see fr.inria.lille.shexjava.schema.parsing.Parser#getRules(org.apache.commons.rdf.api.RDF,java.nio.file.Path)
 	 */
 	public Map<Label,ShapeExpr> getRules(InputStream is) throws Exception{
 		return getRules(GlobalFactory.RDFFactory,is);

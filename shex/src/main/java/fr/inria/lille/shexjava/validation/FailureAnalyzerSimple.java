@@ -35,13 +35,13 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 		super();
 	}
 
-	public void addFailureReportNoTCFound(RDFTerm node, Shape shape, ShapeMap typing, Triple neighbour) {
+	public void addFailureReportNoTCFound(RDFTerm node, Shape shape, Typing typing, Triple neighbour) {
 		String message = "No TripleConstraint found to match the neighbour "+neighbour+".";
 		message += " Maybe "+neighbour.getPredicate()+" should be in extra or verify the shape for "+getOther(neighbour,node)+".";
 		this.setReport(new FailureReport(node,shape.getId(),message));
 	}
 	
-	public void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, ShapeMap typing, ArrayList<Triple> neighbourhood) {
+	public void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, ArrayList<Triple> neighbourhood) {
 		List<TripleConstraint> constraints = collectorTC.getResult(shape.getTripleExpression());
 		Matcher matcher = new MatcherPredicateAndValue(typing);
 		
