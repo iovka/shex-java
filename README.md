@@ -104,7 +104,7 @@ On negative structure, the current implementation passes all the tests.
 On negative syntax, the current implementation passes 100 out of the 102 tests. 
 
 Command line example to run the tests and create the report for shexTest: 
- > mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.univLille.cristal.shex.shexTest.CreateTestReport" -Dexec.args="http://example.fr/~me"
+ > mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.inria.lille.shexjava.shexTest.CreateTestReport" -Dexec.args="http://example.fr/~me"
 
 # Usage
 
