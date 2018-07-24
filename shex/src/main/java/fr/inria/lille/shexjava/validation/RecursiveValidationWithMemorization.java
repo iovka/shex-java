@@ -58,6 +58,8 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	
 	public RecursiveValidationWithMemorization(ShexSchema schema, Graph graph) {
 		super(schema,graph);
+		this.resetTyping();
+
 	}
 	
 	
@@ -65,7 +67,6 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
 		if (label == null || !schema.getShapeMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,
 											 label,
 									 		 new LinkedList<>(),
