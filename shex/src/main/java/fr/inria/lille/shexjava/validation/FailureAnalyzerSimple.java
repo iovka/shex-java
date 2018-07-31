@@ -91,14 +91,14 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 					RepeatedTripleExpression rep = (RepeatedTripleExpression) sub;
 					if (rep.getSubExpression() instanceof TripleConstraint) {
 						TripleConstraint tc = (TripleConstraint) rep.getSubExpression();
-						if (revMatchingTC.get(sub).size()<rep.getCardinality().min) {
+						if (revMatchingTC.get(tc).size()<rep.getCardinality().min) {
 							// not enough neighbor found to match
 							// maybe too many neighbor found to match
 							String message = "Less than "+rep.getCardinality().min+" Triple found to match the TripleConstraint "+tc+". Maybe there is not enough of them.";				
 							this.setReport(new FailureReport(node,shape.getId(),message));
 							return;
 						}
-						if (revMatchingTC.get(sub).size()>rep.getCardinality().max) {
+						if (revMatchingTC.get(tc).size()>rep.getCardinality().max) {
 							// maybe too many neighbor found to match
 							String message = "More than "+rep.getCardinality().max+" Triple found to match the TripleConstraint "+tc+". Maybe there is too many of them.";				
 							this.setReport(new FailureReport(node,shape.getId(),message));
