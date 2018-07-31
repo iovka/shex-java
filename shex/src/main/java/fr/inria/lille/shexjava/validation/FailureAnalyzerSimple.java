@@ -79,12 +79,10 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 					}
 					if (revMatchingTC.get(sub).size()>1) {
 						// maybe too many neighbor found to match
-						if (revMatchingTC.get(sub).size()==0) {
-							// No neighbour found
-							String message = "More than one Triple found to match the TripleConstraint "+tc+". Maybe there is too many of them.";				
-							this.setReport(new FailureReport(node,shape.getId(),message));
-							return;
-						}
+						// No neighbour found
+						String message = "More than one Triple found to match the TripleConstraint "+tc+". Maybe there is too many of them.";				
+						this.setReport(new FailureReport(node,shape.getId(),message));
+						return;
 					}
 				}
 				if (sub instanceof RepeatedTripleExpression) {
