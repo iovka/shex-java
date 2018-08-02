@@ -90,7 +90,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label)  throws Exception {
 		if (!computed) {
-			for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
+			for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
 				List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum,focusNode);		
 				//System.out.println(elements);
 				boolean changed;
@@ -194,7 +194,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum,RDFTerm focusNode) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<Pair<RDFTerm, Label>>();
-		Set<Label> labels = schema.getLabelsAtStratum(stratum);
+		Set<Label> labels = schema.getStratification().get(stratum);
 		for (Label label: labels) {
 			if (selectedShape.contains(label)) {
 				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		
