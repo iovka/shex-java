@@ -55,7 +55,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
-		if (label == null || !schema.getShapeMap().containsKey(label))
+		if (label == null || !schema.getShapeExprsMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
 		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
@@ -69,7 +69,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
 		this.typing.setStatus(focusNode, label, Status.CONFORMANT);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
-		schema.getShapeMap().get(label).accept(visitor);
+		schema.getShapeExprsMap().get(label).accept(visitor);
 		this.typing.removeNodeLabel(focusNode, label);
 		return visitor.result;
 		

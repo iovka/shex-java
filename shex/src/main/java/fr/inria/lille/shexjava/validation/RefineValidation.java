@@ -73,10 +73,10 @@ public class RefineValidation extends SORBEBasedValidation {
 	protected void initSelectedShape() {
 		this.selectedShape = new HashSet<Label>(extraShapes);
 		this.selectedShape.addAll(schema.getRules().keySet());
-		for (ShapeExpr expr:schema.getShapeMap().values())
+		for (ShapeExpr expr:schema.getShapeExprsMap().values())
 			if (expr instanceof ShapeExprRef) 
 				selectedShape.add(((ShapeExprRef) expr).getShapeDefinition().getId());
-		for (TripleExpr expr:schema.getTripleMap().values())
+		for (TripleExpr expr:schema.getTripleExprsMap().values())
 			if (expr instanceof TripleConstraint)
 				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
 	}
@@ -111,7 +111,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		}		
 		if (focusNode==null || label==null)
 			return false;
-		if (!schema.getShapeMap().containsKey(label))
+		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
 		return typing.isConformant(focusNode, label);
 	}
@@ -119,7 +119,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	private boolean isLocallyValid(Pair<RDFTerm, Label> nl) {
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(nl.one);
-		schema.getShapeMap().get(nl.two).accept(visitor);
+		schema.getShapeExprsMap().get(nl.two).accept(visitor);
 		return visitor.getResult();
 	}
 	
@@ -194,7 +194,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum,RDFTerm focusNode) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<Pair<RDFTerm, Label>>();
-		Set<Label> labels = schema.getStratum(stratum);
+		Set<Label> labels = schema.getLabelsAtStratum(stratum);
 		for (Label label: labels) {
 			if (selectedShape.contains(label)) {
 				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		
