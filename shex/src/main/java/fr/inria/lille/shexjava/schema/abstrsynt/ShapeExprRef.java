@@ -59,6 +59,6 @@ public class ShapeExprRef extends ShapeExpr {
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return "@"+label.toPrettyString();
 	}
 }

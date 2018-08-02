@@ -64,6 +64,6 @@ public class TripleExprRef extends TripleExpr {
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return "@"+label.toPrettyString();
 	}
 }

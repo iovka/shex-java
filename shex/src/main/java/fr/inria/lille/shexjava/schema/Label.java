@@ -119,7 +119,7 @@ public class Label {
 	}
 	
 	public String toPrettyString() {
-		if (iri != null) return "IRI:"+iri.toString();
-		else return "BNODE:"+bnode.toString();
+		if (iri != null) return iri.ntriplesString();
+		else return bnode.ntriplesString();
 	}
 }
