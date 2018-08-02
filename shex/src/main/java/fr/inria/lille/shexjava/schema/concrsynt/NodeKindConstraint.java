@@ -40,6 +40,11 @@ public class NodeKindConstraint implements Constraint {
 		public String toString() {
 			return "BLANK";
 		}		
+		
+		@Override
+		public String toPrettyString() {
+			return this.toString();
+		}
 	};
 	
 	public static final NodeKindConstraint AllIRI = new NodeKindConstraint() {
@@ -53,6 +58,11 @@ public class NodeKindConstraint implements Constraint {
 		public String toString() {
 			return "ALL_IRI";
 		};
+		
+		@Override
+		public String toPrettyString() {
+			return this.toString();
+		}
 				
 	};
 
@@ -66,6 +76,11 @@ public class NodeKindConstraint implements Constraint {
 		public String toString() {
 			return "ALL_LITERALS";
 		}
+		
+		@Override
+		public String toPrettyString() {
+			return this.toString();
+		}
 	};
 	
 	public static final NodeKindConstraint AllNonLiteral = new NodeKindConstraint() {
@@ -78,6 +93,11 @@ public class NodeKindConstraint implements Constraint {
 		public String toString() {
 			return "ALL_NON_LITERALS";
 		}
+		
+		@Override
+		public String toPrettyString() {
+			return this.toString();
+		}
 	};
 
 	
@@ -86,5 +106,10 @@ public class NodeKindConstraint implements Constraint {
 	public boolean contains(RDFTerm node) {
 		return false;
 	}	
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 	
 }

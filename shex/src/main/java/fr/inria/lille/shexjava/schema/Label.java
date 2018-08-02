@@ -76,7 +76,7 @@ public class Label {
 	public String stringValue() {
 		if (bnode!=null)
 			return bnode.ntriplesString();
-		return iri.getIRIString();
+		return iri.ntriplesString();
 	}
 
 	@Override

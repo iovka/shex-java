@@ -86,6 +86,11 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 			annot =CollectionToString.collectionToString(annotations," ; ","// [", "]");
 		return String.format("(%s %s %s %s)", closed, extraP, tripleExpr,annot);
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 	
 }

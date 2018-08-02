@@ -65,4 +65,15 @@ public class OneOf extends AbstractNaryTripleExpr implements AnnotedObject {
 		visitor.visitOneOf(this, arguments);
 	}
 	
+	@Override
+	public String toPrettyString() {
+		String result ="";
+		if (id!=null && !id.isGenerated())
+			result += getId().toString()+"=";
+		result += CollectionToString.collectionToString(getSubExpressions(), " || ", "OneOf(", ")");;
+		if (this.annotations!=null && this.annotations.size()>0)
+			result +=CollectionToString.collectionToString(annotations," ; ","// [", "]");
+		return result;
+	}
+	
 }

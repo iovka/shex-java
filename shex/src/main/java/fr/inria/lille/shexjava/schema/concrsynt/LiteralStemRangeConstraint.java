@@ -33,4 +33,9 @@ public class LiteralStemRangeConstraint extends StemRangeConstraint {
 	public String toString() {
 		return "LiteralStemRange=("+stem+" exclusions="+exclusions+")";
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 }

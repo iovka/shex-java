@@ -36,4 +36,9 @@ public class EmptyTripleExpression extends TripleExpr {
 		return "EMPTY";
 	}
 	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
+	
 }

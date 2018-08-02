@@ -51,5 +51,10 @@ public abstract class StemRangeConstraint implements Constraint {
 		return exclusions;
 	}
 	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
+	
 	
 }

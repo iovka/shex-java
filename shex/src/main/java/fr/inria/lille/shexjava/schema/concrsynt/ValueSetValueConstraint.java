@@ -58,4 +58,9 @@ public class ValueSetValueConstraint implements Constraint {
 		return "values:"+explicitValues+ " U "+constraintsValue;
 	}
 	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
+	
 }

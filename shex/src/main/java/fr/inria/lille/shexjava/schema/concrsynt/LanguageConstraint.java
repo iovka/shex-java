@@ -52,6 +52,11 @@ public class LanguageConstraint implements Constraint {
 	public String toString(){
 		return "LangTag="+langTag;
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 	/** Equals if obj has the same langTag.
 	 * @see java.lang.Object#equals(java.lang.Object)

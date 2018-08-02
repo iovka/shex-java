@@ -31,4 +31,7 @@ public class EmptyShape extends NodeConstraint{
 		return ".";
 	}
 
+	public String toPrettyString() {
+		return this.toString();
+	}
 }

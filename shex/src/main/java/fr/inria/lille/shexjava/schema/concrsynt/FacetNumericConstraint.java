@@ -133,6 +133,11 @@ public class FacetNumericConstraint implements Constraint {
 		return mini + maxi + mine + maxe + tot + frac;
 	}
 	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
+	
 	/** Equals if obj has the same constraints.
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

@@ -33,4 +33,9 @@ public class IRIStemRangeConstraint extends StemRangeConstraint {
 	public String toString() {
 		return "IRIStemRange=("+stem+" exclusions="+exclusions+")";
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 }

@@ -33,5 +33,10 @@ public class LanguageStemRangeConstraint extends StemRangeConstraint {
 	public String toString() {
 		return "LanguageStemRange=("+stem+" exclusions="+exclusions+")";
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 }
