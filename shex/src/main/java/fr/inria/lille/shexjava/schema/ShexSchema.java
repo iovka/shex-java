@@ -34,6 +34,8 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.builder.GraphBuilder;
 
+import com.moz.kiji.annotations.ApiStability.Stable;
+
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.exception.CyclicReferencesException;
 import fr.inria.lille.shexjava.exception.NotStratifiedException;
@@ -61,13 +63,16 @@ import fr.inria.lille.shexjava.util.Pair;
 
 /** A ShEx schema.
  * 
- * An instance of this class represents a well-defined schema, that is, all shape labels are defined, and the set of rules is stratified. All the verification on the set of rules id done in the constructor.
+ * An instance of this class represents a well-defined schema, that is, all shape labels are defined, there are no circular dependences between {@link ShapeExprRef} or {@link TripleExprRef}, and the set of rules is stratified.
+ * The set of rules is not modifiable after construction.
+ * All {@link ShapeExpr} and {@link TripleExpr} in the constructed schema have a {@link Label}, allowing to refer to the corresponding expression.
  * The stratification is a most refined stratification.
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
  * @author Jérémie Dusart
  */
+@Stable
 public class ShexSchema {
 	private Map<Integer,Set<Label>> stratification = null;
 	private Map<Label, ShapeExpr> rules;
@@ -75,17 +80,31 @@ public class ShexSchema {
 	private Map<Label,TripleExpr> tripleMap;
 	private RDF rdfFactory;
 	
-	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		initialize(GlobalFactory.RDFFactory, rules);
-	}
-	
-	/** The constructor try to instantiate a well-defined schema. Label are generated for all shapeExpr and tripleExpr without and ID. References are resolved and a verification that there is no cycles in the references is performed. The stratification of the set of rules is stratified is computed. Rules cannot be modified after initialization
+	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
+	 * Otherwise, an exception is thrown.
+	 * Uses @link {@link GlobalFactory.RDFFactory} for creating the fresh labels.
+	 * 
 	 * @param rules
 	 * @throws UndefinedReferenceException
 	 * @throws CyclicReferencesException
 	 * @throws NotStratifiedException
 	 */
-	public ShexSchema(RDF rdfFactory,Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	@Stable
+	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		initialize(GlobalFactory.RDFFactory, rules);
+	}
+	
+	
+	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
+	 * Otherwise, an exception is thrown.
+	 * Allows to specify the factory to be used for creating the fresh labels.  
+	 * @param rules
+	 * @param rdfFactory
+	 * @throws UndefinedReferenceException
+	 * @throws CyclicReferencesException
+	 * @throws NotStratifiedException
+	 */
+	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		initialize(rdfFactory, rules);
 	}
 	
@@ -141,7 +160,7 @@ public class ShexSchema {
 				}
 			}
 		}
-		
+		 
 		// Check that there is no cycle in the definition of the references
 		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph();
 		CycleDetector<Label, DefaultEdge> detector = new CycleDetector<>(referencesGraph);
@@ -212,6 +231,8 @@ public class ShexSchema {
 		return rules;
 	}
 
+	// TODO naming: is there a way to specify naming conventions ? Variable names associated to classes ?
+	// TODO this should be named getShapeExprMap
 	/** All the shape expressions of the schema.
 	 * @return a map of all the ShapeExpr of the schema.
 	 */
@@ -219,6 +240,7 @@ public class ShexSchema {
 		return shapeMap;
 	}
 
+	// This should be named getTripleExprMap
 	/** All the triple expressions of the schema.
 	 * @return a map of all the TripleExpr of the schema.
 	 */
@@ -577,11 +599,13 @@ public class ShexSchema {
 		return builder.build();
 	}
 	
-	
+	// TODO: what is a stratum ? The number, or the labels on it ? All related methods should be named accordingly. In the spec stratum = number
+	// 
+	// TODO This should be named getLabelsAtStratum
 	/** The set of shape labels on a given stratum.
 	 * 
 	 * @param i
-	 * @return the labels of the shapes of stratum i
+	 * @return the labels of the shapes on stratum i
 	 */
 	public Set<Label> getStratum (int i) {
 		if (i < 0 && i >= this.getStratification().size())
@@ -596,6 +620,7 @@ public class ShexSchema {
 		return this.getStratification().size();
 	}
 
+	// TODO This should be named getStratum
 	/** Get the stratum of a given shape label.
 	 * 
 	 */

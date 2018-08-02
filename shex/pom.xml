@@ -167,6 +167,11 @@
 			<version>${junit.vintage.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.moz.kiji.annotations</groupId>
+			<artifactId>annotations</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
