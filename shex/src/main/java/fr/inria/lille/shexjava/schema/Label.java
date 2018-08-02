@@ -76,7 +76,7 @@ public class Label {
 	public String stringValue() {
 		if (bnode!=null)
 			return bnode.ntriplesString();
-		return iri.ntriplesString();
+		return iri.getIRIString();
 	}
 
 	@Override
@@ -114,6 +114,11 @@ public class Label {
 	
 	@Override
 	public String toString() {
+		if (iri != null) return "IRI:"+iri.toString();
+		else return "BNODE:"+bnode.toString();
+	}
+	
+	public String toPrettyString() {
 		if (iri != null) return "IRI:"+iri.toString();
 		else return "BNODE:"+bnode.toString();
 	}

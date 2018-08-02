@@ -60,7 +60,15 @@ public class ValueSetValueConstraint implements Constraint {
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		String result = "";
+		if (explicitValues.size()>0)
+			result += " values:"+explicitValues+" ";
+		if (constraintsValue.size()>0) {
+			if (!result.equals(""))
+				result+="U";
+			result += " constraints:"+constraintsValue+" ";
+		}
+		return result;
 	}
 	
 }

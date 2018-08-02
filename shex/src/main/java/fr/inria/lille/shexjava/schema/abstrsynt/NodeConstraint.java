@@ -60,6 +60,10 @@ public class NodeConstraint extends ShapeExpr {
 
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		String result = "[";
+		for (Constraint cst:constraints)
+			result+=" "+cst.toPrettyString();
+		result +=" ];";
+		return "NodeConstraint : "+result;
 	}
 }

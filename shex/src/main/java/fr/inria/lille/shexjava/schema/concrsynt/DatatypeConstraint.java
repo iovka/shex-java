@@ -88,7 +88,7 @@ public class DatatypeConstraint implements Constraint {
 	
 	@Override
 	public String toString() {
-		return "DT:"+datatypeIri.toString();
+		return "Datatype="+datatypeIri.ntriplesString();
 	}
 	
 	@Override
