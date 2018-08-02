@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,73 +37,74 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
  * @author Jérémie Dusart
  * @param <List<TripleConstraint>>
  */
-public class DynamicCollectorOfTripleConstraint extends TripleExpressionVisitor<List<TripleConstraint>>{
-	private Map<Label,List<TripleConstraint>> dynamiqueRes;
+public class DynamicCollectorOfTripleConstraint {
 
-	public DynamicCollectorOfTripleConstraint() {
-		this.dynamiqueRes = new HashMap<Label,List<TripleConstraint>>();
-	}
+	private Map<Label, List<TripleConstraint>> collectedTCs = new HashMap<>();
 	
-	public List<TripleConstraint> getResult(TripleExpr triple) {
-		if (!dynamiqueRes.containsKey(triple.getId())) {
-			triple.accept(this);
+	public List<TripleConstraint> getTCs (TripleExpr texpr) {
+		List<TripleConstraint> result = collectedTCs.get(texpr.getId());
+		if (result == null) {
+			texpr.accept(collector);
+			result = collector.getResult();
 		}
-		return dynamiqueRes.get(triple.getId());
-	} 
-	
-	@Override
-	public List<TripleConstraint> getResult() {
-		return null;
+		return result;
 	}
+	
+	private final TripleExpressionVisitor<List<TripleConstraint>> collector = new TripleExpressionVisitor<List<TripleConstraint>>() {
 
-	@Override
-	public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-		List<TripleConstraint> tmp = new ArrayList<TripleConstraint>();
-		tmp.add((TripleConstraint) tc);
-		this.dynamiqueRes.put(tc.getId(),tmp);
+		private List<TripleConstraint> result;
+
+		private void setResult (TripleExpr expr, List<TripleConstraint> result) {
+			this.result = result;
+			collectedTCs.put(expr.getId(), result);
+		}
 		
-	}
-
-	@Override
-	public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
-		List<TripleConstraint> tmp = new ArrayList<TripleConstraint>();
-		this.dynamiqueRes.put(expr.getId(),tmp);
-	}
-
-	@Override
-	public void visitEachOf(EachOf expr, Object... arguments) {
-		super.visitEachOf(expr, arguments);
-		List<TripleConstraint> result = new ArrayList<TripleConstraint>();
-		for (TripleExpr subExpr:expr.getSubExpressions()) {
-			result.addAll(dynamiqueRes.get(subExpr.getId()));
+		@Override
+		public List<TripleConstraint> getResult() {
+			return result;
 		}
-		this.dynamiqueRes.put(expr.getId(), result);
-	}
-	
-	@Override
-	public void visitOneOf(OneOf expr, Object... arguments) {
-		super.visitOneOf(expr, arguments);
-		List<TripleConstraint> result = new ArrayList<TripleConstraint>();
-		for (TripleExpr subExpr:expr.getSubExpressions()) {
-			result.addAll(dynamiqueRes.get(subExpr.getId()));
+
+		@Override
+		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
+			setResult(tc, Collections.singletonList(tc));
 		}
-		this.dynamiqueRes.put(expr.getId(), result);
-	}
-	
-	
-	@Override
-	public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
-		super.visitRepeated(expr, arguments);
-		List<TripleConstraint> result = new ArrayList<TripleConstraint>(dynamiqueRes.get(expr.getSubExpression().getId()));
-		this.dynamiqueRes.put(expr.getId(),result);
-	}
-	
-	@Override
-	public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
-		expr.getTripleExp().accept(this, arguments);
-		List<TripleConstraint> tmp = new ArrayList<TripleConstraint>(dynamiqueRes.get(expr.getTripleExp().getId()));
-		this.dynamiqueRes.put(expr.getId(),tmp);
-		
-	}
-	
+
+		@Override
+		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
+			setResult(expr, Collections.emptyList());
+		}
+
+		@Override
+		public void visitEachOf(EachOf expr, Object... arguments) {
+			List<TripleConstraint> newResult = new ArrayList<>();
+			for (TripleExpr subExpr : expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				newResult.addAll(getResult());
+			}
+			setResult(expr, newResult);
+		}
+
+		@Override
+		public void visitOneOf(OneOf expr, Object... arguments) {
+			List<TripleConstraint> newResult = new ArrayList<>();
+			for (TripleExpr subExpr : expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				newResult.addAll(getResult());
+			}
+			setResult(expr, newResult);
+		}
+
+
+		@Override
+		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
+			expr.getSubExpression().accept(this, arguments);
+			setResult(expr, getResult());
+		}
+
+		@Override
+		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
+			expr.getTripleExp().accept(this, arguments);
+			setResult(expr, getResult());
+		}
+	};
 }

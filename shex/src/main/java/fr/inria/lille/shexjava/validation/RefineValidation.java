@@ -83,7 +83,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	@Override
 	public void resetTyping() {
-		this.typing = new Typing();
+		this.typing = new TypingForValidation();
 		computed = false;
 	}
 	
@@ -182,18 +182,16 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getTyping());
-		if (result == null) {
-			return false;
-		}
-		return true;
+		// TODO: remove the cast
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, (TypingForValidation) this.getTyping());
+		return result != null;
 	}	
 
 	
 	// Typing utils
 	
 	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum,RDFTerm focusNode) {
-		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<Pair<RDFTerm, Label>>();
+		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
 		Set<Label> labels = schema.getStratification().get(stratum);
 		for (Label label: labels) {
 			if (selectedShape.contains(label)) {

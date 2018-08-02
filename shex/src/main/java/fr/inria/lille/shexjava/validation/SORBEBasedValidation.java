@@ -40,14 +40,12 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author jdusart
  *
  */
-public abstract class SORBEBasedValidation extends ValidationAlgorithm{
+public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract{
 	protected SORBEGenerator sorbeGenerator;
-	protected DynamicCollectorOfTripleConstraint collectorTC;
 	
 	public SORBEBasedValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
 		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
-		this.collectorTC = new DynamicCollectorOfTripleConstraint();
 	}
 	
 	/** Try to find a matching for the shape on the node using the typing. See also the MatchingCollector or FailureReportsCollecto.
@@ -57,10 +55,10 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithm{
 	 * @param typing
 	 * @return a matching or null if none was found or cannot be found. 
 	 */
-	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, Typing typing) {
+	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, TypingForValidation typing) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
-		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
 		if (constraints.size() == 0) {
 			if (!shape.isClosed()) {
 				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();

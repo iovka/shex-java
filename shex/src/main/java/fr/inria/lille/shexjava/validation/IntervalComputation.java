@@ -151,9 +151,9 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 	
 	
 	private boolean isEmptySubbag(Bag bag, TripleExpr expression){
-		List<TripleConstraint> list = this.collectorTC.getResult(expression);
+		List<TripleConstraint> list = this.collectorTC.getTCs(expression);
 		for(TripleConstraint tripleConstraint : list){
-			if(!(bag.getMult(tripleConstraint) == 0))
+			if(bag.getMult(tripleConstraint) != 0)
 				return false;
 		}
 		return true;

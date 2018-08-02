@@ -52,10 +52,10 @@ public class TestMemorizationAlgorithm {
 		graph.add(n1,rdfFactory.createIRI("http://a.example/c"),rdfFactory.createLiteral("test"));
 		
 		
-		ValidationAlgorithm validation = new RecursiveValidationWithMemorization(schema,graph);
+		ValidationAlgorithmAbstract validation = new RecursiveValidationWithMemorization(schema,graph);
 		validation.validate(n1, new Label(rdfFactory.createIRI("http://a.example/S")));
 
-		if (validation.getTyping().isConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
+		if (validation.getTyping().getStatus(n1, new Label(rdfFactory.createIRI("http://a.example/S"))) == Status.CONFORMANT)
 			fail();
 	}
 	
@@ -76,13 +76,13 @@ public class TestMemorizationAlgorithm {
 		graph.add(n1,rdfFactory.createIRI("http://a.example/c"),rdfFactory.createIRI("http://a.example/cv"));
 		
 		
-		ValidationAlgorithm validation = new RecursiveValidationWithMemorization(schema,graph);
+		ValidationAlgorithmAbstract validation = new RecursiveValidationWithMemorization(schema,graph);
 		validation.validate(n1, new Label(rdfFactory.createIRI("http://a.example/S")));
  
 		//for (Pair<RDFTerm, Label> key:validation.getTyping().getAllStatus().keySet())
 		//	System.out.println(key+":"+validation.getTyping().getStatus(key.one, key.two));
 		
-		if (validation.getTyping().isNonConformant(n1, new Label(rdfFactory.createIRI("http://a.example/S"))))
+		if (validation.getTyping().getStatus(n1, new Label(rdfFactory.createIRI("http://a.example/S"))) == Status.NONCONFORMANT)
 			fail();
 	}
 	

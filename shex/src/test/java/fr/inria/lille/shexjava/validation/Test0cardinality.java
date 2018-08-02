@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,8 +50,7 @@ public class Test0cardinality {
 		RefineValidation validation = new RefineValidation(schema,graph);
 		validation.validate(s1, new Label(rdfFactory.createIRI("http://a.example/S")));
 
-		if (validation.getTyping().isConformant(s1, new Label(rdfFactory.createIRI("http://a.example/S"))))
-				fail();
+		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new Label(rdfFactory.createIRI("http://a.example/S"))));
 	}
 	
 	@Test
@@ -69,8 +68,7 @@ public class Test0cardinality {
 		RefineValidation validation = new RefineValidation(schema,graph);
 		validation.validate(s1, new Label(rdfFactory.createIRI("http://a.example/S")));
 		
-		if (validation.getTyping().isConformant(s1, new Label(rdfFactory.createIRI("http://a.example/S"))))
-			fail();
+		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new Label(rdfFactory.createIRI("http://a.example/S"))));
 	}
 
 }

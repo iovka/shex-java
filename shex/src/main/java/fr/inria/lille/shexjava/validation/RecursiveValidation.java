@@ -137,11 +137,11 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
-		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);	
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
-		Typing localTyping = new Typing();
+		TypingForValidation localTyping = new TypingForValidation();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 
