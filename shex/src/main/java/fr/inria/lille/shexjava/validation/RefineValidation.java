@@ -73,24 +73,24 @@ public class RefineValidation extends SORBEBasedValidation {
 	protected void initSelectedShape() {
 		this.selectedShape = new HashSet<Label>(extraShapes);
 		this.selectedShape.addAll(schema.getRules().keySet());
-		for (ShapeExpr expr:schema.getShapeMap().values())
+		for (ShapeExpr expr:schema.getShapeExprsMap().values())
 			if (expr instanceof ShapeExprRef) 
 				selectedShape.add(((ShapeExprRef) expr).getShapeDefinition().getId());
-		for (TripleExpr expr:schema.getTripleMap().values())
+		for (TripleExpr expr:schema.getTripleExprsMap().values())
 			if (expr instanceof TripleConstraint)
 				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
 	}
 	
 	@Override
 	public void resetTyping() {
-		this.typing = new Typing();
+		this.typing = new TypingForValidation();
 		computed = false;
 	}
 	
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label)  throws Exception {
 		if (!computed) {
-			for (int stratum = 0; stratum < schema.getNbStratums(); stratum++) {
+			for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
 				List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum,focusNode);		
 				//System.out.println(elements);
 				boolean changed;
@@ -111,7 +111,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		}		
 		if (focusNode==null || label==null)
 			return false;
-		if (!schema.getShapeMap().containsKey(label))
+		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
 		return typing.isConformant(focusNode, label);
 	}
@@ -119,7 +119,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	private boolean isLocallyValid(Pair<RDFTerm, Label> nl) {
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(nl.one);
-		schema.getShapeMap().get(nl.two).accept(visitor);
+		schema.getShapeExprsMap().get(nl.two).accept(visitor);
 		return visitor.getResult();
 	}
 	
@@ -182,19 +182,17 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getTyping());
-		if (result == null) {
-			return false;
-		}
-		return true;
+		// TODO: remove the cast
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, (TypingForValidation) this.getTyping());
+		return result != null;
 	}	
 
 	
 	// Typing utils
 	
 	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum,RDFTerm focusNode) {
-		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<Pair<RDFTerm, Label>>();
-		Set<Label> labels = schema.getStratum(stratum);
+		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
+		Set<Label> labels = schema.getStratification().get(stratum);
 		for (Label label: labels) {
 			if (selectedShape.contains(label)) {
 				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		

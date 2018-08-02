@@ -56,7 +56,8 @@ import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 import fr.inria.lille.shexjava.validation.RefineValidation;
-import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
+import fr.inria.lille.shexjava.validation.Status;
+import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
  * @author Jérémie Dusart
@@ -152,7 +153,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     		    		
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		Graph dataGraph = getRDFGraph();
-    		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
+    		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
 	    	
     		// Fix for dealing with the absence of namespace specification in jena.
 	    	if (testCase.focusNode instanceof org.apache.commons.rdf.api.IRI) {
@@ -171,10 +172,10 @@ public class TestValidation_ShExJ_Jena_Refine {
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
     		   		
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
+    				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.CONFORMANT)
     			||
     			(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    				validation.getTyping().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
+    				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
      		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));			
@@ -239,7 +240,7 @@ public class TestValidation_ShExJ_Jena_Refine {
 		return (new JenaRDF()).asGraph(model);
 	}
 	
-	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
+	public ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
 		return new RefineValidation(schema, dataGraph);
 	}
 

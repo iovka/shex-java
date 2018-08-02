@@ -40,7 +40,8 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.validation.RecursiveValidation;
 import fr.inria.lille.shexjava.validation.RefineValidation;
-import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
+import fr.inria.lille.shexjava.validation.Status;
+import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Command line tool for validation.
  * 
@@ -112,7 +113,7 @@ public class Validate {
 		if (parameters.get("-l") != null)
 			shapeLabel = new Label(rdfFactory.createIRI(parameters.get("-l")));
 		
-		ValidationAlgorithm val = null;
+		ValidationAlgorithmAbstract val = null;
 		switch (parameters.get("-a")) {
 			case "refine" : val = new RefineValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
 			case "recursive" : val = new RecursiveValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
@@ -123,14 +124,14 @@ public class Validate {
 		System.out.println("Typing constructed.");
 		
 		if (focusNode != null && shapeLabel != null)
-			if (val.getTyping().isConformant(focusNode, shapeLabel))
+			if (val.getTyping().getStatus(focusNode, shapeLabel) == Status.CONFORMANT)
 				System.out.println(String.format("%s SATISFIES %s", focusNode, shapeLabel));
 			else 
 				System.out.println(String.format("%s DOES NOT SATISFY %s", focusNode, shapeLabel));
 		
 		
 		if (parameters.get("-out") != null) {
-			String output = val.getTyping().getAllStatus().toString();
+			String output = val.getTyping().getStatusMap().toString();
 			try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(parameters.get("-out")))) {
 			    writer.write(output, 0, output.length());
 			    System.out.println("Typing written in " + parameters.get("-out"));

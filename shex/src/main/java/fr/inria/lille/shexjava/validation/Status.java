@@ -16,6 +16,19 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+/** Used to represent the status of node w.r.t. its validity for an expression in some schema.
+ * @see Typing
+ * 
+ * @author Iovka Boneva
+ * 2 août 2018
+ */
 public enum Status {
-	CONFORMANT,NONCONFORMANT,NOTCOMPUTED;
+	/** Indicates that the node satisfies the expression. */
+	CONFORMANT,
+	/** The node does not satisfy the expression. */
+	NONCONFORMANT,
+	/** The status is unknown as it has not yet beet computed by the validation algorithm.
+	 * In order to determine the status, one should run {@link ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)}
+	 * with the corresponding node and expression (label). */
+	NOTCOMPUTED;
 }

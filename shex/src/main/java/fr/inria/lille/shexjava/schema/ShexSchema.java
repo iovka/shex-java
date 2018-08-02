@@ -74,10 +74,13 @@ import fr.inria.lille.shexjava.util.Pair;
  */
 @Stable
 public class ShexSchema {
-	private Map<Integer,Set<Label>> stratification = null;
+
 	private Map<Label, ShapeExpr> rules;
-	private Map<Label,ShapeExpr> shapeMap;
-	private Map<Label,TripleExpr> tripleMap;
+	private Map<Label,ShapeExpr> shexprsMap;
+	private Map<Label,TripleExpr> texprsMap;
+	private Map<Integer,Set<Label>> stratification;
+	
+	/** The factory used for creating fresh {@link Label}s */
 	private RDF rdfFactory;
 	
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
@@ -91,7 +94,7 @@ public class ShexSchema {
 	 */
 	@Stable
 	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		initialize(GlobalFactory.RDFFactory, rules);
+		this(GlobalFactory.RDFFactory, rules);
 	}
 	
 	
@@ -105,68 +108,155 @@ public class ShexSchema {
 	 * @throws NotStratifiedException
 	 */
 	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		initialize(rdfFactory, rules);
+		this.rdfFactory = rdfFactory;
+		initialize(rules);
+	}
+		
+	protected void initialize(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+
+		this.rules = new HashMap<>(rules);
+		
+		constructShexprMapAndCheckIdsAreUnique();
+		checkAllShapeRefsAreDefined();
+		constructTexprsMapAndCheckIdsAreUnique();
+		checkAllTripleRefsAreDefined();
+		
+		checkNoCyclicReferences();
+		computeStratification();
+		
+		this.rules = Collections.unmodifiableMap(rules);
+		this.texprsMap = Collections.unmodifiableMap(texprsMap);
+		this.shexprsMap = Collections.unmodifiableMap(shexprsMap);
 	}
 	
-	protected void initialize(RDF rdfFactory,Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this.rdfFactory = rdfFactory;
-		//check that id are unique
-		
-		this.rules = Collections.unmodifiableMap(new HashMap<Label, ShapeExpr>(rules));
-		// Collect all the ShapeExpr
-		Set<ShapeExpr> allShapes = SchemaCollectors.collectAllShapes(this.rules);
-		Map<Label,ShapeExpr> shapeMapTmp = new HashMap<Label,ShapeExpr>();
-		for(ShapeExpr shexp:allShapes) {
-			checkShapeID(shexp);
-			if (shapeMapTmp.containsKey(shexp.getId()))
-				throw new IllegalArgumentException("Label "+shexp.getId()+" allready used.");
-			shapeMapTmp.put(shexp.getId(),shexp);
-		}
+	/** The rules of the schema.
+	 * @return the rules of the schema.
+	 */
+	@Stable
+	public Map<Label, ShapeExpr> getRules() {
+		return rules;
+	}
 
-		this.shapeMap = Collections.unmodifiableMap(new HashMap<Label, ShapeExpr>(shapeMapTmp));
-		// Check that all the shape references are defined
-		for (Map.Entry<Label,ShapeExpr> entry:shapeMap.entrySet()){
+	@Stable
+	public Map<Integer, Set<Label>> getStratification() {
+		return stratification;
+	}
+	
+	/** All the shape expressions that appear in the schema indexed by their label.	 */
+	public Map<Label, ShapeExpr> getShapeExprsMap() {
+		return shexprsMap;
+	}
+
+	/** All the triple expressions that appear in the schema indexed by their label. */
+	public Map<Label, TripleExpr> getTripleExprsMap() {
+		return texprsMap;
+	}
+	
+	/** The set of shape labels that are on a given stratum.
+	 * 
+	 * @param i
+	 * @return the labels of the shapes on stratum i
+	 * @deprecated Use {@link #getStratification()} instead
+	 */
+	@Deprecated
+	public Set<Label> getLabelsAtStratum (int i) {
+		if (i < 0 && i >= this.getStratification().size())
+			throw new IllegalArgumentException("Stratum " + i + " does not exist");
+		return Collections.unmodifiableSet(this.getStratification().get(i));
+	}
+	
+	/** Get the number of stratums of the schema.
+	 * @deprecated Use {@link #getStratification()} instead
+	 */
+	@Deprecated
+	public int getNbStratums () {
+		return this.getStratification().size();
+	}
+
+	/** The stratum of a given label.
+	 * 
+	 * @param label
+	 * @return
+	 * @deprecated Use {@link #getStratification()} instead
+	 */
+	@Deprecated
+	public int getStratum (Label label) {
+		for (int i = 0; i < getNbStratums(); i++)
+			if (getLabelsAtStratum(i).contains(label))
+				return i;
+		throw new IllegalArgumentException("Unknown shape label: " + label);
+	}
+
+	// TODO: Can't we deal w/o this ?
+	public RDF getRdfFactory() {
+		return rdfFactory;
+	}
+
+	@Override
+	public String toString() {
+		return rules.toString();
+	}
+	
+
+	
+
+	/** Computes and populates {@link #shexprsMap} */
+	private void constructShexprMapAndCheckIdsAreUnique() {
+		shexprsMap = new HashMap<>();
+		Set<ShapeExpr> allShapes = SchemaCollectors.collectAllShapeExprs(this.rules);
+		for(ShapeExpr shexpr : allShapes) {
+			addIdIfNone(shexpr);
+			if (shexprsMap.containsKey(shexpr .getId()))
+				throw new IllegalArgumentException("Label "+shexpr.getId()+" already used.");
+			shexprsMap.put(shexpr .getId(),shexpr );
+		}
+	}
+
+	private void constructTexprsMapAndCheckIdsAreUnique() {
+		texprsMap = new HashMap<>();
+		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(this.rules);
+		for (TripleExpr tcexp : allTriples) {
+			addIdIfNone(tcexp);
+			if (shexprsMap.containsKey(tcexp.getId()) || texprsMap.containsKey(tcexp.getId()))
+				throw new IllegalArgumentException("Label "+tcexp.getId()+" allready used.");
+			texprsMap.put(tcexp.getId(),tcexp);
+		}
+	}
+
+	private void checkAllShapeRefsAreDefined() throws UndefinedReferenceException {
+		for (Map.Entry<Label,ShapeExpr> entry : shexprsMap.entrySet()){
 			if (entry.getValue() instanceof ShapeExprRef) {
 				ShapeExprRef ref = (ShapeExprRef) entry.getValue();
-				if (shapeMap.containsKey(ref.getLabel())) {
-					ref.setShapeDefinition(shapeMap.get(ref.getLabel()));
-				}else {
+				if (shexprsMap.containsKey(ref.getLabel())) {
+					ref.setShapeDefinition(shexprsMap.get(ref.getLabel()));
+				} else {
 					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
 				}
 			}
 		}
-		
-		// Collect all TripleExpr
-		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(this.rules);
-		Map<Label,TripleExpr> tripleMapTmp = new HashMap<Label,TripleExpr>();
-		for (TripleExpr tcexp:allTriples) {
-			checkTripleID(tcexp);
-			if (shapeMap.containsKey(tcexp.getId()) || tripleMapTmp.containsKey(tcexp.getId()))
-				throw new IllegalArgumentException("Label "+tcexp.getId()+" allready used.");
-			tripleMapTmp.put(tcexp.getId(),tcexp);
-			
-			//System.out.println("ID:"+tcexp.getId()+" : "+tcexp+ "("+tcexp.getClass()+")");
-		}
-		tripleMap = Collections.unmodifiableMap(new HashMap<Label,TripleExpr>(tripleMapTmp));
-		
-		// Check that all the triple references are defined
-		for (Map.Entry<Label,TripleExpr> entry:tripleMap.entrySet()){
+	}
+	
+	private void checkAllTripleRefsAreDefined() throws UndefinedReferenceException {
+		for (Map.Entry<Label,TripleExpr> entry:texprsMap.entrySet()){
 			if (entry.getValue() instanceof TripleExprRef) {
 				TripleExprRef ref = (TripleExprRef) entry.getValue();
-				if (tripleMap.containsKey(ref.getLabel())) {
-					ref.setTripleDefinition(tripleMap.get(ref.getLabel()));
+				if (texprsMap.containsKey(ref.getLabel())) {
+					ref.setTripleDefinition(texprsMap.get(ref.getLabel()));
 				}else {
 					throw new UndefinedReferenceException("Undefined triple label: " + ref.getLabel());
 				}
 			}
 		}
-		 
-		// Check that there is no cycle in the definition of the references
+	}
+	
+	private void checkNoCyclicReferences() throws CyclicReferencesException {
 		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph();
 		CycleDetector<Label, DefaultEdge> detector = new CycleDetector<>(referencesGraph);
 		if (detector.detectCycles())
 			throw new CyclicReferencesException("Cyclic dependencies of refences found." );
-		
+	}
+	
+	private void computeStratification () throws NotStratifiedException {
 		//Starting to check and compute stratification
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.computeDependencesGraph();
 		
@@ -185,11 +275,11 @@ public class ShexSchema {
 		}
 		
 		//	Create a directed acyclic graph to compute the topological sort
-		DirectedAcyclicGraph<Label,DefaultEdge> dag = new DirectedAcyclicGraph<Label,DefaultEdge>(DefaultEdge.class);
+		DirectedAcyclicGraph<Label,DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
 		
 		// create an index map 
-		Map<Label,Label> index = new HashMap<Label,Label>();
-		Map<Label,Set<Label>> revIndex = new HashMap<Label,Set<Label>>();
+		Map<Label,Label> index = new HashMap<>();
+		Map<Label,Set<Label>> revIndex = new HashMap<>();
 		for (Graph<Label,DefaultWeightedEdge> scc:strConComp) {
 			Label representant = null;
 			for (Label dest:scc.vertexSet()) {
@@ -211,52 +301,18 @@ public class ShexSchema {
 		}
 		
 		// Compute Stratification using an iterator of the dag
-		stratification = new HashMap<Integer,Set<Label>>();
+		stratification = new HashMap<>();
 		int counterStrat = dag.vertexSet().size()-1;
-		for (Label S:dag) {
-			Set<Label> tmp = new HashSet<Label>();
-			for (Label l:revIndex.get(S))
+		for (Label s:dag) {
+			Set<Label> tmp = new HashSet<>();
+			for (Label l:revIndex.get(s))
 				tmp.add((Label) l);
-			stratification.put(counterStrat,tmp);
+			stratification.put(counterStrat,Collections.unmodifiableSet(tmp));
 			counterStrat--;
 		}
-	
+		stratification = Collections.unmodifiableMap(stratification);
 	}
 
-	
-	/** The rules of the schema.
-	 * @return the rules of the schema.
-	 */
-	public Map<Label, ShapeExpr> getRules() {
-		return rules;
-	}
-
-	// TODO naming: is there a way to specify naming conventions ? Variable names associated to classes ?
-	// TODO this should be named getShapeExprMap
-	/** All the shape expressions of the schema.
-	 * @return a map of all the ShapeExpr of the schema.
-	 */
-	public Map<Label, ShapeExpr> getShapeMap() {
-		return shapeMap;
-	}
-
-	// This should be named getTripleExprMap
-	/** All the triple expressions of the schema.
-	 * @return a map of all the TripleExpr of the schema.
-	 */
-	public Map<Label, TripleExpr> getTripleMap() {
-		return tripleMap;
-	}
-	
-	public RDF getRdfFactory() {
-		return rdfFactory;
-	}
-
-	@Override
-	public String toString() {
-		return rules.toString();
-	}
-	
 	//--------------------------------------------------------------------------------
 	// ID  function
 	//--------------------------------------------------------------------------------
@@ -279,10 +335,11 @@ public class ShexSchema {
 			return new Label(rdfFactory.createBlankNode(string),generated);
 	}
 	
-	private void checkShapeID(ShapeExpr shape) {
+	private void addIdIfNone(ShapeExpr shape) {
 		if (shape.getId() == null) {
 			shape.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
 			shapeLabelNb++;
+			//TODO pkoi ne pas laisser la factory gérer le compteur ? Sans doute pour le débuggage
 		}
 	}
 	
@@ -293,7 +350,7 @@ public class ShexSchema {
 			return new Label(rdfFactory.createBlankNode(string),generated);
 	}
 	
-	private void checkTripleID(TripleExpr triple) {
+	private void addIdIfNone (TripleExpr triple) {
 		if (triple.getId() == null) {
 			triple.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
 			tripleLabelNb++;
@@ -426,10 +483,10 @@ public class ShexSchema {
 		GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>>(new DefaultDirectedGraph<Label,DefaultEdge>(DefaultEdge.class));
 
-		for (Label label : this.shapeMap.keySet()) {
+		for (Label label : this.shexprsMap.keySet()) {
 			builder.addVertex(label);
 		}
-		for (Label label : this.tripleMap.keySet()) {
+		for (Label label : this.texprsMap.keySet()) {
 			builder.addVertex(label);
 		}
 
@@ -579,7 +636,7 @@ public class ShexSchema {
 	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> computeDependencesGraph () {
 		// Visit the schema to collect the references
 		CollectGraphDependencyFromShape collector = new CollectGraphDependencyFromShape();
-		for (ShapeExpr expr: shapeMap.values()) {
+		for (ShapeExpr expr: shexprsMap.values()) {
 			if (!(collector.getVisited().contains(expr.getId()))) {
 				expr.accept(collector);
 			}
@@ -588,7 +645,7 @@ public class ShexSchema {
 		// build the graph
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
-		for (Label label : this.shapeMap.keySet()) {
+		for (Label label : this.shexprsMap.keySet()) {
 			builder.addVertex(label);
 		}
 		for (Pair<Pair<Label,Label>,Integer> weightededge : collector.getResult()) {
@@ -597,43 +654,5 @@ public class ShexSchema {
 			builder.addEdge(edge.one, edge.two,weight);
 		}
 		return builder.build();
-	}
-	
-	// TODO: what is a stratum ? The number, or the labels on it ? All related methods should be named accordingly. In the spec stratum = number
-	// 
-	// TODO This should be named getLabelsAtStratum
-	/** The set of shape labels on a given stratum.
-	 * 
-	 * @param i
-	 * @return the labels of the shapes on stratum i
-	 */
-	public Set<Label> getStratum (int i) {
-		if (i < 0 && i >= this.getStratification().size())
-			throw new IllegalArgumentException("Stratum " + i + " does not exist");
-		return Collections.unmodifiableSet(this.getStratification().get(i));
-	}
-
-	/** Get the number of stratums of the schema.
-	 * 
-	 */
-	public int getNbStratums () {
-		return this.getStratification().size();
-	}
-
-	// TODO This should be named getStratum
-	/** Get the stratum of a given shape label.
-	 * 
-	 */
-	public int hasStratum (Label label) {
-		for (int i = 0; i < getNbStratums(); i++)
-			if (getStratum(i).contains(label))
-				return i;
-		throw new IllegalArgumentException("Unknown shape label: " + label);
-	}
-	
-	public Map<Integer,Set<Label>> getStratification() {
-		return this.stratification;
-	}
-
-}
+	}}
 

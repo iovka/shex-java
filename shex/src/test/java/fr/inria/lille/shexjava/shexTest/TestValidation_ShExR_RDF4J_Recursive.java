@@ -54,7 +54,8 @@ import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 import fr.inria.lille.shexjava.validation.RecursiveValidation;
-import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
+import fr.inria.lille.shexjava.validation.Status;
+import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 
 /** Run the validation tests of the shexTest suite using ShExC parser, RDF4JGraph and recursive validation.
@@ -157,15 +158,15 @@ public class TestValidation_ShExR_RDF4J_Recursive {
     		//System.out.println(schema);
     		//System.out.println(dataGraph.stream().collect(Collectors.toList()));
     		Graph dataGraph = getRDFGraph();    		
-    		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);   
+    		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
     		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
+    				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.CONFORMANT)
     			||
     			(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    				validation.getTyping().isNonConformant(testCase.focusNode, testCase.shapeLabel))){
+    				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
     		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
@@ -217,7 +218,7 @@ public class TestValidation_ShExR_RDF4J_Recursive {
 		return (new RDF4J()).asGraph(data);
 	}
 	
-	public ValidationAlgorithm getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
+	public ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
 		return new RecursiveValidation(schema, dataGraph);
 	}
 	

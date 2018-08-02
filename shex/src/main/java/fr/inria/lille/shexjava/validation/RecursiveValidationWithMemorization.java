@@ -65,15 +65,15 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
-		if (label == null || !schema.getShapeMap().containsKey(label))
+		if (label == null || !schema.getShapeExprsMap().containsKey(label))
 			throw new Exception("Unknown label: "+label);
-		boolean result = recursiveValidation(focusNode,
-											 label,
-									 		 new LinkedList<>(),
-									 		 new DefaultDirectedGraph<>(DefaultEdge.class),
-											 new HashMap<>(),
-											 new HashMap<>());		
-		return result;
+		return recursiveValidation(focusNode,
+								 label,
+								 new LinkedList<>(),
+								 new DefaultDirectedGraph<>(DefaultEdge.class),
+								 new HashMap<>(),
+								 new HashMap<>());		
+		
 	}
 
 	
@@ -92,8 +92,8 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		if (g.containsVertex(key))
 			return results.get(key);
 		
-		if (schema.getShapeMap().get(label) instanceof NodeConstraint) {
-			boolean res = ((NodeConstraint)schema.getShapeMap().get(label)).contains(focusNode);
+		if (schema.getShapeExprsMap().get(label) instanceof NodeConstraint) {
+			boolean res = ((NodeConstraint)schema.getShapeExprsMap().get(label)).contains(focusNode);
 			updateGraph(focusNode, label, Collections.emptySet(), res, hyp, g, results, lowestDep);		
 			return res;		
 		}
@@ -101,15 +101,15 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		hyp.addLast(key);
 		
 		boolean res=false;
-		if (schema.getShapeMap().get(label) instanceof ShapeNot)
+		if (schema.getShapeExprsMap().get(label) instanceof ShapeNot)
 			res=recursiveValidationShapeNot(focusNode,label,hyp,g,results,lowestDep);
-		if (schema.getShapeMap().get(label) instanceof ShapeExprRef)
+		if (schema.getShapeExprsMap().get(label) instanceof ShapeExprRef)
 			res=recursiveValidationShapeExprRef(focusNode,label,hyp,g,results,lowestDep);
-		if (schema.getShapeMap().get(label) instanceof ShapeOr)
+		if (schema.getShapeExprsMap().get(label) instanceof ShapeOr)
 			res=recursiveValidationShapeOr(focusNode,label,hyp,g,results,lowestDep);
-		if (schema.getShapeMap().get(label) instanceof ShapeAnd)
+		if (schema.getShapeExprsMap().get(label) instanceof ShapeAnd)
 			res=recursiveValidationShapeAnd(focusNode,label,hyp,g,results,lowestDep);
-		if (schema.getShapeMap().get(label) instanceof Shape)
+		if (schema.getShapeExprsMap().get(label) instanceof Shape)
 			res=recursiveValidationShape(focusNode,label,hyp,g,results,lowestDep);
 				
 		hyp.remove(key);
@@ -128,7 +128,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			  Map<Pair<RDFTerm,Label>,Boolean> results,
 			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
 		
-		ShapeNot shape = (ShapeNot) schema.getShapeMap().get(label);
+		ShapeNot shape = (ShapeNot) schema.getShapeExprsMap().get(label);
 		
 		boolean res = ! this.recursiveValidation(focusNode, shape.getSubExpression().getId(),hyp,g,results,lowestDep);
 				
@@ -149,7 +149,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			  Map<Pair<RDFTerm,Label>,Boolean> results,
 			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
 		
-		ShapeExprRef shape = (ShapeExprRef) schema.getShapeMap().get(label);
+		ShapeExprRef shape = (ShapeExprRef) schema.getShapeExprsMap().get(label);
 		
 		boolean res = this.recursiveValidation(focusNode, shape.getLabel(),hyp,g,results,lowestDep);
 		
@@ -168,7 +168,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			  Map<Pair<RDFTerm,Label>,Boolean> results,
 			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
 		
-		ShapeAnd shape = (ShapeAnd) schema.getShapeMap().get(label);
+		ShapeAnd shape = (ShapeAnd) schema.getShapeExprsMap().get(label);
 		boolean res = true;
 		Set<Pair<RDFTerm,Label>> required = new HashSet<>();
 		Iterator<ShapeExpr> iter = shape.getSubExpressions().iterator();
@@ -196,7 +196,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			  Map<Pair<RDFTerm,Label>,Boolean> results,
 			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestDep) {
 		
-		ShapeOr shape = (ShapeOr) schema.getShapeMap().get(label);
+		ShapeOr shape = (ShapeOr) schema.getShapeExprsMap().get(label);
 		boolean res = false;
 		Set<Pair<RDFTerm,Label>> required = new HashSet<>();
 		Iterator<ShapeExpr> iter = shape.getSubExpressions().iterator();
@@ -228,14 +228,14 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		Set<Pair<RDFTerm,Label>> required = new HashSet<>();
 		List<Triple> extraNeighbours = new ArrayList<>();
 		
-		Shape shape = (Shape) schema.getShapeMap().get(label);
+		Shape shape = (Shape) schema.getShapeExprsMap().get(label);
 		
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-		List<TripleConstraint> constraints = collectorTC.getResult(tripleExpression);		
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 
 		// Match using only predicate and recursive test.
-		Typing localTyping = new Typing();
+		TypingForValidation localTyping = new TypingForValidation();
 		Matcher matcher = new MatcherPredicateOnly();
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
 
@@ -282,7 +282,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping);
 		if (result!=null) {
 			for (Pair<Triple,Label> pair:result) {
-				Label depLabel = ((TripleConstraint) schema.getTripleMap().get(pair.two)).getShapeExpr().getId();
+				Label depLabel = ((TripleConstraint) schema.getTripleExprsMap().get(pair.two)).getShapeExpr().getId();
 				required.add(new Pair<>(getOther(pair.one,node), depLabel));
 			}
 			for (Triple tri:extraNeighbours) {
@@ -296,7 +296,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		}
 		
 		// Update the graph if necessary
-		for (Pair<RDFTerm,Label> pair:localTyping.getAllStatus().keySet())
+		for (Pair<RDFTerm,Label> pair:localTyping.getStatusMap().keySet())
 			if (localTyping.isNonConformant(pair.one,pair.two))
 				required.add(pair);		
 		updateGraph(node, label, required, false, hyp, g, results, lowestDep);		
