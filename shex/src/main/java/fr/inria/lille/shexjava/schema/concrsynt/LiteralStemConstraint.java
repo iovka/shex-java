@@ -41,6 +41,11 @@ public class LiteralStemConstraint implements Constraint {
 	public String toString() {
 		return "Literalstem="+litStem;
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 	public String getLitStem() {
 		return litStem;

@@ -90,6 +90,11 @@ public class FacetStringConstraint implements Constraint {
 		String pat = patternString == null ? ""   :  " pattern: " + patternString.toString();
 		return len + min + max + pat;
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 	/** Equals if obj has the same constraints.
 	 * @see java.lang.Object#equals(java.lang.Object)

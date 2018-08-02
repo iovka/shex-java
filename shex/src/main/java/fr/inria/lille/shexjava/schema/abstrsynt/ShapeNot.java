@@ -47,4 +47,9 @@ public class ShapeNot extends ShapeExpr {
 		return "(NOT "+subExpression+")";
 	}
 	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
+	
 }

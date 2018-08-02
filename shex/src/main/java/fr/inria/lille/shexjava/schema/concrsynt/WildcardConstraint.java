@@ -38,6 +38,11 @@ public class WildcardConstraint implements Constraint {
 		return "WILDCARD";
 	}
 	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
+	
 	/** Equals if obj is an instance of WildcardConstraint.
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

@@ -53,6 +53,11 @@ public class RepeatedTripleExpression extends TripleExpr {
 			format = "%s%s";
 		return String.format(format, subExpr.toString(), card.toString());
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {

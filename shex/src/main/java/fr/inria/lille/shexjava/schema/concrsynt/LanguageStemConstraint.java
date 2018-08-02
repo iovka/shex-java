@@ -47,6 +47,11 @@ public class LanguageStemConstraint implements Constraint {
 	public String toString() {
 		return "Langstem="+langStem;
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 	public String getLangStem() {
 		return langStem;

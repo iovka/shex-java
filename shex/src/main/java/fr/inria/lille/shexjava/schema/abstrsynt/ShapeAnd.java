@@ -38,6 +38,11 @@ public class ShapeAnd extends AbstractNaryShapeExpr{
 	public String toString() {
 		return CollectionToString.collectionToString(getSubExpressions(), " AND ", "(", ")");
 	}
+	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {

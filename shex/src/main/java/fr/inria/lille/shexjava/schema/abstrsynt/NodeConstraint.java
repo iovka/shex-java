@@ -57,4 +57,9 @@ public class NodeConstraint extends ShapeExpr {
 	public String toString() {
 		return "NodeConstraint : "+constraints;
 	}
+
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
 }

@@ -39,4 +39,6 @@ public abstract class ShapeExpr{
 	}
 	
 	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
+	
+	public abstract String toPrettyString();
 }

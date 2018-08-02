@@ -37,5 +37,8 @@ public abstract class TripleExpr {
 		return this.id;
 	}
 	
-	public abstract <ResultType> void accept (TripleExpressionVisitor<ResultType> visitor, Object... arguments);	
+	public abstract <ResultType> void accept (TripleExpressionVisitor<ResultType> visitor, Object... arguments);
+	
+	public abstract String toPrettyString();
+
 }

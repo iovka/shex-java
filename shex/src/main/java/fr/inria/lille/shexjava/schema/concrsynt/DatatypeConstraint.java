@@ -91,6 +91,11 @@ public class DatatypeConstraint implements Constraint {
 		return "DT:"+datatypeIri.toString();
 	}
 	
+	@Override
+	public String toPrettyString() {
+		return this.toString();
+	}
+	
 	/** Equals if contains obj contains the same constraint.
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
