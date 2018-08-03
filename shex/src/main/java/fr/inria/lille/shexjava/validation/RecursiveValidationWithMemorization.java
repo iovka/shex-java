@@ -236,8 +236,9 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 		// Match using only predicate and recursive test.
 		TypingForValidation localTyping = new TypingForValidation();
-		Matcher matcher = new MatcherPredicateOnly();
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
+		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
+		Map<Triple,List<TripleConstraint>> matchingTC1 = 
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, matcher).getPreMatching();
 
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {			
 			int nb=0;
@@ -261,6 +262,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				}
 			}
 			
+			// TODO le bug dans test0cardinality2 vient d'ici
 			if (nb==0) {
 				boolean success = false;
 				for (TCProperty extra : shape.getExtraProperties())

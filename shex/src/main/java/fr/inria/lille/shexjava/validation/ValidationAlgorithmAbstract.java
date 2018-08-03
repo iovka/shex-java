@@ -69,9 +69,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		this.typing = new TypingForValidation();
 	}
 
-
-	
-	
 	
 	
 
@@ -118,7 +115,7 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		return frcs;
 	}
 	
-	/** Select the neighborhood that must be matched.
+	/** Select the neighborhood that must be matched for the given shape.
 	 * 
 	 * @param node
 	 * @param shape

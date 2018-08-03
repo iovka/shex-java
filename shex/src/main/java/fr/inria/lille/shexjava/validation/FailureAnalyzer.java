@@ -52,8 +52,8 @@ public abstract class FailureAnalyzer {
 		return failureReports.containsKey(new Pair<RDFTerm, Label>(node,label));	
 	}
 
-	public abstract void addFailureReportNoTCFound(RDFTerm node, Shape shape, TypingForValidation typing, Triple neighbour) ;
+	public abstract void addFailureReportNoTCFound(RDFTerm node, Shape shape, Typing typing, Triple neighbour) ;
 	
-	public abstract void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, TypingForValidation typing, ArrayList<Triple> neighbourhood);
+	public abstract void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, ArrayList<Triple> neighbourhood);
 	
 }

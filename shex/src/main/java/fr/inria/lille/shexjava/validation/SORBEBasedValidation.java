@@ -17,23 +17,21 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
 
 /** This class implement the algorithm to find a matching based on SORBE.
@@ -55,79 +53,65 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract{
 	 * @param typing
 	 * @return a matching or null if none was found or cannot be found. 
 	 */
-	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, TypingForValidation typing) {
+	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, Typing typing) {
+		// TODO the expression should not be generated each time, but rather generated dynamically
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
+		List<Pair<Triple,Label>> result = null;
+		
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
-		if (constraints.size() == 0) {
-			if (!shape.isClosed()) {
-				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
-				for (MatchingCollector m:mcs)
-					m.setMatch(node, shape.getId(), result);
-				return result;
-			} else {
-				if (CommonGraph.getOutNeighbours(graph, node).size()==0) {
-					List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
-					for (MatchingCollector m:mcs)
-						m.setMatch(node, shape.getId(), result);
-					return result;
-				} else {
-					for (FailureAnalyzer fr:frcs)
-						fr.setReport(new FailureReport(node,shape.getId(),"Shape is closed with no constraint, but "+node+" has neighbour"));
-					return null;
-				}
-			}
-		}
-				
+		if (constraints.isEmpty())
+			result = Collections.emptyList();
+		// TODO here removed the notification failure report in the case no constraints, closed shape and non empty neighbourhood
+		// fr.setReport(new FailureReport(node,shape.getId(),"Shape is closed with no constraint, but "+node+" has neighbour"));
+		
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 		
-		Matcher matcher = new MatcherPredicateAndValue(typing); 
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC = matcher.collectMatchingTC(node, neighbourhood, constraints);
-		// Check that the neighbor that cannot be match to a constraint are in extra
-		Iterator<Map.Entry<Triple,List<TripleConstraint>>> iteMatchingTC = matchingTC.entrySet().iterator();
-		while(iteMatchingTC.hasNext()) {
-			Entry<Triple, List<TripleConstraint>> listTC = iteMatchingTC.next();
-			if (listTC.getValue().isEmpty()) {
-				boolean success = false;
-				for (TCProperty extra : shape.getExtraProperties())
-					if (extra.getIri().equals(listTC.getKey().getPredicate()))
-						success = true;
-				if (!success) {
-					for (FailureAnalyzer fr:frcs)
-						fr.addFailureReportNoTCFound(node, shape, typing, listTC.getKey());
-					return null;
-				}
-				iteMatchingTC.remove();
-			}
-		}
-
-		// Create a BagIterator for all possible bags induced by the matching triple constraints
-		ArrayList<List<TripleConstraint>> listMatchingTC = new ArrayList<List<TripleConstraint>>();
-		for(Triple nt:matchingTC.keySet())
-			listMatchingTC.add(matchingTC.get(nt));
-
-		BagIterator bagIt = new BagIterator(neighbourhood,listMatchingTC);
-
-		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, ValidationUtils.getPredicateAndValueMatcher(getTyping()));
 		
+		List<Triple> notInExtra = collectNotInExtra(preMatching.getUnmatchedTriples(), shape);
+		if (! notInExtra.isEmpty()) {
+			result = null;
+			// TODO do something about the reporting
+		}
+		
+		// Look for correct matching within the pre-matching
+		BagIterator bagIt = new BagIterator(preMatching);
+		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 		while(bagIt.hasNext()){
 			Bag bag = bagIt.next();
 			tripleExpression.accept(intervalComputation, bag, this);
 			if (intervalComputation.getResult().contains(1)) {
-				List<Pair<Triple,Label>> result = new ArrayList<Pair<Triple,Label>>();
-				for (Pair<Triple,Label> pair:bagIt.getCurrentBag())
-					result.add(new Pair<Triple,Label>(pair.one,sorbeGenerator.removeSORBESuffixe(pair.two)));
-				for (MatchingCollector m:mcs)
-					m.setMatch(node, shape.getId(), result);
-				return result;
+				result = bagIt.getCurrentBag();
 			}
 		}
 		
 		for (FailureAnalyzer fr:frcs)
 			fr.addFailureReportNoMatchingFound(node, shape, typing, neighbourhood);
 		
-		return null;
+		// Get back to the original triple constraints, removing their SORBE equivalent 
+		if (result != null) {
+			result = result.stream()
+					.map(p -> new Pair<>(p.one, sorbeGenerator.removeSORBESuffixe(p.two)))
+					.collect(Collectors.toList());
+		}			
+		notifySetMatching(node, shape, result);		
+		return result;
 	}
 
+	private List<Triple> collectNotInExtra(List<Triple> unmatchedTriples, Shape shape) {
+		// TODO : to be removed when extra will be defined as iri and not as tcproperty
+		Set<IRI> extraIris = shape.getExtraProperties().stream()
+									.map(tcprop -> tcprop.getIri())
+									.collect(Collectors.toSet());
+		return unmatchedTriples.stream()
+				.filter(triple -> ! extraIris.contains(triple.getPredicate()))
+				.collect(Collectors.toList());
+	}
+	
+	private void notifySetMatching(RDFTerm node, Shape shape, List<Pair<Triple, Label>> result) {
+		for (MatchingCollector m:mcs)
+			m.setMatch(node, shape.getId(), result);
+	}
 	
 }
