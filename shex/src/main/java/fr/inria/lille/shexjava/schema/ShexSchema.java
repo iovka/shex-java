@@ -394,9 +394,6 @@ public class ShexSchema {
 		}
 		
 		@Override
-		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {}
-		
-		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) {
 				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));

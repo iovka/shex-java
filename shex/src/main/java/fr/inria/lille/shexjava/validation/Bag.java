@@ -33,7 +33,7 @@ public class Bag {
 	private Map<TripleConstraint, Integer> theMap;
 
 	public Bag(){
-		theMap = new HashMap<TripleConstraint, Integer>();
+		theMap = new HashMap<>();
 	}
 
 	public void increment(TripleConstraint tripleConstraint){

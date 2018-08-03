@@ -24,11 +24,14 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 /** Match the predicate and the value. The typing providing in the constructor is used to check the value.
  * 
  * @author Jérémie Dusart
+ * @deprecated Use {@link ValidationUtils#getPredicateAndValueMatcher(Typing)} instead
  */
-public class MatcherPredicateAndValue extends Matcher {
-	private TypingForValidation shapeMap;
+// TODO remove when not needed any more for failure analysis
+@Deprecated
+class MatcherPredicateAndValue extends Matcher {
+	private Typing shapeMap;
 	
-	public MatcherPredicateAndValue(TypingForValidation shapeMap) {
+	public MatcherPredicateAndValue(Typing shapeMap) {
 		this.shapeMap = shapeMap;
 	}
 	

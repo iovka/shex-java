@@ -24,8 +24,10 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 /** Match only the predicate.
  * 
  * @author Iovka Boneva
+ * @deprecated Use {@link ValidationUtils#getPredicateOnlyMatcher()} instead
  * 10 oct. 2017
  */
+@Deprecated
 public class MatcherPredicateOnly extends Matcher {
 	
 	@Override

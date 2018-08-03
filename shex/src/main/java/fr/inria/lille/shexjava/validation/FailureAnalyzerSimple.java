@@ -19,6 +19,7 @@ package fr.inria.lille.shexjava.validation;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
@@ -35,17 +36,19 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 		super();
 	}
 
-	public void addFailureReportNoTCFound(RDFTerm node, Shape shape, TypingForValidation typing, Triple neighbour) {
+	@Override
+	public void addFailureReportNoTCFound(RDFTerm node, Shape shape, Typing typing, Triple neighbour) {
 		String message = "No TripleConstraint found to match the neighbour "+neighbour+".";
 		message += " Maybe "+neighbour.getPredicate()+" should be in extra or verify the shape for "+getOther(neighbour,node)+".";
 		this.setReport(new FailureReport(node,shape.getId(),message));
 	}
 	
-	public void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, TypingForValidation typing, ArrayList<Triple> neighbourhood) {
+	@Override
+	public void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, ArrayList<Triple> neighbourhood) {
 		List<TripleConstraint> constraints = collectorTC.getTCs(shape.getTripleExpression());
-		Matcher matcher = new MatcherPredicateAndValue(typing);
-		
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC = matcher.collectMatchingTC(node, neighbourhood, constraints);
+		Matcher matcher = ValidationUtils.getPredicateAndValueMatcher(typing);
+		Map<Triple,List<TripleConstraint>> matchingTC =
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, matcher).getPreMatching();
 		
 		LinkedHashMap<TripleConstraint,List<Triple>> revMatchingTC = new LinkedHashMap<>();
 		for (TripleConstraint tc:constraints)

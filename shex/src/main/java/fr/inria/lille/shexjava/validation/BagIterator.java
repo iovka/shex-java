@@ -19,6 +19,7 @@ package fr.inria.lille.shexjava.validation;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.rdf.api.Triple;
@@ -27,21 +28,37 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.util.Pair;
 
-/**
+/** Starting from a map that with every {@link Triple} associates a set of matching {@link TripleConstraint}s, allows to iterate over all possible ways to match every triple with a unique constraint.
+ * For each such matching, the iterator returns the corresponding bag that with every triple constraint associates the number of matching triples. 
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
 public class BagIterator implements Iterator<Bag>{
 
+	/** The triples in the neighbourhood are used as index, their order in the list is important. */
+	private List<Triple> neighbourhood;
+	/** allMatches.get(i) contains all triple constraints matched with the triple neighbourhood.get(i) */
 	private List<List<TripleConstraint>> allMatches;
-	private ArrayList<Triple> neighbourhood;
-	private int[] currentIndexes;
-	private int[] sizes;
 	
-	public BagIterator(ArrayList<Triple> neighbourhood,List<List<TripleConstraint>> allMatches) {
-		this.allMatches = allMatches;
-		this.neighbourhood = neighbourhood;
+	/** Used for the iteration: sizes[i] = allMatches.get(i).getSize() */
+	private int[] sizes;
+	/** Used for the iteration:  <= currentIndexes[i] < sizes[i] */
+	private int[] currentIndexes;
+	 
+	/** 
+	 * 
+	 * @param neighbourhood the set of triples over which all matchings will be enumerated
+	 * @param allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
+	 */
+	public BagIterator(PreMatching preMatching) {
+		neighbourhood = new ArrayList<>();
+		allMatches = new ArrayList<>();
+		
+		for (Map.Entry<Triple, List<TripleConstraint>> e: preMatching.getPreMatching().entrySet()) {
+			neighbourhood.add(e.getKey());
+			allMatches.add(e.getValue());
+		}
 		currentIndexes = new int[allMatches.size()+1]; // Adding an artificial first column allows to write more easily all the operations
 		sizes = new int[allMatches.size()+1];
 		for (int i = 0; i < currentIndexes.length-1; i++) {
@@ -86,6 +103,8 @@ public class BagIterator implements Iterator<Bag>{
 		
 		return next;
 	}
+	
+	// TODO why a bag is represented as a list, and not as a map 
 	
 	public ArrayList<Pair<Triple,Label>> getCurrentBag(){
 		ArrayList<Pair<Triple,Label>> currentMatch = new ArrayList<Pair<Triple,Label>>();

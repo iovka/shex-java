@@ -54,6 +54,8 @@ public abstract class ShapeExpressionVisitor<ResultType> {
 	public abstract void visitShape (Shape expr, Object... arguments) ;
 	public abstract void visitNodeConstraint (NodeConstraint expr, Object ... arguments);
 	public abstract void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments);
-	public abstract void visitShapeExternal (ShapeExternal shapeExt, Object[] arguments);
+	public void visitShapeExternal (ShapeExternal shapeExt, Object[] arguments) {
+		throw new UnsupportedOperationException("not yet implemented");
+	}
 	
 }

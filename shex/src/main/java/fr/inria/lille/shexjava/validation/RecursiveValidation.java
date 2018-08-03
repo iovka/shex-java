@@ -19,6 +19,7 @@ package fr.inria.lille.shexjava.validation;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.rdf.api.Graph;
@@ -126,11 +127,6 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
 			ref.getShapeDefinition().accept(this);
 		}
-
-		@Override
-		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
-			throw new UnsupportedOperationException("Not yet implemented.");
-		}
 	}
 	
 	
@@ -142,9 +138,10 @@ public class RecursiveValidation extends SORBEBasedValidation {
 
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
-		Matcher matcher = new MatcherPredicateOnly();
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTC1 = matcher.collectMatchingTC(node, neighbourhood, constraints);	
-
+		
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, ValidationUtils.getPredicateOnlyMatcher());
+		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
+		
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
 			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
@@ -164,9 +161,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		}
 		
 		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping);
-		if (result == null)
-			return false;
-		return true;
+		return result != null;
 	}	
 
 	

@@ -83,7 +83,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	@Override
 	public void resetTyping() {
-		this.typing = new TypingForValidation();
+		super.resetTyping();
 		computed = false;
 	}
 	
@@ -99,7 +99,7 @@ public class RefineValidation extends SORBEBasedValidation {
 					Iterator<Pair<RDFTerm, Label>> typesIt = elements.iterator();
 					while (typesIt.hasNext()) {
 						Pair<RDFTerm, Label> nl = typesIt.next();
-						if (! isLocallyValid(nl)) {
+						if (! satisfies(nl)) {
 							typesIt.remove();
 							typing.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
 							changed = true;
@@ -116,21 +116,32 @@ public class RefineValidation extends SORBEBasedValidation {
 		return typing.isConformant(focusNode, label);
 	}
 
-	
-	private boolean isLocallyValid(Pair<RDFTerm, Label> nl) {
-		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(nl.one);
-		schema.getShapeExprsMap().get(nl.two).accept(visitor);
-		return visitor.getResult();
+	// TODO this should take the expr and not the label as parameter
+	/** Tests whether the node satisfies the shape expresion with specified label and with the current typing */
+	private boolean satisfies(Pair<RDFTerm, Label> nl) {
+		shexprEvaluator.setNode(nl.one);
+		schema.getShapeExprsMap().get(nl.two).accept(shexprEvaluator);
+		return shexprEvaluator.getResult();
 	}
+	/** Tests whether the node's neighbourhood matches the shape with the current typing */
+	private boolean matches (RDFTerm node, Shape shape) {
+		// TODO: remove the cast
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getTyping());
+		return result != null;
+	}	
 	
+	
+	
+	private EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor();
+		
 	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {		
 		private RDFTerm node; 
 		private Boolean result;
-		
-		public EvaluateShapeExpressionVisitor(RDFTerm one) {
-			this.node = one;
+	
+		void setNode (RDFTerm node) {
+			this.node = node;
 		}
-
+		
 		@Override
 		public Boolean getResult() {
 			if (result == null) return false;
@@ -161,7 +172,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
-			result = isLocallyValid(node, expr);
+			result = matches(node, expr);
 		}
 
 		@Override
@@ -173,24 +184,14 @@ public class RefineValidation extends SORBEBasedValidation {
 		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
 			result = typing.isConformant(node, ref.getLabel());
 		}
-
-		@Override
-		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
-			throw new UnsupportedOperationException("Not yet implemented.");
-		}
 	}
 	
-	
-	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		// TODO: remove the cast
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, (TypingForValidation) this.getTyping());
-		return result != null;
-	}	
+
 
 	
 	// Typing utils
 	
-	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum,RDFTerm focusNode) {
+	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum, RDFTerm focusNode) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
 		Set<Label> labels = schema.getStratification().get(stratum);
 		for (Label label: labels) {

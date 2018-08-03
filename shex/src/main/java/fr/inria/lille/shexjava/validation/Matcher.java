@@ -31,14 +31,19 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * @author Antonin Durey
  *
  */
+// TODO this used to implement a functional interface (which explains the name of the apply method); come back to it
 public abstract class Matcher {
 
-	/** Constructs a list that for all neighbor triple contains the list of triple constraints that the triple matches according to the matcher given as parameter.
-	 * @param focusNode
+	/** With every triple, associates the triple constraints that the triple matches.
+	 * A triple matches a triple constraint if {@link #apply(focusNode, triple, tripleConstraint)} returns true.
+	 * 
+	 * @deprecated Use {@link ValidationUtils#computePreMatching(RDFTerm, List, List, Matcher)} instead
+	 * @param focusNode The subject or the object of the triple, determines for each of the triples whether it is considered forward or inverse
 	 * @param neighbourhood
 	 * @param constraints
 	 */
-	public LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTC (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints) {
+	@Deprecated
+	public LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTCs (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints) {
 		
 		LinkedHashMap<Triple,List<TripleConstraint>> result = new LinkedHashMap<>(neighbourhood.size()); 
 		
@@ -54,6 +59,13 @@ public abstract class Matcher {
 		return result;
 	}
 	
+	/** 
+	 * 
+	 * @param focusNode
+	 * @param triple
+	 * @param tc
+	 * @return
+	 */
 	public abstract boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc);
 	
 	
