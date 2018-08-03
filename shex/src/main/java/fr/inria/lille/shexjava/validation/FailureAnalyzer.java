@@ -28,12 +28,12 @@ import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.util.Pair;
 
 public abstract class FailureAnalyzer {
-	protected DynamicCollectorOfTripleConstraint collectorTC;
+	protected DynamicCollectorOfTripleConstraints collectorTC;
 	protected Map<Pair<RDFTerm, Label>,FailureReport> failureReports;
 
 	public FailureAnalyzer() {
 		failureReports = new HashMap<>();
-		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		this.collectorTC = new DynamicCollectorOfTripleConstraints();
 	}
 	
 	public void setReport(FailureReport report) {

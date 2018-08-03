@@ -49,15 +49,17 @@ import fr.inria.lille.shexjava.util.Pair;
  */
 public class RecursiveValidation extends SORBEBasedValidation {
 	
+	private TypingForValidation typing;
+	
 	public RecursiveValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
 	}
 	
 
 	@Override
-	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
+	public boolean validate(RDFTerm focusNode, Label label) {
 		if (label == null || !schema.getShapeExprsMap().containsKey(label))
-			throw new Exception("Unknown label: "+label);
+			throw new IllegalArgumentException("Unknown label: "+label);
 		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
@@ -74,6 +76,16 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		this.typing.removeNodeLabel(focusNode, label);
 		return visitor.result;
 		
+	}
+	
+	@Override
+	public Typing getTyping() {
+		return typing;
+	}
+	
+	@Override
+	public void resetTyping() {
+		this.typing = new TypingForValidation();
 	}
 	
 	
@@ -131,7 +143,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.constructSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);

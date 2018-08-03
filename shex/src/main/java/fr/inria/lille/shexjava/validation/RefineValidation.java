@@ -18,9 +18,11 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
@@ -57,15 +59,17 @@ public class RefineValidation extends SORBEBasedValidation {
 	private Set<Label> selectedShape;
 	private Set<Label> extraShapes;
 	private boolean computed = false;
+	private Set<RDFTerm> allGraphNodes;
+	private TypingForValidation typing;
+	
 
 	public RefineValidation(ShexSchema schema, Graph graph) {
-		super(schema,graph);
-		this.extraShapes=Collections.emptySet();
-		initSelectedShape();
+		this(schema, graph, Collections.emptySet());
 	}
 	
-	public RefineValidation(ShexSchema schema, Graph graph,Set<Label> extraShapes) {
+	public RefineValidation(ShexSchema schema, Graph graph, Set<Label> extraShapes) {
 		super(schema,graph);
+		this.allGraphNodes = CommonGraph.getAllNodes(graph);
 		this.extraShapes=extraShapes;
 		initSelectedShape();
 	}
@@ -81,39 +85,63 @@ public class RefineValidation extends SORBEBasedValidation {
 				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
 	}
 	
+	
+	@Override
+	public Typing getTyping() {
+		return typing;
+	}
+	
 	@Override
 	public void resetTyping() {
-		super.resetTyping();
+		this.typing = new TypingForValidation();
 		computed = false;
 	}
 	
 	@Override
-	public boolean validate(RDFTerm focusNode, Label label)  throws Exception {
-		if (!computed) {
-			for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
-				List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum,focusNode);		
-				//System.out.println(elements);
-				boolean changed;
-				do {
-					changed = false;
-					Iterator<Pair<RDFTerm, Label>> typesIt = elements.iterator();
-					while (typesIt.hasNext()) {
-						Pair<RDFTerm, Label> nl = typesIt.next();
-						if (! satisfies(nl)) {
-							typesIt.remove();
-							typing.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
-							changed = true;
-						}
-					}
-				} while (changed);
-			}
-			computed=true;
-		}		
+	public boolean validate (RDFTerm focusNode, Label label) {
+
+		computeMaximalTyping(focusNode);
+
+		if (focusNode != null && ! allGraphNodes.contains(focusNode)) {
+			addToTypingNodeNotInTheGraph(focusNode, label);
+		}
+		
+		// TODO why is that ?
 		if (focusNode==null || label==null)
 			return false;
 		if (!schema.getShapeExprsMap().containsKey(label))
-			throw new Exception("Unknown label: "+label);
+			throw new IllegalArgumentException("Unknown label: "+label);
 		return typing.isConformant(focusNode, label);
+	}
+
+	private void addToTypingNodeNotInTheGraph(RDFTerm focusNode, Label label) {
+		if (this.typing.getStatus(focusNode, label) == Status.NOTCOMPUTED)
+			if (satisfies(new Pair<>(focusNode, label)))
+				this.typing.setStatus(focusNode, label, Status.CONFORMANT);
+			else
+				this.typing.setStatus(focusNode, label, Status.NONCONFORMANT);
+	}
+
+	private void computeMaximalTyping(RDFTerm focusNode) {
+		if (computed)
+			return;
+		for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
+			List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum,focusNode);		
+			boolean changed;
+			do {
+				changed = false;
+				Iterator<Pair<RDFTerm, Label>> typesIt = elements.iterator();
+				while (typesIt.hasNext()) {
+					Pair<RDFTerm, Label> nl = typesIt.next();
+					if (! satisfies(nl)) {
+						typesIt.remove();
+						typing.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
+						changed = true;
+					}
+				}
+			} while (changed);
+		}
+		computed = true;
 	}
 
 	// TODO this should take the expr and not the label as parameter
@@ -196,10 +224,11 @@ public class RefineValidation extends SORBEBasedValidation {
 		Set<Label> labels = schema.getStratification().get(stratum);
 		for (Label label: labels) {
 			if (selectedShape.contains(label)) {
-				for( RDFTerm node:CommonGraph.getAllNodes(graph)) {		
+				for( RDFTerm node : allGraphNodes) {		
 					result.add(new Pair<>(node, label));
 					this.typing.setStatus(node, label, Status.CONFORMANT);
 				}
+				// TODO why do we need to add the focus node here ? In case it does not belong to the graph ?
 				if (focusNode !=null) {
 					result.add(new Pair<>(focusNode, label));
 					this.typing.setStatus(focusNode, label, Status.CONFORMANT);
@@ -214,5 +243,6 @@ public class RefineValidation extends SORBEBasedValidation {
 		// TODO Auto-generated method stub
 		
 	}
+	
 	
 }

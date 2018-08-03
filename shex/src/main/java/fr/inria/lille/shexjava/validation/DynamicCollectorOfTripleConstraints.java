@@ -32,12 +32,12 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 
-/** Recursively collects all triple constraints that appears in a shape. The result are stored and will not be recomputed. 
+/** Allows to compute the triple constraints that appear in a shape.
+ * Memorizes already computed results. 
  * 
  * @author Jérémie Dusart
- * @param <List<TripleConstraint>>
  */
-public class DynamicCollectorOfTripleConstraint {
+public class DynamicCollectorOfTripleConstraints {
 
 	private Map<Label, List<TripleConstraint>> collectedTCs = new HashMap<>();
 	

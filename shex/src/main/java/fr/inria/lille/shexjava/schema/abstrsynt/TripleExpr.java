@@ -23,7 +23,7 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
  * 
  * @author Iovka Boneva
  * 11 oct. 2017
- */
+ */ 
 public abstract class TripleExpr {
 	protected Label id;
 	

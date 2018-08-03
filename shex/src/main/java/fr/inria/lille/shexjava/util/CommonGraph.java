@@ -37,7 +37,9 @@ import org.apache.commons.rdf.api.Triple;
  *
  */
 public class CommonGraph {
-
+	
+	private CommonGraph() {}
+	
 	public static List<Triple> getOutNeighbours(Graph g, RDFTerm focusNode){
 		if (focusNode instanceof Literal)
 			return Collections.emptyList();
@@ -62,8 +64,8 @@ public class CommonGraph {
 		return result;
 	}
 	
-	public static HashSet<RDFTerm> getAllNodes(Graph g){
-		HashSet<RDFTerm> result = new HashSet<RDFTerm>();
+	public static Set<RDFTerm> getAllNodes(Graph g){
+		HashSet<RDFTerm> result = new HashSet<>();
 		Iterator<Triple> iter = g.iterate().iterator();
 		while(iter.hasNext()) {
 			Triple next = iter.next();

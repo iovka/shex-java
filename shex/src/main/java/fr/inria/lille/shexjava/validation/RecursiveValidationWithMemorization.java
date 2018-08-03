@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -62,11 +61,27 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 	}
 	
+
+	private TypingForValidation typing;
+
+	@Override
+	public Typing getTyping() {
+		return typing;
+	}
+
+	@Override
+	public void resetTyping() {
+		this.typing = new TypingForValidation();
+	}
+
+	
+	
+	
 	
 	@Override
-	public boolean validate(RDFTerm focusNode, Label label) throws Exception {
+	public boolean validate(RDFTerm focusNode, Label label) {
 		if (label == null || !schema.getShapeExprsMap().containsKey(label))
-			throw new Exception("Unknown label: "+label);
+			throw new IllegalArgumentException("Unknown label: "+label);
 		return recursiveValidation(focusNode,
 								 label,
 								 new LinkedList<>(),
@@ -230,7 +245,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		
 		Shape shape = (Shape) schema.getShapeExprsMap().get(label);
 		
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.constructSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 
@@ -414,4 +429,5 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		else
 			return t.getObject();
 	}
+
 }

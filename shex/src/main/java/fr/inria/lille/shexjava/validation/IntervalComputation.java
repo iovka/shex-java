@@ -40,9 +40,9 @@ import fr.inria.lille.shexjava.util.Interval;
  */
 public class IntervalComputation extends TripleExpressionVisitor<Interval>{	
 	private Interval result;
-	private DynamicCollectorOfTripleConstraint collectorTC;
+	private DynamicCollectorOfTripleConstraints collectorTC;
 	
-	public IntervalComputation(DynamicCollectorOfTripleConstraint collectorTC) {
+	public IntervalComputation(DynamicCollectorOfTripleConstraints collectorTC) {
 		super();
 		this.collectorTC=collectorTC;
 	}

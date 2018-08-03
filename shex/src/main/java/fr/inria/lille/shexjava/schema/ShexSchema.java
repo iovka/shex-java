@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.CycleDetector;
@@ -534,10 +535,10 @@ public class ShexSchema {
 			for(TripleConstraint texpr:triples) {
 				//System.out.println(texpr.getProperty());
 				if (extra.contains(texpr.getProperty())) {
-					Pair<Label,Label> edge =new Pair<Label,Label>(expr.getId(),texpr.getShapeExpr().getId());
+					Pair<Label,Label> edge =new Pair<>(expr.getId(),texpr.getShapeExpr().getId());
 					set.add(new Pair<Pair<Label,Label>,Integer>(edge,-1));
 				}else {
-					Pair<Label,Label> edge =new Pair<Label,Label>(expr.getId(),texpr.getShapeExpr().getId());
+					Pair<Label,Label> edge =new Pair<>(expr.getId(),texpr.getShapeExpr().getId());
 					set.add(new Pair<Pair<Label,Label>,Integer>(edge,1));
 				}
 				

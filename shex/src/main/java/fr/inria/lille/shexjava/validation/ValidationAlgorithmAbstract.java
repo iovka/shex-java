@@ -41,36 +41,22 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	
 	protected Graph graph;
 	protected ShexSchema schema;
-	protected TypingForValidation typing;
 	
 	protected Set<MatchingCollector> mcs;
 	protected Set<FailureAnalyzer> frcs;
 	
-	protected DynamicCollectorOfTripleConstraint collectorTC;
+	protected DynamicCollectorOfTripleConstraints collectorTC;
 	
 	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph) {
 		this.graph = graph;
 		this.schema = schema;
-		this.typing = new TypingForValidation();
+		resetTyping();
 	
-		this.collectorTC = new DynamicCollectorOfTripleConstraint();
+		this.collectorTC = new DynamicCollectorOfTripleConstraints();
 		this.mcs = new HashSet<>();
 		this.mcs.add(new MatchingCollector());
 		this.frcs = new HashSet<>();
 	}
-		
-	@Override
-	public Typing getTyping() {
-		return typing;
-	}
-
-	@Override
-	public void resetTyping() {
-		this.typing = new TypingForValidation();
-	}
-
-	
-	
 
 
 	/** Add a collector for the matching computed by the validation algorithm.

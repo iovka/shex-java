@@ -38,7 +38,7 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author jdusart
  *
  */
-public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract{
+public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	protected SORBEGenerator sorbeGenerator;
 	
 	public SORBEBasedValidation(ShexSchema schema, Graph graph) {
@@ -55,7 +55,7 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract{
 	 */
 	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, Typing typing) {
 		// TODO the expression should not be generated each time, but rather generated dynamically
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.constructSORBETripleExpr(shape);
 
 		List<Pair<Triple,Label>> result = null;
 		
@@ -92,7 +92,7 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract{
 		// Get back to the original triple constraints, removing their SORBE equivalent 
 		if (result != null) {
 			result = result.stream()
-					.map(p -> new Pair<>(p.one, sorbeGenerator.removeSORBESuffixe(p.two)))
+					.map(p -> new Pair<>(p.one, sorbeGenerator.getOriginalNonsorbeVersion(p.two)))
 					.collect(Collectors.toList());
 		}			
 		notifySetMatching(node, shape, result);		
