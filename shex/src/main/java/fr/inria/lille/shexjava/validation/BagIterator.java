@@ -105,9 +105,8 @@ public class BagIterator implements Iterator<Bag>{
 	}
 	
 	// TODO why a bag is represented as a list, and not as a map 
-	
-	public ArrayList<Pair<Triple,Label>> getCurrentBag(){
-		ArrayList<Pair<Triple,Label>> currentMatch = new ArrayList<Pair<Triple,Label>>();
+	public List<Pair<Triple,Label>> getCurrentBag(){
+		ArrayList<Pair<Triple,Label>> currentMatch = new ArrayList<>();
 		Iterator<List<TripleConstraint>> ite = allMatches.iterator();
 		Iterator<Triple> iteNeigh = neighbourhood.iterator();
 		for (int i = 1; i < currentIndexes.length; i++) {

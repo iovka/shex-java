@@ -21,8 +21,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
@@ -143,7 +146,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) {
-		TripleExpr tripleExpression = this.sorbeGenerator.constructSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
@@ -151,7 +154,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
 		
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, ValidationUtils.getPredicateOnlyMatcher());
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateOnlyMatcher());
 		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
 		
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
@@ -172,8 +175,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 
 		}
 		
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping);
-		return result != null;
+		return this.findMatching(node, shape, localTyping).getMatching() != null;
 	}	
 
 	

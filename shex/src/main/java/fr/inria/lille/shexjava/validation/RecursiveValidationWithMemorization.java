@@ -245,7 +245,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		
 		Shape shape = (Shape) schema.getShapeExprsMap().get(label);
 		
-		TripleExpr tripleExpression = this.sorbeGenerator.constructSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 
@@ -253,7 +253,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		TypingForValidation localTyping = new TypingForValidation();
 		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
 		Map<Triple,List<TripleConstraint>> matchingTC1 = 
-				ValidationUtils.computePreMatching(node, neighbourhood, constraints, matcher).getPreMatching();
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), matcher).getPreMatching();
 
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {			
 			int nb=0;
@@ -277,7 +277,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				}
 			}
 			
-			// TODO le bug dans test0cardinality2 vient d'ici
+			// TODO le bug de test0Cardinaliy vient d'ici
 			if (nb==0) {
 				boolean success = false;
 				for (TCProperty extra : shape.getExtraProperties())
@@ -296,7 +296,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 		}
 		
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping);
+		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping).getMatching();
 		if (result!=null) {
 			for (Pair<Triple,Label> pair:result) {
 				Label depLabel = ((TripleConstraint) schema.getTripleExprsMap().get(pair.two)).getShapeExpr().getId();
@@ -335,7 +335,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		LinkedList<Pair<RDFTerm,Label>> S = new LinkedList<>();
 		S.add(new Pair<>(focusNode,label));
 		if (results.get(new Pair<>(focusNode,label))) {
-			while (S.size()>0) {
+			while (! S.isEmpty()) {
 				Pair<RDFTerm,Label> key = S.pollFirst();
 				if (this.typing.getStatus(key.one, key.two).equals(Status.NOTCOMPUTED) &&
 						!hyp.contains(lowestDep.get(key))) {
@@ -351,22 +351,20 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				}
 			}
 		} else {
-			while (S.size()>0) {
+			while (S.isEmpty()) {
 				Pair<RDFTerm,Label> key = S.pollFirst();
 				for(DefaultEdge edge: g.incomingEdgesOf(key))
 					S.add(g.getEdgeSource(edge));	
 				if (!key.equals(new Pair<>(focusNode,label))) {
 					g.removeVertex(key);
-					for (MatchingCollector m:mcs)
-						m.removeMatch(key.one, key.two);
+					notifyMatchingFound(key.one, key.two, null);
 					for (FailureAnalyzer fr:frcs)
 						fr.removeReport(key.one, key.two);
 				}
 			}
 			if (g.outDegreeOf(new Pair<>(focusNode,label))==0) {
 				g.removeVertex(new Pair<>(focusNode,label));
-				for (MatchingCollector m:mcs)
-					m.removeMatch(focusNode, label);
+				notifyMatchingFound(focusNode, label, null);
 				for (FailureAnalyzer fr:frcs)
 					fr.removeReport(focusNode,label);
 			}

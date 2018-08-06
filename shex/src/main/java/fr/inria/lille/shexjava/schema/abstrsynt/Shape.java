@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.IRI;
 
@@ -65,7 +66,12 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	public boolean isClosed () {
 		return this.closed;
 	}
+	 
+	public Set<IRI> getExtraProperties2 () {
+		return this.getExtraProperties().stream().map(tcp -> tcp.getIri()).collect(Collectors.toSet());
+	}
 	
+	// TODO remove and replace with getExtraProperties2 
 	public Set<TCProperty> getExtraProperties () {
 		return extra;
 	}
@@ -81,12 +87,12 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 
 	@Override
 	public String toString() {
-		String closed = isClosed() ? "CLOSED" : "";
+		String closedstr = isClosed() ? "CLOSED" : "";
 		String extraP = extra.isEmpty() ? "" : "EXTRA" + extra.toString();
 		String annot = "";
-		if (this.annotations!=null && this.annotations.size()>0)
+		if (this.annotations!=null && this.annotations.isEmpty())
 			annot =CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		return String.format("(%s %s %s %s)", closed, extraP, tripleExpr,annot);
+		return String.format("(%s %s %s %s)", closedstr, extraP, tripleExpr,annot);
 	}
 	
 	@Override

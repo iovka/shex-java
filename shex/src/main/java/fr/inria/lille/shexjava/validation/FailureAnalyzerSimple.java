@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +45,12 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 	}
 	
 	@Override
-	public void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, ArrayList<Triple> neighbourhood) {
+	public void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, List<Triple> neighbourhood) {
 		List<TripleConstraint> constraints = collectorTC.getTCs(shape.getTripleExpression());
 		Matcher matcher = ValidationUtils.getPredicateAndValueMatcher(typing);
 		Map<Triple,List<TripleConstraint>> matchingTC =
-				ValidationUtils.computePreMatching(node, neighbourhood, constraints, matcher).getPreMatching();
+				// TODO here check whether the empty set is appropriate for the set of extra properties
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, Collections.emptySet(), matcher).getPreMatching();
 		
 		LinkedHashMap<TripleConstraint,List<Triple>> revMatchingTC = new LinkedHashMap<>();
 		for (TripleConstraint tc:constraints)
@@ -64,7 +66,7 @@ public class FailureAnalyzerSimple extends FailureAnalyzer{
 			for (TripleExpr sub:root.getSubExpressions()) {
 				if (sub instanceof TripleConstraint) {
 					TripleConstraint tc = (TripleConstraint) sub;
-					if (revMatchingTC.get(sub).size()==0) {
+					if (revMatchingTC.get(sub).isEmpty()) {
 						// No neighbour found
 						String message = "No Triple found to match the TripleConstraint "+tc+".";
 						

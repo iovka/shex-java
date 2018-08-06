@@ -17,13 +17,10 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
@@ -53,28 +50,14 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	 * @param typing
 	 * @return a matching or null if none was found or cannot be found. 
 	 */
-	public List<Pair<Triple,Label>> findMatching(RDFTerm node, Shape shape, Typing typing) {
-		// TODO the expression should not be generated each time, but rather generated dynamically
-		TripleExpr tripleExpression = this.sorbeGenerator.constructSORBETripleExpr(shape);
-
-		List<Pair<Triple,Label>> result = null;
-		
+	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing) {
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
-		if (constraints.isEmpty())
-			result = Collections.emptyList();
-		// TODO here removed the notification failure report in the case no constraints, closed shape and non empty neighbourhood
-		// fr.setReport(new FailureReport(node,shape.getId(),"Shape is closed with no constraint, but "+node+" has neighbour"));
-		
 		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
 		
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, ValidationUtils.getPredicateAndValueMatcher(getTyping()));
-		
-		List<Triple> notInExtra = collectNotInExtra(preMatching.getUnmatchedTriples(), shape);
-		if (! notInExtra.isEmpty()) {
-			result = null;
-			// TODO do something about the reporting
-		}
-		
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateAndValueMatcher(getTyping()));
+
+		List<Pair<Triple, Label>> matching = null;
 		// Look for correct matching within the pre-matching
 		BagIterator bagIt = new BagIterator(preMatching);
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
@@ -82,36 +65,19 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 			Bag bag = bagIt.next();
 			tripleExpression.accept(intervalComputation, bag, this);
 			if (intervalComputation.getResult().contains(1)) {
-				result = bagIt.getCurrentBag();
+				matching = bagIt.getCurrentBag();
 			}
 		}
-		
-		for (FailureAnalyzer fr:frcs)
-			fr.addFailureReportNoMatchingFound(node, shape, typing, neighbourhood);
-		
-		// Get back to the original triple constraints, removing their SORBE equivalent 
-		if (result != null) {
-			result = result.stream()
+
+		if (matching != null) {
+			matching = matching.stream()
 					.map(p -> new Pair<>(p.one, sorbeGenerator.getOriginalNonsorbeVersion(p.two)))
 					.collect(Collectors.toList());
 		}			
-		notifySetMatching(node, shape, result);		
+		
+		LocalMatching result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
+		notifyMatchingFound(node, shape.getId(), result);		
 		return result;
-	}
-
-	private List<Triple> collectNotInExtra(List<Triple> unmatchedTriples, Shape shape) {
-		// TODO : to be removed when extra will be defined as iri and not as tcproperty
-		Set<IRI> extraIris = shape.getExtraProperties().stream()
-									.map(tcprop -> tcprop.getIri())
-									.collect(Collectors.toSet());
-		return unmatchedTriples.stream()
-				.filter(triple -> ! extraIris.contains(triple.getPredicate()))
-				.collect(Collectors.toList());
-	}
-	
-	private void notifySetMatching(RDFTerm node, Shape shape, List<Pair<Triple, Label>> result) {
-		for (MatchingCollector m:mcs)
-			m.setMatch(node, shape.getId(), result);
 	}
 	
 }

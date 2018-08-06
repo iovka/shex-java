@@ -16,8 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.RDFTerm;
@@ -54,6 +54,6 @@ public abstract class FailureAnalyzer {
 
 	public abstract void addFailureReportNoTCFound(RDFTerm node, Shape shape, Typing typing, Triple neighbour) ;
 	
-	public abstract void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, ArrayList<Triple> neighbourhood);
+	public abstract void addFailureReportNoMatchingFound(RDFTerm node, Shape shape, Typing typing, List<Triple> neighbourhood);
 	
 }

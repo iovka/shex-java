@@ -27,6 +27,7 @@ import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
+import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
@@ -42,10 +43,12 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	protected Graph graph;
 	protected ShexSchema schema;
 	
-	protected Set<MatchingCollector> mcs;
 	protected Set<FailureAnalyzer> frcs;
 	
 	protected DynamicCollectorOfTripleConstraints collectorTC;
+	
+	private Set<MatchingCollector> matchingObservers;
+
 	
 	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph) {
 		this.graph = graph;
@@ -53,52 +56,8 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		resetTyping();
 	
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();
-		this.mcs = new HashSet<>();
-		this.mcs.add(new MatchingCollector());
 		this.frcs = new HashSet<>();
-	}
-
-
-	/** Add a collector for the matching computed by the validation algorithm.
-	 * 
-	 */
-	public void addMatchingCollector(MatchingCollector m) {
-		mcs.add(m);
-	}
-	
-	/** remove a collector for the matching computed by the validation algorithm.
-	 * 
-	 */
-	public void removeMatchingCollector(MatchingCollector m){
-		mcs.remove(m);
-	}
-	
-	/** get the set of the current matching collectors.
-	 * 
-	 */
-	public Set<MatchingCollector> getMatchingCollector() {
-		return mcs;
-	}
-	
-	/** Add a failure reports collector.
-	 * 
-	 */
-	public void addFailureReportsCollector(FailureAnalyzer frc) {
-		frcs.add(frc);
-	}
-	
-	/** remove a failure reports collector.
-	 * 
-	 */
-	public void removeFailureReportsCollector(FailureAnalyzer frc){
-		frcs.remove(frc);
-	}
-	
-	/** Get the set of the current failure reports collectors.
-	 * 
-	 */
-	public Set<FailureAnalyzer> getFailureReportsCollector() {
-		return frcs;
+		this.matchingObservers = new HashSet<>();
 	}
 	
 	/** Select the neighborhood that must be matched for the given shape.
@@ -128,6 +87,82 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		return neighbourhood;
 	}
 	
+	
+	
+	// ---------------------------------------------------------------------------------
+	// Observers related
+	// ---------------------------------------------------------------------------------	
+	@Override
+	public void notifyMatchingFound(RDFTerm focusNode, Label label, LocalMatching matching) {
+		for (MatchingCollector m : matchingObservers)
+			m.updateMatching(focusNode, label, matching);
+	}
+
+	@Override
+	public void notifyStartValidation() {
+		for (MatchingCollector m : matchingObservers)
+			m.startValidation();
+	}
+
+	@Override
+	public void notifyValidationComplete() {
+		for (MatchingCollector m : matchingObservers)
+			m.validationComplete();
+	}
+	
+	@Override
+	public void addMatchingObserver(MatchingCollector o) {
+		matchingObservers.add(o);
+	}
+
+
+	@Override
+	public void removeMatchingObserver(MatchingCollector o) {
+		matchingObservers.remove(o);
+	}
+
+
+	/** Add a collector for the matching computed by the validation algorithm.
+	 * 
+	 */
+	public void addMatchingCollector(MatchingCollector m) {
+		matchingObservers.add(m);
+	}
+	
+	/** remove a collector for the matching computed by the validation algorithm.
+	 * 
+	 */
+	public void removeMatchingCollector(MatchingCollector m){
+		matchingObservers.remove(m);
+	}
+	
+	/** get the set of the current matching collectors.
+	 * 
+	 */
+	public Set<MatchingCollector> getMatchingCollector() {
+		return matchingObservers;
+	}
+	
+	/** Add a failure reports collector.
+	 * 
+	 */
+	public void addFailureReportsCollector(FailureAnalyzer frc) {
+		frcs.add(frc);
+	}
+	
+	/** remove a failure reports collector.
+	 * 
+	 */
+	public void removeFailureReportsCollector(FailureAnalyzer frc){
+		frcs.remove(frc);
+	}
+	
+	/** Get the set of the current failure reports collectors.
+	 * 
+	 */
+	public Set<FailureAnalyzer> getFailureReportsCollector() {
+		return frcs;
+	}
 	
 	
 }

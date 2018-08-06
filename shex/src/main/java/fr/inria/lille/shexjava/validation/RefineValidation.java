@@ -18,16 +18,13 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
-import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
@@ -36,7 +33,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
@@ -55,12 +51,17 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author Antonin Durey
  * 
  */
-public class RefineValidation extends SORBEBasedValidation {	
-	private Set<Label> selectedShape;
-	private Set<Label> extraShapes;
-	private boolean computed = false;
+public class RefineValidation extends SORBEBasedValidation {
+	
 	private Set<RDFTerm> allGraphNodes;
+	private boolean computed = false;
+	// TODO: this could be a particular implementation for RefineValidation, in which the nonconformant status is the default one. Careful to nodes that are not in the graph though.
 	private TypingForValidation typing;
+
+	
+	// TODO A quoi ça sert ?
+	private Set<Label> selectedShapes;
+	private Set<Label> extraShapes;
 	
 
 	public RefineValidation(ShexSchema schema, Graph graph) {
@@ -74,15 +75,16 @@ public class RefineValidation extends SORBEBasedValidation {
 		initSelectedShape();
 	}
 	
-	protected void initSelectedShape() {
-		this.selectedShape = new HashSet<Label>(extraShapes);
-		this.selectedShape.addAll(schema.getRules().keySet());
+	// TODO pourquoi est-ce que c'est nécessaire ?
+	private void initSelectedShape() {
+		this.selectedShapes = new HashSet<>(extraShapes);
+		this.selectedShapes.addAll(schema.getRules().keySet());
 		for (ShapeExpr expr:schema.getShapeExprsMap().values())
 			if (expr instanceof ShapeExprRef) 
-				selectedShape.add(((ShapeExprRef) expr).getShapeDefinition().getId());
+				selectedShapes.add(((ShapeExprRef) expr).getShapeDefinition().getId());
 		for (TripleExpr expr:schema.getTripleExprsMap().values())
 			if (expr instanceof TripleConstraint)
-				selectedShape.add(((TripleConstraint) expr).getShapeExpr().getId());
+				selectedShapes.add(((TripleConstraint) expr).getShapeExpr().getId());
 	}
 	
 	
@@ -151,14 +153,11 @@ public class RefineValidation extends SORBEBasedValidation {
 		schema.getShapeExprsMap().get(nl.two).accept(shexprEvaluator);
 		return shexprEvaluator.getResult();
 	}
+	
 	/** Tests whether the node's neighbourhood matches the shape with the current typing */
 	private boolean matches (RDFTerm node, Shape shape) {
-		// TODO: remove the cast
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, this.getTyping());
-		return result != null;
+		return null != this.findMatching(node, shape, this.getTyping()).getMatching();
 	}	
-	
-	
 	
 	private EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor();
 		
@@ -219,12 +218,14 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	// Typing utils
 	
-	protected List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum, RDFTerm focusNode) {
+	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum, RDFTerm focusNode) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
-		Set<Label> labels = schema.getStratification().get(stratum);
+		Set<Label> labels = schema.getStratification().get(stratum); // TODO does it mean that all the labels, even those of the triple constraints, have a stratum ?
+		// TODO According to the spec, the stratification is a set of Shape
+		// TODO why to we need to add the triple constraints to the selected shapes ? Can't we simply implement the abstract algorithm ?
 		for (Label label: labels) {
-			if (selectedShape.contains(label)) {
-				for( RDFTerm node : allGraphNodes) {		
+			if (selectedShapes.contains(label)) {
+				for (RDFTerm node : allGraphNodes) {		
 					result.add(new Pair<>(node, label));
 					this.typing.setStatus(node, label, Status.CONFORMANT);
 				}

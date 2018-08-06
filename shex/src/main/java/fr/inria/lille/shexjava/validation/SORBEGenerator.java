@@ -57,7 +57,7 @@ public class SORBEGenerator {
 	 * @param shape
 	 * @return
 	 */
-	public TripleExpr constructSORBETripleExpr(Shape shape) {
+	public TripleExpr getSORBETripleExpr(Shape shape) {
 		if (this.sorbeMap.containsKey(shape.getId()))
 			return this.sorbeMap.get(shape.getId());
 		TripleExpr result = generateTripleExpr(shape.getTripleExpression());

@@ -8,30 +8,38 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 
 /** A data structure. 
- * Represents a bi-partition of a set of triples (typically the neighbourhood of some node) between triples that match some triple constraints, and triples that do not. 
+ * Represents a tri-partition of a set of triples (typically the neighbourhood of some node).
+ * All the tirples appear as keys in {@link #getPreMatching}.
+ * Triples that match some triples constraints are those are associated with a non-empty list of triple constraints in {@link #getPreMatching()}.
+ * The remaining triples (i.e. those associated with an empty list in {@link #getPreMatching()} are split between those in {@link #getMatchedToExtra()} that match some extra property, and those in {@link #getUnmatched()} that match no exhca property. 
  * 
  * @author Iovka Boneva
  * 3 août 2018
  */
 public class PreMatching {
 
-	private List<Triple> unmatchedTriples;
-	private Map<Triple, List<TripleConstraint>> preMatching;
+	private List<Triple> unmatched;
+	private List<Triple> matchedToExtra;
+	private Map<Triple, List<TripleConstraint>> preMatchingMap;
 	
-	public PreMatching(List<Triple> unmatchedTriples, Map<Triple, List<TripleConstraint>> preMatching) {
+	public PreMatching(Map<Triple, List<TripleConstraint>> preMatching, List<Triple> matchedToExtra, List<Triple> unmatchedTriples) {
 		super();
-		this.unmatchedTriples = unmatchedTriples;
-		this.preMatching = preMatching;
+		this.unmatched = unmatchedTriples;
+		this.preMatchingMap = preMatching;
 	}
 
 	/** The triples that match none of the triple constraints. */
-	public final List<Triple> getUnmatchedTriples() {
-		return unmatchedTriples;
+	public final List<Triple> getUnmatched() {
+		return unmatched;
 	}
 
 	/** With every triple associates the triple constraints that this triple matches. */
 	public final Map<Triple, List<TripleConstraint>> getPreMatching() {
-		return preMatching;
+		return preMatchingMap;
+	}
+
+	public final List<Triple> getMatchedToExtra() {
+		return matchedToExtra;
 	}
 	
 	

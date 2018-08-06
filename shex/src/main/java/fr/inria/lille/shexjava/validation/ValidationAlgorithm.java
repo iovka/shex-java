@@ -36,7 +36,7 @@ public interface ValidationAlgorithm {
 	 * @exception IllegalArgumentException if the label does not belong to the schema
 	 */ 
 	@Stable
-	public abstract boolean validate(RDFTerm focusNode, Label label);
+	public boolean validate (RDFTerm focusNode, Label label);
 		
 	/** The typing that proves the result returned by previous validations.  */
 	@Stable
@@ -45,6 +45,30 @@ public interface ValidationAlgorithm {
 	/** Resets the typing, thus erasing all previously computed validation results.  */
 	@Stable
 	public void resetTyping();
+	
+	/** Notifies all observers that a matching was found, or that no matching is known for the given focusNode and label.
+	 * The matching provided by this notification is not guaranteed to be valid w.r.t. the eventually computed correct typing that will be returned by {@link #getTyping()}.	 
+	 * The {@link ValidationAlgorithm} guarantees however that for any given focusNode and label, the notification regarding these focusNode and label that is the last one between two consecutive calls of {@link #notifyStartValidation()} and {@link #notifyValidationComplete()}, contains a matching that is valid within the typing returned by {@link #getTyping()}.      
+	 *  
+	 * @param focusNode
+	 * @param label
+	 * @param matching null means that no matching is known
+	 */
+	public void notifyMatchingFound (RDFTerm focusNode, Label label, LocalMatching matching);
+	
+	/** Notifies all observers that a validation just started.
+	 * Is called at the begining of {@link #validate(RDFTerm, Label)}
+	 */
+	public void notifyStartValidation();
+	
+	/** Notifies all observers that a validation just ended.  
+	 * 
+	 */
+	public void notifyValidationComplete();
+	
+	public void addMatchingObserver (MatchingCollector o);
+	public void removeMatchingObserver (MatchingCollector o);
+	
 	
 
 }

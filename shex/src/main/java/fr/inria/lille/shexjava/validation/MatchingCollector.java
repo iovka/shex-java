@@ -27,12 +27,35 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
 
 public class MatchingCollector {
-	protected Map<Pair<RDFTerm, Label>,List<Pair<Triple,Label>>> matchings;
+	private Map<Pair<RDFTerm, Label>, LocalMatching> matchings;
 
 	public MatchingCollector() {
 		matchings = new HashMap<>();
 	}
 	
+	public void updateMatching (RDFTerm node, Label label, LocalMatching matching) {
+		Pair<RDFTerm, Label> key = new Pair<>(node, label);
+		if (matching == null && matchings.containsKey(key))
+			matchings.remove(key);
+		else if (matching != null)
+			matchings.put(key, matching);
+	}
+	
+	public LocalMatching getMatching (RDFTerm node, Label label) {
+		return matchings.get(new Pair<>(node, label));
+	}
+
+	public void startValidation() {
+		// Nothing to do
+	}
+
+	public void validationComplete() {
+		// Nothing to do 
+	}
+	
+	
+	
+	/*
 	public void setMatch(RDFTerm node, Label label, List<Pair<Triple, Label>> match) {
 		matchings.put(new Pair<RDFTerm, Label>(node,label), match);	
 	}
@@ -44,5 +67,6 @@ public class MatchingCollector {
 	public void removeMatch(RDFTerm node, Label label) {
 		matchings.remove(new Pair<RDFTerm, Label>(node,label));	
 	}
+	*/
 	
 }
