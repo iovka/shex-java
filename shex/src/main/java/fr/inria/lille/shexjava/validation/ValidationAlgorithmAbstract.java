@@ -121,27 +121,11 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		matchingObservers.remove(o);
 	}
 
-
-	/** Add a collector for the matching computed by the validation algorithm.
-	 * 
-	 */
-	public void addMatchingCollector(MatchingCollector m) {
-		matchingObservers.add(m);
-	}
+	// ---------------------------------------------------------------------------------
+	// Failure report related
+	// ---------------------------------------------------------------------------------	
 	
-	/** remove a collector for the matching computed by the validation algorithm.
-	 * 
-	 */
-	public void removeMatchingCollector(MatchingCollector m){
-		matchingObservers.remove(m);
-	}
 	
-	/** get the set of the current matching collectors.
-	 * 
-	 */
-	public Set<MatchingCollector> getMatchingCollector() {
-		return matchingObservers;
-	}
 	
 	/** Add a failure reports collector.
 	 * 

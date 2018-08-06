@@ -238,12 +238,4 @@ public class RefineValidation extends SORBEBasedValidation {
 		}
 		return result;
 	}
-
-	@Override
-	public void addMatchingCollector(MatchingCollector m) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
 }
