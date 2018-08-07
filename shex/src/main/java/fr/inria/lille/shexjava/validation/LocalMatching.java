@@ -9,13 +9,14 @@ import fr.inria.lille.shexjava.util.Pair;
 
 /** Data structure. 
  * Similarly to {@link PreMatching}, defines a tri-partition of a set of triples.
- * Unlike {@link PreMatching}, the matched triples are given as a list of {@link Pair<{@link Triple}, {@link Label}>}, which contains only the triples that were effectively matched to some triple constraint and the label of that triple constraint.
+ * Unlike {@link PreMatching}, the matched triples are given as a list of {@link Pair<{@link Triple}, {@link Label}>}.
  * 
  * @author Iovka Boneva
  * 6 août 2018
  */
 public class LocalMatching {
 	// TODO: see whether we want to implement it differently
+	// TODO having null for the matching to indicate that there is no matching is not satisfactory
 
 	private List<Pair<Triple, Label>> matching;
 	private List<Triple> unmatched;

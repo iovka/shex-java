@@ -58,36 +58,7 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();
 		this.frcs = new HashSet<>();
 		this.matchingObservers = new HashSet<>();
-	}
-	
-	/** Select the neighborhood that must be matched for the given shape.
-	 * 
-	 * @param node
-	 * @param shape
-	 * @return
-	 */
-	protected ArrayList<Triple> getNeighbourhood(RDFTerm node, Shape shape) {
-		List<TripleConstraint> constraints = collectorTC.getTCs(shape.getTripleExpression());
-		
-		Set<IRI> inversePredicate = new HashSet<>();
-		Set<IRI> forwardPredicate = new HashSet<>();
-		for (TripleConstraint tc:constraints)
-			if (tc.getProperty().isForward())
-				forwardPredicate.add(tc.getProperty().getIri());
-			else
-				inversePredicate.add(tc.getProperty().getIri());
-
-		ArrayList<Triple> neighbourhood = new ArrayList<>();
-		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
-		if (shape.isClosed())
-			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
-		else
-			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-		
-		return neighbourhood;
-	}
-	
-	
+	}	
 	
 	// ---------------------------------------------------------------------------------
 	// Observers related

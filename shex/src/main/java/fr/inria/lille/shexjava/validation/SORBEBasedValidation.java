@@ -16,7 +16,6 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,9 +52,9 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
-		ArrayList<Triple> neighbourhood = getNeighbourhood(node,shape);
+		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 		
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateAndValueMatcher(getTyping()));
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateAndValueMatcher(typing));
 
 		List<Pair<Triple, Label>> matching = null;
 		// Look for correct matching within the pre-matching

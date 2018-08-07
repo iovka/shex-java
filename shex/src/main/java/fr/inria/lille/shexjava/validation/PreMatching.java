@@ -9,9 +9,9 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 
 /** A data structure. 
  * Represents a tri-partition of a set of triples (typically the neighbourhood of some node).
- * All the tirples appear as keys in {@link #getPreMatching}.
- * Triples that match some triples constraints are those are associated with a non-empty list of triple constraints in {@link #getPreMatching()}.
- * The remaining triples (i.e. those associated with an empty list in {@link #getPreMatching()} are split between those in {@link #getMatchedToExtra()} that match some extra property, and those in {@link #getUnmatched()} that match no exhca property. 
+ * Triples that match some of the triple constraints are those that appear as keys in {@link #getPreMatching()} and are associated with non-empty list of triple constraints.
+ * Triples that match some of the extra properties are in {@link #getMatchedToExtra()}.
+ * Triples that matche neigther some triple constraint nor the extra properties are in {@link #getUnmatched()} that match no exhca property. 
  * 
  * @author Iovka Boneva
  * 3 août 2018
@@ -26,6 +26,7 @@ public class PreMatching {
 		super();
 		this.unmatched = unmatchedTriples;
 		this.preMatchingMap = preMatching;
+		this.matchedToExtra = matchedToExtra;
 	}
 
 	/** The triples that match none of the triple constraints. */
