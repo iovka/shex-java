@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -105,15 +106,17 @@ public class BagIterator implements Iterator<Bag>{
 	}
 	
 	// TODO why a bag is represented as a list, and not as a map 
-	public List<Pair<Triple,Label>> getCurrentBag(){
-		ArrayList<Pair<Triple,Label>> currentMatch = new ArrayList<>();
+	public Map<Triple, Label> getCurrentBag(){
+		Map<Triple, Label> currentMatch = new HashMap<>();
+		
 		Iterator<List<TripleConstraint>> ite = allMatches.iterator();
 		Iterator<Triple> iteNeigh = neighbourhood.iterator();
 		for (int i = 1; i < currentIndexes.length; i++) {
 			List<TripleConstraint> tmp = ite.next();
 			Triple tmp2 = iteNeigh.next();
-			currentMatch.add(new Pair<Triple, Label>(tmp2,tmp.get(currentIndexes[i]).getId()));
+			currentMatch.put(tmp2,tmp.get(currentIndexes[i]).getId());
 		}
+		
 		return currentMatch;
 	}
 }

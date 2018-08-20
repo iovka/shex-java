@@ -296,11 +296,11 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 		}
 		
-		List<Pair<Triple,Label>> result = this.findMatching(node, shape, localTyping).getMatching();
+		Map<Triple, Label> result = this.findMatching(node, shape, localTyping).getMatching();
 		if (result!=null) {
-			for (Pair<Triple,Label> pair:result) {
-				Label depLabel = ((TripleConstraint) schema.getTripleExprsMap().get(pair.two)).getShapeExpr().getId();
-				required.add(new Pair<>(getOther(pair.one,node), depLabel));
+			for (Triple tr:result.keySet()) {
+				Label depLabel = ((TripleConstraint) schema.getTripleExprsMap().get(result.get(tr))).getShapeExpr().getId();
+				required.add(new Pair<>(getOther(tr,node), depLabel));
 			}
 			for (Triple tri:extraNeighbours) {
 				RDFTerm other = getOther(tri,node);

@@ -65,7 +65,7 @@ public class ValidationUtils {
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTriplesMap = new LinkedHashMap<>(neighbourhood.size());
 		ArrayList<Triple> matchedToExtraTriples = new ArrayList<>();
 		ArrayList<Triple> unmatchedTriples = new ArrayList<>();
-		
+
 		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: tripleConstraints) {
@@ -81,6 +81,7 @@ public class ValidationUtils {
 				else
 					unmatchedTriples.add(triple);
 		}
+		
 		return new PreMatching(matchingTriplesMap, matchedToExtraTriples, unmatchedTriples);
 	}
 	

@@ -155,6 +155,8 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
     		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
+    		
+    		//System.out.println(validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel));
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
     				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.CONFORMANT)

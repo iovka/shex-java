@@ -67,6 +67,8 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
 			this.typing.setStatus(focusNode, label, Status.CONFORMANT);
+		} else {
+			this.typing.setStatus(focusNode, label, Status.NONCONFORMANT);
 		}
 		return result;
 	}
@@ -156,7 +158,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateOnlyMatcher());
 		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
-		
+			
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
 			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
@@ -172,9 +174,8 @@ public class RecursiveValidation extends SORBEBasedValidation {
 					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
 				}
 			}
-
 		}
-		
+				
 		return this.findMatching(node, shape, localTyping).getMatching() != null;
 	}	
 

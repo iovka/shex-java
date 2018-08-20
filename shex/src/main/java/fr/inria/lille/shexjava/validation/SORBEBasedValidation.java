@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Graph;
@@ -56,7 +57,11 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateAndValueMatcher(typing));
 
-		List<Pair<Triple, Label>> matching = null;
+		if (preMatching.getUnmatched().size()!=0) {
+			return  new LocalMatching(null, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
+		}
+		
+		Map<Triple, Label> matching = null;
 		// Look for correct matching within the pre-matching
 		BagIterator bagIt = new BagIterator(preMatching);
 		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
@@ -69,13 +74,12 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		}
 
 		if (matching != null) {
-			matching = matching.stream()
-					.map(p -> new Pair<>(p.one, sorbeGenerator.getOriginalNonsorbeVersion(p.two)))
-					.collect(Collectors.toList());
+			matching = matching.entrySet().stream()
+					.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalNonsorbeVersion(x.getValue())));
 		}			
-		
+
 		LocalMatching result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
-		notifyMatchingFound(node, shape.getId(), result);		
+		notifyMatchingFound(node, shape.getId(), result);
 		return result;
 	}
 	
