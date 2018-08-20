@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

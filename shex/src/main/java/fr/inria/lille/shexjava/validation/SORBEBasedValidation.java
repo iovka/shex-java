@@ -29,7 +29,6 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.util.Pair;
 
 /** This class implement the algorithm to find a matching based on SORBE.
  * @author jdusart
@@ -58,7 +57,9 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateAndValueMatcher(typing));
 
 		if (preMatching.getUnmatched().size()!=0) {
-			return  new LocalMatching(null, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
+			LocalMatching result = new LocalMatching(null, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
+			notifyMatchingFound(node, shape.getId(), result);
+			return result;
 		}
 		
 		Map<Triple, Label> matching = null;

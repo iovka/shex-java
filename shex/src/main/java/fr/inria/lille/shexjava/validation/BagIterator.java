@@ -27,7 +27,6 @@ import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.util.Pair;
 
 /** Starting from a map that with every {@link Triple} associates a set of matching {@link TripleConstraint}s, allows to iterate over all possible ways to match every triple with a unique constraint.
  * For each such matching, the iterator returns the corresponding bag that with every triple constraint associates the number of matching triples. 

@@ -16,7 +16,6 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.util.CommonGraph;
-import fr.inria.lille.shexjava.util.Pair;
 
 /** Contains static methods useful in the different validation alogorithms.
  * 
@@ -107,12 +106,12 @@ public class ValidationUtils {
 	 * @param matching
 	 * @return
 	 */
-	public static Map<Label, List<Triple>> inverseMatching (List<Pair<Triple, Label>> matching, List<TripleConstraint> tripleConstraints) {
+	public static Map<Label, List<Triple>> inverseMatching (Map<Triple, Label> matching, List<TripleConstraint> tripleConstraints) {
 		Map<Label, List<Triple>> result = new HashMap<>();
 		for (TripleConstraint tc : tripleConstraints)
 			result.put(tc.getId(), new ArrayList<>());
-		for (Pair<Triple, Label> p : matching) 
-			result.get(p.two).add(p.one);
+		for (Triple p : matching.keySet()) 
+			result.get(matching.get(p)).add(p);
 		return result;
 	}
 

@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 
 import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Statement;
