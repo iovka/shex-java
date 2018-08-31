@@ -55,29 +55,22 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 		
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateAndValueMatcher(typing));
-
-		if (preMatching.getUnmatched().size()!=0) {
-			LocalMatching result = new LocalMatching(null, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
-			notifyMatchingFound(node, shape.getId(), result);
-			return result;
-		}
 		
 		Map<Triple, Label> matching = null;
 		// Look for correct matching within the pre-matching
-		BagIterator bagIt = new BagIterator(preMatching);
-		IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
-		while(bagIt.hasNext()){
-			Bag bag = bagIt.next();
-			tripleExpression.accept(intervalComputation, bag, this);
-			if (intervalComputation.getResult().contains(1)) {
-				matching = bagIt.getCurrentBag();
+		if (preMatching.getUnmatched().size()==0) {
+			BagIterator bagIt = new BagIterator(preMatching);
+			IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
+			while(matching==null && bagIt.hasNext()){
+				Bag bag = bagIt.next();
+				tripleExpression.accept(intervalComputation, bag, this);
+				if (intervalComputation.getResult().contains(1)) {
+					matching = bagIt.getCurrentBag();
+					matching = matching.entrySet().stream()
+							.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalNonsorbeVersion(x.getValue())));
+				}
 			}
-		}
-
-		if (matching != null) {
-			matching = matching.entrySet().stream()
-					.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalNonsorbeVersion(x.getValue())));
-		}			
+		}		
 
 		LocalMatching result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
 		notifyMatchingFound(node, shape.getId(), result);
