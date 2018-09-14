@@ -140,13 +140,12 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
 
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
-   
+    		
     		if(! schemaFile.toFile().exists()) {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-
     		Graph dataGraph = getRDFGraph();    		
     		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
     		
@@ -162,7 +161,7 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
     		}			
     	}catch (Exception e) {
-    		System.err.println(e.getMessage());
+    		System.err.println(testCase.testName+" "+e.getMessage());
     		e.printStackTrace();
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
     	}

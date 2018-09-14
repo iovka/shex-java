@@ -78,35 +78,17 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitShapeExpression(ShExDocParser.ShapeExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#shapeOr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShapeOr(ShExDocParser.ShapeOrContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#shapeAnd}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShapeAnd(ShExDocParser.ShapeAndContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#shapeNot}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShapeNot(ShExDocParser.ShapeNotContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#negation}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNegation(ShExDocParser.NegationContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitInlineShapeExpression(ShExDocParser.InlineShapeExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#shapeOr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeOr(ShExDocParser.ShapeOrContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeOr}.
 	 * @param ctx the parse tree
@@ -114,11 +96,23 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInlineShapeOr(ShExDocParser.InlineShapeOrContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#shapeAnd}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeAnd(ShExDocParser.ShapeAndContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeAnd}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitInlineShapeAnd(ShExDocParser.InlineShapeAndContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#shapeNot}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeNot(ShExDocParser.ShapeNotContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeNot}.
 	 * @param ctx the parse tree
@@ -126,90 +120,19 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInlineShapeNot(ShExDocParser.InlineShapeNotContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeDefinition}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#shapeDefinition}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#qualifier}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQualifier(ShExDocParser.QualifierContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#extraPropertySet}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExtraPropertySet(ShExDocParser.ExtraPropertySetContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#tripleExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTripleExpression(ShExDocParser.TripleExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#oneOfTripleExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitOneOfTripleExpr(ShExDocParser.OneOfTripleExprContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#multiElementOneOf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMultiElementOneOf(ShExDocParser.MultiElementOneOfContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#innerTripleExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInnerTripleExpr(ShExDocParser.InnerTripleExprContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#groupTripleExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGroupTripleExpr(ShExDocParser.GroupTripleExprContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#singleElementGroup}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSingleElementGroup(ShExDocParser.SingleElementGroupContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#multiElementGroup}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMultiElementGroup(ShExDocParser.MultiElementGroupContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#unaryTripleExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUnaryTripleExpr(ShExDocParser.UnaryTripleExprContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#bracketedTripleExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBracketedTripleExpr(ShExDocParser.BracketedTripleExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code shapeAtomNodeConstraint}
+	 * Visit a parse tree produced by the {@code shapeAtomNonLitNodeConstraint}
 	 * labeled alternative in {@link ShExDocParser#shapeAtom}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShapeAtomNodeConstraint(ShExDocParser.ShapeAtomNodeConstraintContext ctx);
+	T visitShapeAtomNonLitNodeConstraint(ShExDocParser.ShapeAtomNonLitNodeConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code shapeAtomLitNodeConstraint}
+	 * labeled alternative in {@link ShExDocParser#shapeAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeAtomLitNodeConstraint(ShExDocParser.ShapeAtomLitNodeConstraintContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code shapeAtomShapeOrRef}
 	 * labeled alternative in {@link ShExDocParser#shapeAtom}.
@@ -232,12 +155,19 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitShapeAtomAny(ShExDocParser.ShapeAtomAnyContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code inlineShapeAtomNodeConstraint}
+	 * Visit a parse tree produced by the {@code inlineShapeAtomNonLitNodeConstraint}
 	 * labeled alternative in {@link ShExDocParser#inlineShapeAtom}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitInlineShapeAtomNodeConstraint(ShExDocParser.InlineShapeAtomNodeConstraintContext ctx);
+	T visitInlineShapeAtomNonLitNodeConstraint(ShExDocParser.InlineShapeAtomNonLitNodeConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code inlineShapeAtomLitNodeConstraint}
+	 * labeled alternative in {@link ShExDocParser#inlineShapeAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInlineShapeAtomLitNodeConstraint(ShExDocParser.InlineShapeAtomLitNodeConstraintContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code inlineShapeAtomShapeOrRef}
 	 * labeled alternative in {@link ShExDocParser#inlineShapeAtom}.
@@ -260,40 +190,84 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInlineShapeAtomAny(ShExDocParser.InlineShapeAtomAnyContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#shapeOrRef}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeOrRef(ShExDocParser.ShapeOrRefContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeOrRef}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInlineShapeOrRef(ShExDocParser.InlineShapeOrRefContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#shapeRef}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeRef(ShExDocParser.ShapeRefContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintLiteral}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintLiteral(ShExDocParser.NodeConstraintLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintNonLiteral}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintNonLiteral(ShExDocParser.NodeConstraintNonLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintDatatype}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintDatatype(ShExDocParser.NodeConstraintDatatypeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintValueSet}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintValueSet(ShExDocParser.NodeConstraintValueSetContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code nodeConstraintFacet}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * Visit a parse tree produced by the {@code nodeConstraintNumericFacet}
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNodeConstraintFacet(ShExDocParser.NodeConstraintFacetContext ctx);
+	T visitNodeConstraintNumericFacet(ShExDocParser.NodeConstraintNumericFacetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#litNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLitNodeConstraint(ShExDocParser.LitNodeConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code litNodeConstraintLiteral}
+	 * labeled alternative in {@link ShExDocParser#inlineNonLitNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLitNodeConstraintLiteral(ShExDocParser.LitNodeConstraintLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code litNodeConstraintStringFacet}
+	 * labeled alternative in {@link ShExDocParser#inlineNonLitNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLitNodeConstraintStringFacet(ShExDocParser.LitNodeConstraintStringFacetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#nonLitNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNonLitNodeConstraint(ShExDocParser.NonLitNodeConstraintContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#nonLiteralKind}.
 	 * @param ctx the parse tree
@@ -337,11 +311,131 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNumericLength(ShExDocParser.NumericLengthContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#rawNumeric}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRawNumeric(ShExDocParser.RawNumericContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#shapeDefinition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeDefinition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#qualifier}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitQualifier(ShExDocParser.QualifierContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#extraPropertySet}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExtraPropertySet(ShExDocParser.ExtraPropertySetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#tripleExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTripleExpression(ShExDocParser.TripleExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#oneOfTripleExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOneOfTripleExpr(ShExDocParser.OneOfTripleExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#multiElementOneOf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiElementOneOf(ShExDocParser.MultiElementOneOfContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#groupTripleExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGroupTripleExpr(ShExDocParser.GroupTripleExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#singleElementGroup}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSingleElementGroup(ShExDocParser.SingleElementGroupContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#multiElementGroup}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiElementGroup(ShExDocParser.MultiElementGroupContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#unaryTripleExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryTripleExpr(ShExDocParser.UnaryTripleExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#bracketedTripleExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBracketedTripleExpr(ShExDocParser.BracketedTripleExprContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#tripleConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTripleConstraint(ShExDocParser.TripleConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code starCardinality}
+	 * labeled alternative in {@link ShExDocParser#cardinality}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStarCardinality(ShExDocParser.StarCardinalityContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code plusCardinality}
+	 * labeled alternative in {@link ShExDocParser#cardinality}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPlusCardinality(ShExDocParser.PlusCardinalityContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code optionalCardinality}
+	 * labeled alternative in {@link ShExDocParser#cardinality}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOptionalCardinality(ShExDocParser.OptionalCardinalityContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code repeatCardinality}
+	 * labeled alternative in {@link ShExDocParser#cardinality}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRepeatCardinality(ShExDocParser.RepeatCardinalityContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code exactRange}
+	 * labeled alternative in {@link ShExDocParser#repeatRange}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExactRange(ShExDocParser.ExactRangeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code minMaxRange}
+	 * labeled alternative in {@link ShExDocParser#repeatRange}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMinMaxRange(ShExDocParser.MinMaxRangeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#senseFlags}.
 	 * @param ctx the parse tree
@@ -397,47 +491,29 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLanguageExclusion(ShExDocParser.LanguageExclusionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#literal}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLiteral(ShExDocParser.LiteralContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#shapeOrRef}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShapeOrRef(ShExDocParser.ShapeOrRefContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#inlineShapeOrRef}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInlineShapeOrRef(ShExDocParser.InlineShapeOrRefContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#shapeRef}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShapeRef(ShExDocParser.ShapeRefContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#include}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitInclude(ShExDocParser.IncludeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#semanticActions}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSemanticActions(ShExDocParser.SemanticActionsContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#annotation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAnnotation(ShExDocParser.AnnotationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#semanticAction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSemanticAction(ShExDocParser.SemanticActionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#literal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLiteral(ShExDocParser.LiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#predicate}.
 	 * @param ctx the parse tree
@@ -456,52 +532,6 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDatatype(ShExDocParser.DatatypeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code starCardinality}
-	 * labeled alternative in {@link ShExDocParser#cardinality}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStarCardinality(ShExDocParser.StarCardinalityContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code plusCardinality}
-	 * labeled alternative in {@link ShExDocParser#cardinality}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPlusCardinality(ShExDocParser.PlusCardinalityContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code optionalCardinality}
-	 * labeled alternative in {@link ShExDocParser#cardinality}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitOptionalCardinality(ShExDocParser.OptionalCardinalityContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code repeatCardinality}
-	 * labeled alternative in {@link ShExDocParser#cardinality}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRepeatCardinality(ShExDocParser.RepeatCardinalityContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#repeatRange}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRepeatRange(ShExDocParser.RepeatRangeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#min_range}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMin_range(ShExDocParser.Min_rangeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#max_range}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMax_range(ShExDocParser.Max_rangeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#shapeExprLabel}.
 	 * @param ctx the parse tree
@@ -539,6 +569,12 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitString(ShExDocParser.StringContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#onShapeExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOnShapeExpr(ShExDocParser.OnShapeExprContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#iri}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -556,16 +592,4 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlankNode(ShExDocParser.BlankNodeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#codeDecl}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCodeDecl(ShExDocParser.CodeDeclContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#includeSet}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIncludeSet(ShExDocParser.IncludeSetContext ctx);
 }

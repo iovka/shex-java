@@ -29,8 +29,8 @@ import fr.inria.lille.shexjava.schema.concrsynt.Constraint;
  * @author Antonin Durey
  * @author Jérémie Dusart
  */
-public class NodeConstraint extends ShapeExpr {
-
+public class NodeConstraint extends ShapeExpr implements AnnotedObject{
+	private List<Annotation> annotations;
 	private List<Constraint> constraints;
 	
 	public NodeConstraint (List<Constraint> constraints) {
@@ -66,4 +66,15 @@ public class NodeConstraint extends ShapeExpr {
 		result +=" ];";
 		return "NodeConstraint : "+result;
 	}
+	
+	public List<Annotation> getAnnotations() {
+		return annotations;
+	}
+	
+	public void setAnnotations (List<Annotation> annotations) {
+		if (this.annotations == null)
+			this.annotations = annotations;
+		else throw new IllegalStateException("Annotations already set");
+	}	
+
 }
