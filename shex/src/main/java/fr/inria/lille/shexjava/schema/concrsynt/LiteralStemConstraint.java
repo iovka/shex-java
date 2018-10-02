@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Map;
+
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDFTerm;
 
@@ -40,6 +42,11 @@ public class LiteralStemConstraint implements Constraint {
 	
 	public String toString() {
 		return "Literalstem="+litStem;
+	}
+	
+	@Override
+	public String toPrettyString(Map<String,String> prefixes) {
+		return this.toString();
 	}
 	
 	@Override

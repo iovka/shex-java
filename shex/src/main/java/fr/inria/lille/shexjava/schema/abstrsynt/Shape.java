@@ -19,6 +19,7 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -96,7 +97,7 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	}
 	
 	@Override
-	public String toPrettyString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		return this.toString();
 	}
 

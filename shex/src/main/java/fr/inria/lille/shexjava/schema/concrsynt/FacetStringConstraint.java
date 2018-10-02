@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Map;
+
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
@@ -96,6 +98,11 @@ public class FacetStringConstraint implements Constraint {
 		return this.toString();
 	}
 
+	@Override
+	public String toPrettyString(Map<String,String> prefixes) {
+		return this.toString();
+	}
+	
 	/** Equals if obj has the same constraints.
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

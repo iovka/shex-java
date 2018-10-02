@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.concrsynt;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.IRI;
@@ -93,6 +94,11 @@ public class DatatypeConstraint implements Constraint {
 	
 	@Override
 	public String toPrettyString() {
+		return this.toString();
+	}
+	
+	@Override
+	public String toPrettyString(Map<String,String> prefixes) {
 		return this.toString();
 	}
 	

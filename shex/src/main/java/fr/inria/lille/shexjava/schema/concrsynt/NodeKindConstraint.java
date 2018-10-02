@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Map;
+
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
@@ -45,6 +47,11 @@ public class NodeKindConstraint implements Constraint {
 		public String toPrettyString() {
 			return this.toString();
 		}
+		
+		@Override
+		public String toPrettyString(Map<String,String> prefixes) {
+			return this.toString();
+		}
 	};
 	
 	public static final NodeKindConstraint AllIRI = new NodeKindConstraint() {
@@ -61,6 +68,11 @@ public class NodeKindConstraint implements Constraint {
 		
 		@Override
 		public String toPrettyString() {
+			return this.toString();
+		}
+		
+		@Override
+		public String toPrettyString(Map<String,String> prefixes) {
 			return this.toString();
 		}
 				
@@ -81,6 +93,11 @@ public class NodeKindConstraint implements Constraint {
 		public String toPrettyString() {
 			return this.toString();
 		}
+		
+		@Override
+		public String toPrettyString(Map<String,String> prefixes) {
+			return this.toString();
+		}
 	};
 	
 	public static final NodeKindConstraint AllNonLiteral = new NodeKindConstraint() {
@@ -98,6 +115,11 @@ public class NodeKindConstraint implements Constraint {
 		public String toPrettyString() {
 			return this.toString();
 		}
+		
+		@Override
+		public String toPrettyString(Map<String,String> prefixes) {
+			return this.toString();
+		}
 	};
 
 	
@@ -109,6 +131,11 @@ public class NodeKindConstraint implements Constraint {
 	
 	@Override
 	public String toPrettyString() {
+		return this.toString();
+	}
+	
+	@Override
+	public String toPrettyString(Map<String,String> prefixes) {
 		return this.toString();
 	}
 	

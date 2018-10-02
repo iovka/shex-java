@@ -16,6 +16,9 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import java.util.Collections;
+import java.util.Map;
+
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 
@@ -40,5 +43,9 @@ public abstract class ShapeExpr{
 	
 	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
 	
-	public abstract String toPrettyString();
+	public String toPrettyString() {
+		return toPrettyString(Collections.emptyMap());
+	}
+	
+	public abstract String toPrettyString(Map<String,String> prefixes);
 }

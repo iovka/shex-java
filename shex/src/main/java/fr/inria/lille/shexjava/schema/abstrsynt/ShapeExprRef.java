@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import java.util.Map;
+
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 
@@ -58,7 +60,7 @@ public class ShapeExprRef extends ShapeExpr {
 	}
 	
 	@Override
-	public String toPrettyString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		return "@"+label.toPrettyString();
 	}
 }

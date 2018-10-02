@@ -16,6 +16,9 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.IRI;
 
@@ -119,7 +122,17 @@ public class Label {
 	}
 	
 	public String toPrettyString() {
-		if (iri != null) return iri.ntriplesString();
+		return toPrettyString(Collections.emptyMap());
+	}
+	
+	public String toPrettyString(Map<String,String> prefixes) {
+		if (iri != null) {
+			for (String prefix:prefixes.keySet()) {
+				if (iri.getIRIString().startsWith(prefixes.get(prefix)))
+					return prefix+(iri.getIRIString().substring(prefixes.get(prefix).length()));
+			}
+			return iri.ntriplesString();
+		}
 		else return bnode.ntriplesString();
 	}
 }

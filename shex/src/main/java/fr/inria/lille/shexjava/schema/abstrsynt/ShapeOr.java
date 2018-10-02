@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.List;
+import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
@@ -40,7 +41,7 @@ public class ShapeOr extends AbstractNaryShapeExpr{
 	}
 	
 	@Override
-	public String toPrettyString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		return this.toString();
 	}
 

@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.rdf.api.RDFTerm;
 
@@ -59,12 +60,12 @@ public class NodeConstraint extends ShapeExpr implements AnnotedObject{
 	}
 
 	@Override
-	public String toPrettyString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		String result = "[";
 		for (Constraint cst:constraints)
 			result+=" "+cst.toPrettyString();
 		result +=" ];";
-		return "NodeConstraint : "+result;
+		return " "+result;
 	}
 	
 	public List<Annotation> getAnnotations() {

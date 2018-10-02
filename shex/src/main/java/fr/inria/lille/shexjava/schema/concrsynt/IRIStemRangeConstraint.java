@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDFTerm;
@@ -32,6 +33,11 @@ public class IRIStemRangeConstraint extends StemRangeConstraint {
 
 	public String toString() {
 		return "IRIStemRange=("+stem+" exclusions="+exclusions+")";
+	}
+	
+	@Override
+	public String toPrettyString(Map<String,String> prefixes) {
+		return this.toString();
 	}
 	
 	@Override
