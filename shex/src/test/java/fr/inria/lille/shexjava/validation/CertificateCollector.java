@@ -85,8 +85,7 @@ public class CertificateCollector {
 		
 		
 		RefineValidation validation = new RefineValidation(schema,graph);
-		FailureAnalyzer fa = new FailureAnalyzerSimple();
-		validation.addFailureReportsCollector(fa);
+
 		validation.validate(bug1, new Label(rdfFactory.createIRI("http://a.example/BugReport")));
 		System.out.println();
 		System.out.println("TYPING:");
@@ -94,7 +93,6 @@ public class CertificateCollector {
 			if (!pair.two.isGenerated())
 				if (validation.getTyping().getStatus(pair.one, pair.two) == Status.NONCONFORMANT) {
 					System.out.println(pair+" > "+validation.getTyping().getStatus(pair.one, pair.two));
-					System.out.println(fa.getReport(pair.one, pair.two));
 				}
 	}
 

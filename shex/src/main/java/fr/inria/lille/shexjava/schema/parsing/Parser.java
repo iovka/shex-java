@@ -62,5 +62,6 @@ public interface Parser {
 	 * @return the list of import declarations found during the last parsing
 	 */
 	public List<String> getImports();
+	public Map<String,String> getPrefixes();
 
 }

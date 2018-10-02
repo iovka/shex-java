@@ -188,7 +188,10 @@ public class ShExRParser implements Parser {
 		return imports;
 	}
 	
-	
+	public Map<String,String> getPrefixes(){
+		return Collections.emptyMap();
+	}
+		
 	
 	//---------------------------------------------------------
 	// Schema

@@ -358,15 +358,11 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				if (!key.equals(new Pair<>(focusNode,label))) {
 					g.removeVertex(key);
 					notifyMatchingFound(key.one, key.two, null);
-					for (FailureAnalyzer fr:frcs)
-						fr.removeReport(key.one, key.two);
 				}
 			}
 			if (g.outDegreeOf(new Pair<>(focusNode,label))==0) {
 				g.removeVertex(new Pair<>(focusNode,label));
 				notifyMatchingFound(focusNode, label, null);
-				for (FailureAnalyzer fr:frcs)
-					fr.removeReport(focusNode,label);
 			}
 		}
 	}

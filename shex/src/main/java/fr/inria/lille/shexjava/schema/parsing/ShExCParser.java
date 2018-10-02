@@ -153,6 +153,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return imports;
 	}
 	
+	public Map<String,String> getPrefixes(){
+		return prefixes;
+	}
+
+	
 	//--------------------------------------------
 	// General
 	//--------------------------------------------
@@ -735,9 +740,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	public Object visitOneOfTripleExpr(ShExDocParser.OneOfTripleExprContext ctx) {
 		return visitChildren(ctx);
 	}
+	
+	//TODO: use types above
 
 	@Override 
-	public Object visitMultiElementOneOf(ShExDocParser.MultiElementOneOfContext ctx) { 
+	public TripleExpr visitMultiElementOneOf(ShExDocParser.MultiElementOneOfContext ctx) { 
 		List<TripleExpr> exprs = new ArrayList<TripleExpr>();
 		for(ParseTree child:ctx.children){
 			if (child instanceof ShExDocParser.GroupTripleExprContext)
@@ -748,26 +755,21 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return new OneOf(exprs); 
 	}
 
-//	@Override 
-//	public Object visitInnerTripleExpr(ShExDocParser.InnerTripleExprContext ctx) { 
-//		return visitChildren(ctx); 
-//	}
 
 	@Override 
-	public Object visitGroupTripleExpr(ShExDocParser.GroupTripleExprContext ctx) {
+	public TripleExpr visitGroupTripleExpr(ShExDocParser.GroupTripleExprContext ctx) {
 		if (ctx.singleElementGroup()!=null)
-			return ctx.singleElementGroup().accept(this);
-		return ctx.multiElementGroup().accept(this);
+			return visitSingleElementGroup(ctx.singleElementGroup());
+		return visitMultiElementGroup(ctx.multiElementGroup());
 	}
 
 	@Override 
-	public Object visitSingleElementGroup(ShExDocParser.SingleElementGroupContext ctx) { 
-		Object res = ctx.unaryTripleExpr().accept(this); 
-		return res;
+	public TripleExpr visitSingleElementGroup(ShExDocParser.SingleElementGroupContext ctx) { 
+		return visitUnaryTripleExpr(ctx.unaryTripleExpr());
 	}
 
 	@Override 
-	public Object visitMultiElementGroup(ShExDocParser.MultiElementGroupContext ctx) { 
+	public EachOf visitMultiElementGroup(ShExDocParser.MultiElementGroupContext ctx) { 
 		List<TripleExpr> exprs = new ArrayList<TripleExpr>();
 		for(ParseTree child:ctx.children){
 			if (child instanceof ShExDocParser.UnaryTripleExprContext)
@@ -777,23 +779,24 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 
 	@Override 
-	public Object visitUnaryTripleExpr(ShExDocParser.UnaryTripleExprContext ctx) { 
+	public TripleExpr visitUnaryTripleExpr(ShExDocParser.UnaryTripleExprContext ctx) { 
 		TripleExpr result;
 		if (ctx.tripleConstraint()!=null) {
-			result = (TripleExpr) ctx.tripleConstraint().accept(this);
+			result = visitTripleConstraint(ctx.tripleConstraint()) ;
 		} else if (ctx.bracketedTripleExpr()!=null){
-			result = (TripleExpr) ctx.bracketedTripleExpr().accept(this);
+			result = visitBracketedTripleExpr(ctx.bracketedTripleExpr());
 		} else {
-			result = (TripleExpr) ctx.include().accept(this);
+			result = visitInclude(ctx.include());
 		}
 		if (ctx.tripleExprLabel() != null) {
-			result.setId((Label) ctx.tripleExprLabel().accept(this));
+			result.setId(visitTripleExprLabel(ctx.tripleExprLabel()));
 		}
 		return result; 
 	}
 
+	
 	@Override 
-	public Object visitBracketedTripleExpr(ShExDocParser.BracketedTripleExprContext ctx) {
+	public TripleExpr visitBracketedTripleExpr(ShExDocParser.BracketedTripleExprContext ctx) {
 		TripleExpr result = (TripleExpr) ctx.tripleExpression().accept(this);
 		
 		List<Annotation> annotations = null;
@@ -813,17 +816,17 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 	
 	@Override 
-	public Object visitStarCardinality(ShExDocParser.StarCardinalityContext ctx) { 
+	public Interval visitStarCardinality(ShExDocParser.StarCardinalityContext ctx) { 
 		return Interval.STAR; 
 	}
 
 	@Override 
-	public Object visitPlusCardinality(ShExDocParser.PlusCardinalityContext ctx) { 
+	public Interval visitPlusCardinality(ShExDocParser.PlusCardinalityContext ctx) { 
 		return Interval.PLUS; 
 	}
 	
 	@Override 
-	public Object visitOptionalCardinality(ShExDocParser.OptionalCardinalityContext ctx) { 
+	public Interval visitOptionalCardinality(ShExDocParser.OptionalCardinalityContext ctx) { 
 		return Interval.OPT; 
 	}
 	
@@ -843,7 +846,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 
 
 	@Override 
-	public Object visitTripleConstraint(ShExDocParser.TripleConstraintContext ctx) { 
+	public TripleExpr visitTripleConstraint(ShExDocParser.TripleConstraintContext ctx) { 
 		IRI predicate = (IRI) ctx.predicate().accept(this);
 		TCProperty tcp;
 		if (ctx.senseFlags()==null)
@@ -872,7 +875,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 	
 	@Override 
-	public Object visitInclude(ShExDocParser.IncludeContext ctx) { 
+	public TripleExprRef visitInclude(ShExDocParser.IncludeContext ctx) { 
 		return new TripleExprRef((Label) ctx.tripleExprLabel().accept(this)); 
 	}
 
@@ -932,13 +935,13 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return result;
 	}
 	
-	public Object visitPredicate(ShExDocParser.PredicateContext ctx) { 
+	public IRI visitPredicate(ShExDocParser.PredicateContext ctx) { 
 		if (ctx.iri() != null)
-			return ctx.iri().accept(this);
+			return visitIri(ctx.iri());
 		return rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"); 
 	}
 	
-	public Object visitAnnotation(ShExDocParser.AnnotationContext ctx) {
+	public Annotation visitAnnotation(ShExDocParser.AnnotationContext ctx) {
 		IRI predicate = (IRI) ctx.predicate().accept(this);
 		RDFTerm obj;
 		if (ctx.iri() != null)
@@ -949,7 +952,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 	
 	
-	public Object visitShapeExprLabel(ShExDocParser.ShapeExprLabelContext ctx) {
+	public Label visitShapeExprLabel(ShExDocParser.ShapeExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
 		if (result instanceof IRI) 
 			return new Label((IRI) result);
@@ -957,7 +960,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			return new Label((BlankNode) result);
 	}
 	
-	public Object visitTripleExprLabel(ShExDocParser.TripleExprLabelContext ctx) {
+	public Label visitTripleExprLabel(ShExDocParser.TripleExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
 		if (result instanceof IRI) 
 			return new Label((IRI) result);
@@ -965,7 +968,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 			return new Label((BlankNode) result);
 	}
 		
-	public Object visitIri(ShExDocParser.IriContext ctx) {
+	public IRI visitIri(ShExDocParser.IriContext ctx) {
 		TerminalNode iri = ctx.IRIREF();
 		if (iri != null) {
 			String iris = iri.getText();
@@ -974,11 +977,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 				return rdfFactory.createIRI(base+iris);
 			return rdfFactory.createIRI(iris);
 		}
-		return ctx.prefixedName().accept(this); 
+		return visitPrefixedName(ctx.prefixedName()); 
 	}
 	
 	@Override 
-	public Object visitPrefixedName(ShExDocParser.PrefixedNameContext ctx) {
+	public IRI visitPrefixedName(ShExDocParser.PrefixedNameContext ctx) {
 		if (ctx.PNAME_NS()!=null)
 			return rdfFactory.createIRI(prefixes.get(ctx.PNAME_NS().getText()));
 
@@ -1009,7 +1012,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return rdfFactory.createLiteral(ctx.DECIMAL().getText(),Types.XSD_DECIMAL);
 	}
 	@Override 
-	public Object visitRdfLiteral(@NotNull ShExDocParser.RdfLiteralContext ctx) {
+	public Literal visitRdfLiteral(@NotNull ShExDocParser.RdfLiteralContext ctx) {
 		String value = (String) ctx.string().accept(this);
 		if (ctx.datatype() != null)
 			return rdfFactory.createLiteral(value, (IRI) ctx.datatype().accept(this));
@@ -1019,7 +1022,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	}
 
 	@Override 
-	public Object visitBooleanLiteral(@NotNull ShExDocParser.BooleanLiteralContext ctx) {
+	public Literal visitBooleanLiteral(@NotNull ShExDocParser.BooleanLiteralContext ctx) {
 		if (ctx.KW_FALSE()!=null)
 			return rdfFactory.createLiteral("false",Types.XSD_BOOLEAN);
 		return rdfFactory.createLiteral("true",Types.XSD_BOOLEAN);
@@ -1027,7 +1030,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 
 	
 	@Override 
-	public Object visitString(ShExDocParser.StringContext ctx) { 
+	public String visitString(ShExDocParser.StringContext ctx) { 
 		String result = "";
 		
 		if (ctx.STRING_LITERAL1()!=null) {
@@ -1046,7 +1049,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return XPath.unescapeJavaString(result);
 	}
 	
-	public Object visitBlankNode(ShExDocParser.BlankNodeContext ctx) {
+	public BlankNode visitBlankNode(ShExDocParser.BlankNodeContext ctx) {
 		return rdfFactory.createBlankNode(ctx.BLANK_NODE_LABEL().getText().substring(2));
 	}
 }

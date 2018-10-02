@@ -150,7 +150,9 @@ public class ShExJParser implements Parser{
 		return imports;
 	}
 
-	
+	public Map<String,String> getPrefixes(){
+		return Collections.emptyMap();
+	}
 	
 	//-------------------------------------------
 	// Parsing shape

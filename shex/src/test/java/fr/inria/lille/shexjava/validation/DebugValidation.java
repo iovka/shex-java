@@ -45,8 +45,7 @@ public class DebugValidation {
 		Graph dataGraph = factory.asGraph(data);
 		
 		ValidationAlgorithmAbstract validation = new RefineValidation(schema, dataGraph);  
-		FailureAnalyzer fa = new FailureAnalyzerSimple();
-		validation.addFailureReportsCollector(fa);
+
 		//validate
 		validation.validate(null, null);
 	}

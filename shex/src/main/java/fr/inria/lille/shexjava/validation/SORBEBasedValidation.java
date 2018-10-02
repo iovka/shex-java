@@ -56,24 +56,29 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateAndValueMatcher(typing));
 		
-		Map<Triple, Label> matching = null;
+		LocalMatching result = null;
 		// Look for correct matching within the pre-matching
 		if (preMatching.getUnmatched().size()==0) {
 			BagIterator bagIt = new BagIterator(preMatching);
 			IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
-			while(matching==null && bagIt.hasNext()){
+			while(result==null && bagIt.hasNext()){
 				Bag bag = bagIt.next();
 				tripleExpression.accept(intervalComputation, bag, this);
 				if (intervalComputation.getResult().contains(1)) {
-					matching = bagIt.getCurrentBag();
+					Map<Triple, Label> matching = bagIt.getCurrentBag();
 					matching = matching.entrySet().stream()
 							.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalNonsorbeVersion(x.getValue())));
+					result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
+					notifyMatchingFound(node, shape.getId(), result);
 				}
 			}
 		}		
 
-		LocalMatching result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
-		notifyMatchingFound(node, shape.getId(), result);
+		if (result == null) {
+			result = new LocalMatching(null, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
+			notifyMatchingFound(node, shape.getId(), null);
+		}
+		
 		return result;
 	}
 	

@@ -36,7 +36,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	protected Graph graph;
 	protected ShexSchema schema;
 	
-	protected Set<FailureAnalyzer> frcs;
 	
 	protected DynamicCollectorOfTripleConstraints collectorTC;
 	
@@ -49,7 +48,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		resetTyping();
 	
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();
-		this.frcs = new HashSet<>();
 		this.matchingObservers = new HashSet<>();
 	}	
 	
@@ -85,32 +83,7 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		matchingObservers.remove(o);
 	}
 
-	// ---------------------------------------------------------------------------------
-	// Failure report related
-	// ---------------------------------------------------------------------------------	
 	
-	
-	
-	/** Add a failure reports collector.
-	 * 
-	 */
-	public void addFailureReportsCollector(FailureAnalyzer frc) {
-		frcs.add(frc);
-	}
-	
-	/** remove a failure reports collector.
-	 * 
-	 */
-	public void removeFailureReportsCollector(FailureAnalyzer frc){
-		frcs.remove(frc);
-	}
-	
-	/** Get the set of the current failure reports collectors.
-	 * 
-	 */
-	public Set<FailureAnalyzer> getFailureReportsCollector() {
-		return frcs;
-	}
 	
 	
 }
