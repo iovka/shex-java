@@ -55,18 +55,14 @@ public class NodeConstraint extends ShapeExpr implements AnnotedObject{
 	}
 	
 	@Override
-	public String toString() {
-		return "NodeConstraint : "+constraints;
+	public String toPrettyString(Map<String,String> prefixes) {
+		String result = "";
+		for (Constraint cst:constraints)
+			result+=" "+cst.toPrettyString(prefixes);
+		return result;
 	}
 
-	@Override
-	public String toPrettyString(Map<String,String> prefixes) {
-		String result = "[";
-		for (Constraint cst:constraints)
-			result+=" "+cst.toPrettyString();
-		result +=" ];";
-		return " "+result;
-	}
+	
 	
 	public List<Annotation> getAnnotations() {
 		return annotations;

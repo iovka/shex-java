@@ -182,13 +182,13 @@ public class ShExJSerializer {
 		
 		List<Constraint> constraints = shape.getConstraints();
 		for (Constraint constraint:constraints) {
-			if (constraint.equals(NodeKindConstraint.Blank))
+			if (constraint.equals(NodeKindConstraint.BNodeKind))
 				result.put("nodeKind", "bnode");
-			if (constraint.equals(NodeKindConstraint.AllIRI))
+			if (constraint.equals(NodeKindConstraint.IRIKind))
 				result.put("nodeKind", "iri");
-			if (constraint.equals(NodeKindConstraint.AllLiteral))
+			if (constraint.equals(NodeKindConstraint.LiteralKind))
 				result.put("nodeKind", "literal");
-			if (constraint.equals(NodeKindConstraint.AllNonLiteral))
+			if (constraint.equals(NodeKindConstraint.NonLiteralKind))
 				result.put("nodeKind", "nonliteral");
 			if (constraint instanceof DatatypeConstraint)
 				result.put("datatype",((DatatypeConstraint) constraint).getDatatypeIri().getIRIString());

@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.apache.commons.rdf.simple.SimpleRDF;
 import org.apache.commons.rdf.simple.Types ;
 
 import fr.inria.lille.shexjava.util.DatatypeUtil;
+import fr.inria.lille.shexjava.util.RDFPrintUtils;
 
 
 
@@ -89,18 +91,19 @@ public class DatatypeConstraint implements Constraint {
 	
 	@Override
 	public String toString() {
-		return "Datatype="+datatypeIri.ntriplesString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return RDFPrintUtils.toPrettyString(datatypeIri,prefixes);
 	}
+
 	
 	/** Equals if contains obj contains the same constraint.
 	 * @see java.lang.Object#equals(java.lang.Object)

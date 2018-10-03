@@ -16,7 +16,12 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.apache.commons.rdf.api.IRI;
+
+import fr.inria.lille.shexjava.util.RDFPrintUtils;
 
 /** Represents a property with an orientation which is forward or backward.
  * 
@@ -70,7 +75,15 @@ public class TCProperty{
 	
 	@Override
 	public String toString() {
-		return (isFwd ? "" : "^") + iri; 
+		return toPrettyString(Collections.emptyMap());
+	}
+	
+	public String toPrettyString() {
+		return toPrettyString(Collections.emptyMap());
+	}
+	
+	public String toPrettyString(Map<String,String> prefixes) {
+		return (isFwd ? "" : "^") + RDFPrintUtils.toPrettyString(iri, prefixes); 
 	}
 
 	@Override

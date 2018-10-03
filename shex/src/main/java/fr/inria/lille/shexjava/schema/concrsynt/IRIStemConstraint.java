@@ -16,10 +16,14 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
+
+import fr.inria.lille.shexjava.GlobalFactory;
+import fr.inria.lille.shexjava.util.RDFPrintUtils;
 
 /**
  * @author Jérémie Dusart
@@ -41,18 +45,19 @@ public class IRIStemConstraint implements Constraint {
 		return inode.getIRIString().startsWith(iriStem);
 	}
 
+	@Override
 	public String toString() {
-		return "IRIstem="+iriStem;
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return RDFPrintUtils.toPrettyString(GlobalFactory.RDFFactory.createIRI(iriStem),prefixes)+"~";
 	}
 
 	public String getIriStem() {

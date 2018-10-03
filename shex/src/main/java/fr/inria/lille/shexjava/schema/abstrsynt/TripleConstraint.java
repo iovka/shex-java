@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.List;
+import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
@@ -71,28 +72,15 @@ public class TripleConstraint extends TripleExpr implements AnnotedObject {
 		return new TripleConstraint(this.property, this.shapeExpr);
 	}
 	
-
 	@Override
-	public String toString() {
-		String result ="";
-		if (id!=null)
-			result += getId().toString()+"=";
-		result += String.format("%s :: %s",property.toString(),shapeExpr.toString());
-		if (this.annotations!=null && this.annotations.size()>0)
-			result +=CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		return result;
-	}
-	
-	@Override
-	public String toPrettyString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		String result ="";
 		if (id!=null && !id.isGenerated())
 			result += getId().toString()+"=";
-		result += String.format("%s %s",property.toString(),shapeExpr.toPrettyString());
+		result += String.format("%s %s",property.toPrettyString(prefixes),shapeExpr.toPrettyString(prefixes));
 		if (this.annotations!=null && this.annotations.size()>0)
 			result +=CollectionToString.collectionToString(annotations," ; ","// [", "]");
 		return result;
 	}
-
 }
 

@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.Literal;
@@ -46,18 +47,19 @@ public class LanguageStemConstraint implements Constraint {
 		return lang.startsWith(langStem);
 	}
 	
+	@Override
 	public String toString() {
-		return "Langstem="+langStem;
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return "@"+langStem+"~";
 	}
 
 	public String getLangStem() {

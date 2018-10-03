@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.concrsynt;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.Literal;
@@ -125,23 +126,23 @@ public class FacetNumericConstraint implements Constraint {
 	
 	@Override
 	public String toString() {
-		String mini = minincl == null ? "" : " minincl: " + minincl.toString();
-		String maxi = maxincl == null ? "" : " maxincl: " + maxincl.toString();
-		String mine = minexcl == null ? "" : " minexcl: " + minexcl.toString();
-		String maxe = maxexcl == null ? "" : " maxexcl: " + maxexcl.toString();
-		String tot  = totalDigits == null ? "" : " totaldigits: " + totalDigits.toString();
-		String frac = fractionDigits == null ? "" : "fracdigits: " + fractionDigits.toString();
-		return mini + maxi + mine + maxe + tot + frac;
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		String mini = minincl == null        ? "" : " MININCLUSIVE " + minincl;
+		String maxi = maxincl == null        ? "" : " MAXINCLUSIVE " + maxincl;
+		String mine = minexcl == null        ? "" : " MINEXCLUSIVE " + minexcl;
+		String maxe = maxexcl == null        ? "" : " MAXEXCLUSIVE " + maxexcl;
+		String tot  = totalDigits == null    ? "" : " TOTALDIGITS " + totalDigits;
+		String frac = fractionDigits == null ? "" : " FRACTIONDIGITS " + fractionDigits;
+		return mini + maxi + mine + maxe + tot + frac;
 	}
 	
 	/** Equals if obj has the same constraints.

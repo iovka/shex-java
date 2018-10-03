@@ -36,13 +36,8 @@ public class ShapeOr extends AbstractNaryShapeExpr{
 	}
 	
 	@Override
-	public String toString() {
-		return CollectionToString.collectionToString(getSubExpressions(), " OR ", "(", ")");
-	}
-	
-	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return CollectionToString.collectionToString(getSubExpressions(), " OR ", "(", ")");
 	}
 
 	@Override

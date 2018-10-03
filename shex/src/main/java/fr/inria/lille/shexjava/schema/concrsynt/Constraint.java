@@ -28,7 +28,6 @@ import org.apache.commons.rdf.api.RDFTerm;
  */
 public interface Constraint {
 	public boolean contains (RDFTerm node);
-	
 	public String toPrettyString();
 	public String toPrettyString(Map<String,String> prefixes);
 }

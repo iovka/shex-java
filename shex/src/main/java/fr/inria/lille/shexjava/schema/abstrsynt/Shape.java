@@ -85,20 +85,15 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShape(this, arguments);
 	}
-
+	
 	@Override
-	public String toString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		String closedstr = isClosed() ? "CLOSED" : "";
 		String extraP = extra.isEmpty() ? "" : "EXTRA" + extra.toString();
 		String annot = "";
 		if (this.annotations!=null && this.annotations.isEmpty())
 			annot =CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		return String.format("(%s %s %s %s)", closedstr, extraP, tripleExpr,annot);
-	}
-	
-	@Override
-	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return String.format("(%s %s %s %s)", closedstr, extraP, tripleExpr,annot);	
 	}
 
 	

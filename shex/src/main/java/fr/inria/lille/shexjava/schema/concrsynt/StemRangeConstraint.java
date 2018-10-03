@@ -16,9 +16,12 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.RDFTerm;
+
+import fr.inria.lille.shexjava.util.RDFPrintUtils;
 
 /**
  * @author Jérémie Dusart
@@ -54,13 +57,23 @@ public abstract class StemRangeConstraint implements Constraint {
 	}
 	
 	@Override
+	public String toString() {
+		return toPrettyString(Collections.emptyMap());
+	}
+	
+	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		String exclusionsString = "";
+		for (RDFTerm value:exclusions.getExplicitValues())
+			exclusionsString += "-"+RDFPrintUtils.toPrettyString(value, prefixes)+" ";
+		for (Constraint cst:exclusions.getConstraintsValue())
+			exclusionsString += "-"+cst.toPrettyString(prefixes)+" ";
+		return "[ "+stem.toPrettyString(prefixes)+" "+exclusionsString+" ]";
 	}
 	
 	

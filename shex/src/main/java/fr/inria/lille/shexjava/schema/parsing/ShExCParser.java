@@ -466,7 +466,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public NodeConstraint visitNodeConstraintLiteral(ShExDocParser.NodeConstraintLiteralContext ctx) {
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
-		constraints.add(NodeKindConstraint.AllLiteral);
+		constraints.add(NodeKindConstraint.LiteralKind);
 		for (XsFacetContext facet : ctx.xsFacet()) {
 			constraints.add((Constraint) facet.accept(this));
 		}
@@ -534,11 +534,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 	@Override 
 	public NodeKindConstraint visitNonLiteralKind(ShExDocParser.NonLiteralKindContext ctx) {
 		if (ctx.KW_NONLITERAL()!=null)
-			return NodeKindConstraint.AllNonLiteral;
+			return NodeKindConstraint.NonLiteralKind;
 		else if (ctx.KW_BNODE()!=null)
-			return NodeKindConstraint.Blank;
+			return NodeKindConstraint.BNodeKind;
 		else 
-			return NodeKindConstraint.AllIRI;
+			return NodeKindConstraint.IRIKind;
 	}
 	
 	@Override 

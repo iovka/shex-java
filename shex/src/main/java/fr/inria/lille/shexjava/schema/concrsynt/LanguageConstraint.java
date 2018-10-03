@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.Literal;
@@ -51,18 +52,18 @@ public class LanguageConstraint implements Constraint {
 	}
 	
 	@Override
-	public String toString(){
-		return "LangTag="+langTag;
+	public String toString() {
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return "@"+langTag;
 	}
 
 	/** Equals if obj has the same langTag.

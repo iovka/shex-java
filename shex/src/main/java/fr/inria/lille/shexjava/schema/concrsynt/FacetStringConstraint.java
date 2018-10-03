@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.BlankNode;
@@ -86,21 +87,21 @@ public class FacetStringConstraint implements Constraint {
 	
 	@Override
 	public String toString() {
-		String len = length == null ? ""    :  " length: " + length.toString();
-		String min = minlength == null ? "" :  " minlength: " + minlength.toString();
-		String max = maxlength == null ? "" :  " maxlength: " + maxlength.toString();
-		String pat = patternString == null ? ""   :  " pattern: " + patternString.toString();
-		return len + min + max + pat;
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
-
+	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		String len = length == null        ? "" : " LENGTH "+length.toString();
+		String min = minlength == null     ? "" : " MINLENGTH "+minlength.toString();
+		String max = maxlength == null     ? "" : " MAXLENGTH "+maxlength.toString();
+		String pat = patternString == null ? "" : " "+patternString.toString();
+		return len + min + max + pat;
 	}
 	
 	/** Equals if obj has the same constraints.

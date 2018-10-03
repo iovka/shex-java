@@ -36,13 +36,8 @@ public class ShapeAnd extends AbstractNaryShapeExpr{
 	}
 	
 	@Override
-	public String toString() {
-		return CollectionToString.collectionToString(getSubExpressions(), " AND ", "(", ")");
-	}
-	
-	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return CollectionToString.collectionToString(getSubExpressions(), " AND ", "(", ")");
 	}
 
 	@Override

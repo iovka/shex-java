@@ -290,10 +290,10 @@ public class ShExJParser implements Parser{
 		String nodeKind = (String) (map.get("nodeKind"));
 		if (nodeKind != null)
 			switch (nodeKind) {
-			case "iri"  : constraints.add(NodeKindConstraint.AllIRI); break;
-			case "bnode": constraints.add(NodeKindConstraint.Blank); break;
-			case "literal": constraints.add(NodeKindConstraint.AllLiteral); break;
-			case "nonliteral": constraints.add(NodeKindConstraint.AllNonLiteral); break;
+			case "iri"  : constraints.add(NodeKindConstraint.IRIKind); break;
+			case "bnode": constraints.add(NodeKindConstraint.BNodeKind); break;
+			case "literal": constraints.add(NodeKindConstraint.LiteralKind); break;
+			case "nonliteral": constraints.add(NodeKindConstraint.NonLiteralKind); break;
 			}
 
 		String datatype = (String) (map.get("datatype"));

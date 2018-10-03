@@ -22,6 +22,8 @@ import java.util.Map;
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.IRI;
 
+import fr.inria.lille.shexjava.util.RDFPrintUtils;
+
 /** Label class for shex schema. A label is either an IRI or a BlankNode. This class is used to label triple expression and shape expression. 
  * 
  * @author Iovka Boneva
@@ -117,8 +119,7 @@ public class Label {
 	
 	@Override
 	public String toString() {
-		if (iri != null) return "IRI:"+iri.toString();
-		else return "BNODE:"+bnode.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	public String toPrettyString() {
@@ -126,13 +127,9 @@ public class Label {
 	}
 	
 	public String toPrettyString(Map<String,String> prefixes) {
-		if (iri != null) {
-			for (String prefix:prefixes.keySet()) {
-				if (iri.getIRIString().startsWith(prefixes.get(prefix)))
-					return prefix+(iri.getIRIString().substring(prefixes.get(prefix).length()));
-			}
-			return iri.ntriplesString();
-		}
-		else return bnode.ntriplesString();
+		if (iri != null) 
+			return RDFPrintUtils.toPrettyString(iri, prefixes);
+		else 
+			return RDFPrintUtils.toPrettyString(bnode, prefixes);
 	}
 }

@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.List;
+import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
@@ -50,23 +51,12 @@ public class EachOf extends AbstractNaryTripleExpr implements AnnotedObject{
 	}
 	
 	@Override
-	public String toString() {
-		String result ="";
-		if (id!=null)
-			result += getId().toString()+"=";
-		result += CollectionToString.collectionToString(getSubExpressions(), " && ", "EachOf(", ")");;
-		if (this.annotations!=null && this.annotations.size()>0)
-			result +=CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		return result;
-	}
-
-	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitEachOf(this, arguments);
 	}
 	
 	@Override
-	public String toPrettyString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		String result ="";
 		if (id!=null && !id.isGenerated())
 			result += getId().toString()+"=";

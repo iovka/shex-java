@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.BlankNode;
@@ -31,7 +32,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  */
 public class NodeKindConstraint implements Constraint {
 	
-	public static final NodeKindConstraint Blank = new NodeKindConstraint(){
+	public static final NodeKindConstraint BNodeKind = new NodeKindConstraint(){
 
 		@Override
 		public boolean contains(RDFTerm node) {
@@ -40,21 +41,21 @@ public class NodeKindConstraint implements Constraint {
 		
 		@Override
 		public String toString() {
-			return "BLANK";
-		}		
+			return toPrettyString(Collections.emptyMap());
+		}
 		
 		@Override
 		public String toPrettyString() {
-			return this.toString();
+			return toPrettyString(Collections.emptyMap());
 		}
 		
 		@Override
 		public String toPrettyString(Map<String,String> prefixes) {
-			return this.toString();
+			return "BNODE";
 		}
 	};
 	
-	public static final NodeKindConstraint AllIRI = new NodeKindConstraint() {
+	public static final NodeKindConstraint IRIKind = new NodeKindConstraint() {
 
 		@Override
 		public boolean contains(RDFTerm node) {
@@ -63,62 +64,63 @@ public class NodeKindConstraint implements Constraint {
 		
 		@Override
 		public String toString() {
-			return "ALL_IRI";
-		};
+			return toPrettyString(Collections.emptyMap());
+		}
 		
 		@Override
 		public String toPrettyString() {
-			return this.toString();
+			return toPrettyString(Collections.emptyMap());
 		}
 		
 		@Override
 		public String toPrettyString(Map<String,String> prefixes) {
-			return this.toString();
-		}
-				
+			return "IRI";
+		}		
 	};
 
-	public static final NodeKindConstraint AllLiteral = new NodeKindConstraint() {
+	public static final NodeKindConstraint LiteralKind = new NodeKindConstraint() {
 		
 		@Override
 		public boolean contains(RDFTerm node) {
 			return node instanceof Literal;
 		}
 		
+		@Override
 		public String toString() {
-			return "ALL_LITERALS";
+			return toPrettyString(Collections.emptyMap());
 		}
 		
 		@Override
 		public String toPrettyString() {
-			return this.toString();
+			return toPrettyString(Collections.emptyMap());
 		}
 		
 		@Override
 		public String toPrettyString(Map<String,String> prefixes) {
-			return this.toString();
+			return "LITERAL";
 		}
 	};
 	
-	public static final NodeKindConstraint AllNonLiteral = new NodeKindConstraint() {
+	public static final NodeKindConstraint NonLiteralKind = new NodeKindConstraint() {
 		
 		@Override
 		public boolean contains(RDFTerm node) {
 			return !(node instanceof Literal);
 		}
 		
+		@Override
 		public String toString() {
-			return "ALL_NON_LITERALS";
+			return toPrettyString(Collections.emptyMap());
 		}
 		
 		@Override
 		public String toPrettyString() {
-			return this.toString();
+			return toPrettyString(Collections.emptyMap());
 		}
 		
 		@Override
 		public String toPrettyString(Map<String,String> prefixes) {
-			return this.toString();
+			return "NONLITERAL";
 		}
 	};
 
@@ -130,13 +132,17 @@ public class NodeKindConstraint implements Constraint {
 	}	
 	
 	@Override
+	public String toString() {
+		return toPrettyString(Collections.emptyMap());
+	}
+	
+	@Override
 	public String toPrettyString() {
-		return this.toString();
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
-	}
-	
+		return null;
+	}	
 }

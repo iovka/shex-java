@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import java.util.Map;
+
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.Interval;
 
@@ -30,8 +32,6 @@ public class RepeatedTripleExpression extends TripleExpr {
 	private Interval card;
 	
 	public RepeatedTripleExpression (TripleExpr subExpr, Interval card) {
-		//if ((card.min ==0) && (card.max==0))
-		//	throw new IllegalStateException("Current implementation do not support 0-0 repetition. To forbid a triple constraint, you can use ShapeNot aand ShapeAnd.");
 		this.subExpr = subExpr;
 		this.card = card;
 	}
@@ -43,20 +43,15 @@ public class RepeatedTripleExpression extends TripleExpr {
 	public Interval getCardinality () {
 		return this.card;
 	}
-	
+		
 	@Override
-	public String toString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		String format;
 		if (subExpr instanceof AbstractNaryTripleExpr) 
 			format = "(%s)%s";
 		else
 			format = "%s%s";
 		return String.format(format, subExpr.toPrettyString(), card.toString());
-	}
-	
-	@Override
-	public String toPrettyString() {
-		return this.toString();
 	}
 
 	@Override

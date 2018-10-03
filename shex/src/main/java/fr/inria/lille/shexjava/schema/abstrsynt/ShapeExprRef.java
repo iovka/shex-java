@@ -53,14 +53,9 @@ public class ShapeExprRef extends ShapeExpr {
 	public ShapeExpr getShapeDefinition () {
 		return this.def;
 	}
-		
-	@Override
-	public String toString() {
-		return "@"+label.toString();
-	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return "@"+label.toPrettyString();
+		return "@"+label.toPrettyString(prefixes);
 	}
 }

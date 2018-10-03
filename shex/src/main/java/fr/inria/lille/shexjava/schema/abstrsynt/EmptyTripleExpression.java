@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import java.util.Map;
+
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 
 /**
@@ -25,20 +27,14 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
  */
 public class EmptyTripleExpression extends TripleExpr {
 
-	
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitEmpty(this, arguments);
 	}
 	
 	@Override
-	public String toString() {
+	public String toPrettyString(Map<String,String> prefixes) {
 		return "EMPTY";
-	}
-	
-	@Override
-	public String toPrettyString() {
-		return this.toString();
 	}
 	
 }

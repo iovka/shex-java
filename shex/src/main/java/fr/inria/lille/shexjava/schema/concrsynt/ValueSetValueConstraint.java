@@ -16,10 +16,13 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.concrsynt;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.RDFTerm;
+
+import fr.inria.lille.shexjava.util.RDFPrintUtils;
 
 /**
  * @author Jérémie Dusart
@@ -56,25 +59,25 @@ public class ValueSetValueConstraint implements Constraint {
 	
 	@Override
 	public String toString() {
-		return "values:"+explicitValues+ " U "+constraintsValue;
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString() {
-		String result = "";
-		if (explicitValues.size()>0)
-			result += " values:"+explicitValues+" ";
-		if (constraintsValue.size()>0) {
-			if (!result.equals(""))
-				result+="U";
-			result += " constraints:"+constraintsValue+" ";
-		}
-		return result;
+		return toPrettyString(Collections.emptyMap());
 	}
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		String result = "[";
+		for (RDFTerm value:explicitValues)
+			result += " "+RDFPrintUtils.toPrettyString(value, prefixes);
+		for (Constraint cons: constraintsValue) {
+			result += " "+cons.toPrettyString(prefixes);
+		}
+		result += "]";
+		return result;
 	}
+	
 	
 }

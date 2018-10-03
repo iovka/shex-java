@@ -531,13 +531,13 @@ public class ShExRParser implements Parser {
 		
 		RDFTerm val = (RDFTerm) getObjects(value, NODEKIND).get(0);
 		if (val.equals(BNODE))
-			return NodeKindConstraint.Blank;
+			return NodeKindConstraint.BNodeKind;
 		if (val.equals(IRI))
-			return NodeKindConstraint.AllIRI;
+			return NodeKindConstraint.IRIKind;
 		if (val.equals(LITERAL))
-			return NodeKindConstraint.AllLiteral;
+			return NodeKindConstraint.LiteralKind;
 		if (val.equals(NONLITERAL))
-			return NodeKindConstraint.AllNonLiteral;
+			return NodeKindConstraint.NonLiteralKind;
 		System.err.println("Unknown nodekind: "+val);
 		return null;
 	}

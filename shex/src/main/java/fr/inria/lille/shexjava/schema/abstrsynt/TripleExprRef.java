@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import java.util.Map;
+
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 
@@ -27,17 +29,14 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 public class TripleExprRef extends TripleExpr {
 	private Label label;
 	private TripleExpr tripleExp;
-	
-	
+		
 	public TripleExprRef(Label label) {
 		this.label = label;
-	}
-	
+	}	
 	
 	public TripleExpr getTripleExp() {
 		return tripleExp;
 	}
-
 
 	public void setTripleDefinition(TripleExpr def) {
 		if (this.tripleExp != null)
@@ -45,25 +44,17 @@ public class TripleExprRef extends TripleExpr {
 		this.tripleExp = def;
 	}
 
-
 	public Label getLabel() {
 		return label;
 	}
 
-
 	@Override
 	public <ResultType> void accept(TripleExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitTripleExprReference(this, arguments);
-	}
-	
-	
-	@Override
-	public String toString() {
-		return "@"+label;
-	}
+	}	
 	
 	@Override
-	public String toPrettyString() {
-		return "@"+label.toPrettyString();
+	public String toPrettyString(Map<String,String> prefixes) {
+		return "@"+label.toPrettyString(prefixes);
 	}
 }

@@ -43,6 +43,11 @@ public abstract class ShapeExpr{
 	
 	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
 	
+	@Override
+	public String toString() {
+		return toPrettyString(Collections.emptyMap());
+	}
+	
 	public String toPrettyString() {
 		return toPrettyString(Collections.emptyMap());
 	}

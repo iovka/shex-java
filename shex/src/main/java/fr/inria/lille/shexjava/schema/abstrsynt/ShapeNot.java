@@ -43,15 +43,9 @@ public class ShapeNot extends ShapeExpr {
 		visitor.visitShapeNot(this, arguments);
 	}
 	
-
-	@Override
-	public String toString() {
-		return "(NOT "+subExpression+")";
-	}
-	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		return this.toString();
+		return "(NOT "+subExpression+")";
 	}
 	
 }
