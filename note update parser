@@ -1,0 +1,65 @@
+Diff negation -> KW_NOT
+importDecl      : KW_IMPORT iri ; --> importDecl      : KW_IMPORT IRIREF ;
+
+OLD
+inlineShapeDefinition : qualifier* '{' tripleExpression? '}' ;
+shapeDefinition : qualifier* '{' tripleExpression? '}' annotation* semanticActions ;
+NEW
+shapeDefinition : inlineShapeDefinition annotation* semanticAction* ;
+inlineShapeDefinition : qualifier* '{' tripleExpression? '}' ;
+
+
+OLD
+inlineShapeAtom : nodeConstraint inlineShapeOrRef? # inlineShapeAtomNodeConstraint
+				| inlineShapeOrRef nodeConstraint? # inlineShapeAtomShapeOrRef
+NEW
+inlineShapeAtom : inlineNonLitNodeConstraint inlineShapeOrRef? # inlineShapeAtomNonLitNodeConstraint
+                | inlineLitNodeConstraint             # inlineShapeAtomLitNodeConstraint
+				| inlineShapeOrRef inlineNonLitNodeConstraint? # inlineShapeAtomShapeOrRef
+
+
+OLD
+shapeAtom		: nodeConstraint shapeOrRef?    # shapeAtomNodeConstraint
+				| shapeOrRef                    # shapeAtomShapeOrRef
+				;
+NEW		
+shapeAtom		: nonLitNodeConstraint shapeOrRef?    # shapeAtomNonLitNodeConstraint
+                | litNodeConstraint             # shapeAtomLitNodeConstraint
+				| shapeOrRef nonLitNodeConstraint?    # shapeAtomShapeOrRef
+				;
+
+
+OLD
+nodeConstraint  : KW_LITERAL xsFacet*			# nodeConstraintLiteral
+				| nonLiteralKind stringFacet*	# nodeConstraintNonLiteral
+				| datatype xsFacet*				# nodeConstraintDatatype
+				| valueSet xsFacet*				# nodeConstraintValueSet
+				| xsFacet+						# nodeConstraintFacet
+				;
+xsFacet			: stringFacet
+				| numericFacet;
+NEW
+inlineLitNodeConstraint : KW_LITERAL xsFacet*	# nodeConstraintLiteral
+				| nonLiteralKind stringFacet*	# nodeConstraintNonLiteral
+				| datatype xsFacet*				# nodeConstraintDatatype
+				| valueSet xsFacet*				# nodeConstraintValueSet
+				| numericFacet+					# nodeConstraintNumericFacet
+				;
+litNodeConstraint : inlineLitNodeConstraint  annotation* semanticAction* ;
+inlineNonLitNodeConstraint  : nonLiteralKind stringFacet*	# litNodeConstraintLiteral
+                | stringFacet+                  # litNodeConstraintStringFacet
+				;
+nonLitNodeConstraint : inlineNonLitNodeConstraint  annotation* semanticAction* ;
+
+OLD
+numericFacet	: numericRange ( numericLiteral | string '^^' datatype )
+				| numericLength INTEGER
+				
+numericFacet	: numericRange rawNumeric
+				| numericLength INTEGER
+
+
+inlineShapeDefinition : qualifier* '{' tripleExpression? '}' ;
+
+duplicate numericliteral
+
