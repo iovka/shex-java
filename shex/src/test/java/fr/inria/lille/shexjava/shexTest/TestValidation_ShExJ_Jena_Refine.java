@@ -101,7 +101,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	String selectedTest = "";
+	    	String selectedTest = "1NOTNOTIRI_passIo1";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
@@ -150,8 +150,9 @@ public class TestValidation_ShExJ_Jena_Refine {
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     			return;
     		}
-    		    		
+    		    System.out.println(testCase);	
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		System.out.println(schema);
     		Graph dataGraph = getRDFGraph();
     		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
 	    	

@@ -143,6 +143,7 @@ public class RefineValidation extends SORBEBasedValidation {
 				}
 			} while (changed);
 		}
+		System.out.println(typing.getStatusMap());
 		computed = true;
 	}
 

@@ -111,6 +111,7 @@ public class TestNegativeStruct {
 	
     @Test
     public void runTest() {
+    	System.out.println("-----------"+testName+"-------------");
 		ShexSchema schema = null;
 		try {
 			schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible

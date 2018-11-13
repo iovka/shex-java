@@ -25,8 +25,10 @@ import java.util.Set;
 
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
+import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -258,7 +260,7 @@ public class ShexSchema {
 	
 	private void computeStratification () throws NotStratifiedException {
 		//Starting to check and compute stratification
-		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.computeDependencesGraph();
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.refineDependencesGraphWithShapeOnly();	
 		
 		// Compute strongly connected components
 		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
@@ -630,7 +632,7 @@ public class ShexSchema {
 	}
 
 	
-	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> computeDependencesGraph () {
+	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> computeDependencesGraphAllShapeExpr () {
 		// Visit the schema to collect the references
 		CollectGraphDependencyFromShape collector = new CollectGraphDependencyFromShape();
 		for (ShapeExpr expr: shexprsMap.values()) {
@@ -651,5 +653,54 @@ public class ShexSchema {
 			builder.addEdge(edge.one, edge.two,weight);
 		}
 		return builder.build();
-	}}
+	}
+	
+	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> refineDependencesGraphWithShapeOnly () {
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graphAllShapeExpr = this.computeDependencesGraphAllShapeExpr();
+				
+		// build the graph
+		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
+		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
+		// Init the vertex set withh the shape only
+		HashSet<Label> vertexSet = new HashSet<>();
+		for (Label label : this.shexprsMap.keySet()) {
+			if (this.shexprsMap.get(label) instanceof Shape) {
+				builder.addVertex(label);
+				vertexSet.add(label);
+			}
+		}
+		// enumerate the path and search for a simple path with a neg dependencies
+		AllDirectedPaths enumeratorPath = new AllDirectedPaths(graphAllShapeExpr);
+		for (Label source:vertexSet) {
+			for (Label target:vertexSet) {
+				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, null);
+				if (paths.size()>0) {
+					boolean isNeg = false;
+					for (GraphPath<Label,DefaultWeightedEdge> path:paths) {
+						if (path.getEdgeList().size()==0) {
+							if (graphAllShapeExpr.getEdge(source,target)!=null)
+								isNeg = graphAllShapeExpr.getEdgeWeight(graphAllShapeExpr.getEdge(source,target))<0;
+						} else {
+							int sum = 0;
+							for (DefaultWeightedEdge edge:path.getEdgeList())
+								if ( graphAllShapeExpr.getEdgeWeight(edge)<0) 
+									sum++;
+							if (sum%2==1)
+								isNeg=true;
+						}
+					}
+					if (isNeg)
+						builder.addEdge(source, target, -1);
+					else
+						builder.addEdge(source, target, 1);
+				}
+			}
+
+		}
+
+
+
+		return builder.build();
+	}
+}
 

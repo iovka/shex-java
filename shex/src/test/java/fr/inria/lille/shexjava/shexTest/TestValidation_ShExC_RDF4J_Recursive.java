@@ -96,7 +96,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 			List<Object[]> parameters = new ArrayList<Object[]>();
-			String selectedTest = "";
+			String selectedTest = "1NOTNOTIRI_passIo1";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
