@@ -17,7 +17,6 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
-import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
 
 /** Implements the Refinement validation algorithm.
@@ -58,18 +56,12 @@ import fr.inria.lille.shexjava.util.Pair;
  *
  */
 public class RefineValidation extends SORBEBasedValidation {
-	private Set<RDFTerm> allGraphNodes;
 	private boolean computed = false;
 	private TypingForValidation typing;
 
-	public RefineValidation(ShexSchema schema, Graph graph) {
-		this(schema, graph, Collections.emptySet());
-	}
-	
-	public RefineValidation(ShexSchema schema, Graph graph, Set<Label> extraShapes) {
-		super(schema,graph);
-		this.allGraphNodes = CommonGraph.getAllNodes(graph);
 
+	public RefineValidation(ShexSchema schema, Graph graph) {
+		super(schema,graph);
 	}
 
 	@Override
@@ -89,17 +81,15 @@ public class RefineValidation extends SORBEBasedValidation {
 	 */
 	@Override
 	public boolean validate (RDFTerm focusNode, Label label) {
-		if (focusNode != null && ! allGraphNodes.contains(focusNode)) {
-			throw new IllegalArgumentException("Node do not belong to the graph...");
-		}
-		
-		computeMaximalTyping(focusNode);
-	
 		if (focusNode==null || label==null)
-			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");;
+			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
+//		if (focusNode != null && ! allGraphNodes.contains(focusNode))
+//			throw new IllegalArgumentException("Node do not belong to the graph.");
 		
+		computeMaximalTyping(focusNode);
+
 		return typing.isConformant(focusNode, label);
 	}
 

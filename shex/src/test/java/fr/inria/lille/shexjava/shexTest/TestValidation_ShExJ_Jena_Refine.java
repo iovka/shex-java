@@ -239,16 +239,16 @@ public class TestValidation_ShExJ_Jena_Refine {
 		Graph result = (new JenaRDF()).asGraph(model);
 		if (!result.contains(null, null, testCase.focusNode)) {
 			if (!(testCase.focusNode instanceof BlankNodeOrIRI) || !result.contains((BlankNodeOrIRI) testCase.focusNode,null, null)) {
-			result.add(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
-					GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),
-					testCase.focusNode);
-			Iterator<? extends Triple> iter = result.stream(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
-					GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),null).iterator();
-			while (iter.hasNext())
-				testCase.focusNode = iter.next().getObject();
+				result.add(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
+						GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),
+						testCase.focusNode);
+				Iterator<? extends Triple> iter = result.stream(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
+						GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),null).iterator();
+				while (iter.hasNext())
+					testCase.focusNode = iter.next().getObject();
+			}
 		}
-		}
-		
+
 		return result;
 	}
 	

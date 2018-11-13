@@ -25,6 +25,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.util.CommonGraph;
 
 /** An implementation of {@link ValidationAlgorithm} that offers some common utilities.
  * 
@@ -34,6 +35,7 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm {
 	
 	protected Graph graph;
+	protected Set<RDFTerm> allGraphNodes;
 	protected ShexSchema schema;
 	
 	
@@ -45,6 +47,7 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph) {
 		this.graph = graph;
 		this.schema = schema;
+		this.allGraphNodes = CommonGraph.getAllNodes(graph);
 		resetTyping();
 	
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();

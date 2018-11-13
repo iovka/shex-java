@@ -80,15 +80,18 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label) {
-		if (label == null || !schema.getShapeExprsMap().containsKey(label))
+		if (focusNode==null || label==null)
+			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
+		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
+//		if (focusNode != null && ! allGraphNodes.contains(focusNode))
+//			throw new IllegalArgumentException("Node do not belong to the graph.");
 		return recursiveValidation(focusNode,
 								 label,
 								 new LinkedList<>(),
 								 new DefaultDirectedGraph<>(DefaultEdge.class),
 								 new HashMap<>(),
 								 new HashMap<>());		
-		
 	}
 
 	
