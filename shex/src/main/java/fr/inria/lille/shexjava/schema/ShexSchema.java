@@ -261,7 +261,6 @@ public class ShexSchema {
 	private void computeStratification () throws NotStratifiedException {
 		//Starting to check and compute stratification
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.refineDependencesGraphWithShapeOnly();	
-		
 		// Compute strongly connected components
 		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
 		kscInspector = new KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge>(dependecesGraph);
@@ -534,7 +533,6 @@ public class ShexSchema {
 			
 			Set<TCProperty> extra = expr.getExtraProperties();
 			for(TripleConstraint texpr:triples) {
-				//System.out.println(texpr.getProperty());
 				if (extra.contains(texpr.getProperty())) {
 					Pair<Label,Label> edge =new Pair<>(expr.getId(),texpr.getShapeExpr().getId());
 					set.add(new Pair<Pair<Label,Label>,Integer>(edge,-1));
@@ -669,25 +667,23 @@ public class ShexSchema {
 				vertexSet.add(label);
 			}
 		}
+
 		// enumerate the path and search for a simple path with a neg dependencies
 		AllDirectedPaths enumeratorPath = new AllDirectedPaths(graphAllShapeExpr);
 		for (Label source:vertexSet) {
 			for (Label target:vertexSet) {
-				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, null);
+				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, false, vertexSet.size()*10);
 				if (paths.size()>0) {
 					boolean isNeg = false;
 					for (GraphPath<Label,DefaultWeightedEdge> path:paths) {
-						if (path.getEdgeList().size()==0) {
-							if (graphAllShapeExpr.getEdge(source,target)!=null)
-								isNeg = graphAllShapeExpr.getEdgeWeight(graphAllShapeExpr.getEdge(source,target))<0;
-						} else {
-							int sum = 0;
-							for (DefaultWeightedEdge edge:path.getEdgeList())
-								if ( graphAllShapeExpr.getEdgeWeight(edge)<0) 
-									sum++;
-							if (sum%2==1)
-								isNeg=true;
-						}
+
+						int sum = 0;
+						for (DefaultWeightedEdge edge:path.getEdgeList())
+							if ( graphAllShapeExpr.getEdgeWeight(edge)<0) 
+								sum++;
+						if (sum%2==1)
+							isNeg=true;
+
 					}
 					if (isNeg)
 						builder.addEdge(source, target, -1);
@@ -697,8 +693,6 @@ public class ShexSchema {
 			}
 
 		}
-
-
 
 		return builder.build();
 	}

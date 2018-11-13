@@ -30,7 +30,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.Triple;
 import org.apache.commons.rdf.jena.JenaRDF;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -56,7 +58,6 @@ import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 import fr.inria.lille.shexjava.validation.RefineValidation;
-import fr.inria.lille.shexjava.validation.Status;
 import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
@@ -101,7 +102,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	String selectedTest = "1NOTNOTIRI_passIo1";
+	    	String selectedTest = "";
 	    	for (Resource testNode : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
 	    		TestCase tc = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,testNode);
 		    	Object[] params =  {tc};
@@ -125,6 +126,7 @@ public class TestValidation_ShExJ_Jena_Refine {
         	
 	@Test
     public void runTest() {
+		//System.out.println(testCase);
     	List<Object> reasons = new ArrayList<>();
     	for (Value object: testCase.traits) {
     		if (skippedIris.contains(object)) {
@@ -150,11 +152,7 @@ public class TestValidation_ShExJ_Jena_Refine {
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     			return;
     		}
-    		    System.out.println(testCase);	
-    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-    		System.out.println(schema);
-    		Graph dataGraph = getRDFGraph();
-    		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
+
 	    	
     		// Fix for dealing with the absence of namespace specification in jena.
 	    	if (testCase.focusNode instanceof org.apache.commons.rdf.api.IRI) {
@@ -170,13 +168,13 @@ public class TestValidation_ShExJ_Jena_Refine {
 	    			}
 	       		}
 	    	}
-    		validation.validate(testCase.focusNode, testCase.shapeLabel);
+    		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		Graph dataGraph = getRDFGraph();
+    		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
+    		boolean result = validation.validate(testCase.focusNode, testCase.shapeLabel);
     		   		
-    		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.CONFORMANT)
-    			||
-    			(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
-    				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
+    		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && result)
+    			|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && !result)){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
      		} else {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));			
@@ -237,8 +235,21 @@ public class TestValidation_ShExJ_Jena_Refine {
 	
 	public Graph getRDFGraph() throws IOException {
 		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
-		model.read(getDataFileName(testCase.dataFileName)) ;
-		return (new JenaRDF()).asGraph(model);
+		model.read(getDataFileName(testCase.dataFileName));
+		Graph result = (new JenaRDF()).asGraph(model);
+		if (!result.contains(null, null, testCase.focusNode)) {
+			if (!(testCase.focusNode instanceof BlankNodeOrIRI) || !result.contains((BlankNodeOrIRI) testCase.focusNode,null, null)) {
+			result.add(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
+					GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),
+					testCase.focusNode);
+			Iterator<? extends Triple> iter = result.stream(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
+					GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),null).iterator();
+			while (iter.hasNext())
+				testCase.focusNode = iter.next().getObject();
+		}
+		}
+		
+		return result;
 	}
 	
 	public ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
@@ -251,4 +262,6 @@ public class TestValidation_ShExJ_Jena_Refine {
 
 		return Rio.parse(inputStream, baseURI, RDFFormat.TURTLE, new ParserConfig(), RDF_FACTORY, new ParseErrorLogger());
 	}
+	
+
 }

@@ -21,10 +21,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
@@ -51,8 +54,11 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author Antonin Durey
  * 
  */
+/**
+ * @author jdusart
+ *
+ */
 public class RefineValidation extends SORBEBasedValidation {
-	
 	private Set<RDFTerm> allGraphNodes;
 	private boolean computed = false;
 	// TODO: this could be a particular implementation for RefineValidation, in which the nonconformant status is the default one. Careful to nodes that are not in the graph though.
@@ -78,13 +84,9 @@ public class RefineValidation extends SORBEBasedValidation {
 	// TODO pourquoi est-ce que c'est nécessaire ?
 	private void initSelectedShape() {
 		this.selectedShapes = new HashSet<>(extraShapes);
-		this.selectedShapes.addAll(schema.getRules().keySet());
 		for (ShapeExpr expr:schema.getShapeExprsMap().values())
-			if (expr instanceof ShapeExprRef) 
-				selectedShapes.add(((ShapeExprRef) expr).getShapeDefinition().getId());
-		for (TripleExpr expr:schema.getTripleExprsMap().values())
-			if (expr instanceof TripleConstraint)
-				selectedShapes.add(((TripleConstraint) expr).getShapeExpr().getId());
+			if (expr instanceof Shape) 
+				selectedShapes.add(expr.getId());
 	}
 	
 	
@@ -99,43 +101,38 @@ public class RefineValidation extends SORBEBasedValidation {
 		computed = false;
 	}
 	
+	
+	/** (non-Javadoc)
+	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
+	 */
 	@Override
 	public boolean validate (RDFTerm focusNode, Label label) {
-
-		computeMaximalTyping(focusNode);
-
 		if (focusNode != null && ! allGraphNodes.contains(focusNode)) {
-			addToTypingNodeNotInTheGraph(focusNode, label);
+			throw new IllegalArgumentException("Node do not belong to the graph...");
 		}
-		
-		// TODO why is that ?
+		computeMaximalTyping(focusNode);
+	
 		if (focusNode==null || label==null)
-			return false;
+			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");;
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
-		return typing.isConformant(focusNode, label);
+		
+		return satisfies(new Pair<>(focusNode, label),false);
 	}
 
-	private void addToTypingNodeNotInTheGraph(RDFTerm focusNode, Label label) {
-		if (this.typing.getStatus(focusNode, label) == Status.NOTCOMPUTED)
-			if (satisfies(new Pair<>(focusNode, label)))
-				this.typing.setStatus(focusNode, label, Status.CONFORMANT);
-			else
-				this.typing.setStatus(focusNode, label, Status.NONCONFORMANT);
-	}
 
 	private void computeMaximalTyping(RDFTerm focusNode) {
 		if (computed)
 			return;
 		for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
-			List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum,focusNode);		
+			List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum);		
 			boolean changed;
 			do {
 				changed = false;
 				Iterator<Pair<RDFTerm, Label>> typesIt = elements.iterator();
 				while (typesIt.hasNext()) {
 					Pair<RDFTerm, Label> nl = typesIt.next();
-					if (! satisfies(nl)) {
+					if (! satisfies(nl,true)) {
 						typesIt.remove();
 						typing.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
 						changed = true;
@@ -143,13 +140,13 @@ public class RefineValidation extends SORBEBasedValidation {
 				}
 			} while (changed);
 		}
-		System.out.println(typing.getStatusMap());
 		computed = true;
 	}
 
-	// TODO this should take the expr and not the label as parameter
-	/** Tests whether the node satisfies the shape expresion with specified label and with the current typing */
-	private boolean satisfies(Pair<RDFTerm, Label> nl) {
+	/** Tests whether the node satisfies the shape expresion with specified label and with the current typing 
+	 *  If validateShape is set to true, then the typing will not be used*/
+	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) {
+		EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor(validateShape);
 		shexprEvaluator.setNode(nl.one);
 		schema.getShapeExprsMap().get(nl.two).accept(shexprEvaluator);
 		return shexprEvaluator.getResult();
@@ -157,17 +154,49 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	/** Tests whether the node's neighbourhood matches the shape with the current typing */
 	private boolean matches (RDFTerm node, Shape shape) {
-		return null != this.findMatching(node, shape, this.getTyping()).getMatching();
+		//return null != this.findMatching(node, shape, this.getTyping()).getMatching();
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
+		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+
+		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
+		TypingForValidation localTyping = new TypingForValidation();
+		
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateOnlyMatcher());
+		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
+			
+		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
+			for (TripleConstraint tc:entry.getValue()) {
+				RDFTerm destNode = entry.getKey().getObject();
+				if (!tc.getProperty().isForward())
+					destNode = entry.getKey().getSubject();
+	
+				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
+					if (this.satisfies(new Pair<RDFTerm, Label>(destNode, tc.getShapeExpr().getId()),false)) 
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
+					else
+						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);	
+				} else {
+					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
+				}
+			}
+		}
+		return this.findMatching(node, shape, localTyping).getMatching() != null;
 	}	
 	
-	private EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor();
-		
+
 	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {		
 		private RDFTerm node; 
 		private Boolean result;
+		private boolean validateShape;
 	
 		void setNode (RDFTerm node) {
 			this.node = node;
+		}
+		
+		public EvaluateShapeExpressionVisitor(boolean validateShape) {
+			this.validateShape = validateShape;
 		}
 		
 		@Override
@@ -182,6 +211,7 @@ public class RefineValidation extends SORBEBasedValidation {
 				e.accept(this);
 				if (!result) break;
 			}
+			
 		}
 
 		@Override
@@ -200,7 +230,10 @@ public class RefineValidation extends SORBEBasedValidation {
 		
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
-			result = matches(node, expr);
+			if (validateShape)
+				result = matches(node, expr);
+			else
+				result = typing.isConformant(node, expr.getId());
 		}
 
 		@Override
@@ -210,30 +243,22 @@ public class RefineValidation extends SORBEBasedValidation {
 
 		@Override
 		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
-			result = typing.isConformant(node, ref.getLabel());
+			//result = typing.isConformant(node, ref.getLabel());
+			ref.getShapeDefinition().accept(this);
 		}
 	}
 	
-
-
 	
 	// Typing utils
 	
-	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum, RDFTerm focusNode) {
+	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
-		Set<Label> labels = schema.getStratification().get(stratum); // TODO does it mean that all the labels, even those of the triple constraints, have a stratum ?
-		// TODO According to the spec, the stratification is a set of Shape
-		// TODO why to we need to add the triple constraints to the selected shapes ? Can't we simply implement the abstract algorithm ?
+		Set<Label> labels = schema.getStratification().get(stratum); 
 		for (Label label: labels) {
 			if (selectedShapes.contains(label)) {
 				for (RDFTerm node : allGraphNodes) {		
 					result.add(new Pair<>(node, label));
 					this.typing.setStatus(node, label, Status.CONFORMANT);
-				}
-				// TODO why do we need to add the focus node here ? In case it does not belong to the graph ?
-				if (focusNode !=null) {
-					result.add(new Pair<>(focusNode, label));
-					this.typing.setStatus(focusNode, label, Status.CONFORMANT);
 				}
 			}
 		}
