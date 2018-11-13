@@ -643,7 +643,6 @@ public class ShExJParser implements Parser{
 	protected TripleExpr parseOneOf (Map map) {
 		// TODO not used or not supported
 		Object semActs = getSemActs(map);
-		//
 
 		List<Annotation> annotations = getAnnotations(map);
 

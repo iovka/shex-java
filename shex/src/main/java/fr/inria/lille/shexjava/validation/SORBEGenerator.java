@@ -52,7 +52,10 @@ public class SORBEGenerator {
 		this.rdfFactory=rdfFactory;
 		this.sorbeMap=new HashMap<>();
 	}
-	 
+	
+	
+	
+	
 	/** Construct an equivalent triple expression that satisfies the SORBE requirement. 
 	 * @param shape
 	 * @return
@@ -60,9 +63,9 @@ public class SORBEGenerator {
 	public TripleExpr getSORBETripleExpr(Shape shape) {
 		if (this.sorbeMap.containsKey(shape.getId()))
 			return this.sorbeMap.get(shape.getId());
-		TripleExpr result = generateTripleExpr(shape.getTripleExpression());
-		this.sorbeMap.put(shape.getId(), result);
-		return result;
+		shape.getTripleExpression().accept(generatorTE);
+		this.sorbeMap.put(shape.getId(), generatorTE.getResult());
+		return generatorTE.getResult();
 	}
 	
 	/** Returns the label of the original expression for which the expression with the given label is the sorbe version.
@@ -82,102 +85,103 @@ public class SORBEGenerator {
 											  label.isGenerated());
 	}
 	
+	private GeneratorOfTripleExpr generatorTE = new GeneratorOfTripleExpr();
 	
-	// TODO use a visitor here
-	private TripleExpr generateTripleExpr(TripleExpr expr) {
-		if (expr instanceof TripleExprRef) 
-			return generateTripleExpr(((TripleExprRef) expr).getTripleExp());
-		if (expr instanceof EachOf)
-			return generateEachOf((EachOf) expr);
-		if (expr instanceof OneOf)
-			return generateOneOf((OneOf) expr);
-		if (expr instanceof TripleConstraint)
-			return generateTripleConstraint((TripleConstraint) expr);
-		if (expr instanceof RepeatedTripleExpression)
-			return generateRepeatedTripleExpression((RepeatedTripleExpression) expr);
-		if (expr instanceof EmptyTripleExpression)
-			return generateEmptyTripleExpression((EmptyTripleExpression) expr);
-		throw new UnsupportedOperationException("Unknown subclass of TripleExpression : " + expr.getClass());
-	}
-
-	private TripleExpr generateEmptyTripleExpression(EmptyTripleExpression expr ) {
-		TripleExpr result = new EmptyTripleExpression();
-		setTripleLabel(result,expr);
-		return result;
-	}
-	
-	private TripleExpr generateEachOf(EachOf expr) {
-		List<TripleExpr> newSubExprs = new ArrayList<TripleExpr>();
-		for (TripleExpr subExpr:expr.getSubExpressions()) {
-			newSubExprs.add(generateTripleExpr(subExpr));
-		}
-		TripleExpr result = new EachOf(newSubExprs);
-		setTripleLabel(result,expr);
-		return result;
-	}
-	
-
-	private TripleExpr generateOneOf(OneOf expr) {
-		List<TripleExpr> newSubExprs = new ArrayList<TripleExpr>();
-		for (TripleExpr subExpr:expr.getSubExpressions()) {
-			newSubExprs.add(generateTripleExpr(subExpr));
-		}
-		TripleExpr result = new OneOf(newSubExprs);
-		setTripleLabel(result,expr);
-		return result;
-	}
-	
-	
-	private TripleExpr generateTripleConstraint(TripleConstraint expr) {
-		TripleExpr result = expr.clone();
-		setTripleLabel(result,expr);
-		return result;
-	}
-	
-
-	private TripleExpr generateRepeatedTripleExpression(RepeatedTripleExpression expr) {
-		CheckIfContainsEmpty visitor = new CheckIfContainsEmpty();
-		expr.accept(visitor);
-		if (expr.getCardinality().equals(Interval.PLUS) & visitor.result) {
-			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),Interval.STAR);
-			setTripleLabel(result,expr);
-			return result;
-		} else if(expr.getCardinality().equals(Interval.PLUS)
-				  || expr.getCardinality().equals(Interval.STAR)
-				  || expr.getCardinality().equals(Interval.OPT)
-				  || expr.getCardinality().equals(Interval.ZERO)){
-			TripleExpr result = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()),expr.getCardinality());
-			setTripleLabel(result,expr);
-			return result;
-		}else {
-			Interval card = expr.getCardinality();
-			int nbClones = 0;
-			int	nbOptClones = 0;
-			List<TripleExpr> clones = new ArrayList<>();
-
-			if (card.max == Interval.UNBOUND) {
-				nbClones = card.min -1;
-				TripleExpr tmp = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()), Interval.PLUS);
-				setTripleLabel(tmp,expr);
-				clones.add(tmp);
-			}else {
-				nbClones = card.min;
-				nbOptClones = card.max - card.min;
-			}
-
-			for (int i=0; i<nbClones;i++) {
-				clones.add(generateTripleExpr(expr.getSubExpression()));	
-			}
-			for (int i=0; i<nbOptClones;i++) {
-				TripleExpr tmp = new RepeatedTripleExpression(generateTripleExpr(expr.getSubExpression()), Interval.OPT);
-				setTripleLabel(tmp,expr);
-				clones.add(tmp);
-			}
-			TripleExpr result = new EachOf(clones);
-			setTripleLabel(result,expr);
+	private class GeneratorOfTripleExpr extends TripleExpressionVisitor<TripleExpr> {
+		private TripleExpr result=null;
+		
+		@Override
+		public TripleExpr getResult() {
 			return result;
 		}
+
+		@Override
+		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
+			result = tc.clone();
+			setTripleLabel(result,tc);			
+		}
+
+		@Override
+		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
+			expr.getTripleExp().accept(this);			
+		}
+		
+		@Override
+		public void visitEachOf (EachOf expr, Object ... arguments) {
+			List<TripleExpr> newSubExprs = new ArrayList<TripleExpr>();
+			for (TripleExpr subExpr : expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				newSubExprs.add(result);
+			}
+			result = new EachOf(newSubExprs);
+			setTripleLabel(result,expr);
+		}
+		
+		@Override
+		public void visitOneOf (OneOf expr, Object ... arguments) {
+			List<TripleExpr> newSubExprs = new ArrayList<TripleExpr>();
+			for (TripleExpr subExpr : expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				newSubExprs.add(result);
+			}
+			result = new OneOf(newSubExprs);
+			setTripleLabel(result,expr);
+		}
+		
+
+		@Override
+		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
+			result = new EmptyTripleExpression();
+			setTripleLabel(result,expr);
+		}
+		
+		@Override
+		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
+			CheckIfContainsEmpty visitor = new CheckIfContainsEmpty();
+			expr.accept(visitor);
+			expr.getSubExpression().accept(this);
+			if (expr.getCardinality().equals(Interval.PLUS) & visitor.result) {
+				result = new RepeatedTripleExpression(result,Interval.STAR);
+				setTripleLabel(result,expr);
+			} else if(expr.getCardinality().equals(Interval.PLUS)
+					  || expr.getCardinality().equals(Interval.STAR)
+					  || expr.getCardinality().equals(Interval.OPT)
+					  || expr.getCardinality().equals(Interval.ZERO)){
+				result = new RepeatedTripleExpression(result,expr.getCardinality());
+				setTripleLabel(result,expr);
+			} else {
+				Interval card = expr.getCardinality();
+				int nbClones = 0;
+				int	nbOptClones = 0;
+				List<TripleExpr> clones = new ArrayList<>();
+
+				if (card.max == Interval.UNBOUND) {
+					nbClones = card.min -1;
+					TripleExpr tmp = new RepeatedTripleExpression(result, Interval.PLUS);
+					setTripleLabel(tmp,expr);
+					clones.add(tmp);
+				}else {
+					nbClones = card.min;
+					nbOptClones = card.max - card.min;
+				}
+
+				for (int i=0; i<nbClones;i++) {
+					expr.getSubExpression().accept(this);
+					clones.add(result);	
+				}
+				for (int i=0; i<nbOptClones;i++) {
+					expr.getSubExpression().accept(this);
+					TripleExpr tmp = new RepeatedTripleExpression(result, Interval.OPT);
+					setTripleLabel(tmp,expr);
+					clones.add(tmp);
+				}
+				result = new EachOf(clones);
+				setTripleLabel(result,expr);
+			}
+		}
+		
 	}
+	
 	
 	private void setTripleLabel(TripleExpr newTriple,TripleExpr oldTriple) {
 		if (oldTriple.getId().isBlankNode()) {
@@ -190,7 +194,8 @@ public class SORBEGenerator {
 									  oldTriple.getId().isGenerated()));
 		tripleLabelNb++;
 	}
-		
+	
+	
 	class CheckIfContainsEmpty extends TripleExpressionVisitor<Boolean>{
 		private boolean result ;
 

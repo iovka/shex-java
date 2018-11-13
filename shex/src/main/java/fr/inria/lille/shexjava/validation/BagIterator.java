@@ -104,7 +104,6 @@ public class BagIterator implements Iterator<Bag>{
 		return next;
 	}
 	
-	// TODO why a bag is represented as a list, and not as a map 
 	public Map<Triple, Label> getCurrentBag(){
 		Map<Triple, Label> currentMatch = new HashMap<>();
 		

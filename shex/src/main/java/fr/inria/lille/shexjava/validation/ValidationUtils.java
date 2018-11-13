@@ -30,7 +30,7 @@ public class ValidationUtils {
 	}
 	
 	public static Matcher getPredicateAndValueMatcher (Typing typing) {
-		return new MatcherPredicateAndValue2(typing);
+		return new MatcherPredicateAndValue(typing);
 	}
 	
 	/** Select the neighborhood that must be matched for the given shape.
@@ -127,11 +127,10 @@ public class ValidationUtils {
 		}
 	};
 	
-	// TODO remove the 2 when the original is removed
-	private static class MatcherPredicateAndValue2 extends Matcher {
+	private static class MatcherPredicateAndValue extends Matcher {
 		private Typing shapeMap;
 		
-		public MatcherPredicateAndValue2(Typing shapeMap) {
+		public MatcherPredicateAndValue(Typing shapeMap) {
 			this.shapeMap = shapeMap;
 		}
 		

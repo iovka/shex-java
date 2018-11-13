@@ -18,7 +18,6 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -61,14 +60,7 @@ import fr.inria.lille.shexjava.util.Pair;
 public class RefineValidation extends SORBEBasedValidation {
 	private Set<RDFTerm> allGraphNodes;
 	private boolean computed = false;
-	// TODO: this could be a particular implementation for RefineValidation, in which the nonconformant status is the default one. Careful to nodes that are not in the graph though.
 	private TypingForValidation typing;
-
-	
-	// TODO A quoi ça sert ?
-	private Set<Label> selectedShapes;
-	private Set<Label> extraShapes;
-	
 
 	public RefineValidation(ShexSchema schema, Graph graph) {
 		this(schema, graph, Collections.emptySet());
@@ -77,19 +69,9 @@ public class RefineValidation extends SORBEBasedValidation {
 	public RefineValidation(ShexSchema schema, Graph graph, Set<Label> extraShapes) {
 		super(schema,graph);
 		this.allGraphNodes = CommonGraph.getAllNodes(graph);
-		this.extraShapes=extraShapes;
-		initSelectedShape();
+
 	}
-	
-	// TODO pourquoi est-ce que c'est nécessaire ?
-	private void initSelectedShape() {
-		this.selectedShapes = new HashSet<>(extraShapes);
-		for (ShapeExpr expr:schema.getShapeExprsMap().values())
-			if (expr instanceof Shape) 
-				selectedShapes.add(expr.getId());
-	}
-	
-	
+
 	@Override
 	public Typing getTyping() {
 		return typing;
@@ -110,6 +92,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		if (focusNode != null && ! allGraphNodes.contains(focusNode)) {
 			throw new IllegalArgumentException("Node do not belong to the graph...");
 		}
+		
 		computeMaximalTyping(focusNode);
 	
 		if (focusNode==null || label==null)
@@ -117,13 +100,14 @@ public class RefineValidation extends SORBEBasedValidation {
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
 		
-		return satisfies(new Pair<>(focusNode, label),false);
+		return typing.isConformant(focusNode, label);
 	}
 
 
 	private void computeMaximalTyping(RDFTerm focusNode) {
 		if (computed)
 			return;
+		// This will compute the typing for the shape only
 		for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
 			List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum);		
 			boolean changed;
@@ -140,6 +124,16 @@ public class RefineValidation extends SORBEBasedValidation {
 				}
 			} while (changed);
 		}
+		// This populate the typing with everything else
+		for (Label label:schema.getShapeExprsMap().keySet()) {
+			for (RDFTerm node : allGraphNodes) {		
+				if (satisfies(new Pair<>(node, label),false)) {
+					typing.setStatus(node, label, Status.CONFORMANT);
+				} else {
+					typing.setStatus(node, label, Status.NONCONFORMANT);
+				}
+			}
+		}
 		computed = true;
 	}
 
@@ -152,18 +146,18 @@ public class RefineValidation extends SORBEBasedValidation {
 		return shexprEvaluator.getResult();
 	}
 	
+	
 	/** Tests whether the node's neighbourhood matches the shape with the current typing */
 	private boolean matches (RDFTerm node, Shape shape) {
-		//return null != this.findMatching(node, shape, this.getTyping()).getMatching();
+		// Since the algorithm first computing the typing with the shape only, in the same fashion as for the recursive algorithm, a localtyping must be computed without any cal to compute shape.
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
 		
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), ValidationUtils.getPredicateOnlyMatcher());
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), ValidationUtils.getPredicateOnlyMatcher());
 		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
 			
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
@@ -243,23 +237,20 @@ public class RefineValidation extends SORBEBasedValidation {
 
 		@Override
 		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
-			//result = typing.isConformant(node, ref.getLabel());
 			ref.getShapeDefinition().accept(this);
 		}
 	}
-	
-	
+
+
 	// Typing utils
-	
+
 	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
 		Set<Label> labels = schema.getStratification().get(stratum); 
 		for (Label label: labels) {
-			if (selectedShapes.contains(label)) {
-				for (RDFTerm node : allGraphNodes) {		
-					result.add(new Pair<>(node, label));
-					this.typing.setStatus(node, label, Status.CONFORMANT);
-				}
+			for (RDFTerm node : allGraphNodes) {		
+				result.add(new Pair<>(node, label));
+				this.typing.setStatus(node, label, Status.CONFORMANT);
 			}
 		}
 		return result;

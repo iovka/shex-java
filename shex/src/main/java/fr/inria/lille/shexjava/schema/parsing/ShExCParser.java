@@ -741,8 +741,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser  {
 		return visitChildren(ctx);
 	}
 	
-	//TODO: use types above
-
 	@Override 
 	public TripleExpr visitMultiElementOneOf(ShExDocParser.MultiElementOneOfContext ctx) { 
 		List<TripleExpr> exprs = new ArrayList<TripleExpr>();

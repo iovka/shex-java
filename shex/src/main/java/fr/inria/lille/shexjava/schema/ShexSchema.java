@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
@@ -54,7 +55,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
@@ -189,7 +189,7 @@ public class ShexSchema {
 		throw new IllegalArgumentException("Unknown shape label: " + label);
 	}
 
-	// TODO: Can't we deal w/o this ?
+
 	public RDF getRdfFactory() {
 		return rdfFactory;
 	}
@@ -531,9 +531,9 @@ public class ShexSchema {
 			expr.getTripleExpression().accept(visitor,arguments);
 			Set<TripleConstraint> triples = visitor.getResult();
 			
-			Set<TCProperty> extra = expr.getExtraProperties();
+			Set<IRI> extra = expr.getExtraProperties();
 			for(TripleConstraint texpr:triples) {
-				if (extra.contains(texpr.getProperty())) {
+				if (extra.contains(texpr.getProperty().getIri())) {
 					Pair<Label,Label> edge =new Pair<>(expr.getId(),texpr.getShapeExpr().getId());
 					set.add(new Pair<Pair<Label,Label>,Integer>(edge,-1));
 				}else {

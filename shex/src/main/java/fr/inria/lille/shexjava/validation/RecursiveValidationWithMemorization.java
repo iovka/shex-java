@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -42,7 +43,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.util.Pair;
@@ -253,7 +253,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		TypingForValidation localTyping = new TypingForValidation();
 		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
 		Map<Triple,List<TripleConstraint>> matchingTC1 = 
-				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties2(), matcher).getPreMatching();
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher).getPreMatching();
 
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {			
 			int nb=0;
@@ -277,11 +277,10 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 				}
 			}
 			
-			// TODO le bug de test0Cardinaliy vient d'ici
 			if (nb==0) {
 				boolean success = false;
-				for (TCProperty extra : shape.getExtraProperties())
-					if (extra.getIri().equals(entry.getKey().getPredicate()))
+				for (IRI extra : shape.getExtraProperties())
+					if (extra.equals(entry.getKey().getPredicate()))
 						success = true;
 				if (!success) {
 					// Looking at the calls that fails

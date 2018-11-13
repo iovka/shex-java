@@ -68,13 +68,8 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 		return this.closed;
 	}
 	 
-	public Set<IRI> getExtraProperties2 () {
-		return this.getExtraProperties().stream().map(tcp -> tcp.getIri()).collect(Collectors.toSet());
-	}
-	
-	// TODO remove and replace with getExtraProperties2 
-	public Set<TCProperty> getExtraProperties () {
-		return extra;
+	public Set<IRI> getExtraProperties () {
+		return this.extra.stream().map(tcp -> tcp.getIri()).collect(Collectors.toSet());
 	}
 		
 	public List<Annotation> getAnnotations() {

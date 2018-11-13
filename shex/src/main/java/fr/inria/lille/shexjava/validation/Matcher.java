@@ -31,7 +31,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * @author Antonin Durey
  *
  */
-// TODO this used to implement a functional interface (which explains the name of the apply method); come back to it
 public abstract class Matcher {
 
 	/** With every triple, associates the triple constraints that the triple matches.

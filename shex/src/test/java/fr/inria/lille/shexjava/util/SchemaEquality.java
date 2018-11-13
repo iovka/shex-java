@@ -35,7 +35,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
@@ -129,7 +128,7 @@ public class SchemaEquality {
 			return false;
 		if (shape1.getExtraProperties().size()!=shape2.getExtraProperties().size())
 			return false;
-		for (TCProperty tcp:shape1.getExtraProperties())
+		for (org.apache.commons.rdf.api.IRI tcp:shape1.getExtraProperties())
 			if (! shape2.getExtraProperties().contains(tcp))
 				return false;
 		return areEqualsTripleExpr(shape1.getTripleExpression(), shape2.getTripleExpression());

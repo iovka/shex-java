@@ -48,7 +48,6 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
@@ -161,8 +160,8 @@ public class ShExJSerializer {
 			result.put("closed", true);
 		if (shape.getExtraProperties().size()>0) {
 			List<Object> extra = new ArrayList<Object>();
-			for (TCProperty tcp:shape.getExtraProperties()) {
-				extra.add(tcp.getIri().getIRIString());
+			for (IRI tcp:shape.getExtraProperties()) {
+				extra.add(tcp.getIRIString());
 			}
 			result.put("extra", extra);
 		}
