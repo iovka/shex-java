@@ -67,8 +67,7 @@ public class TestNegativeStruct {
 	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();
 
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-	private static final Resource NEGATIVE_STRUCT_PASS = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeStructureTest");
-	private static final Resource NEGATIVE_STRUCT_FAIL = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeStructureFailure");
+	private static final Resource NEGATIVE_STRUCT = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeStructure");
 
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
 	private static final IRI TEST_SHEX_IRI = RDF_FACTORY.createIRI("https://shexspec.github.io/shexTest/ns#shex");
@@ -82,14 +81,7 @@ public class TestNegativeStruct {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
-			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT_PASS).subjects()) {
-	    		Object[] params =  new Object[3];
-	    		params[0]=getTestName(manifest, testNode);
-	    		params[1]=getSchemaFileName(manifest, testNode);
-	    		params[2]=true;
-	    		parameters.add(params);
-			}
-			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT_FAIL).subjects()) {
+			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT).subjects()) {
 	    		Object[] params =  new Object[3];
 	    		params[0]=getTestName(manifest, testNode);
 	    		params[1]=getSchemaFileName(manifest, testNode);
@@ -126,7 +118,7 @@ public class TestNegativeStruct {
 					     ) ) {
 				errors.add(new TestResultForTestReport(testName, false, e.getMessage(), "negativeStructure"));
 			}else {
-				passed.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeStructureFailure"));				
+				passed.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeStructure"));				
 			}
 		}
 
