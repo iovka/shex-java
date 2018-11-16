@@ -55,7 +55,7 @@ inlineShapeDefinition : qualifier* '{' oneOfShape? '}' ;
 shapeDefinition : qualifier* '{' oneOfShape? '}' annotation* semanticActions ;
 qualifier       : includeSet | extraPropertySet | KW_CLOSED ;
 extraPropertySet : KW_EXTRA predicate+ ;
-oneOfShape     : groupShape
+oneOfShape      : groupShape
 				| multiElementOneOf
 				;
 multiElementOneOf : groupShape ( '|' groupShape)+ ;

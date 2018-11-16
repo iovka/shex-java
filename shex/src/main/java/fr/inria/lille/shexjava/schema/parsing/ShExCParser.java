@@ -725,7 +725,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		for (ParseTree child:ctx.children){
 			if (! (child instanceof TerminalNodeImpl)) {
 				Object res = child.accept(this);
-				if (res instanceof IRI)
+				if (res instanceof RDFTerm)
 					explicitValues.add((RDFTerm) res);
 				else
 					exclusions.add((Constraint) res);

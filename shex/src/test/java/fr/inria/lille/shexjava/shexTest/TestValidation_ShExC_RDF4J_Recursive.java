@@ -120,6 +120,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
         	
 	@Test
     public void runTest() {
+		//System.out.println(testCase);
     	List<Object> reasons = new ArrayList<>();
     	for (Value object: testCase.traits) {
     		if (skippedIris.contains(object)) {
@@ -156,7 +157,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
     		
-    		//System.out.println(validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel));
+    		//System.out.println(validation.getTyping().getStatusMap());
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
     				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.CONFORMANT)

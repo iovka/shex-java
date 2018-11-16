@@ -37,7 +37,9 @@ public class CreateTestReport {
 	String ASSERTED_BY;
 	String SUBJECT = "<https://github.com/iovka/shex-java>";
 	String BRANCH = "master";
-	String WHEN = "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())+"\""+ "^^<http://www.w3.org/2001/XMLSchema#dateTime>";
+	//String WHEN = "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(new Date())+"\"^^xsd:dateTime";
+	String WHEN = "\"2018-11-15T12:16:47\"^^xsd:dateTime";
+
 	PrintStream out;
 	
 	public CreateTestReport(String logPath) throws IOException {
@@ -77,6 +79,8 @@ public class CreateTestReport {
 			t.printTestResult(r);
 		
 		JUnitCore.runClasses(TestNegativeStruct.class);
+		for (TestResultForTestReport r : TestNegativeStruct.passed)
+			t.printTestResult(r);
 		for (TestResultForTestReport r : TestNegativeStruct.errors)
 			t.printTestResult(r);
 		for (TestResultForTestReport r : TestNegativeStruct.failed)
@@ -86,6 +90,12 @@ public class CreateTestReport {
 		for (TestResultForTestReport r : TestNegativeSyntax.errors)
 			t.printTestResult(r);
 		for (TestResultForTestReport r : TestNegativeSyntax.failed)
+			t.printTestResult(r);
+		
+		JUnitCore.runClasses(TestRepresentation.class);
+		for (TestResultForTestReport r : TestRepresentation.passed)
+			t.printTestResult(r);
+		for (TestResultForTestReport r : TestRepresentation.failed)
 			t.printTestResult(r);
 		
 		t.printFooter();
@@ -102,10 +112,10 @@ public class CreateTestReport {
 		s.append(String.format("    earl:outcome earl:%s;\n", res.passed ? "passed" : "failed"));
 		if (res.description != null)
 			s.append(String.format("    earl:description \"%s\";\n", res.description));
-		s.append(String.format("    dc:date %s^^xsd:dateTime;\n", WHEN));
+		s.append(String.format("    dc:date %s;\n", WHEN));
 		s.append(String.format("  ];\n"));
-		s.append(String.format("  earl:mode earl:automatic\n"));
-		s.append(String.format("] .\n"));
+		s.append(String.format("  earl:mode earl:automatic] .\n"));
+		s.append(String.format("\n"));
 		out.println(s);
 	}
 	
@@ -115,16 +125,42 @@ public class CreateTestReport {
 				+ "@prefix earl:  <http://www.w3.org/ns/earl#> .\n"
 				+ "@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .\n"
 				+ "@prefix foaf:  <http://xmlns.com/foaf/0.1/> .\n"
-				+ "@prefix dc:    <http://purl.org/dc/terms/> .\n\n";
+				+ "@prefix dc:    <http://purl.org/dc/terms/> .\n"
+				+ "@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .\n\n";
+		
 		
 		String something = SUBJECT + " a doap:Project, earl:TestSubject, earl:Software ;\n"
-				+ "  doap:name \"ShEx validator v0.5\" ;\n"
-				+ "  doap:developer " + ASSERTED_BY + " .\n\n";
+				+ "    doap:name \"shexjava\" ;\n"
+				+ "    doap:developer " + ASSERTED_BY + " ;\n"
+		 		+ "    dc:creator <https://github.com/iovka/> ;\n"
+		 		+ "    dc:date "+WHEN+" ;\n"
+		 		+ "    dc:description \"Java implementation of ShEx\"@en ;\n"
+		 		+ "    dc:title \"shexjava\" ;\n"
+		 		+ "    doap:bug-database <https://github.com/iovka/shex-java/issues> ;\n"
+		 		+ "    doap:category <http://dbpedia.org/resource/Resource_Description_Framework> ;\n"
+		 		+ "    doap:created \"2017-06-01\"^^xsd:date ;\n"
+		 		+ "    doap:description \"Java implementation of ShEx\"@en ;\n"
+		 		+ "    doap:documenter <https://github.com/jdusart> ;\n"
+		 		+ "    doap:download-page <https://github.com/iovka/shex-java> ;\n"
+		 		+ "    doap:homepage <https://github.com/iovka/shex-java> ;\n"
+		 		+ "    doap:implements <https://shexspec.github.io/spec/> ;\n"
+		 		+ "    doap:license <https://github.com/iovka/shex-java/blob/master/LICENSE.md> ;\n"
+		 		+ "    doap:mailing-list <http://lists.w3.org/Archives/Public/public-shex-dev/> ;\n"
+		 		+ "    doap:maintainer <https://github.com/jdusart> ;\n"
+		 		+ "    doap:programming-language \"Java\" ;\n"
+		 		+ "    doap:shortdesc \"Java ShEx validator v1.2\"@en ;\n"
+		 		+ "    foaf:maker <https://github.com/jdusart> .\n\n";
 				
 		String somethingElse = "<> foaf:primaryTopic " + SUBJECT + ";\n"
 				+ "  dc:issued " + WHEN + ";\n"
-				+ "  foaf:maker " + ASSERTED_BY + ".\n\n";	  
-		out.println(prefixes + something + somethingElse);
+				+ "  foaf:maker " + ASSERTED_BY + ".\n\n";	
+		
+		
+		String somethingElseAgain = "<https://github.com/jdusart> a earl:Assertor, foaf:Person ;\n"
+		+"    foaf:homepage <https://github.com/jdusart> ;\n"
+		+"    foaf:name \"Jérémie Dusart\" ;\n"
+		+"    foaf:title \"Implementor\" .\n\n";
+		out.println(prefixes + something + somethingElse+somethingElseAgain);
 	}
 	
 	private void printFooter () {}
