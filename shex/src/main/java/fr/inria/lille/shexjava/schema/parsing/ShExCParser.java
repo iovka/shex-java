@@ -411,6 +411,8 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	@Override
 	public TripleExpr visitGroupShape(GroupShapeContext ctx) {
+		if (ctx.groupShape()!=null)
+			return visitGroupShape(ctx.groupShape());
 		if (ctx.multiElementGroup()!=null)
 			return visitMultiElementGroup(ctx.multiElementGroup());
 		return visitSingleElementGroup(ctx.singleElementGroup());

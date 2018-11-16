@@ -62,7 +62,8 @@ multiElementOneOf : groupShape ( '|' groupShape)+ ;
 innerShape      : multiElementGroup
 				| multiElementOneOf
 				;
-groupShape      : singleElementGroup
+groupShape      : '(' groupShape ')'
+                | singleElementGroup
 				| multiElementGroup
 				;
 singleElementGroup : unaryShape ';'? ;

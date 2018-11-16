@@ -105,7 +105,7 @@ public class TestRepresentation {
     		 GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		passed.add(new TestResultForTestReport(testName, true, null, "negativeStructurePass"));
     	}catch (Exception e) {
-    		//e.printStackTrace();
+    		e.printStackTrace();
     		failed.add(new TestResultForTestReport(testName, false, e.getMessage(), "negativeStructure"));
     	}
 
