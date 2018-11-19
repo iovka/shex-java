@@ -58,6 +58,7 @@ import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
 import fr.inria.lille.shexjava.validation.RefineValidation;
+import fr.inria.lille.shexjava.validation.Status;
 import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
@@ -82,7 +83,7 @@ public class TestValidation_ShExJ_Jena_Refine {
 	protected static final IRI TEST_TRAIT_IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#trait");
 
 	protected static final Set<IRI> skippedIris = new HashSet<>(Arrays.asList(new IRI[] {
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start"), // average number of test
+			//RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start"), // average number of test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"SemanticAction"), // lot of test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ExternalShape"),  // 4 tests
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"LiteralFocus"), //no test
@@ -170,15 +171,22 @@ public class TestValidation_ShExJ_Jena_Refine {
 	    	}
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		Graph dataGraph = getRDFGraph();
-    		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
-    		boolean result = validation.validate(testCase.focusNode, testCase.shapeLabel);
-    		   		
-    		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && result)
-    			|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && !result)){
+    		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph); 
+    		if (testCase.traits.contains(RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start")))
+    			testCase.shapeLabel = schema.getStart().getId();
+    		
+
+    		validation.validate(testCase.focusNode, testCase.shapeLabel);
+    		
+    		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
+    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
+    				||
+    				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
+    						validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
     			passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
-     		} else {
-    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));			
-      		}			
+    		} else {
+    			failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
+    		}			
     	}catch (Exception e) {
     		System.err.println(testCase.testName);
     		e.printStackTrace();

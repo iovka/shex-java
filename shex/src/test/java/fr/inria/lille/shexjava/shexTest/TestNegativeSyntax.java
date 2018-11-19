@@ -112,7 +112,7 @@ public class TestNegativeSyntax {
 		try {
 			schema = GenParser.parseSchema(new SimpleRDF(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
 			//System.out.println("Failing: "+testName);
-			//System.out.println(schema);
+			System.out.println(schema);
 			failed.add(new TestResultForTestReport(testName, false, null, "negativeSyntax"));
 		}catch (Exception e) {
 			errors.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeSyntax"));

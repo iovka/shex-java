@@ -65,6 +65,12 @@ public 	class TestCase {
 				Value focus = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
 				focusNode = rdfFactory.asRDFTerm(focus);
 			}
+			
+			if (Models.getPropertyResource(manifest, actionNode, FOCUS_PROPERTY).isPresent()) {
+				Value focus = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
+				focusNode = rdfFactory.asRDFTerm(focus);
+			}
+			
 			testComment = Models.getPropertyString(manifest, testNode, RDFS.COMMENT).get();
 			testName = Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();
 			testKind = Models.getPropertyIRI(manifest, testNode, RDF_TYPE).get();
@@ -88,6 +94,6 @@ public 	class TestCase {
 	}		
 
 	public boolean isWellDefined () {
-		return schemaFileName != null && dataFileName != null && shapeLabel != null && focusNode != null;
+		return schemaFileName != null && dataFileName != null && focusNode != null;
 	}
 }

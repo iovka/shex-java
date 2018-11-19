@@ -76,7 +76,6 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
 	protected static final IRI TEST_TRAIT_IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#trait");
 
 	protected static final Set<IRI> skippedIris = new HashSet<>(Arrays.asList(new IRI[] {
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start"), // average number of test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"SemanticAction"), // lot of test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ExternalShape"),  // 4 tests
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"LiteralFocus"), //no test
@@ -149,6 +148,8 @@ public class TestValidation_ShExC_RDF4J_MemRecursive {
     		Graph dataGraph = getRDFGraph();    		
     		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
     		
+    		if (testCase.traits.contains(RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start")))
+    			testCase.shapeLabel = schema.getStart().getId();    		
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
 
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 

@@ -42,9 +42,12 @@ public class LanguageStemConstraint implements Constraint {
 		if (!lnode.getLanguageTag().isPresent())
 			return false;
 
+		if (langStem.equals(""))
+			return true;
+		
 		String lang = lnode.getLanguageTag().get();
 		
-		return lang.startsWith(langStem);
+		return lang.equals(langStem) || lang.startsWith(langStem+"-");
 	}
 	
 	@Override

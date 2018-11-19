@@ -100,9 +100,10 @@ public class TestRepresentation {
 	
     @Test
     public void runTest() {
-    //	ShexSchema schema = null;
+    //	 null;
     	try {
-    		 GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		ShexSchema schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		// System.out.println(schema);
     		passed.add(new TestResultForTestReport(testName, true, null, "negativeStructurePass"));
     	}catch (Exception e) {
     		e.printStackTrace();

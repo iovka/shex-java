@@ -76,7 +76,7 @@ import fr.inria.lille.shexjava.util.Pair;
  */
 @Stable
 public class ShexSchema {
-
+	private ShapeExpr start;
 	private Map<Label, ShapeExpr> rules;
 	private Map<Label,ShapeExpr> shexprsMap;
 	private Map<Label,TripleExpr> texprsMap;
@@ -96,9 +96,22 @@ public class ShexSchema {
 	 */
 	@Stable
 	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this(GlobalFactory.RDFFactory, rules);
+		this(GlobalFactory.RDFFactory, rules, null);
 	}
 	
+	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
+	 * Otherwise, an exception is thrown.
+	 * Uses @link {@link GlobalFactory.RDFFactory} for creating the fresh labels.
+	 * 
+	 * @param rules
+	 * @param start
+	 * @throws UndefinedReferenceException
+	 * @throws CyclicReferencesException
+	 * @throws NotStratifiedException
+	 */
+	public ShexSchema(Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		this(GlobalFactory.RDFFactory, rules, start);
+	}
 	
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
 	 * Otherwise, an exception is thrown.
@@ -110,13 +123,18 @@ public class ShexSchema {
 	 * @throws NotStratifiedException
 	 */
 	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this.rdfFactory = rdfFactory;
-		initialize(rules);
+		this(rdfFactory,rules,null);
 	}
+	
+	
 		
-	protected void initialize(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-
+	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		this.start = start;
+		this.rdfFactory = rdfFactory;
+		
 		this.rules = new HashMap<>(rules);
+		if (start!=null && !this.rules.containsKey(start.getId()))
+			this.rules.put(start.getId(),start);
 		
 		constructShexprMapAndCheckIdsAreUnique();
 		checkAllShapeRefsAreDefined();
@@ -152,6 +170,11 @@ public class ShexSchema {
 	/** All the triple expressions that appear in the schema indexed by their label. */
 	public Map<Label, TripleExpr> getTripleExprsMap() {
 		return texprsMap;
+	}
+	
+	/** Return the start shapeExpr. */
+	public ShapeExpr getStart() {
+		return start;
 	}
 	
 	/** The set of shape labels that are on a given stratum.

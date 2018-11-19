@@ -62,6 +62,15 @@ public interface Parser {
 	 * @return the list of import declarations found during the last parsing
 	 */
 	public List<String> getImports();
+	
+	/** Return the list of import declarations found during the last parsing.
+	 * @return the list of prefix declarations found during the last parsing
+	 */
 	public Map<String,String> getPrefixes();
+	
+	/** Return the start ShapeExpr found during the last parsing.
+	 * @return the start ShapeExpr found during the last parsing
+	 */
+	public ShapeExpr getStart();
 
 }

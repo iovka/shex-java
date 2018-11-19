@@ -82,6 +82,9 @@ public class GenParser {
 		List<Path> toload = new ArrayList<Path>();
 		toload.add(filepath);
 		
+		ShapeExpr start = null;
+		boolean init = true;
+		
 		while(toload.size()>0) {
 			Path selectedPath = toload.get(0);
 			loaded.add(selectedPath);
@@ -96,6 +99,10 @@ public class GenParser {
 				parser = new ShExRParser();
 			}
 			allRules.putAll(parser.getRules(rdfFactory,selectedPath));
+			if (init) {
+				start = parser.getStart();
+				init = false;
+			}
 			List<String> imports = parser.getImports();
 
 			for (String imp:imports) {
@@ -124,7 +131,7 @@ public class GenParser {
 					toload.add(res);					
 			}
 		}
-		ShexSchema schema = new ShexSchema(rdfFactory,allRules);
+		ShexSchema schema = new ShexSchema(rdfFactory,allRules,start);
 		return schema;
 	}
 

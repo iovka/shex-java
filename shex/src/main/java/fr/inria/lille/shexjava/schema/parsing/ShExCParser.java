@@ -124,7 +124,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	private List<String> imports;
 	private String base;
 	private Path filename;
-
+	private ShapeExpr start;
 
 	public Map<Label,ShapeExpr> getRules(Path path) throws Exception{
 		return getRules(GlobalFactory.RDFFactory,path);
@@ -145,6 +145,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
 		this.rdfFactory = rdfFactory;
+		this.start = null;
+		rules = new HashMap<Label,ShapeExpr>();
+		prefixes = new HashMap<String,String>();
+		imports = new ArrayList<String>();
+		base = null;
+		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		ANTLRInputStream inputStream = new ANTLRInputStream(isr);
 		ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
@@ -158,11 +164,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		ShExDocParser.addErrorListener(new ShExCErrorListener());
 
 		ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();      
-		rules = new HashMap<Label,ShapeExpr>();
-		prefixes = new HashMap<String,String>();
-		imports = new ArrayList<String>();
-		base = null;
+		
 		this.visit(context);
+		if (start!=null)
+			rules.put(start.getId(),start);
 		return rules;
 	}
 
@@ -174,7 +179,9 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		return prefixes;
 	}
 	
-	
+	public ShapeExpr getStart() {
+		return start;
+	}
 	//--------------------------------------------
 	// General
 	//--------------------------------------------
@@ -214,7 +221,9 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	@Override 
 	public Object visitStart(ShExDocParser.StartContext ctx) {
-		return visitChildren(ctx); 
+		if (ctx.shapeExpression()!=null)
+			start = visitShapeExpression(ctx.shapeExpression());
+		return null; 
 	}
 
 	@Override 
@@ -411,8 +420,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	@Override
 	public TripleExpr visitGroupShape(GroupShapeContext ctx) {
-		if (ctx.groupShape()!=null)
-			return visitGroupShape(ctx.groupShape());
 		if (ctx.multiElementGroup()!=null)
 			return visitMultiElementGroup(ctx.multiElementGroup());
 		return visitSingleElementGroup(ctx.singleElementGroup());
@@ -447,9 +454,9 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	@Override
 	public TripleExpr visitEncapsulatedShape(EncapsulatedShapeContext ctx) {
-		TripleExpr result = visitInnerShape(ctx.innerShape());
+		TripleExpr result = visitOneOfShape(ctx.oneOfShape());//(ctx.innerShape());
 		
-		if (ctx.annotation()!=null) {
+		if (ctx.annotation()!=null && !ctx.annotation().isEmpty()) {
 			List<Annotation> annotations = new ArrayList<Annotation>();
 			for (ShExDocParser.AnnotationContext annotContext:ctx.annotation())
 				annotations.add((Annotation) annotContext.accept(this));

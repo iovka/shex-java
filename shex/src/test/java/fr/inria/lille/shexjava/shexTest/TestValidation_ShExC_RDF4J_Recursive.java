@@ -76,7 +76,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
 	protected static final IRI TEST_TRAIT_IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#trait");
 
 	protected static final Set<IRI> skippedIris = new HashSet<>(Arrays.asList(new IRI[] {
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start"), // average number of test
+			//RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start"), // average number of test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"SemanticAction"), // lot of test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ExternalShape"),  // 4 tests
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"LiteralFocus"), //no test
@@ -146,21 +146,18 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     			String message = "Skipping test because schema file does not exists.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
     		}
-    		//System.out.println(testCase.shapeLabel);
-    		//System.out.println(testCase);
+    		
     		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
-    		//System.out.println(schema.getRules());
- 
-    		//System.out.println(dataGraph.stream().collect(Collectors.toList()));
     		Graph dataGraph = getRDFGraph();    		
     		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
     		
+    		if (testCase.traits.contains(RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start")))
+    			testCase.shapeLabel = schema.getStart().getId();
+    			
     		validation.validate(testCase.focusNode, testCase.shapeLabel);
     		
-    		//System.out.println(validation.getTyping().getStatusMap());
-
     		if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && 
-    				validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.CONFORMANT)
+    				validation.getTyping().isConformant(testCase.focusNode, testCase.shapeLabel))
     				||
     				(testCase.testKind.equals(VALIDATION_FAILURE_CLASS) &&
     						validation.getTyping().getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
@@ -208,6 +205,7 @@ public class TestValidation_ShExC_RDF4J_Recursive {
     	
 		return result;
 	}
+    
 	
 	public Graph getRDFGraph() throws IOException {
 		Model data = parseTurtleFile(getDataFileName(testCase.dataFileName),GITHUB_URL+"validation/");

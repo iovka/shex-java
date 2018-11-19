@@ -84,6 +84,7 @@ public class ShExJParser implements Parser{
 	private RDF rdfFactory;
 	private List<String> imports;
 	private Path path;
+	private ShapeExpr start;
 
 	// --------------------------------------------------------------------
 	// 	PARSING
@@ -106,8 +107,10 @@ public class ShExJParser implements Parser{
 	
 	public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
 		this.rdfFactory = rdfFactory;
+		start = null;
 		imports = new ArrayList<>();
-
+		Map<Label,ShapeExpr> rules = new HashMap<Label,ShapeExpr>();
+		
 		Object schemaObject = JsonUtils.fromInputStream(is,Charset.defaultCharset().name());
 		
 		Map map = (Map) schemaObject;
@@ -120,9 +123,7 @@ public class ShExJParser implements Parser{
 			System.err.println("startActs not supported.");
 		}
 
-		if (map.containsKey("start")) {
-			throw new UnsupportedOperationException("Start action not supported.");
-		}
+		
 		
 		if (map.containsKey("imports")){
 			if (map.get("imports") instanceof String) {
@@ -131,16 +132,22 @@ public class ShExJParser implements Parser{
 				imports.addAll((List<String>) map.get("imports"));
 			}
 		}
-		List shapes = (List) (map.get("shapes"));
-
-		Map<Label,ShapeExpr> rules = new HashMap<Label,ShapeExpr>();
-
-		for (Object shapeObj : shapes) {
-			Map shape = (Map) shapeObj;
-			ShapeExpr shexpr = parseShapeExpression(shape);
-			if (rules.containsKey(shexpr.getId()))
-				throw new IllegalArgumentException("Label "+shexpr.getId()+" allready used.");
-			rules.put(shexpr.getId(), shexpr);
+		
+		if (map.containsKey("shapes")){
+			List shapes = (List) (map.get("shapes"));
+	
+			for (Object shapeObj : shapes) {
+				Map shape = (Map) shapeObj;
+				ShapeExpr shexpr = parseShapeExpression(shape);
+				if (rules.containsKey(shexpr.getId()))
+					throw new IllegalArgumentException("Label "+shexpr.getId()+" allready used.");
+				rules.put(shexpr.getId(), shexpr);
+			}
+		}
+		
+		if (map.containsKey("start")) {
+			start = parseShapeExpression(map.get("start"));
+			rules.put(start.getId(), start);
 		}
 
 		return rules;
@@ -152,6 +159,10 @@ public class ShExJParser implements Parser{
 
 	public Map<String,String> getPrefixes(){
 		return Collections.emptyMap();
+	}
+	
+	public ShapeExpr getStart() {
+		return start;
 	}
 	
 	//-------------------------------------------
@@ -221,8 +232,7 @@ public class ShExJParser implements Parser{
 
 	// ShapeNot 	{ 	id:Label? shapeExpr:shapeExpr }
 	protected ShapeExpr parseShapeNot (Map map) {
-		Map shapeExpr = (Map) map.get("shapeExpr");
-		ShapeExpr subExpr = parseShapeExpression(shapeExpr);
+		ShapeExpr subExpr = parseShapeExpression(map.get("shapeExpr"));
 		ShapeExpr res = new ShapeNot(subExpr);
 		setShapeId(res, map);
 		return res;
