@@ -438,6 +438,10 @@ public class ShexSchema {
 			set.add(new Pair<Label,Label>(expr.getId(),expr.getSubExpression().getId()));
 			super.visitShapeNot(expr, arguments);
 		}
+		
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+		}
 	}
 	
 	
@@ -617,6 +621,7 @@ public class ShexSchema {
 			set.add(new Pair<Pair<Label,Label>,Integer>(edge,-1));
 			super.visitShapeNot(expr, arguments);
 		}
+		
 	}
 	
 	

@@ -16,12 +16,27 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import java.util.Map;
+
+import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 
 /**
  * 
  * @author Iovka Boneva
  * 11 oct. 2017
  */
-public abstract class ShapeExternal extends ShapeExpr {
+public class ShapeExternal extends ShapeExpr {
+	public ShapeExternal() {
+	}
+
+	@Override
+	public String toPrettyString(Map<String,String> prefixes) {
+		return "EXTERNAL( "+id.toPrettyString(prefixes)+")";
+	}
+
+	@Override
+	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
+		visitor.visitShapeExternal(this, arguments);
+	}
 
 }

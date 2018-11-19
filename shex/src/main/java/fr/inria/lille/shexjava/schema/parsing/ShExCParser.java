@@ -41,6 +41,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
@@ -80,7 +81,6 @@ import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAto
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeExpressionContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeNotContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeOrRefContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InnerShapeContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.IriExclusionContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.IriRangeContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LanguageExclusionContext;
@@ -244,7 +244,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	@Override 
 	public ShapeExpr visitShapeExprDecl(ShExDocParser.ShapeExprDeclContext ctx) {
 		Label label = (Label) visitShapeExprLabel(ctx.shapeExprLabel());
-		ShapeExpr expr = (ShapeExpr) visitShapeExpression(ctx.shapeExpression());
+		ShapeExpr expr ;
+		if (ctx.KW_EXTERNAL()!=null) {
+			expr = new ShapeExternal();
+		}else {
+			expr = (ShapeExpr) visitShapeExpression(ctx.shapeExpression());
+		}
 		expr.setId(label);
 		if (rules.containsKey(label))
 			throw new IllegalArgumentException("Label "+label+" allready used.");
@@ -411,12 +416,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		return new OneOf(children);
 	}
 
-	@Override
-	public TripleExpr visitInnerShape(InnerShapeContext ctx) {
-		if (ctx.multiElementGroup()!=null)
-			return visitMultiElementGroup(ctx.multiElementGroup());
-		return visitMultiElementOneOf(ctx.multiElementOneOf());
-	}
 
 	@Override
 	public TripleExpr visitGroupShape(GroupShapeContext ctx) {

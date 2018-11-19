@@ -162,12 +162,6 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMultiElementOneOf(ShExDocParser.MultiElementOneOfContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#innerShape}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInnerShape(ShExDocParser.InnerShapeContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#groupShape}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

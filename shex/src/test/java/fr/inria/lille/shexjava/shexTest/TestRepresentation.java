@@ -43,9 +43,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import fr.inria.lille.shexjava.exception.CyclicReferencesException;
-import fr.inria.lille.shexjava.exception.NotStratifiedException;
-import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.CommonFactory;
@@ -106,7 +103,7 @@ public class TestRepresentation {
     		// System.out.println(schema);
     		passed.add(new TestResultForTestReport(testName, true, null, "negativeStructurePass"));
     	}catch (Exception e) {
-    		e.printStackTrace();
+    		//e.printStackTrace();
     		failed.add(new TestResultForTestReport(testName, false, e.getMessage(), "negativeStructure"));
     	}
 

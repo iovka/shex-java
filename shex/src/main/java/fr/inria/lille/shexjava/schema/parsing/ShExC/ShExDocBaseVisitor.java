@@ -193,13 +193,6 @@ public class ShExDocBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitInnerShape(ShExDocParser.InnerShapeContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
 	@Override public T visitGroupShape(ShExDocParser.GroupShapeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

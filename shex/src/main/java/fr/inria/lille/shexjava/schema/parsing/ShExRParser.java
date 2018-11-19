@@ -156,7 +156,7 @@ public class ShExRParser implements Parser {
 		this.rdfFactory = rdfFactory;
 		IRI SCHEMA = rdfFactory.createIRI("http://www.w3.org/ns/shex#Schema");
 		IRI SHAPES = rdfFactory.createIRI("http://www.w3.org/ns/shex#shapes");
-		//IRI START = rdfFactory.createIRI("http://www.w3.org/ns/shex#start");
+		IRI START = rdfFactory.createIRI("http://www.w3.org/ns/shex#start");
 		IRI TYPE_IRI = rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
