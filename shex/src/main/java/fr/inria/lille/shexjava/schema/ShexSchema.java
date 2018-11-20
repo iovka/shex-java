@@ -278,7 +278,7 @@ public class ShexSchema {
 		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph();
 		CycleDetector<Label, DefaultEdge> detector = new CycleDetector<>(referencesGraph);
 		if (detector.detectCycles())
-			throw new CyclicReferencesException("Cyclic dependencies of refences found." );
+			throw new CyclicReferencesException("Cyclic dependencies of refences found: "+detector.findCycles()+"." );
 	}
 	
 	private void computeStratification () throws NotStratifiedException {

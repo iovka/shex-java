@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -26,6 +27,7 @@ import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
+import org.apache.commons.text.StringEscapeUtils;
 
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
@@ -151,8 +153,16 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		imports = new ArrayList<String>();
 		base = null;
 		
+//		CharStream input = new ANTLRFileStream("myinputfile");
+//		JavaLexer lexer = new JavaLexer(input);
+//		CommonTokenStream tokens = new CommonTokenStream(lexer);
+//		
+//		CharStream input = CharStreams.fromFileName("inputfile");
+//		JavaLexer lexer = new JavaLexer(input);
+//		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
-		ANTLRInputStream inputStream = new ANTLRInputStream(isr);
+		CharStream inputStream = CharStreams.fromReader(isr);
 		ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
 		ShExDocLexer.removeErrorListeners();
 		ShExDocLexer.addErrorListener(new ShExCErrorListener());
@@ -1026,7 +1036,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 			iris = iris.substring(1,iris.length()-1);
 			if (base!=null)
 				return rdfFactory.createIRI(base+iris);
-			return rdfFactory.createIRI(iris);
+			return rdfFactory.createIRI(StringEscapeUtils.unescapeJava(iris));
 		}
 		return visitPrefixedName(ctx.prefixedName()); 
 	}
@@ -1063,58 +1073,60 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	
 	//--------------------------------------------
-		// Utils
-		//--------------------------------------------
+	// Utils
+	//--------------------------------------------
 
-		public List<Constraint> cleanConstraint(List<Constraint> constraints) {
-			List<Constraint> result = new ArrayList<Constraint>();
-			
-			FacetNumericConstraint fn=null;
-			FacetStringConstraint sn=null;
-			NodeKindConstraint nk=null;
-			for (Constraint ct:constraints) {
-				boolean dealt = false;
-				if (ct instanceof FacetNumericConstraint) {
-					dealt=true;
-					if (fn==null) {
-						fn = (FacetNumericConstraint) ct;
-					}else{
-						fn.setFractionDigits(((FacetNumericConstraint) ct).getFractionDigits());
-						fn.setTotalDigits(((FacetNumericConstraint) ct).getTotalDigits());
-						fn.setMaxexcl(((FacetNumericConstraint) ct).getMaxexcl());
-						fn.setMaxincl(((FacetNumericConstraint) ct).getMaxincl());
-						fn.setMinexcl(((FacetNumericConstraint) ct).getMinexcl());
-						fn.setMinincl(((FacetNumericConstraint) ct).getMinincl());
-					}
+	public List<Constraint> cleanConstraint(List<Constraint> constraints) {
+		List<Constraint> result = new ArrayList<Constraint>();
+
+		FacetNumericConstraint fn=null;
+		FacetStringConstraint sn=null;
+		NodeKindConstraint nk=null;
+		for (Constraint ct:constraints) {
+			boolean dealt = false;
+			if (ct instanceof FacetNumericConstraint) {
+				dealt=true;
+				if (fn==null) {
+					fn = (FacetNumericConstraint) ct;
+				}else{
+					FacetNumericConstraint tmp = ((FacetNumericConstraint) ct);
+					if (tmp.getFractionDigits()!=null) fn.setFractionDigits(tmp.getFractionDigits());
+					if (tmp.getTotalDigits()!=null) fn.setTotalDigits(tmp.getTotalDigits());
+					if (tmp.getMaxexcl()!=null) fn.setMaxexcl(tmp.getMaxexcl());
+					if (tmp.getMaxincl()!=null) fn.setMaxincl(tmp.getMaxincl());
+					if (tmp.getMinexcl()!=null) fn.setMinexcl(tmp.getMinexcl());
+					if (tmp.getMinincl()!=null) fn.setMinincl(tmp.getMinincl());
 				}
-				if (ct instanceof FacetStringConstraint) {
-					dealt=true;
-					if (sn==null) {
-						sn = (FacetStringConstraint) ct;
-					}else{
-						sn.setFlags(((FacetStringConstraint) ct).getFlags());
-						sn.setPattern(((FacetStringConstraint) ct).getPatternString());
-						sn.setLength(((FacetStringConstraint) ct).getLength());
-						sn.setMaxlength(((FacetStringConstraint) ct).getMaxlength());
-						sn.setMinLength(((FacetStringConstraint) ct).getMinlength());
-					}
-				}
-				if (ct instanceof NodeKindConstraint) {
-					dealt=true;
-					if (nk == null) {
-						nk = (NodeKindConstraint) ct;
-					} else {
-						throw new ParseCancellationException("Multiple nodekind constraint found.");
-					}
-				}
-				if (!dealt)
-					result.add(ct);
-				
 			}
-			if (fn!=null) result.add(fn);
-			if (sn!=null) result.add(sn);
-			if (nk!=null) result.add(nk);
-			
-			return result;
+			if (ct instanceof FacetStringConstraint) {
+				dealt=true;
+				if (sn==null) {
+					sn = (FacetStringConstraint) ct;
+				}else{
+					FacetStringConstraint tmp = ((FacetStringConstraint) ct);
+					if (tmp.getFlags()!=null) sn.setFlags(tmp.getFlags());
+					if (tmp.getPatternString()!=null) sn.setPattern(tmp.getPatternString());
+					if (tmp.getLength()!=null) sn.setLength(tmp.getLength());
+					if (tmp.getMaxlength()!=null) sn.setMaxlength(tmp.getMaxlength());
+					if (tmp.getMinlength()!=null) sn.setMinLength(tmp.getMinlength());
+				}
+			}
+			if (ct instanceof NodeKindConstraint) {
+				dealt=true;
+				if (nk == null) {
+					nk = (NodeKindConstraint) ct;
+				} else {
+					throw new ParseCancellationException("Multiple nodekind constraint found.");
+				}
+			}
+			if (!dealt)
+				result.add(ct);
+
 		}
+		if (fn!=null) result.add(fn);
+		if (sn!=null) result.add(sn);
+		if (nk!=null) result.add(nk);
+
+		return result;
+	}
 }

@@ -45,6 +45,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
+import fr.inria.lille.shexjava.schema.parsing.ShExCParser;
 import fr.inria.lille.shexjava.util.CommonFactory;
 import fr.inria.lille.shexjava.util.RDF4JFactory;
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
@@ -87,7 +88,7 @@ public class TestRepresentation {
     	}
     	return Collections.emptyList();
     }
-    
+    protected static ShExCParser parser = new ShExCParser();
     
     @Parameter
     public String testName;
@@ -97,10 +98,10 @@ public class TestRepresentation {
 	
     @Test
     public void runTest() {
-    //	 null;
     	try {
-    		ShexSchema schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+    		//ShexSchema schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
     		// System.out.println(schema);
+    		parser.getRules(schemaFile);
     		passed.add(new TestResultForTestReport(testName, true, null, "negativeStructurePass"));
     	}catch (Exception e) {
     		//e.printStackTrace();
