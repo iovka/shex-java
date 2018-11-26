@@ -21,7 +21,6 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
  * 
  */
 @Stable
-// TODO ajouter ce qu'il faut pour les matching notifications, avant de rendre stable
 public interface ValidationAlgorithm {
 
 	/** Constructs a shape map that allows to validate a focus node against a type.

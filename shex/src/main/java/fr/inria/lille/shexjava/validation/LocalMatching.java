@@ -18,7 +18,6 @@ public class LocalMatching {
 	// TODO: see whether we want to implement it differently
 	// TODO having null for the matching to indicate that there is no matching is not satisfactory
 
-//	private List<Pair<Triple, Label>> matching;
 	private Map<Triple, Label> matching;
 	private List<Triple> unmatched;
 	private List<Triple> matchedToExtra;	
