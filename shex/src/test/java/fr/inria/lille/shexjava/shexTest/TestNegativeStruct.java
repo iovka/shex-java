@@ -107,9 +107,9 @@ public class TestNegativeStruct {
 		try {
 			schema = GenParser.parseSchema(new CommonFactory(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
 			if (pass){
-    			passed.add(new TestResultForTestReport(testName, true, null, "negativeStructurePass"));
+    			passed.add(new TestResultForTestReport(testName, true, null, "negativeStructure"));
     		} else {
-				failed.add(new TestResultForTestReport(testName, false, null, "negativeStructureFailure"));					
+				failed.add(new TestResultForTestReport(testName, false, null, "negativeStructure"));					
     		}
 		}catch (Exception e) {
 			if (pass && ((e instanceof CyclicReferencesException)

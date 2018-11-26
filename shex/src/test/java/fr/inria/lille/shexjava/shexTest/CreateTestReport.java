@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.runner.JUnitCore;
 
 import fr.inria.lille.shexjava.util.TestResultForTestReport;
@@ -109,7 +110,7 @@ public class CreateTestReport {
 		s.append(String.format("    a earl:TestResult;\n"));
 		s.append(String.format("    earl:outcome earl:%s;\n", res.passed ? "passed" : "failed"));
 		if (res.description != null)
-			s.append(String.format("    earl:description \"%s\";\n", res.description));
+			s.append(String.format("    earl:description \"%s\";\n", StringEscapeUtils.escapeJava(res.description)));
 		s.append(String.format("    dc:date %s;\n", WHEN));
 		s.append(String.format("  ];\n"));
 		s.append(String.format("  earl:mode earl:automatic] .\n"));
