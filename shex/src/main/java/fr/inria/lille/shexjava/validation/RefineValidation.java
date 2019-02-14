@@ -75,6 +75,13 @@ public class RefineValidation extends SORBEBasedValidation {
 		computed = false;
 	}
 	
+	/** (non-Javadoc)
+	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
+	 */
+	public void validate() {
+		computeMaximalTyping(null);
+	}
+	
 	
 	/** (non-Javadoc)
 	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
@@ -85,8 +92,8 @@ public class RefineValidation extends SORBEBasedValidation {
 			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
-//		if (focusNode != null && ! allGraphNodes.contains(focusNode))
-//			throw new IllegalArgumentException("Node do not belong to the graph.");
+		if (focusNode != null && ! allGraphNodes.contains(focusNode))
+			throw new IllegalArgumentException("Node do not belong to the graph.");
 		
 		computeMaximalTyping(focusNode);
 

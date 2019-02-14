@@ -153,14 +153,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		imports = new ArrayList<String>();
 		base = null;
 		
-//		CharStream input = new ANTLRFileStream("myinputfile");
-//		JavaLexer lexer = new JavaLexer(input);
-//		CommonTokenStream tokens = new CommonTokenStream(lexer);
-//		
-//		CharStream input = CharStreams.fromFileName("inputfile");
-//		JavaLexer lexer = new JavaLexer(input);
-//		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		CharStream inputStream = CharStreams.fromReader(isr);
 		ShExDocLexer ShExDocLexer = new ShExDocLexer(inputStream);
