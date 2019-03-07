@@ -35,7 +35,6 @@ import fr.inria.lille.shexjava.util.CommonGraph;
 public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm {
 	
 	protected Graph graph;
-	protected Set<RDFTerm> allGraphNodes;
 	protected ShexSchema schema;
 	
 	
@@ -47,7 +46,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph) {
 		this.graph = graph;
 		this.schema = schema;
-		this.allGraphNodes = CommonGraph.getAllNodes(graph);
 		resetTyping();
 	
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();
