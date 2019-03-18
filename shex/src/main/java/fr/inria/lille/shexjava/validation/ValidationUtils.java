@@ -54,7 +54,6 @@ public class ValidationUtils {
 			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
 		else
 			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-		
 		return neighbourhood;
 	}
 	

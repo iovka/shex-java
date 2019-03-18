@@ -11,10 +11,15 @@ public class RDFPrintUtils {
 			IRI iri = (IRI) node;
 			if (iri.getIRIString().toLowerCase().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
 				return "a";
+			String bestPrefix = null;
 			for (String prefix:prefixes.keySet()) {
 				if (iri.getIRIString().startsWith(prefixes.get(prefix)))
-					return prefix+(iri.getIRIString().substring(prefixes.get(prefix).length()));
+					if (bestPrefix == null || prefixes.get(bestPrefix).length()<prefixes.get(prefix).length())
+						bestPrefix = prefix;
 			}
+			if (bestPrefix!=null)
+				return bestPrefix+(iri.getIRIString().substring(prefixes.get(bestPrefix).length()));
+
 			return iri.ntriplesString();
 		}
 		return node.ntriplesString();
