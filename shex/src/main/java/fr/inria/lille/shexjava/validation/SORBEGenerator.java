@@ -175,8 +175,12 @@ public class SORBEGenerator {
 					setTripleLabel(tmp,expr);
 					clones.add(tmp);
 				}
-				result = new EachOf(clones);
-				setTripleLabel(result,expr);
+				if (clones.size()==1)
+					result = clones.get(0);
+				else {
+					result = new EachOf(clones);
+					setTripleLabel(result,expr);
+				}
 			}
 		}
 		
