@@ -1,6 +1,5 @@
 package fr.inria.lille.shexjava.util;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.rdf.api.IRI;

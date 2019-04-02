@@ -80,7 +80,6 @@ public class TripleConstraint extends TripleExpr implements AnnotedObject {
 		result += String.format("%s %s",property.toPrettyString(prefixes),shapeExpr.toPrettyString(prefixes));
 		if (this.annotations!=null && this.annotations.size()>0)
 			result +=CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		System.out.println("Prefixes size tc: "+prefixes.size());
 		return result;
 	}
 }

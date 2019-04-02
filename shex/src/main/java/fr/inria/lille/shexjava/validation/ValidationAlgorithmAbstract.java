@@ -25,7 +25,6 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.util.CommonGraph;
 
 /** An implementation of {@link ValidationAlgorithm} that offers some common utilities.
  * 
