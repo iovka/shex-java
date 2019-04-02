@@ -83,12 +83,12 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
-		String closedstr = isClosed() ? "CLOSED" : "";
-		String extraP = extra.isEmpty() ? "" : "EXTRA" + extra.toString();
+		String closedstr = isClosed() ? "CLOSED " : "";
+		String extraP = extra.isEmpty() ? "" : "EXTRA " + extra.toString();
 		String annot = "";
 		if (this.annotations!=null && this.annotations.isEmpty())
-			annot = CollectionToString.collectionToString(annotations," ; ","// [", "]");
-		return String.format("(%s %s %s %s)", closedstr, extraP, tripleExpr.toPrettyString(prefixes),annot);	
+			annot = CollectionToString.collectionToString(annotations," ; ","// [", "]")+" ";
+		return String.format("{%s%s%s%s}", closedstr, extraP, tripleExpr.toPrettyString(prefixes),annot);	
 	}
 
 	

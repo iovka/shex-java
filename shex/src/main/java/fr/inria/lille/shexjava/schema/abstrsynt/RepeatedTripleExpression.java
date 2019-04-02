@@ -51,7 +51,7 @@ public class RepeatedTripleExpression extends TripleExpr {
 			format = "(%s)%s";
 		else
 			format = "%s%s";
-		return String.format(format, subExpr.toPrettyString(), card.toString());
+		return String.format(format, subExpr.toPrettyString(prefixes), card.toString());
 	}
 
 	@Override

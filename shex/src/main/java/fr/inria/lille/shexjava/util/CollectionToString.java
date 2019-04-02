@@ -18,6 +18,7 @@ package fr.inria.lille.shexjava.util;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 
@@ -35,14 +36,14 @@ public class CollectionToString {
 		return s.toString();
 	}
 	
-	public static String collectionToPrettyString (Collection<TripleExpr> list, String separator, String prefix, String suffix) {
+	public static String collectionToPrettyString (Collection<TripleExpr> list, String separator, String prefix, String suffix, Map<String,String> prefixes) {
 		StringBuilder s = new StringBuilder();
 		s.append(prefix);
 		Iterator<TripleExpr> it = list.iterator();
-		if (it.hasNext()) s.append(it.next().toPrettyString());
+		if (it.hasNext()) s.append(it.next().toPrettyString(prefixes));
 		while (it.hasNext()) {
 			s.append(separator);
-			s.append(it.next().toPrettyString());
+			s.append(it.next().toPrettyString(prefixes));
 		}
 		s.append(suffix);
 		return s.toString();
