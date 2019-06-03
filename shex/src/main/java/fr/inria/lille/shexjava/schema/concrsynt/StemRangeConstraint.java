@@ -28,10 +28,10 @@ import fr.inria.lille.shexjava.util.RDFPrintUtils;
  *
  */
 public abstract class StemRangeConstraint implements ValueConstraint {
-	protected Constraint stem;
+	protected ValueConstraint stem;
 	protected ValueSetValueConstraint exclusions;
 	
-	public StemRangeConstraint(Constraint stem,ValueSetValueConstraint exclusions) {
+	public StemRangeConstraint(ValueConstraint stem,ValueSetValueConstraint exclusions) {
 		this.stem = stem;
 		this.exclusions = exclusions;
 	}
@@ -48,7 +48,7 @@ public abstract class StemRangeConstraint implements ValueConstraint {
 		return true;
 	}
 	
-	public Constraint getStem() {
+	public ValueConstraint getStem() {
 		return stem;
 	}
 
@@ -71,7 +71,7 @@ public abstract class StemRangeConstraint implements ValueConstraint {
 		String exclusionsString = "";
 		for (RDFTerm value:exclusions.getExplicitValues())
 			exclusionsString += "-"+RDFPrintUtils.toPrettyString(value, prefixes)+" ";
-		for (Constraint cst:exclusions.getConstraintsValue())
+		for (ValueConstraint cst:exclusions.getConstraintsValue())
 			exclusionsString += "-"+cst.toPrettyString(prefixes)+" ";
 		return "[ "+stem.toPrettyString(prefixes)+" "+exclusionsString+" ]";
 	}

@@ -24,7 +24,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  * @author Jérémie Dusart
  *
  */
-public class WildcardConstraint implements Constraint {
+public class WildcardConstraint implements ValueConstraint {
 	
 	
 	/** Return always true.

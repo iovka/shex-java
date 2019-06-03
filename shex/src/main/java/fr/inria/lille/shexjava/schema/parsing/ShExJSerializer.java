@@ -63,6 +63,7 @@ import fr.inria.lille.shexjava.schema.concrsynt.LanguageStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.NodeKindConstraint;
+import fr.inria.lille.shexjava.schema.concrsynt.ValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.ValueSetValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.WildcardConstraint;
 import fr.inria.lille.shexjava.util.Interval;
@@ -241,7 +242,7 @@ public class ShExJSerializer {
 			result.add(convertValue(val));
 		}
 		
-		for (Constraint cons:constraint.getConstraintsValue()) {
+		for (ValueConstraint cons:constraint.getConstraintsValue()) {
 			if (cons instanceof LanguageConstraint)
 				result.add(convertLanguageConstraint((LanguageConstraint) cons));
 			if (cons instanceof LanguageStemConstraint)

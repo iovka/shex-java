@@ -431,7 +431,7 @@ public class ShExJParser implements Parser{
 			}
 		}
 
-		Constraint stem;
+		ValueConstraint stem;
 		if (m.get("stem") instanceof String) {
 			stem = parseIRIStem(m);
 		} else {
@@ -470,7 +470,7 @@ public class ShExJParser implements Parser{
 			}
 		}
 
-		Constraint stem;
+		ValueConstraint stem;
 		if (m.get("stem") instanceof String) {
 			stem = parseLiteralStem(m);
 		} else {
@@ -520,7 +520,7 @@ public class ShExJParser implements Parser{
 			}
 		}
 
-		Constraint stem;
+		ValueConstraint stem;
 		if (m.get("stem") instanceof String) {
 			stem = parseLanguageStem(m);
 		} else {

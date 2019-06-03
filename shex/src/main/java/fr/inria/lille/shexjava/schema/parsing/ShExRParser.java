@@ -406,7 +406,7 @@ public class ShExRParser implements Parser {
 			return new IRIStemConstraint(tmp.getLexicalForm());
 		}
 		if (type.equals(IRI_STEM_RANGE)) {
-			Constraint stem;
+			ValueConstraint stem;
 			if (testTriples(value, STEM)) {
 				RDFTerm tmp = (RDFTerm) getObjects(value, STEM).get(0);
 				if (tmp instanceof Literal)
@@ -450,7 +450,7 @@ public class ShExRParser implements Parser {
 			return new LiteralStemConstraint(tmp.getLexicalForm());
 		}
 		if (type.equals(LITERAL_STEM_RANGE)) {
-			Constraint stem;
+			ValueConstraint stem;
 			if (testTriples(value, STEM)) {
 				Literal tmp = (Literal) getObjects(value, STEM).get(0);
 				stem = new LiteralStemConstraint(tmp.getLexicalForm());
@@ -498,7 +498,7 @@ public class ShExRParser implements Parser {
 			return new LanguageStemConstraint(tmp.getLexicalForm());
 		}
 		if (type.equals(LANGUAGE_STEM_RANGE)) {
-			Constraint stem ;
+			ValueConstraint stem ;
 			if (testTriples(value, STEM)) {
 				Literal tmp = (Literal)  getObjects(value, STEM).get(0);
 				stem = new LanguageStemConstraint(tmp.getLexicalForm());

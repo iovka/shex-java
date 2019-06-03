@@ -40,6 +40,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
 import fr.inria.lille.shexjava.schema.concrsynt.Constraint;
 import fr.inria.lille.shexjava.schema.concrsynt.StemRangeConstraint;
+import fr.inria.lille.shexjava.schema.concrsynt.ValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.ValueSetValueConstraint;
 
 
@@ -170,9 +171,9 @@ public class SchemaEquality {
 				if (!vst2.getExplicitValues().contains(v))
 					return false;
 			
-			List<Constraint> lct1 = new ArrayList<Constraint>(vst1.getConstraintsValue());
-			List<Constraint> lct2 = new ArrayList<Constraint>(vst2.getConstraintsValue());
-			return areEqualsListConstraint(lct1,lct2);
+			List<ValueConstraint> lct1 = new ArrayList<ValueConstraint>(vst1.getConstraintsValue());
+			List<ValueConstraint> lct2 = new ArrayList<ValueConstraint>(vst2.getConstraintsValue());
+			return areEqualsListValueConstraint(lct1,lct2);
 		}
 		
 		if (ct1 instanceof StemRangeConstraint) {
@@ -187,8 +188,54 @@ public class SchemaEquality {
 		return false;
 	}
 	
+	private static boolean areEqualsListValueConstraint(List<ValueConstraint> list1, List<ValueConstraint> list2) {
+		if (list1.isEmpty() & list2.isEmpty())
+			return true;
+
+		for (ValueConstraint sh2:list2) {
+			List<ValueConstraint> tmp = new ArrayList<ValueConstraint>(list2);
+			tmp.remove(sh2);
+			if (areEqualsValueConstraint(list1.get(0),sh2) && areEqualsListValueConstraint(list1.subList(1, list1.size()),tmp)){
+				return true;				
+			}
+		}
+		
+		return false;
+	}
 	
 	
+	private static boolean areEqualsValueConstraint(ValueConstraint ct1,ValueConstraint ct2) {
+		// Allow to deal with nodekinnd, datatype constraint, facet, stem, Language. Need to deal with StemRange and ValueSetValue
+		if (ct1.equals(ct2)) 
+			return true;
+		
+		
+		if (ct1 instanceof ValueSetValueConstraint & ct2 instanceof ValueSetValueConstraint) {
+			ValueSetValueConstraint vst1 = (ValueSetValueConstraint) ct1;
+			ValueSetValueConstraint vst2 = (ValueSetValueConstraint) ct2;
+			
+			if (vst1.getExplicitValues().size()!=vst2.getExplicitValues().size())
+				return false;
+			for (RDFTerm v:vst1.getExplicitValues())
+				if (!vst2.getExplicitValues().contains(v))
+					return false;
+			
+			List<ValueConstraint> lct1 = new ArrayList<ValueConstraint>(vst1.getConstraintsValue());
+			List<ValueConstraint> lct2 = new ArrayList<ValueConstraint>(vst2.getConstraintsValue());
+			return areEqualsListValueConstraint(lct1,lct2);
+		}
+		
+		if (ct1 instanceof StemRangeConstraint) {
+			StemRangeConstraint str1 = (StemRangeConstraint) ct1;
+			StemRangeConstraint str2 = (StemRangeConstraint) ct2;
+			
+			if (! str1.getStem().equals(str2.getStem()))
+				return false;
+			return areEqualsConstraint(str1.getExclusions(),str2.getExclusions());
+		}
+			
+		return false;
+	}
 	//-------------------------------------------------
 	// Triple Equality
 	//-------------------------------------------------

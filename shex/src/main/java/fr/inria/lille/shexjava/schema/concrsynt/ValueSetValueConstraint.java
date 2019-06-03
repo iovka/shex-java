@@ -50,7 +50,7 @@ public class ValueSetValueConstraint implements Constraint {
 		if (explicitValues.contains(node))
 			return true;
 		
-		for (Constraint constraint:constraintsValue)
+		for (ValueConstraint constraint:constraintsValue)
 			if (constraint.contains(node))
 				return true;
 		
@@ -72,7 +72,7 @@ public class ValueSetValueConstraint implements Constraint {
 		String result = "[";
 		for (RDFTerm value:explicitValues)
 			result += " "+RDFPrintUtils.toPrettyString(value, prefixes);
-		for (Constraint cons: constraintsValue) {
+		for (ValueConstraint cons: constraintsValue) {
 			result += " "+cons.toPrettyString(prefixes);
 		}
 		result += "]";
