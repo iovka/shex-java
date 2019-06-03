@@ -87,7 +87,7 @@ public class ShexSchema {
 	
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
 	 * Otherwise, an exception is thrown.
-	 * Uses @link {@link GlobalFactory.RDFFactory} for creating the fresh labels.
+	 * Uses {@link GlobalFactory#RDFFactory} for creating the fresh labels.
 	 * 
 	 * @param rules
 	 * @throws UndefinedReferenceException
@@ -101,7 +101,7 @@ public class ShexSchema {
 	
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
 	 * Otherwise, an exception is thrown.
-	 * Uses @link {@link GlobalFactory.RDFFactory} for creating the fresh labels.
+	 * Uses {@link GlobalFactory#RDFFactory} for creating the fresh labels.
 	 * 
 	 * @param rules
 	 * @param start

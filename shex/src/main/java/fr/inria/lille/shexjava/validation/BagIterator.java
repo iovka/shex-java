@@ -46,11 +46,11 @@ public class BagIterator implements Iterator<Bag>{
 	/** Used for the iteration:  <= currentIndexes[i] < sizes[i] */
 	private int[] currentIndexes;
 	 
-	/** 
-	 * 
-	 * @param neighbourhood the set of triples over which all matchings will be enumerated
-	 * @param allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
-	 */
+
+//	In the constructor, the following field will be initialize:	 
+//	 - neighbourhood the set of triples over which all matchings will be enumerated
+//	 - allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
+//	 
 	public BagIterator(PreMatching preMatching) {
 		neighbourhood = new ArrayList<>();
 		allMatches = new ArrayList<>();

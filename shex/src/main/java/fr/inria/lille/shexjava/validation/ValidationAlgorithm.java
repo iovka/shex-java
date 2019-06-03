@@ -28,7 +28,7 @@ public interface ValidationAlgorithm {
 	 * 
 	 * @param focusNode The focus node for which the shape map is to be complete. The node must belong to the graph.
 	 * @param label The label against which the node is being tested.  
-	 * @return true iff the subsequent call to {@link #getTyping().Typing#getStatus()} returns {@link Status.CONFORMANT}
+	 * @return true iff the subsequent call to {@link #getTyping() Typing#getStatus} returns {@link Status#CONFORMANT}
 	 * @exception IllegalArgumentException if the label does not belong to the schema
 	 */ 
 	@Stable
