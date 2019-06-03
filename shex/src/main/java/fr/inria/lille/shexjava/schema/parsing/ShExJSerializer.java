@@ -76,7 +76,6 @@ public class ShExJSerializer {
 	
 	public static void ToJson(ShexSchema schema, Path destination) throws JsonGenerationException, IOException {
 		Object json = ToJson(schema.getRules());
-		//FileWriter fw = new FileWriter(destination.toFile());
 		BufferedWriter fw = Files.newWriter(destination.toFile(), Charset.defaultCharset());
 		JsonUtils.writePrettyPrint(fw, json);
 	}

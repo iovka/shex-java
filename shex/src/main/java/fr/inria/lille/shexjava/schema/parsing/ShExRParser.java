@@ -79,6 +79,7 @@ import fr.inria.lille.shexjava.schema.concrsynt.LanguageStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.NodeKindConstraint;
+import fr.inria.lille.shexjava.schema.concrsynt.ValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.ValueSetValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.WildcardConstraint;
 import fr.inria.lille.shexjava.util.DatatypeUtil;
@@ -369,13 +370,13 @@ public class ShExRParser implements Parser {
 		
 		List<Object> values_tmp = computeListOfObject(val);
 		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
-		Set<Constraint> constraints = new HashSet<Constraint>();
+		Set<ValueConstraint> constraints = new HashSet<ValueConstraint>();
 		for (Object obj:values_tmp) {
 			if (obj instanceof Literal | obj instanceof IRI) {
 				explicitValues.add((RDFTerm) obj);
 				continue;
 			} else {
-				Constraint tmp = parseLanguage((RDFTerm) obj);
+				ValueConstraint tmp = parseLanguage((RDFTerm) obj);
 				if (tmp!=null)
 					constraints.add(tmp);
 				tmp = parseLiteralStem((RDFTerm) obj);
@@ -392,7 +393,7 @@ public class ShExRParser implements Parser {
 	
 	
 	
-	private Constraint parseIRIStem(RDFTerm value) {
+	private ValueConstraint parseIRIStem(RDFTerm value) {
 		IRI EXCLUSION = rdfFactory.createIRI("http://www.w3.org/ns/shex#exclusion");
 		IRI STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#stem");
 		IRI IRI_STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#IriStem");
@@ -417,7 +418,7 @@ public class ShExRParser implements Parser {
 			}
 			
 			Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
-			Set<Constraint> constraints = new HashSet<Constraint>();
+			Set<ValueConstraint> constraints = new HashSet<ValueConstraint>();
 			
 			RDFTerm exclu = (RDFTerm) getObjects(value, EXCLUSION).get(0);
 			List<Object> exclusions = computeListOfObject(exclu);
@@ -436,7 +437,7 @@ public class ShExRParser implements Parser {
 	}
 	
 	
-	private Constraint parseLiteralStem(RDFTerm value) {
+	private ValueConstraint parseLiteralStem(RDFTerm value) {
 		IRI EXCLUSION = rdfFactory.createIRI("http://www.w3.org/ns/shex#exclusion");
 		IRI STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#stem");
 		IRI LITERAL_STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#LiteralStem");
@@ -458,7 +459,7 @@ public class ShExRParser implements Parser {
 			}
 			
 			Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
-			Set<Constraint> constraints = new HashSet<Constraint>();
+			Set<ValueConstraint> constraints = new HashSet<ValueConstraint>();
 			
 			RDFTerm exclu = (RDFTerm) getObjects(value, EXCLUSION).get(0);
 			List<Object> exclusions = computeListOfObject(exclu);
@@ -478,7 +479,7 @@ public class ShExRParser implements Parser {
 	
 	
 	
-	private Constraint parseLanguage(RDFTerm value) {
+	private ValueConstraint parseLanguage(RDFTerm value) {
 		IRI STEM = rdfFactory.createIRI("http://www.w3.org/ns/shex#stem");
 		IRI EXCLUSION = rdfFactory.createIRI("http://www.w3.org/ns/shex#exclusion");
 		IRI LANGUAGE = rdfFactory.createIRI("http://www.w3.org/ns/shex#Language");
@@ -506,7 +507,7 @@ public class ShExRParser implements Parser {
 			}
 			
 			Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
-			Set<Constraint> constraints = new HashSet<Constraint>();
+			Set<ValueConstraint> constraints = new HashSet<ValueConstraint>();
 			
 			RDFTerm exclu = (RDFTerm)  getObjects(value, EXCLUSION).get(0);
 			List<Object> exclusions = computeListOfObject(exclu);

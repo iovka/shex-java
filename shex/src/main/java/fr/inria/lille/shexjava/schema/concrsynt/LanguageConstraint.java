@@ -26,7 +26,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  * @author Jérémie Dusart
  *
  */
-public class LanguageConstraint implements Constraint {
+public class LanguageConstraint implements ValueConstraint {
 	private String langTag;
 	
 	public LanguageConstraint(String langTag) {

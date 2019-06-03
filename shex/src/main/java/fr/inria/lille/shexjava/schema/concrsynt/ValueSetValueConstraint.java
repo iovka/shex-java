@@ -30,9 +30,9 @@ import fr.inria.lille.shexjava.util.RDFPrintUtils;
  */
 public class ValueSetValueConstraint implements Constraint {
 	private Set<RDFTerm> explicitValues;
-	private Set<Constraint> constraintsValue;
+	private Set<ValueConstraint> constraintsValue;
 
-	public ValueSetValueConstraint(Set<RDFTerm> explicitValues, Set<Constraint> constraintsValue) {
+	public ValueSetValueConstraint(Set<RDFTerm> explicitValues, Set<ValueConstraint> constraintsValue) {
 		this.explicitValues = explicitValues;
 		this.constraintsValue = constraintsValue;
 	}
@@ -41,7 +41,7 @@ public class ValueSetValueConstraint implements Constraint {
 		return explicitValues;
 	}
 
-	public Set<Constraint> getConstraintsValue() {
+	public Set<ValueConstraint> getConstraintsValue() {
 		return constraintsValue;
 	}
 

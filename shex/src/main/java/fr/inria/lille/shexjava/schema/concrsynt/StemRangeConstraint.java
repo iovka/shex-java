@@ -27,7 +27,7 @@ import fr.inria.lille.shexjava.util.RDFPrintUtils;
  * @author Jérémie Dusart
  *
  */
-public abstract class StemRangeConstraint implements Constraint {
+public abstract class StemRangeConstraint implements ValueConstraint {
 	protected Constraint stem;
 	protected ValueSetValueConstraint exclusions;
 	

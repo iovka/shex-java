@@ -68,6 +68,7 @@ import fr.inria.lille.shexjava.schema.concrsynt.LanguageStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.NodeKindConstraint;
+import fr.inria.lille.shexjava.schema.concrsynt.ValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.ValueSetValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.WildcardConstraint;
 import fr.inria.lille.shexjava.util.Interval;
@@ -337,7 +338,7 @@ public class ShExJParser implements Parser{
 	// _Stem_ contains stem as key
 	private Constraint parseValueSetValue (List values) {
 		Set<RDFTerm> explicitValues = new HashSet<>();
-		Set<Constraint> nodeConstraints = new HashSet<>();
+		Set<ValueConstraint> nodeConstraints = new HashSet<>();
 
 		for (Object o : values) {
 			if (o instanceof String) {
@@ -404,16 +405,16 @@ public class ShExJParser implements Parser{
 	}
 
 	//IriStem { stem:IRI }
-	protected Constraint parseIRIStem (Map m) {
+	protected ValueConstraint parseIRIStem (Map m) {
 		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new IRIStemConstraint(stem);
 	}
 
 	//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
-	protected Constraint parseIRIStemRange (Map m) {
+	protected ValueConstraint parseIRIStemRange (Map m) {
 		//TODO: error if stem not present
-		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
 			List<Object> exclu = (List<Object>) m.get("exclusions");
@@ -442,16 +443,16 @@ public class ShExJParser implements Parser{
 
 
 	//LiteralStem 	{ 	stem:ObjectLiteral }
-	protected Constraint parseLiteralStem (Map m) {
+	protected ValueConstraint parseLiteralStem (Map m) {
 		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new LiteralStemConstraint(stem);
 	}
 
 	//LiteralStemRange 	{ 	stem:(Literal | Wildcard) exclusions:[ objectValue|LiteralStem +]? }
-	protected Constraint parseLiteralStemRange (Map m) {
+	protected ValueConstraint parseLiteralStemRange (Map m) {
 		//TODO: error if stem not present
-		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
 			List<Object> exclu = (List<Object>) m.get("exclusions");
@@ -479,7 +480,7 @@ public class ShExJParser implements Parser{
 	}
 
 	//Language 	{ 	langTag:ObjectLiteral }
-	protected Constraint parseLanguage (Map m) {
+	protected ValueConstraint parseLanguage (Map m) {
 		if (m.containsKey("languageTag"))
 			return new LanguageConstraint((String) m.get("languageTag"));
 		if (m.containsKey("langTag"))
@@ -487,15 +488,15 @@ public class ShExJParser implements Parser{
 		throw new UnsupportedOperationException("Langtag not found");
 	}
 
-	protected Constraint parseLanguageStem (Map m) {
+	protected ValueConstraint parseLanguageStem (Map m) {
 		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new LanguageStemConstraint(stem);
 	}
 
-	protected Constraint parseLanguageStemRange (Map m) {
+	protected ValueConstraint parseLanguageStemRange (Map m) {
 		//TODO: error if stem not present
-		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
 			List<Object> exclu = (List<Object>) m.get("exclusions");

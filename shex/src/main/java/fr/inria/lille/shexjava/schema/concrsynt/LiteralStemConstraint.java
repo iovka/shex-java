@@ -26,7 +26,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  * @author Jérémie Dusart
  *
  */
-public class LiteralStemConstraint implements Constraint {
+public class LiteralStemConstraint implements ValueConstraint {
 	private String litStem;
 	
 	public LiteralStemConstraint(String litStem) {

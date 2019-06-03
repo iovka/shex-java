@@ -4,7 +4,7 @@
 
 	<groupId>fr.inria.lille.shexjava</groupId>
 	<artifactId>shexjava-core</artifactId>
-	<version>1.2.2e</version>
+	<version>1.2.3</version>
 	<packaging>jar</packaging>
 
 	<name>ShExjava</name>
@@ -44,7 +44,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<antlr.version>4.7.1</antlr.version>
-		<jena.version>3.0.0</jena.version>
+		<jena.version>3.11.0</jena.version>
 		<junit.version>4.12</junit.version>
 		<junit.jupiter.version>5.0.0</junit.jupiter.version>
 		<junit.vintage.version>${junit.version}.0</junit.vintage.version>
