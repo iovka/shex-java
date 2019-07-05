@@ -31,18 +31,16 @@ grammar ShapeMap;
 
 shapeMap                    : shapeAssociation (',' shapeAssociation)* ;
 shapeAssociation            : nodeSpec shapeSpec ;
+shapeSpec                   : '@' (iri | 'START') ;
 nodeSpec                    : objectTerm | triplePattern ;
+triplePattern               : '{' 'FOCUS' predicate (objectTerm | '_') '}'
+                            | '{' (subjectTerm | '_') predicate  'FOCUS' '}'
+                            ;
 objectTerm                  : subjectTerm
                             | literal
                             ;
 subjectTerm                 : iri
                             | blankNode
-                            ;
-triplePattern               : '{' 'FOCUS' predicate (objectTerm | '_') '}'
-                            | '{' (subjectTerm | '_') predicate  'FOCUS' '}'
-                            ;
-shapeSpec                   : '@' (iri | 'START')
-                            | AT_START
                             ;
 literal                     : numericLiteral
                             | rdfLiteral
@@ -89,7 +87,6 @@ PNAME_NS			        : PN_PREFIX? ':' ;
 IRIREF                      : '<' (~[\u0000-\u0020=<>"{}|^`\\] | UCHAR)* '>' ; /* #x00=NULL #01-#x1F=control codes #x20=space */
 BLANK_NODE_LABEL            : '_:' (PN_CHARS_U | [0-9]) ((PN_CHARS | '.')* PN_CHARS)? ;
 RDF_TYPE                    : 'a' ;
-AT_START                    : '@START';
 LANGTAG                     : '@' [a-zA-Z]+ ('-' [a-zA-Z0-9]+)* ;
 INTEGER                     : [+-]? [0-9]+ ;
 DECIMAL                     : [+-]? [0-9]* '.' [0-9]+ ;

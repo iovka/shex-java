@@ -23,11 +23,23 @@ public interface ShapeMapVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitShapeAssociation(ShapeMapParser.ShapeAssociationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ShapeMapParser#shapeSpec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeSpec(ShapeMapParser.ShapeSpecContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ShapeMapParser#nodeSpec}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeSpec(ShapeMapParser.NodeSpecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShapeMapParser#triplePattern}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTriplePattern(ShapeMapParser.TriplePatternContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShapeMapParser#objectTerm}.
 	 * @param ctx the parse tree
@@ -40,18 +52,6 @@ public interface ShapeMapVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSubjectTerm(ShapeMapParser.SubjectTermContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShapeMapParser#triplePattern}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTriplePattern(ShapeMapParser.TriplePatternContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShapeMapParser#shapeSpec}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShapeSpec(ShapeMapParser.ShapeSpecContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShapeMapParser#literal}.
 	 * @param ctx the parse tree
