@@ -32,11 +32,11 @@ grammar ShapeMap;
 shapeMap                    : shapeAssociation (',' shapeAssociation)* ;
 shapeAssociation            : nodeSpec shapeSpec ;
 nodeSpec                    : objectTerm | triplePattern ;
-subjectTerm                 : iri
-                            | blankNode
-                            ;
 objectTerm                  : subjectTerm
                             | literal
+                            ;
+subjectTerm                 : iri
+                            | blankNode
                             ;
 triplePattern               : '{' 'FOCUS' predicate (objectTerm | '_') '}'
                             | '{' (subjectTerm | '_') predicate  'FOCUS' '}'

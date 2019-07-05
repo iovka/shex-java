@@ -38,14 +38,14 @@ public class ShapeMapBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSubjectTerm(ShapeMapParser.SubjectTermContext ctx) { return visitChildren(ctx); }
+	@Override public T visitObjectTerm(ShapeMapParser.ObjectTermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitObjectTerm(ShapeMapParser.ObjectTermContext ctx) { return visitChildren(ctx); }
+	@Override public T visitSubjectTerm(ShapeMapParser.SubjectTermContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

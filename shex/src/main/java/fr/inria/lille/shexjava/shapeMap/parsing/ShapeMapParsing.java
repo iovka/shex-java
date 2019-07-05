@@ -8,9 +8,11 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDF;
+import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -59,15 +61,23 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 		return null;
 	}
 
-	@Override
-	public Object visitSubjectTerm(SubjectTermContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	@Override
-	public Object visitObjectTerm(ObjectTermContext ctx) {
-		// TODO Auto-generated method stub
+	public RDFTerm visitObjectTerm(ObjectTermContext ctx) {
+		if (ctx.literal()!=null)
+			return visitLiteral(ctx.literal());
+		if (ctx.subjectTerm()!=null)
+			return visitSubjectTerm(ctx.subjectTerm());
+		return null;
+	}
+	
+	@Override
+	public BlankNodeOrIRI visitSubjectTerm(SubjectTermContext ctx) {
+		if (ctx.iri()!=null)
+			return visitIri(ctx.iri());
+		if (ctx.blankNode()!=null)
+			return visitBlankNode(ctx.blankNode());
 		return null;
 	}
 

@@ -29,17 +29,17 @@ public interface ShapeMapVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNodeSpec(ShapeMapParser.NodeSpecContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShapeMapParser#subjectTerm}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubjectTerm(ShapeMapParser.SubjectTermContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link ShapeMapParser#objectTerm}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitObjectTerm(ShapeMapParser.ObjectTermContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShapeMapParser#subjectTerm}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubjectTerm(ShapeMapParser.SubjectTermContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShapeMapParser#triplePattern}.
 	 * @param ctx the parse tree

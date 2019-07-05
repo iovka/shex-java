@@ -25,13 +25,13 @@ public class ShapeMapParser extends Parser {
 		PN_CHARS=30, PN_PREFIX=31, PN_LOCAL=32, PLX=33, PERCENT=34, HEX=35, PN_LOCAL_ESC=36, 
 		PASS=37;
 	public static final int
-		RULE_shapeMap = 0, RULE_shapeAssociation = 1, RULE_nodeSpec = 2, RULE_subjectTerm = 3, 
-		RULE_objectTerm = 4, RULE_triplePattern = 5, RULE_shapeSpec = 6, RULE_literal = 7, 
+		RULE_shapeMap = 0, RULE_shapeAssociation = 1, RULE_nodeSpec = 2, RULE_objectTerm = 3, 
+		RULE_subjectTerm = 4, RULE_triplePattern = 5, RULE_shapeSpec = 6, RULE_literal = 7, 
 		RULE_numericLiteral = 8, RULE_rdfLiteral = 9, RULE_booleanLiteral = 10, 
 		RULE_string = 11, RULE_langString = 12, RULE_predicate = 13, RULE_rdfType = 14, 
 		RULE_iri = 15, RULE_prefixedName = 16, RULE_blankNode = 17;
 	public static final String[] ruleNames = {
-		"shapeMap", "shapeAssociation", "nodeSpec", "subjectTerm", "objectTerm", 
+		"shapeMap", "shapeAssociation", "nodeSpec", "objectTerm", "subjectTerm", 
 		"triplePattern", "shapeSpec", "literal", "numericLiteral", "rdfLiteral", 
 		"booleanLiteral", "string", "langString", "predicate", "rdfType", "iri", 
 		"prefixedName", "blankNode"
@@ -261,62 +261,6 @@ public class ShapeMapParser extends Parser {
 		return _localctx;
 	}
 
-	public static class SubjectTermContext extends ParserRuleContext {
-		public IriContext iri() {
-			return getRuleContext(IriContext.class,0);
-		}
-		public BlankNodeContext blankNode() {
-			return getRuleContext(BlankNodeContext.class,0);
-		}
-		public SubjectTermContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_subjectTerm; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ShapeMapVisitor ) return ((ShapeMapVisitor<? extends T>)visitor).visitSubjectTerm(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final SubjectTermContext subjectTerm() throws RecognitionException {
-		SubjectTermContext _localctx = new SubjectTermContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_subjectTerm);
-		try {
-			setState(53);
-			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case PNAME_LN:
-			case PNAME_NS:
-			case IRIREF:
-				enterOuterAlt(_localctx, 1);
-				{
-				setState(51);
-				iri();
-				}
-				break;
-			case BLANK_NODE_LABEL:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(52);
-				blankNode();
-				}
-				break;
-			default:
-				throw new NoViableAltException(this);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
 	public static class ObjectTermContext extends ParserRuleContext {
 		public SubjectTermContext subjectTerm() {
 			return getRuleContext(SubjectTermContext.class,0);
@@ -337,9 +281,9 @@ public class ShapeMapParser extends Parser {
 
 	public final ObjectTermContext objectTerm() throws RecognitionException {
 		ObjectTermContext _localctx = new ObjectTermContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_objectTerm);
+		enterRule(_localctx, 6, RULE_objectTerm);
 		try {
-			setState(57);
+			setState(53);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PNAME_LN:
@@ -348,7 +292,7 @@ public class ShapeMapParser extends Parser {
 			case BLANK_NODE_LABEL:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(55);
+				setState(51);
 				subjectTerm();
 				}
 				break;
@@ -363,8 +307,64 @@ public class ShapeMapParser extends Parser {
 			case STRING_LITERAL_LONG2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(56);
+				setState(52);
 				literal();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class SubjectTermContext extends ParserRuleContext {
+		public IriContext iri() {
+			return getRuleContext(IriContext.class,0);
+		}
+		public BlankNodeContext blankNode() {
+			return getRuleContext(BlankNodeContext.class,0);
+		}
+		public SubjectTermContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_subjectTerm; }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ShapeMapVisitor ) return ((ShapeMapVisitor<? extends T>)visitor).visitSubjectTerm(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final SubjectTermContext subjectTerm() throws RecognitionException {
+		SubjectTermContext _localctx = new SubjectTermContext(_ctx, getState());
+		enterRule(_localctx, 8, RULE_subjectTerm);
+		try {
+			setState(57);
+			_errHandler.sync(this);
+			switch (_input.LA(1)) {
+			case PNAME_LN:
+			case PNAME_NS:
+			case IRIREF:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(55);
+				iri();
+				}
+				break;
+			case BLANK_NODE_LABEL:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(56);
+				blankNode();
 				}
 				break;
 			default:
@@ -1131,11 +1131,11 @@ public class ShapeMapParser extends Parser {
 		"\2\2\30j\3\2\2\2\32l\3\2\2\2\34q\3\2\2\2\36s\3\2\2\2 w\3\2\2\2\"y\3\2"+
 		"\2\2${\3\2\2\2&+\5\4\3\2\'(\7\3\2\2(*\5\4\3\2)\'\3\2\2\2*-\3\2\2\2+)\3"+
 		"\2\2\2+,\3\2\2\2,\3\3\2\2\2-+\3\2\2\2./\5\6\4\2/\60\5\16\b\2\60\5\3\2"+
-		"\2\2\61\64\5\n\6\2\62\64\5\f\7\2\63\61\3\2\2\2\63\62\3\2\2\2\64\7\3\2"+
-		"\2\2\658\5 \21\2\668\5$\23\2\67\65\3\2\2\2\67\66\3\2\2\28\t\3\2\2\29<"+
-		"\5\b\5\2:<\5\20\t\2;9\3\2\2\2;:\3\2\2\2<\13\3\2\2\2=>\7\4\2\2>?\7\5\2"+
-		"\2?B\5\34\17\2@C\5\n\6\2AC\7\6\2\2B@\3\2\2\2BA\3\2\2\2CD\3\2\2\2DE\7\7"+
-		"\2\2EP\3\2\2\2FI\7\4\2\2GJ\5\b\5\2HJ\7\6\2\2IG\3\2\2\2IH\3\2\2\2JK\3\2"+
+		"\2\2\61\64\5\b\5\2\62\64\5\f\7\2\63\61\3\2\2\2\63\62\3\2\2\2\64\7\3\2"+
+		"\2\2\658\5\n\6\2\668\5\20\t\2\67\65\3\2\2\2\67\66\3\2\2\28\t\3\2\2\29"+
+		"<\5 \21\2:<\5$\23\2;9\3\2\2\2;:\3\2\2\2<\13\3\2\2\2=>\7\4\2\2>?\7\5\2"+
+		"\2?B\5\34\17\2@C\5\b\5\2AC\7\6\2\2B@\3\2\2\2BA\3\2\2\2CD\3\2\2\2DE\7\7"+
+		"\2\2EP\3\2\2\2FI\7\4\2\2GJ\5\n\6\2HJ\7\6\2\2IG\3\2\2\2IH\3\2\2\2JK\3\2"+
 		"\2\2KL\5\34\17\2LM\7\5\2\2MN\7\7\2\2NP\3\2\2\2O=\3\2\2\2OF\3\2\2\2P\r"+
 		"\3\2\2\2QT\7\b\2\2RU\5 \21\2SU\7\t\2\2TR\3\2\2\2TS\3\2\2\2UX\3\2\2\2V"+
 		"X\7\22\2\2WQ\3\2\2\2WV\3\2\2\2X\17\3\2\2\2Y]\5\22\n\2Z]\5\24\13\2[]\5"+
