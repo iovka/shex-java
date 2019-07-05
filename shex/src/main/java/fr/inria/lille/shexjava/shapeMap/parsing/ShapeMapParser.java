@@ -21,10 +21,9 @@ public class ShapeMapParser extends Parser {
 		KW_FALSE=10, PNAME_LN=11, PNAME_NS=12, IRIREF=13, BLANK_NODE_LABEL=14, 
 		RDF_TYPE=15, AT_START=16, LANGTAG=17, INTEGER=18, DECIMAL=19, DOUBLE=20, 
 		EXPONENT=21, STRING_LITERAL1=22, STRING_LITERAL2=23, STRING_LITERAL_LONG1=24, 
-		STRING_LITERAL_LONG2=25, LANG_STRING_LITERAL1=26, LANG_STRING_LITERAL2=27, 
-		LANG_STRING_LITERAL_LONG1=28, LANG_STRING_LITERAL_LONG2=29, UCHAR=30, 
-		ECHAR=31, PN_CHARS_BASE=32, PN_CHARS_U=33, PN_CHARS=34, PN_PREFIX=35, 
-		PN_LOCAL=36, PLX=37, PERCENT=38, HEX=39, PN_LOCAL_ESC=40, PASS=41;
+		STRING_LITERAL_LONG2=25, UCHAR=26, ECHAR=27, PN_CHARS_BASE=28, PN_CHARS_U=29, 
+		PN_CHARS=30, PN_PREFIX=31, PN_LOCAL=32, PLX=33, PERCENT=34, HEX=35, PN_LOCAL_ESC=36, 
+		PASS=37;
 	public static final int
 		RULE_shapeMap = 0, RULE_shapeAssociation = 1, RULE_nodeSpec = 2, RULE_subjectTerm = 3, 
 		RULE_objectTerm = 4, RULE_triplePattern = 5, RULE_shapeSpec = 6, RULE_literal = 7, 
@@ -46,10 +45,9 @@ public class ShapeMapParser extends Parser {
 		null, null, null, null, null, null, null, null, null, "KW_TRUE", "KW_FALSE", 
 		"PNAME_LN", "PNAME_NS", "IRIREF", "BLANK_NODE_LABEL", "RDF_TYPE", "AT_START", 
 		"LANGTAG", "INTEGER", "DECIMAL", "DOUBLE", "EXPONENT", "STRING_LITERAL1", 
-		"STRING_LITERAL2", "STRING_LITERAL_LONG1", "STRING_LITERAL_LONG2", "LANG_STRING_LITERAL1", 
-		"LANG_STRING_LITERAL2", "LANG_STRING_LITERAL_LONG1", "LANG_STRING_LITERAL_LONG2", 
-		"UCHAR", "ECHAR", "PN_CHARS_BASE", "PN_CHARS_U", "PN_CHARS", "PN_PREFIX", 
-		"PN_LOCAL", "PLX", "PERCENT", "HEX", "PN_LOCAL_ESC", "PASS"
+		"STRING_LITERAL2", "STRING_LITERAL_LONG1", "STRING_LITERAL_LONG2", "UCHAR", 
+		"ECHAR", "PN_CHARS_BASE", "PN_CHARS_U", "PN_CHARS", "PN_PREFIX", "PN_LOCAL", 
+		"PLX", "PERCENT", "HEX", "PN_LOCAL_ESC", "PASS"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -235,10 +233,6 @@ public class ShapeMapParser extends Parser {
 			case STRING_LITERAL2:
 			case STRING_LITERAL_LONG1:
 			case STRING_LITERAL_LONG2:
-			case LANG_STRING_LITERAL1:
-			case LANG_STRING_LITERAL2:
-			case LANG_STRING_LITERAL_LONG1:
-			case LANG_STRING_LITERAL_LONG2:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(47);
@@ -367,10 +361,6 @@ public class ShapeMapParser extends Parser {
 			case STRING_LITERAL2:
 			case STRING_LITERAL_LONG1:
 			case STRING_LITERAL_LONG2:
-			case LANG_STRING_LITERAL1:
-			case LANG_STRING_LITERAL2:
-			case LANG_STRING_LITERAL_LONG1:
-			case LANG_STRING_LITERAL_LONG2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(56);
@@ -445,10 +435,6 @@ public class ShapeMapParser extends Parser {
 				case STRING_LITERAL2:
 				case STRING_LITERAL_LONG1:
 				case STRING_LITERAL_LONG2:
-				case LANG_STRING_LITERAL1:
-				case LANG_STRING_LITERAL2:
-				case LANG_STRING_LITERAL_LONG1:
-				case LANG_STRING_LITERAL_LONG2:
 					{
 					setState(62);
 					objectTerm();
@@ -627,10 +613,6 @@ public class ShapeMapParser extends Parser {
 			case STRING_LITERAL2:
 			case STRING_LITERAL_LONG1:
 			case STRING_LITERAL_LONG2:
-			case LANG_STRING_LITERAL1:
-			case LANG_STRING_LITERAL2:
-			case LANG_STRING_LITERAL_LONG1:
-			case LANG_STRING_LITERAL_LONG2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(88);
@@ -733,21 +715,15 @@ public class ShapeMapParser extends Parser {
 		try {
 			setState(100);
 			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case LANG_STRING_LITERAL1:
-			case LANG_STRING_LITERAL2:
-			case LANG_STRING_LITERAL_LONG1:
-			case LANG_STRING_LITERAL_LONG2:
+			switch ( getInterpreter().adaptivePredict(_input,11,_ctx) ) {
+			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(94);
 				langString();
 				}
 				break;
-			case STRING_LITERAL1:
-			case STRING_LITERAL2:
-			case STRING_LITERAL_LONG1:
-			case STRING_LITERAL_LONG2:
+			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(95);
@@ -766,8 +742,6 @@ public class ShapeMapParser extends Parser {
 
 				}
 				break;
-			default:
-				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -872,10 +846,11 @@ public class ShapeMapParser extends Parser {
 	}
 
 	public static class LangStringContext extends ParserRuleContext {
-		public TerminalNode LANG_STRING_LITERAL_LONG1() { return getToken(ShapeMapParser.LANG_STRING_LITERAL_LONG1, 0); }
-		public TerminalNode LANG_STRING_LITERAL_LONG2() { return getToken(ShapeMapParser.LANG_STRING_LITERAL_LONG2, 0); }
-		public TerminalNode LANG_STRING_LITERAL1() { return getToken(ShapeMapParser.LANG_STRING_LITERAL1, 0); }
-		public TerminalNode LANG_STRING_LITERAL2() { return getToken(ShapeMapParser.LANG_STRING_LITERAL2, 0); }
+		public TerminalNode LANGTAG() { return getToken(ShapeMapParser.LANGTAG, 0); }
+		public TerminalNode STRING_LITERAL_LONG1() { return getToken(ShapeMapParser.STRING_LITERAL_LONG1, 0); }
+		public TerminalNode STRING_LITERAL_LONG2() { return getToken(ShapeMapParser.STRING_LITERAL_LONG2, 0); }
+		public TerminalNode STRING_LITERAL1() { return getToken(ShapeMapParser.STRING_LITERAL1, 0); }
+		public TerminalNode STRING_LITERAL2() { return getToken(ShapeMapParser.STRING_LITERAL2, 0); }
 		public LangStringContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -896,7 +871,7 @@ public class ShapeMapParser extends Parser {
 			{
 			setState(106);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LANG_STRING_LITERAL1) | (1L << LANG_STRING_LITERAL2) | (1L << LANG_STRING_LITERAL_LONG1) | (1L << LANG_STRING_LITERAL_LONG2))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << STRING_LITERAL1) | (1L << STRING_LITERAL2) | (1L << STRING_LITERAL_LONG1) | (1L << STRING_LITERAL_LONG2))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -904,6 +879,8 @@ public class ShapeMapParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
+			setState(107);
+			match(LANGTAG);
 			}
 		}
 		catch (RecognitionException re) {
@@ -939,7 +916,7 @@ public class ShapeMapParser extends Parser {
 		PredicateContext _localctx = new PredicateContext(_ctx, getState());
 		enterRule(_localctx, 26, RULE_predicate);
 		try {
-			setState(110);
+			setState(111);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case PNAME_LN:
@@ -947,14 +924,14 @@ public class ShapeMapParser extends Parser {
 			case IRIREF:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(108);
+				setState(109);
 				iri();
 				}
 				break;
 			case RDF_TYPE:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(109);
+				setState(110);
 				rdfType();
 				}
 				break;
@@ -992,7 +969,7 @@ public class ShapeMapParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(112);
+			setState(113);
 			match(RDF_TYPE);
 			}
 		}
@@ -1027,13 +1004,13 @@ public class ShapeMapParser extends Parser {
 		IriContext _localctx = new IriContext(_ctx, getState());
 		enterRule(_localctx, 30, RULE_iri);
 		try {
-			setState(116);
+			setState(117);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(114);
+				setState(115);
 				match(IRIREF);
 				}
 				break;
@@ -1041,7 +1018,7 @@ public class ShapeMapParser extends Parser {
 			case PNAME_NS:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(115);
+				setState(116);
 				prefixedName();
 				}
 				break;
@@ -1081,7 +1058,7 @@ public class ShapeMapParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(118);
+			setState(119);
 			_la = _input.LA(1);
 			if ( !(_la==PNAME_LN || _la==PNAME_NS) ) {
 			_errHandler.recoverInline(this);
@@ -1123,7 +1100,7 @@ public class ShapeMapParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(120);
+			setState(121);
 			match(BLANK_NODE_LABEL);
 			}
 		}
@@ -1139,36 +1116,36 @@ public class ShapeMapParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3+}\4\2\t\2\4\3\t\3"+
-		"\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f"+
-		"\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t"+
-		"\23\3\2\3\2\3\2\7\2*\n\2\f\2\16\2-\13\2\3\3\3\3\3\3\3\4\3\4\5\4\64\n\4"+
-		"\3\5\3\5\5\58\n\5\3\6\3\6\5\6<\n\6\3\7\3\7\3\7\3\7\3\7\5\7C\n\7\3\7\3"+
-		"\7\3\7\3\7\3\7\5\7J\n\7\3\7\3\7\3\7\3\7\5\7P\n\7\3\b\3\b\3\b\5\bU\n\b"+
-		"\3\b\5\bX\n\b\3\t\3\t\3\t\5\t]\n\t\3\n\3\n\3\13\3\13\3\13\3\13\5\13e\n"+
-		"\13\5\13g\n\13\3\f\3\f\3\r\3\r\3\16\3\16\3\17\3\17\5\17q\n\17\3\20\3\20"+
-		"\3\21\3\21\5\21w\n\21\3\22\3\22\3\23\3\23\3\23\2\2\24\2\4\6\b\n\f\16\20"+
-		"\22\24\26\30\32\34\36 \"$\2\7\3\2\24\26\3\2\13\f\3\2\30\33\3\2\34\37\3"+
-		"\2\r\16\2y\2&\3\2\2\2\4.\3\2\2\2\6\63\3\2\2\2\b\67\3\2\2\2\n;\3\2\2\2"+
-		"\fO\3\2\2\2\16W\3\2\2\2\20\\\3\2\2\2\22^\3\2\2\2\24f\3\2\2\2\26h\3\2\2"+
-		"\2\30j\3\2\2\2\32l\3\2\2\2\34p\3\2\2\2\36r\3\2\2\2 v\3\2\2\2\"x\3\2\2"+
-		"\2$z\3\2\2\2&+\5\4\3\2\'(\7\3\2\2(*\5\4\3\2)\'\3\2\2\2*-\3\2\2\2+)\3\2"+
-		"\2\2+,\3\2\2\2,\3\3\2\2\2-+\3\2\2\2./\5\6\4\2/\60\5\16\b\2\60\5\3\2\2"+
-		"\2\61\64\5\n\6\2\62\64\5\f\7\2\63\61\3\2\2\2\63\62\3\2\2\2\64\7\3\2\2"+
-		"\2\658\5 \21\2\668\5$\23\2\67\65\3\2\2\2\67\66\3\2\2\28\t\3\2\2\29<\5"+
-		"\b\5\2:<\5\20\t\2;9\3\2\2\2;:\3\2\2\2<\13\3\2\2\2=>\7\4\2\2>?\7\5\2\2"+
-		"?B\5\34\17\2@C\5\n\6\2AC\7\6\2\2B@\3\2\2\2BA\3\2\2\2CD\3\2\2\2DE\7\7\2"+
-		"\2EP\3\2\2\2FI\7\4\2\2GJ\5\b\5\2HJ\7\6\2\2IG\3\2\2\2IH\3\2\2\2JK\3\2\2"+
-		"\2KL\5\34\17\2LM\7\5\2\2MN\7\7\2\2NP\3\2\2\2O=\3\2\2\2OF\3\2\2\2P\r\3"+
-		"\2\2\2QT\7\b\2\2RU\5 \21\2SU\7\t\2\2TR\3\2\2\2TS\3\2\2\2UX\3\2\2\2VX\7"+
-		"\22\2\2WQ\3\2\2\2WV\3\2\2\2X\17\3\2\2\2Y]\5\22\n\2Z]\5\24\13\2[]\5\26"+
-		"\f\2\\Y\3\2\2\2\\Z\3\2\2\2\\[\3\2\2\2]\21\3\2\2\2^_\t\2\2\2_\23\3\2\2"+
-		"\2`g\5\32\16\2ad\5\30\r\2bc\7\n\2\2ce\5 \21\2db\3\2\2\2de\3\2\2\2eg\3"+
-		"\2\2\2f`\3\2\2\2fa\3\2\2\2g\25\3\2\2\2hi\t\3\2\2i\27\3\2\2\2jk\t\4\2\2"+
-		"k\31\3\2\2\2lm\t\5\2\2m\33\3\2\2\2nq\5 \21\2oq\5\36\20\2pn\3\2\2\2po\3"+
-		"\2\2\2q\35\3\2\2\2rs\7\21\2\2s\37\3\2\2\2tw\7\17\2\2uw\5\"\22\2vt\3\2"+
-		"\2\2vu\3\2\2\2w!\3\2\2\2xy\t\6\2\2y#\3\2\2\2z{\7\20\2\2{%\3\2\2\2\20+"+
-		"\63\67;BIOTW\\dfpv";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\'~\4\2\t\2\4\3\t"+
+		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4"+
+		"\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23"+
+		"\t\23\3\2\3\2\3\2\7\2*\n\2\f\2\16\2-\13\2\3\3\3\3\3\3\3\4\3\4\5\4\64\n"+
+		"\4\3\5\3\5\5\58\n\5\3\6\3\6\5\6<\n\6\3\7\3\7\3\7\3\7\3\7\5\7C\n\7\3\7"+
+		"\3\7\3\7\3\7\3\7\5\7J\n\7\3\7\3\7\3\7\3\7\5\7P\n\7\3\b\3\b\3\b\5\bU\n"+
+		"\b\3\b\5\bX\n\b\3\t\3\t\3\t\5\t]\n\t\3\n\3\n\3\13\3\13\3\13\3\13\5\13"+
+		"e\n\13\5\13g\n\13\3\f\3\f\3\r\3\r\3\16\3\16\3\16\3\17\3\17\5\17r\n\17"+
+		"\3\20\3\20\3\21\3\21\5\21x\n\21\3\22\3\22\3\23\3\23\3\23\2\2\24\2\4\6"+
+		"\b\n\f\16\20\22\24\26\30\32\34\36 \"$\2\6\3\2\24\26\3\2\13\f\3\2\30\33"+
+		"\3\2\r\16\2z\2&\3\2\2\2\4.\3\2\2\2\6\63\3\2\2\2\b\67\3\2\2\2\n;\3\2\2"+
+		"\2\fO\3\2\2\2\16W\3\2\2\2\20\\\3\2\2\2\22^\3\2\2\2\24f\3\2\2\2\26h\3\2"+
+		"\2\2\30j\3\2\2\2\32l\3\2\2\2\34q\3\2\2\2\36s\3\2\2\2 w\3\2\2\2\"y\3\2"+
+		"\2\2${\3\2\2\2&+\5\4\3\2\'(\7\3\2\2(*\5\4\3\2)\'\3\2\2\2*-\3\2\2\2+)\3"+
+		"\2\2\2+,\3\2\2\2,\3\3\2\2\2-+\3\2\2\2./\5\6\4\2/\60\5\16\b\2\60\5\3\2"+
+		"\2\2\61\64\5\n\6\2\62\64\5\f\7\2\63\61\3\2\2\2\63\62\3\2\2\2\64\7\3\2"+
+		"\2\2\658\5 \21\2\668\5$\23\2\67\65\3\2\2\2\67\66\3\2\2\28\t\3\2\2\29<"+
+		"\5\b\5\2:<\5\20\t\2;9\3\2\2\2;:\3\2\2\2<\13\3\2\2\2=>\7\4\2\2>?\7\5\2"+
+		"\2?B\5\34\17\2@C\5\n\6\2AC\7\6\2\2B@\3\2\2\2BA\3\2\2\2CD\3\2\2\2DE\7\7"+
+		"\2\2EP\3\2\2\2FI\7\4\2\2GJ\5\b\5\2HJ\7\6\2\2IG\3\2\2\2IH\3\2\2\2JK\3\2"+
+		"\2\2KL\5\34\17\2LM\7\5\2\2MN\7\7\2\2NP\3\2\2\2O=\3\2\2\2OF\3\2\2\2P\r"+
+		"\3\2\2\2QT\7\b\2\2RU\5 \21\2SU\7\t\2\2TR\3\2\2\2TS\3\2\2\2UX\3\2\2\2V"+
+		"X\7\22\2\2WQ\3\2\2\2WV\3\2\2\2X\17\3\2\2\2Y]\5\22\n\2Z]\5\24\13\2[]\5"+
+		"\26\f\2\\Y\3\2\2\2\\Z\3\2\2\2\\[\3\2\2\2]\21\3\2\2\2^_\t\2\2\2_\23\3\2"+
+		"\2\2`g\5\32\16\2ad\5\30\r\2bc\7\n\2\2ce\5 \21\2db\3\2\2\2de\3\2\2\2eg"+
+		"\3\2\2\2f`\3\2\2\2fa\3\2\2\2g\25\3\2\2\2hi\t\3\2\2i\27\3\2\2\2jk\t\4\2"+
+		"\2k\31\3\2\2\2lm\t\4\2\2mn\7\23\2\2n\33\3\2\2\2or\5 \21\2pr\5\36\20\2"+
+		"qo\3\2\2\2qp\3\2\2\2r\35\3\2\2\2st\7\21\2\2t\37\3\2\2\2ux\7\17\2\2vx\5"+
+		"\"\22\2wu\3\2\2\2wv\3\2\2\2x!\3\2\2\2yz\t\5\2\2z#\3\2\2\2{|\7\20\2\2|"+
+		"%\3\2\2\2\20+\63\67;BIOTW\\dfqw";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

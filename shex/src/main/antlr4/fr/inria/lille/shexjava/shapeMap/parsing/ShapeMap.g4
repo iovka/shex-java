@@ -61,11 +61,7 @@ string                      : STRING_LITERAL_LONG1
                             | STRING_LITERAL1
 				            | STRING_LITERAL2
 				            ;
-langString                  : LANG_STRING_LITERAL_LONG1
-                            | LANG_STRING_LITERAL_LONG2
-                            | LANG_STRING_LITERAL1
-				            | LANG_STRING_LITERAL2
-				            ;
+langString                  : ( STRING_LITERAL_LONG1 | STRING_LITERAL_LONG2 | STRING_LITERAL1 | STRING_LITERAL2 ) LANGTAG ;
 predicate                   : iri
 				            | rdfType
 			            	;
@@ -103,10 +99,6 @@ STRING_LITERAL1             : '\'' (~[\u0027\u005C\u000A\u000D] | ECHAR | UCHAR)
 STRING_LITERAL2             : '"' (~[\u0022\u005C\u000A\u000D] | ECHAR | UCHAR)* '"' ;   /* #x22=" #x5C=\ #xA=new line #xD=carriage return */
 STRING_LITERAL_LONG1        : '\'\'\'' (('\'' | '\'\'')? (~['\\] | ECHAR | UCHAR))* '\'\'\'' ;
 STRING_LITERAL_LONG2        : '"""' (('"' | '""')? (~["\\] | ECHAR | UCHAR))* '"""' ;
-LANG_STRING_LITERAL1        : STRING_LITERAL1 LANGTAG ;
-LANG_STRING_LITERAL2        : STRING_LITERAL2 LANGTAG ;
-LANG_STRING_LITERAL_LONG1   : STRING_LITERAL_LONG1 LANGTAG ;
-LANG_STRING_LITERAL_LONG2   : STRING_LITERAL_LONG2 LANGTAG ;
 UCHAR                       : '\\u' HEX HEX HEX HEX | '\\U' HEX HEX HEX HEX HEX HEX HEX HEX ;
 ECHAR                       : '\\' [tbnrf\\"'] ;
 PN_CHARS_BASE 		        : [A-Z] | [a-z] | [\u00C0-\u00D6] | [\u00D8-\u00F6] | [\u00F8-\u02FF] | [\u0370-\u037D]
