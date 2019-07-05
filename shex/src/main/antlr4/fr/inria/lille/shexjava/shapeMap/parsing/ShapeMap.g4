@@ -73,12 +73,11 @@ prefixedName                : PNAME_LN
 blankNode                   : BLANK_NODE_LABEL ;
 
 
-
 // keywords
-
 
 KW_TRUE         	        : 'true' ;
 KW_FALSE        	        : 'false' ;
+
 
 // terminals
 
@@ -112,7 +111,6 @@ HEX                         : [0-9] | [A-F] | [a-f] ;
 PN_LOCAL_ESC                : '\\' ('_' | '~' | '.' | '-' | '!' | '$' | '&' | '\'' | '(' | ')' | '*' | '+' | ','
 					  		| ';' | '=' | '/' | '?' | '#' | '@' | '%') ;
 PASS				        : ( [ \t\r\n]+ | '#' [^\r\n]* ) -> skip;
-
 
 
 

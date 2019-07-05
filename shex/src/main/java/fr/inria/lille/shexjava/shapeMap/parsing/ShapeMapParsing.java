@@ -3,9 +3,6 @@ package fr.inria.lille.shexjava.shapeMap.parsing;
 import java.util.Map;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
@@ -16,8 +13,6 @@ import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
 import org.apache.commons.text.StringEscapeUtils;
 
-import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.BlankNodeContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.BooleanLiteralContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.IriContext;
@@ -54,13 +49,24 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public Object visitTriplePattern(TriplePatternContext ctx) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visitShapeSpec(ShapeSpecContext ctx) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public Object visitNodeSpec(NodeSpecContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 
 	@Override
@@ -81,17 +87,6 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 		return null;
 	}
 
-	@Override
-	public Object visitTriplePattern(TriplePatternContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visitShapeSpec(ShapeSpecContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public Literal visitLiteral(LiteralContext ctx) {
