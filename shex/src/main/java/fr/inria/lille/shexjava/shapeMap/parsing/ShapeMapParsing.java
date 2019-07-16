@@ -1,6 +1,7 @@
 package fr.inria.lille.shexjava.shapeMap.parsing;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -13,6 +14,16 @@ import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
 import org.apache.commons.text.StringEscapeUtils;
 
+import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSelector;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSelectorFilterObject;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSelectorFilterSubject;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSeletorRDFTerm;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelector;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelectorLabel;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelectorStart;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.BlankNodeContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.BooleanLiteralContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.IriContext;
@@ -39,35 +50,39 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 	
 
 	@Override
-	public Object visitShapeMap(ShapeMapContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
+	public BaseShapeMap visitShapeMap(ShapeMapContext ctx) {
+		return new BaseShapeMap(ctx.shapeAssociation().stream().map(c -> this.visitShapeAssociation(c)).collect(Collectors.toList()));
 	}
 
 	@Override
-	public Object visitShapeAssociation(ShapeAssociationContext ctx) {
-		// TODO Auto-generated method stub
+	public ShapeAssociation visitShapeAssociation(ShapeAssociationContext ctx) {
+		return new ShapeAssociation(this.visitNodeSpec(ctx.nodeSpec()), this.visitShapeSpec(ctx.shapeSpec()));
+	}
+
+	@Override
+	public ShapeSelector visitShapeSpec(ShapeSpecContext ctx) {
+		if (ctx.iri()!=null)
+			return new ShapeSelectorLabel(new Label(this.visitIri(ctx.iri())));
+		return new ShapeSelectorStart();
+	}
+
+	@Override
+	public NodeSelector visitNodeSpec(NodeSpecContext ctx) {
+		if (ctx.triplePattern()!=null)
+			return this.visitTriplePattern(ctx.triplePattern());
+		if (ctx.objectTerm()!=null)
+			return new NodeSeletorRDFTerm(this.visitObjectTerm(ctx.objectTerm()));
 		return null;
 	}
 	
 	@Override
-	public Object visitTriplePattern(TriplePatternContext ctx) {
-		// TODO Auto-generated method stub
+	public NodeSelector visitTriplePattern(TriplePatternContext ctx) {
+		if (ctx.objectTerm()!=null)
+			return new NodeSelectorFilterSubject(this.visitPredicate(ctx.predicate()), this.visitObjectTerm(ctx.objectTerm()));
+		if (ctx.subjectTerm()!=null)
+			return new NodeSelectorFilterObject(this.visitSubjectTerm(ctx.subjectTerm()), this.visitPredicate(ctx.predicate()));
 		return null;
 	}
-
-	@Override
-	public Object visitShapeSpec(ShapeSpecContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visitNodeSpec(NodeSpecContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 	@Override
 	public RDFTerm visitObjectTerm(ObjectTermContext ctx) {
