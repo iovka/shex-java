@@ -11,6 +11,10 @@ public class BaseShapeMap {
 		super();
 		this.associations = associations;
 	}
+
+	public Collection<ShapeAssociation> getAssociations() {
+		return associations;
+	}
 	
 	
 }

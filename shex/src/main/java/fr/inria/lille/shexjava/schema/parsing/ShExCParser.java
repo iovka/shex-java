@@ -166,7 +166,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		ShExDocParser.addErrorListener(new ShExCErrorListener());
 
 		ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();      
-		
+
 		this.visit(context);
 		if (start!=null)
 			rules.put(start.getId(),start);
@@ -188,6 +188,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	// General
 	//--------------------------------------------
 
+	@Override
+	public Object visitShExDoc(ShExDocParser.ShExDocContext ctx) {
+		return visitChildren(ctx); 
+	}
+
+	
 	@Override
 	public Object visitDirective(ShExDocParser.DirectiveContext ctx) {
 		return visitChildren(ctx); 

@@ -135,12 +135,12 @@ public class ShexSchema {
 		this.rules = new HashMap<>(rules);
 		if (start!=null && !this.rules.containsKey(start.getId()))
 			this.rules.put(start.getId(),start);
-		
+
 		constructShexprMapAndCheckIdsAreUnique();
 		checkAllShapeRefsAreDefined();
 		constructTexprsMapAndCheckIdsAreUnique();
 		checkAllTripleRefsAreDefined();
-		
+
 		checkNoCyclicReferences();
 		computeStratification();
 		
@@ -288,7 +288,7 @@ public class ShexSchema {
 		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
 		kscInspector = new KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge>(dependecesGraph);
 		List<Graph<Label,DefaultWeightedEdge>> strConComp = kscInspector.getStronglyConnectedComponents();
-		
+
 		// Check that there is no negative edge in a strongly connected component
 		for (Graph<Label,DefaultWeightedEdge> scc:strConComp) {
 			for (DefaultWeightedEdge wedge:scc.edgeSet()) {
@@ -297,10 +297,10 @@ public class ShexSchema {
 				}
 			}
 		}
-		
+
 		//	Create a directed acyclic graph to compute the topological sort
 		DirectedAcyclicGraph<Label,DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
-		
+
 		// create an index map 
 		Map<Label,Label> index = new HashMap<>();
 		Map<Label,Set<Label>> revIndex = new HashMap<>();
@@ -700,7 +700,7 @@ public class ShexSchema {
 		AllDirectedPaths enumeratorPath = new AllDirectedPaths(graphAllShapeExpr);
 		for (Label source:vertexSet) {
 			for (Label target:vertexSet) {
-				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, false, vertexSet.size()*10);
+				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, vertexSet.size()*10);
 				if (paths.size()>0) {
 					boolean isNeg = false;
 					for (GraphPath<Label,DefaultWeightedEdge> path:paths) {

@@ -26,6 +26,8 @@ import org.apache.commons.rdf.api.RDFTerm;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.util.CommonGraph;
+import fr.inria.lille.shexjava.util.ComputationController;
+import fr.inria.lille.shexjava.util.SimpleComputationController;
 
 /** An implementation of {@link ValidationAlgorithm} that offers some common utilities.
  * 
@@ -33,11 +35,10 @@ import fr.inria.lille.shexjava.util.CommonGraph;
  * 2 août 2018
  */
 public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm {
-	
 	protected Graph graph;
 	protected Set<RDFTerm> allGraphNodes;
 	protected ShexSchema schema;
-	
+	protected ComputationController controller;
 	
 	protected DynamicCollectorOfTripleConstraints collectorTC;
 	
@@ -45,14 +46,25 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 
 	
 	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph) {
+		initialize(schema, graph, new SimpleComputationController());
+	}
+	
+	
+	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph, ComputationController controller) {
+		initialize(schema, graph, controller);
+	}
+	
+	
+	private void initialize(ShexSchema schema, Graph graph, ComputationController controller) {
 		this.graph = graph;
 		this.schema = schema;
+		this.controller = controller;
 		this.allGraphNodes = CommonGraph.getAllNodes(graph);
 		resetTyping();
 	
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();
 		this.matchingObservers = new HashSet<>();
-	}	
+	}
 	
 	// ---------------------------------------------------------------------------------
 	// Observers related
@@ -86,7 +98,13 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		matchingObservers.remove(o);
 	}
 
-	
-	
+	public ComputationController getController() {
+		return controller;
+	}
+
+	public void setController(ComputationController controller) {
+		this.controller = controller;
+	}
+
 	
 }
