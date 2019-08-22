@@ -62,6 +62,7 @@ import fr.inria.lille.shexjava.schema.concrsynt.LanguageStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.LiteralStemRangeConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.NodeKindConstraint;
+import fr.inria.lille.shexjava.schema.concrsynt.ValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.ValueSetValueConstraint;
 import fr.inria.lille.shexjava.schema.concrsynt.WildcardConstraint;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExCErrorListener;
@@ -713,14 +714,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	@Override
 	public ValueSetValueConstraint visitValueSet(ShExDocParser.ValueSetContext ctx) {
 		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
-		Set<Constraint> constraint = new HashSet<Constraint>();
+		Set<ValueConstraint> constraint = new HashSet<ValueConstraint>();
 		for (ParseTree child:ctx.children) {
 			if (child instanceof ShExDocParser.ValueSetValueContext) {
 				Object res = child.accept(this);
 				if (res instanceof RDFTerm)
 					explicitValues.add((RDFTerm) res);
 				else
-					constraint.add((Constraint) res);
+					constraint.add((ValueConstraint) res);
 			}
 		}
 		return new ValueSetValueConstraint(explicitValues, constraint); 
@@ -737,14 +738,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 			return visitLanguageRange(ctx.languageRange());
 		// We are in the last case
 		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
-		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		for (ParseTree child:ctx.children){
 			if (! (child instanceof TerminalNodeImpl)) {
 				Object res = child.accept(this);
 				if (res instanceof RDFTerm)
 					explicitValues.add((RDFTerm) res);
 				else
-					exclusions.add((Constraint) res);
+					exclusions.add((ValueConstraint) res);
 			}
 		}
 		if (ctx.iriExclusion()!=null)
@@ -766,14 +767,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		if (ctx.iriExclusion()==null)
 			return stem;
 		
-		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 		for(IriExclusionContext exclu:ctx.iriExclusion()) {
 			Object res = exclu.accept(this);
 			if (res instanceof IRI)
 				explicitValues.add((IRI) res);
 			else
-				exclusions.add((Constraint) res);
+				exclusions.add((ValueConstraint) res);
 		}
 		
 		return new IRIStemRangeConstraint(stem, explicitValues, exclusions); 
@@ -796,14 +797,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		if (ctx.literalExclusion()==null)
 			return stem;
 		
-		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 		for(ShExDocParser.LiteralExclusionContext exclu:ctx.literalExclusion()) {
 			Object res = exclu.accept(this);
 			if (res instanceof RDFTerm)
 				explicitValues.add((Literal) res);
 			else
-				exclusions.add((Constraint) res);
+				exclusions.add((ValueConstraint) res);
 		}
 		
 		return new LiteralStemRangeConstraint(stem, explicitValues, exclusions); 
@@ -830,14 +831,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		if (ctx.languageExclusion()==null)
 			return stem;
 		
-		Set<Constraint> exclusions = new HashSet<Constraint>();
+		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
 		for(ShExDocParser.LanguageExclusionContext exclu:ctx.languageExclusion()) {
 			Object res = exclu.accept(this);
 			if (res instanceof RDFTerm)
 				explicitValues.add((Literal) res);
 			else
-				exclusions.add((Constraint) res);
+				exclusions.add((ValueConstraint) res);
 		}
 		return new LanguageStemRangeConstraint(stem, explicitValues, exclusions); 
 	}

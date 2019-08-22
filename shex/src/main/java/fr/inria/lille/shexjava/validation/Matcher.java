@@ -31,12 +31,14 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * @author Antonin Durey
  *
  */
+
+
 public abstract class Matcher {
 
 	/** With every triple, associates the triple constraints that the triple matches.
-	 * A triple matches a triple constraint if {@link #apply(focusNode, triple, tripleConstraint)} returns true.
+	 * A triple matches a triple constraint if {@link #apply} returns true.
 	 * 
-	 * @deprecated Use {@link ValidationUtils#computePreMatching(RDFTerm, List, List, Matcher)} instead
+	 * @deprecated Use {@link ValidationUtils#computePreMatching} instead
 	 * @param focusNode The subject or the object of the triple, determines for each of the triples whether it is considered forward or inverse
 	 * @param neighbourhood
 	 * @param constraints

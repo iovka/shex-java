@@ -39,6 +39,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
+import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
 
 /** Implements the Refinement validation algorithm.
@@ -58,10 +59,12 @@ import fr.inria.lille.shexjava.util.Pair;
 public class RefineValidation extends SORBEBasedValidation {
 	private boolean computed = false;
 	private TypingForValidation typing;
-
+	private Set<RDFTerm> allGraphNodes;
 
 	public RefineValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
+		this.allGraphNodes = CommonGraph.getAllNodes(graph);
+
 	}
 
 	@Override

@@ -87,7 +87,7 @@ public class ShexSchema {
 	
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
 	 * Otherwise, an exception is thrown.
-	 * Uses @link {@link GlobalFactory.RDFFactory} for creating the fresh labels.
+	 * Uses {@link GlobalFactory#RDFFactory} for creating the fresh labels.
 	 * 
 	 * @param rules
 	 * @throws UndefinedReferenceException
@@ -101,7 +101,7 @@ public class ShexSchema {
 	
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
 	 * Otherwise, an exception is thrown.
-	 * Uses @link {@link GlobalFactory.RDFFactory} for creating the fresh labels.
+	 * Uses {@link GlobalFactory#RDFFactory} for creating the fresh labels.
 	 * 
 	 * @param rules
 	 * @param start
@@ -700,7 +700,8 @@ public class ShexSchema {
 		AllDirectedPaths enumeratorPath = new AllDirectedPaths(graphAllShapeExpr);
 		for (Label source:vertexSet) {
 			for (Label target:vertexSet) {
-				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, vertexSet.size()*10);
+//				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, vertexSet.size()*10);
+				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, false, 10);
 				if (paths.size()>0) {
 					boolean isNeg = false;
 					for (GraphPath<Label,DefaultWeightedEdge> path:paths) {

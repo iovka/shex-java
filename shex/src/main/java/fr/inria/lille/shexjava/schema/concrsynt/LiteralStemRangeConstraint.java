@@ -25,7 +25,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  *
  */
 public class LiteralStemRangeConstraint extends StemRangeConstraint {
-	public LiteralStemRangeConstraint(Constraint stem, Set<RDFTerm> exclusionsValues, Set<Constraint> exclusionsConstraints) {
+	public LiteralStemRangeConstraint(ValueConstraint stem, Set<RDFTerm> exclusionsValues, Set<ValueConstraint> exclusionsConstraints) {
 		super(stem, new ValueSetValueConstraint (exclusionsValues,exclusionsConstraints));
 	}
 }

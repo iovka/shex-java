@@ -29,7 +29,7 @@ import fr.inria.lille.shexjava.util.RDFPrintUtils;
  * @author Jérémie Dusart
  *
  */
-public class IRIStemConstraint implements Constraint {
+public class IRIStemConstraint implements ValueConstraint {
 	private String iriStem;
 	
 	public IRIStemConstraint(String iriStem) {

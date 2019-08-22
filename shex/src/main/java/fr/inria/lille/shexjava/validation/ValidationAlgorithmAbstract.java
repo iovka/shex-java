@@ -29,6 +29,7 @@ import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.ComputationController;
 import fr.inria.lille.shexjava.util.SimpleComputationController;
 
+
 /** An implementation of {@link ValidationAlgorithm} that offers some common utilities.
  * 
  * @author Iovka Boneva
@@ -36,7 +37,6 @@ import fr.inria.lille.shexjava.util.SimpleComputationController;
  */
 public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm {
 	protected Graph graph;
-	protected Set<RDFTerm> allGraphNodes;
 	protected ShexSchema schema;
 	protected ComputationController controller;
 	
@@ -59,7 +59,8 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		this.graph = graph;
 		this.schema = schema;
 		this.controller = controller;
-		this.allGraphNodes = CommonGraph.getAllNodes(graph);
+		//this.allGraphNodes = CommonGraph.getAllNodes(graph);
+
 		resetTyping();
 	
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();

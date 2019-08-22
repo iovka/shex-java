@@ -60,7 +60,7 @@ public class EachOf extends AbstractNaryTripleExpr implements AnnotedObject{
 		String result ="";
 		if (id!=null && !id.isGenerated())
 			result += getId().toString()+"=";
-		result += CollectionToString.collectionToPrettyString(getSubExpressions(), " && ", "EachOf(", ")");;
+		result += CollectionToString.collectionToPrettyString(getSubExpressions(), " ; ", "EachOf(", ")", prefixes);
 		if (this.annotations!=null && this.annotations.size()>0)
 			result +=CollectionToString.collectionToString(annotations," ; ","// [", "]");
 		return result;

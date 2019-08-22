@@ -50,8 +50,9 @@ public class CommonGraph {
 		if (focusNode instanceof Literal)
 			return Collections.emptyList();
 		List<Triple> result = new LinkedList<>();
-		for (IRI pred:predicates)
+		for (IRI pred:predicates) 
 			result.addAll(g.stream((BlankNodeOrIRI) focusNode, pred, null).collect(Collectors.toList()));
+		
 		return result;
 	}
 	

@@ -35,8 +35,10 @@ public class ValidationUtils {
 	
 	/** Select the neighborhood that must be matched for the given shape.
 	 * 
+	 * @param graph
 	 * @param node
-	 * @param shape
+	 * @param tripleConstraints
+	 * @param shapeIsClosed
 	 * @return
 	 */
 	public static List<Triple> getMatchableNeighbourhood(Graph graph, RDFTerm node, List<TripleConstraint> tripleConstraints, boolean shapeIsClosed) {		
@@ -54,7 +56,6 @@ public class ValidationUtils {
 			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
 		else
 			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
-		
 		return neighbourhood;
 	}
 	

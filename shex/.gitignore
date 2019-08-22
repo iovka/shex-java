@@ -1,4 +1,8 @@
 /target/
 /report/
 .idea/
-bin/
+.settings
+.classpath
+.project
+/bin/
+

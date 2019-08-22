@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
 import java.util.Collections;
+import java.util.Map;
 
 /** This class implements the singleton pattern.
  * @author Jérémie Dusart
@@ -32,6 +33,11 @@ public class EmptyShape extends NodeConstraint{
 	}
 
 	public String toPrettyString() {
+		return this.toString();
+	}
+	
+	@Override
+	public String toPrettyString(Map<String,String> prefixes) {
 		return this.toString();
 	}
 }

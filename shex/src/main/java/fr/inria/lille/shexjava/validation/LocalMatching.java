@@ -6,10 +6,11 @@ import java.util.Map;
 import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.util.Pair;
 
 /** Data structure. 
  * Similarly to {@link PreMatching}, defines a tri-partition of a set of triples.
- * Unlike {@link PreMatching}, the matched triples are given as a list of {@link Pair<{@link Triple}, {@link Label}>}.
+ * Unlike {@link PreMatching}, the matched triples are given as a list of {@link Pair <{@link Triple}, {@link Label}>}.
  * 
  * @author Iovka Boneva
  * 6 août 2018

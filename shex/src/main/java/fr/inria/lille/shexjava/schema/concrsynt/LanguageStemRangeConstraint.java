@@ -25,7 +25,7 @@ import org.apache.commons.rdf.api.RDFTerm;
  *
  */
 public class LanguageStemRangeConstraint extends StemRangeConstraint {
-	public LanguageStemRangeConstraint(Constraint stem, Set<RDFTerm> exclusionsValues, Set<Constraint> exclusionsConstraints) {
+	public LanguageStemRangeConstraint(ValueConstraint stem, Set<RDFTerm> exclusionsValues, Set<ValueConstraint> exclusionsConstraints) {
 		super(stem, new ValueSetValueConstraint (exclusionsValues,exclusionsConstraints));
 	}
 }
