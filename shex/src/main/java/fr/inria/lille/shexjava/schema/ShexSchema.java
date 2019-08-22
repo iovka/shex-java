@@ -700,7 +700,7 @@ public class ShexSchema {
 		AllDirectedPaths enumeratorPath = new AllDirectedPaths(graphAllShapeExpr);
 		for (Label source:vertexSet) {
 			for (Label target:vertexSet) {
-				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, false, graphAllShapeExpr.edgeSet().size()*2);
+				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, false, 10);
 				if (paths.size()>0) {
 					boolean isNeg = false;
 					for (GraphPath<Label,DefaultWeightedEdge> path:paths) {
