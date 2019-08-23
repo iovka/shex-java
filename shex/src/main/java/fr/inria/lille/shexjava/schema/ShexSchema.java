@@ -37,6 +37,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.builder.GraphBuilder;
+import org.jgrapht.traverse.BreadthFirstIterator;
 
 import com.moz.kiji.annotations.ApiStability.Stable;
 
@@ -128,7 +129,6 @@ public class ShexSchema {
 		this(rdfFactory,rules,null);
 	}
 	
-	
 		
 	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		this.start = start;
@@ -139,9 +139,9 @@ public class ShexSchema {
 			this.rules.put(start.getId(),start);
 
 		constructShexprMapAndCheckIdsAreUnique();
-		checkAllShapeRefsAreDefined();
+		checkThatAllShapeExprRefsAreDefined();
 		constructTexprsMapAndCheckIdsAreUnique();
-		checkAllTripleRefsAreDefined();
+		checkThatAllTripleExprRefsAreDefined();
 
 		checkNoCyclicReferences();
 		computeStratification();
@@ -179,6 +179,7 @@ public class ShexSchema {
 		return start;
 	}
 	
+	
 	/** The set of shape labels that are on a given stratum.
 	 * 
 	 * @param i
@@ -192,6 +193,7 @@ public class ShexSchema {
 		return Collections.unmodifiableSet(this.getStratification().get(i));
 	}
 	
+	
 	/** Get the number of stratums of the schema.
 	 * @deprecated Use {@link #getStratification()} instead
 	 */
@@ -200,6 +202,7 @@ public class ShexSchema {
 		return this.getStratification().size();
 	}
 
+	
 	/** The stratum of a given label.
 	 * 
 	 * @param label
@@ -219,12 +222,11 @@ public class ShexSchema {
 		return rdfFactory;
 	}
 
+	
 	@Override
 	public String toString() {
 		return rules.toString();
 	}
-	
-
 	
 
 	/** Computes and populates {@link #shexprsMap} */
@@ -238,7 +240,9 @@ public class ShexSchema {
 			shexprsMap.put(shexpr .getId(),shexpr );
 		}
 	}
+	
 
+	/** Computes and populates {@link #texprsMap} */
 	private void constructTexprsMapAndCheckIdsAreUnique() {
 		texprsMap = new HashMap<>();
 		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(this.rules);
@@ -250,28 +254,28 @@ public class ShexSchema {
 		}
 	}
 
-	private void checkAllShapeRefsAreDefined() throws UndefinedReferenceException {
-		for (Map.Entry<Label,ShapeExpr> entry : shexprsMap.entrySet()){
-			if (entry.getValue() instanceof ShapeExprRef) {
-				ShapeExprRef ref = (ShapeExprRef) entry.getValue();
-				if (shexprsMap.containsKey(ref.getLabel())) {
+		
+	private void checkThatAllShapeExprRefsAreDefined() throws UndefinedReferenceException {
+		for (ShapeExpr sexpr : shexprsMap.values()){
+			if (sexpr instanceof ShapeExprRef) {
+				ShapeExprRef ref = (ShapeExprRef) sexpr;
+				if (shexprsMap.containsKey(ref.getLabel())) 
 					ref.setShapeDefinition(shexprsMap.get(ref.getLabel()));
-				} else {
+				 else 
 					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
-				}
 			}
 		}
 	}
 	
-	private void checkAllTripleRefsAreDefined() throws UndefinedReferenceException {
-		for (Map.Entry<Label,TripleExpr> entry:texprsMap.entrySet()){
-			if (entry.getValue() instanceof TripleExprRef) {
-				TripleExprRef ref = (TripleExprRef) entry.getValue();
-				if (texprsMap.containsKey(ref.getLabel())) {
+	
+	private void checkThatAllTripleExprRefsAreDefined() throws UndefinedReferenceException {
+		for (TripleExpr texpr:texprsMap.values()){
+			if (texpr instanceof TripleExprRef) {
+				TripleExprRef ref = (TripleExprRef) texpr;
+				if (texprsMap.containsKey(ref.getLabel())) 
 					ref.setTripleDefinition(texprsMap.get(ref.getLabel()));
-				}else {
+				else 
 					throw new UndefinedReferenceException("Undefined triple label: " + ref.getLabel());
-				}
 			}
 		}
 	}
@@ -283,6 +287,7 @@ public class ShexSchema {
 			throw new CyclicReferencesException("Cyclic dependencies of refences found: "+detector.findCycles()+"." );
 	}
 	
+	
 	private void computeStratification () throws NotStratifiedException {
 		//Starting to check and compute stratification
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.refineDependencesGraphWithShapeOnly();	
@@ -292,13 +297,10 @@ public class ShexSchema {
 		List<Graph<Label,DefaultWeightedEdge>> strConComp = kscInspector.getStronglyConnectedComponents();
 
 		// Check that there is no negative edge in a strongly connected component
-		for (Graph<Label,DefaultWeightedEdge> scc:strConComp) {
-			for (DefaultWeightedEdge wedge:scc.edgeSet()) {
-				if(scc.getEdgeWeight(wedge)<0) {
+		for (Graph<Label,DefaultWeightedEdge> scc:strConComp) 
+			for (DefaultWeightedEdge wedge:scc.edgeSet()) 
+				if(scc.getEdgeWeight(wedge)<0) 
 					throw new NotStratifiedException("The set of rules is not stratified (negative edge found in a strongly connected component).");
-				}
-			}
-		}
 
 		//	Create a directed acyclic graph to compute the topological sort
 		DirectedAcyclicGraph<Label,DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
@@ -338,10 +340,11 @@ public class ShexSchema {
 		}
 		stratification = Collections.unmodifiableMap(stratification);
 	}
-
+	
 	//--------------------------------------------------------------------------------
 	// ID  function
 	//--------------------------------------------------------------------------------
+	
 	private static int shapeLabelNb = 0;
 	private static String SHAPE_LABEL_PREFIX = "SLGEN";
 	private static int tripleLabelNb = 0;
@@ -529,6 +532,8 @@ public class ShexSchema {
 	// Stratification computation and access
 	// -------------------------------------------------------------------------------
 
+
+	
 	class CollectGraphDependencyFromShape extends ShapeExpressionVisitor<Set<Pair<Pair<Label,Label>,Integer>>> {
 		private Set<Label> visited;
 		private Set<Pair<Pair<Label,Label>,Integer>> set;
@@ -676,9 +681,49 @@ public class ShexSchema {
 		return builder.build();
 	}
 	
+	
+	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> computeGraphWithOnlyPositiveEdges(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graph){
+		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
+		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
+		
+		graph.vertexSet().stream().forEach(la -> builder.addVertex(la));
+		graph.edgeSet().stream().filter(edge -> graph.getEdgeWeight(edge)>0).forEach(
+				wEdge -> builder.addEdge(graph.getEdgeSource(wEdge), graph.getEdgeTarget(wEdge), graph.getEdgeWeight(wEdge)));
+		
+		return builder.build();
+	}
+	
+	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> computeNegativeGraph(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graph) {
+		List<DefaultWeightedEdge> negativeEdges = graph.edgeSet().stream().filter(edge -> graph.getEdgeWeight(edge)<0).collect(Collectors.toList());
+		Set<Label> vertices = graph.vertexSet().stream().filter(la -> (this.shexprsMap.get(la) instanceof Shape)).collect(Collectors.toSet());
+		vertices.addAll(negativeEdges.stream().map(edge -> graph.getEdgeSource(edge)).collect(Collectors.toList()));
+		vertices.addAll(negativeEdges.stream().map(edge -> graph.getEdgeTarget(edge)).collect(Collectors.toList()));
+		
+		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
+		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
+
+		vertices.stream().forEach(la -> builder.addVertex(la));
+		negativeEdges.stream().forEach(wEdge -> builder.addEdge(graph.getEdgeSource(wEdge), graph.getEdgeTarget(wEdge), graph.getEdgeWeight(wEdge)));
+	
+		//add a positive edges between two vertices only if there is a only positif path in the graph
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graphPositiveShapeExpr = this.computeGraphWithOnlyPositiveEdges(graph);
+		for (Label source:vertices) {
+			BreadthFirstIterator<Label,DefaultWeightedEdge> iterator = new BreadthFirstIterator<Label, DefaultWeightedEdge>(graphPositiveShapeExpr, source);
+			while (iterator.hasNext()) {
+				Label target = iterator.next();
+				if (!source.equals(target) && vertices.contains(target)) {
+					builder.addEdge(source, target, 1);				
+				}
+			}
+		}
+		
+		return builder.build();
+	}
+	
 	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> refineDependencesGraphWithShapeOnly () {
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graphAllShapeExpr = this.computeDependencesGraphAllShapeExpr();
-				
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> enumeratedGraph = this.computeNegativeGraph(graphAllShapeExpr);
+
 		// build the graph
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
@@ -689,7 +734,7 @@ public class ShexSchema {
 		vertexSet.stream().forEach(la -> builder.addVertex(la));
 		
 		// add the edges
-		AllDirectedPaths enumeratorPath = new AllDirectedPaths(graphAllShapeExpr);
+		AllDirectedPaths enumeratorPath = new AllDirectedPaths(enumeratedGraph);
 		for (Label source:vertexSet) {
 			for (Label target:vertexSet) {
 //				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, vertexSet.size()*10);

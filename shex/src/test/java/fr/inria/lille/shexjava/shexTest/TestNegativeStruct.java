@@ -81,12 +81,15 @@ public class TestNegativeStruct {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
 	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 	    	List<Object[]> parameters = new ArrayList<Object[]>();
+	    	String selectedTest = "";
 			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT).subjects()) {
-	    		Object[] params =  new Object[3];
-	    		params[0]=getTestName(manifest, testNode);
-	    		params[1]=getSchemaFileName(manifest, testNode);
-	    		params[2]=false;
-	    		parameters.add(params);
+	    		if (selectedTest.contentEquals("") || getTestName(manifest, testNode).equals(selectedTest)) {
+					Object[] params =  new Object[3];
+		    		params[0]=getTestName(manifest, testNode);
+		    		params[1]=getSchemaFileName(manifest, testNode);
+		    		params[2]=false;
+		    		parameters.add(params);
+	    		}
 			}
 	        return parameters;
     	}
