@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDF;
@@ -62,6 +63,7 @@ import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.Pair;
+import net.sf.saxon.expr.PJConverter.ToCollection;
 
 /** A ShEx schema.
  * 
@@ -661,23 +663,16 @@ public class ShexSchema {
 	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> computeDependencesGraphAllShapeExpr () {
 		// Visit the schema to collect the references
 		CollectGraphDependencyFromShape collector = new CollectGraphDependencyFromShape();
-		for (ShapeExpr expr: shexprsMap.values()) {
-			if (!(collector.getVisited().contains(expr.getId()))) {
-				expr.accept(collector);
-			}
-		}
+		for (ShapeExpr expr: shexprsMap.values()) 
+			if (!(collector.getVisited().contains(expr.getId()))) 
+				expr.accept(collector);		
 		
-		// build the graph
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
-		for (Label label : this.shexprsMap.keySet()) {
-			builder.addVertex(label);
-		}
-		for (Pair<Pair<Label,Label>,Integer> weightededge : collector.getResult()) {
-			double weight = weightededge.two;
-			Pair<Label,Label> edge = weightededge.one;
-			builder.addEdge(edge.one, edge.two,weight);
-		}
+		
+		this.shexprsMap.keySet().stream().forEach(la -> builder.addVertex(la));
+		collector.getResult().stream().forEach(wEdge -> builder.addEdge(wEdge.one.one, wEdge.one.two, wEdge.two));
+		
 		return builder.build();
 	}
 	
@@ -687,43 +682,45 @@ public class ShexSchema {
 		// build the graph
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
-		// Init the vertex set withh the shape only
-		HashSet<Label> vertexSet = new HashSet<>();
-		for (Label label : this.shexprsMap.keySet()) {
-			if (this.shexprsMap.get(label) instanceof Shape) {
-				builder.addVertex(label);
-				vertexSet.add(label);
-			}
-		}
-
-		// enumerate the path and search for a simple path with a neg dependencies
+		
+		// Init the vertex set with the shape only
+		HashSet<Label> vertexSet = this.shexprsMap.keySet().stream().filter(la -> (this.shexprsMap.get(la) instanceof Shape))
+				.collect(Collectors.toCollection(HashSet::new));
+		vertexSet.stream().forEach(la -> builder.addVertex(la));
+		
+		// add the edges
 		AllDirectedPaths enumeratorPath = new AllDirectedPaths(graphAllShapeExpr);
 		for (Label source:vertexSet) {
 			for (Label target:vertexSet) {
 //				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, vertexSet.size()*10);
 				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, false, 10);
 				if (paths.size()>0) {
-					boolean isNeg = false;
-					for (GraphPath<Label,DefaultWeightedEdge> path:paths) {
-
-						int sum = 0;
-						for (DefaultWeightedEdge edge:path.getEdgeList())
-							if ( graphAllShapeExpr.getEdgeWeight(edge)<0) 
-								sum++;
-						if (sum%2==1)
-							isNeg=true;
-
-					}
-					if (isNeg)
+					if (containsAPathWithAnOddNumberOfNegativeEdge(graphAllShapeExpr,paths))
 						builder.addEdge(source, target, -1);
 					else
 						builder.addEdge(source, target, 1);
 				}
 			}
-
 		}
-
 		return builder.build();
+	}
+	
+	
+	public boolean containsAPathWithAnOddNumberOfNegativeEdge(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graphAllShapeExpr,
+			List<GraphPath<Label,DefaultWeightedEdge>> paths) {
+		for (GraphPath<Label,DefaultWeightedEdge> path:paths) 						
+			if (computeNumberOfNegativeEdgeInPath(graphAllShapeExpr,path)%2==1)
+				return true;
+		return false;
+	}
+	
+	public int computeNumberOfNegativeEdgeInPath(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graphAllShapeExpr,
+												 GraphPath<Label,DefaultWeightedEdge> path) {
+		int sum = 0;
+		for (DefaultWeightedEdge edge:path.getEdgeList())
+			if (graphAllShapeExpr.getEdgeWeight(edge)<0) 
+				sum++;
+		return sum;
 	}
 }
 
