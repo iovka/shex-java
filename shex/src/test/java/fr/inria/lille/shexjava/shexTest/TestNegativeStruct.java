@@ -121,6 +121,7 @@ public class TestNegativeStruct {
 					     ) ) {
 				errors.add(new TestResultForTestReport(testName, false, e.getMessage(), "negativeStructure"));
 			}else {
+				//System.out.println(e.getMessage());
 				passed.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeStructure"));				
 			}
 		}

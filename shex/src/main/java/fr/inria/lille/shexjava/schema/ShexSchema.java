@@ -30,6 +30,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
+import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
@@ -290,7 +291,8 @@ public class ShexSchema {
 	
 	private void computeStratification () throws NotStratifiedException {
 		//Starting to check and compute stratification
-		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.refineDependencesGraphWithShapeOnly();	
+		//DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.refineDependencesGraphWithShapeOnly();	
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = computeDependencesGraph();
 		// Compute strongly connected components
 		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
 		kscInspector = new KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge>(dependecesGraph);
@@ -526,12 +528,214 @@ public class ShexSchema {
 		}
 		return builder.build();
 	}
+
 	
-
 	// -------------------------------------------------------------------------------
-	// Stratification computation and access
+	// Stratification computation and access v2
 	// -------------------------------------------------------------------------------
 
+	private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeDependencesGraph() {
+		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
+		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
+		
+		List<Label> shapes = this.shexprsMap.keySet().stream().filter(la -> (this.shexprsMap.get(la) instanceof Shape))
+															  .collect(Collectors.toList());
+		shapes.stream().forEach(la -> builder.addVertex(la));
+		
+		Map<Pair<Label,Label>,Boolean> edges = new HashMap<>();
+		
+		ComputeReferenceSign signComputator = new ComputeReferenceSign();
+		for (Label sourceShape:shapes) {
+			Shape shape = ((Shape) this.shexprsMap.get(sourceShape));
+			CollectTripleConstraintOfAShape tcCollector = new CollectTripleConstraintOfAShape();
+			shape.getTripleExpression().accept(tcCollector);
+			
+			for (TripleConstraint tc:tcCollector.getResult()) {
+				signComputator.setRoot(tc.getShapeExpr().getId());
+				signComputator.resetSign();
+				tc.getShapeExpr().accept(signComputator);
+				
+				ShapeCollector shapeCol = new ShapeCollector();
+				tc.getShapeExpr().accept(shapeCol);
+				for (Label destination:shapeCol.getResult()) {
+					Pair<Label,Label> key = new Pair<Label,Label>(sourceShape,destination);
+					Pair<Label,Label> subKey = new Pair<Label,Label>(tc.getShapeExpr().getId(), destination);
+
+					if (shape.getExtraProperties().contains(tc.getProperty().getIri())) {
+						if (!edges.containsKey(key) || signComputator.getResult().get(subKey))
+							edges.put(key,!signComputator.getResult().get(subKey));
+					} else {
+						if (!edges.containsKey(key) || !signComputator.getResult().get(subKey))
+							edges.put(key,signComputator.getResult().get(subKey));
+					}
+				}	
+			}
+		}
+		
+		edges.entrySet().stream().forEach(entry -> builder.addEdge(entry.getKey().one, entry.getKey().two, entry.getValue()?1:-1));
+		return builder.build();
+
+	}
+	
+	
+	class CollectTripleConstraintOfAShape extends TripleExpressionVisitor<Set<TripleConstraint>> {
+		private Set<TripleConstraint> set;
+
+		public CollectTripleConstraintOfAShape(){
+			this.set = new HashSet<TripleConstraint>();
+		}
+		
+		@Override
+		public Set<TripleConstraint> getResult() {
+			return set;
+		}
+
+				
+		@Override		
+		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
+			expr.getSubExpression().accept(this, arguments);
+		}
+		
+		@Override
+		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
+			set.add(tc);
+		}
+
+		@Override
+		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
+			expr.getTripleExp().accept(this, arguments);
+		}
+
+		@Override
+		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {}	
+	}
+	
+	
+	class ComputeReferenceSign extends ShapeExpressionVisitor<Map<Pair<Label,Label>,Boolean>> {
+		private Label root;
+		private boolean isPositive;
+		private Map<Pair<Label,Label>,Boolean> collectedSign;
+
+		public ComputeReferenceSign () {	
+			this.collectedSign = new HashMap<Pair<Label,Label>,Boolean>();
+		}
+		
+		@Override
+		public Map<Pair<Label, Label>, Boolean> getResult() {
+			return collectedSign;
+		}
+		
+		public void resetSign() {
+			isPositive = true;
+		}
+		
+		public void setRoot(Label rootLabel) {
+			root = rootLabel;
+		}
+		
+		private void updateSign(Label shapeExpr) {
+			Pair<Label, Label> key = new Pair<Label,Label>(root, shapeExpr);
+			if (!collectedSign.containsKey(key))
+				collectedSign.put(key, isPositive);
+			else 
+				if (!isPositive)
+					collectedSign.put(key, isPositive);
+		}
+		
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			updateSign(expr.getId());
+		}
+		
+		@Override
+		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+		}
+		
+		@Override
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
+			shapeRef.getShapeDefinition().accept(this, arguments);			
+		}
+		
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+		}
+		
+		@Override
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {		
+			for (ShapeExpr subExpr: expr.getSubExpressions()) 
+				subExpr.accept(this, arguments);
+		}
+		
+		@Override
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+			for (ShapeExpr subExpr: expr.getSubExpressions()) 
+				subExpr.accept(this, arguments);
+		}
+		
+		@Override
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			isPositive = !isPositive;
+			expr.getSubExpression().accept(this, arguments);
+			isPositive = !isPositive;
+		}
+		
+	}
+	
+	
+	class ShapeCollector extends ShapeExpressionVisitor<Set<Label>> {
+		private Set<Label> shapes;
+
+		public ShapeCollector () {
+			shapes = new HashSet<Label>();
+		}
+		
+		@Override
+		public Set<Label> getResult() {
+			return shapes;
+		}
+		
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			shapes.add(expr.getId());
+		}
+		
+		@Override
+		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+		}
+		
+		@Override
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
+			shapeRef.getShapeDefinition().accept(this, arguments);			
+		}
+		
+		@Override
+		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+		}
+		
+		@Override
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {		
+			for (ShapeExpr subExpr: expr.getSubExpressions()) 
+				subExpr.accept(this, arguments);
+		}
+		
+		@Override
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+			for (ShapeExpr subExpr: expr.getSubExpressions()) 
+				subExpr.accept(this, arguments);
+		}
+		
+		@Override
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			expr.getSubExpression().accept(this, arguments);
+		}
+		
+	}
+
+	
+	
+	// -------------------------------------------------------------------------------
+	// Stratification computation and access v1
+	// -------------------------------------------------------------------------------
 
 	
 	class CollectGraphDependencyFromShape extends ShapeExpressionVisitor<Set<Pair<Pair<Label,Label>,Integer>>> {
@@ -720,7 +924,7 @@ public class ShexSchema {
 		return builder.build();
 	}
 	
-	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> refineDependencesGraphWithShapeOnly () {
+	private DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> refineDependencesGraphWithShapeOnly () throws NotStratifiedException {
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graphAllShapeExpr = this.computeDependencesGraphAllShapeExpr();
 		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> enumeratedGraph = this.computeNegativeGraph(graphAllShapeExpr);
 
@@ -733,12 +937,21 @@ public class ShexSchema {
 				.collect(Collectors.toCollection(HashSet::new));
 		vertexSet.stream().forEach(la -> builder.addVertex(la));
 		
+		
+		TarjanSimpleCycles<Label,DefaultWeightedEdge> enumeratorCycle = new TarjanSimpleCycles<Label, DefaultWeightedEdge>(enumeratedGraph);
+		List<List<Label>> cycles = enumeratorCycle.findSimpleCycles();
+		for (List<Label> cycle:cycles) {
+			if (getNumberOfNegativeEdges(enumeratedGraph,cycle)%2==1) {
+				throw new NotStratifiedException("The set of rules is not stratified (a cycle with an odd number of negative edge has been found).");
+			}
+		}
+		
 		// add the edges
 		AllDirectedPaths enumeratorPath = new AllDirectedPaths(enumeratedGraph);
 		for (Label source:vertexSet) {
 			for (Label target:vertexSet) {
 //				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, vertexSet.size()*10);
-				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, false, 10);
+				List<GraphPath<Label,DefaultWeightedEdge>> paths = enumeratorPath.getAllPaths(source, target, true, null);
 				if (paths.size()>0) {
 					if (containsAPathWithAnOddNumberOfNegativeEdge(graphAllShapeExpr,paths))
 						builder.addEdge(source, target, -1);
@@ -750,6 +963,23 @@ public class ShexSchema {
 		return builder.build();
 	}
 	
+	
+	private int getNumberOfNegativeEdges(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graph,
+			List<Label> cycle) {
+		Label source = null, target = null;
+		int weight = graph.getEdgeWeight(graph.getEdge(cycle.get(cycle.size()-1), cycle.get(0)))<0?1:0;
+		for (Label u:cycle) {
+			if (source == null)
+				source = u;
+			else {
+				target = u;
+				weight += graph.getEdgeWeight(graph.getEdge(source, target))<0?1:0;
+				source = target;
+			}
+		}
+		return weight;
+		
+	}
 	
 	public boolean containsAPathWithAnOddNumberOfNegativeEdge(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> graphAllShapeExpr,
 			List<GraphPath<Label,DefaultWeightedEdge>> paths) {
