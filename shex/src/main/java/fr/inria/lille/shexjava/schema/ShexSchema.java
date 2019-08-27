@@ -24,21 +24,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
-import org.jgrapht.GraphPath;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
-import org.jgrapht.alg.cycle.TarjanSimpleCycles;
-import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.graph.builder.GraphBuilder;
-import org.jgrapht.traverse.BreadthFirstIterator;
 
 import com.moz.kiji.annotations.ApiStability.Stable;
 
@@ -65,7 +60,6 @@ import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.Pair;
-import net.sf.saxon.expr.PJConverter.ToCollection;
 
 /** A ShEx schema.
  * 
@@ -542,22 +536,25 @@ public class ShexSchema {
 															  .collect(Collectors.toList());
 		shapes.stream().forEach(la -> builder.addVertex(la));
 		
+		Map<Pair<Label,Label>,Boolean> edges = computeSetOfEdgesForTheDepencyGraph(shapes);
+		edges.entrySet().stream().forEach(entry -> builder.addEdge(entry.getKey().one, entry.getKey().two, entry.getValue()?1:-1));
+		
+		return builder.build();
+	}
+	
+	
+	private Map<Pair<Label,Label>,Boolean> computeSetOfEdgesForTheDepencyGraph(List<Label> shapes) {
 		Map<Pair<Label,Label>,Boolean> edges = new HashMap<>();
 		
 		ComputeReferenceSign signComputator = new ComputeReferenceSign();
 		for (Label sourceShape:shapes) {
 			Shape shape = ((Shape) this.shexprsMap.get(sourceShape));
-			CollectTripleConstraintOfAShape tcCollector = new CollectTripleConstraintOfAShape();
-			shape.getTripleExpression().accept(tcCollector);
-			
-			for (TripleConstraint tc:tcCollector.getResult()) {
+
+			for (TripleConstraint tc:getSetOfTripleConstraintOfAShape(shape)) {
 				signComputator.setRoot(tc.getShapeExpr().getId());
-				signComputator.resetSign();
 				tc.getShapeExpr().accept(signComputator);
 				
-				ShapeCollector shapeCol = new ShapeCollector();
-				tc.getShapeExpr().accept(shapeCol);
-				for (Label destination:shapeCol.getResult()) {
+				for (Label destination:getSetOfShapeInTheShapeExprOfATripleConstraint(tc)) {
 					Pair<Label,Label> key = new Pair<Label,Label>(sourceShape,destination);
 					Pair<Label,Label> subKey = new Pair<Label,Label>(tc.getShapeExpr().getId(), destination);
 
@@ -571,12 +568,20 @@ public class ShexSchema {
 				}	
 			}
 		}
-		
-		edges.entrySet().stream().forEach(entry -> builder.addEdge(entry.getKey().one, entry.getKey().two, entry.getValue()?1:-1));
-		return builder.build();
-
+		return edges;
 	}
 	
+	private Set<TripleConstraint> getSetOfTripleConstraintOfAShape(Shape shape) {
+		CollectTripleConstraintOfAShape tcCollector = new CollectTripleConstraintOfAShape();
+		shape.getTripleExpression().accept(tcCollector);
+		return tcCollector.getResult();
+	}
+	
+	private Set<Label> getSetOfShapeInTheShapeExprOfATripleConstraint(TripleConstraint tc) {
+		ShapeCollectorOfAShapeExpr shapeCol = new ShapeCollectorOfAShapeExpr();
+		tc.getShapeExpr().accept(shapeCol);
+		return shapeCol.getResult();
+	}
 	
 	class CollectTripleConstraintOfAShape extends TripleExpressionVisitor<Set<TripleConstraint>> {
 		private Set<TripleConstraint> set;
@@ -618,16 +623,14 @@ public class ShexSchema {
 
 		public ComputeReferenceSign () {	
 			this.collectedSign = new HashMap<Pair<Label,Label>,Boolean>();
+			isPositive = true;
 		}
 		
 		@Override
 		public Map<Pair<Label, Label>, Boolean> getResult() {
 			return collectedSign;
 		}
-		
-		public void resetSign() {
-			isPositive = true;
-		}
+
 		
 		public void setRoot(Label rootLabel) {
 			root = rootLabel;
@@ -682,10 +685,10 @@ public class ShexSchema {
 	}
 	
 	
-	class ShapeCollector extends ShapeExpressionVisitor<Set<Label>> {
+	class ShapeCollectorOfAShapeExpr extends ShapeExpressionVisitor<Set<Label>> {
 		private Set<Label> shapes;
 
-		public ShapeCollector () {
+		public ShapeCollectorOfAShapeExpr () {
 			shapes = new HashSet<Label>();
 		}
 		
