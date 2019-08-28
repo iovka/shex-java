@@ -16,4 +16,10 @@ public class ShapeSelectorLabel extends ShapeSelector {
 		return label;
 	}
 
+	@Override
+	public String toString() {
+		return label.toPrettyString();
+	}
+
+	
 }

@@ -15,6 +15,11 @@ public class BaseShapeMap {
 	public Collection<ShapeAssociation> getAssociations() {
 		return associations;
 	}
+
+	@Override
+	public String toString() {
+		return "BaseShapeMap [associations=" + associations + "]";
+	}
 	
 	
 }

@@ -35,11 +35,19 @@ public interface ShapeMapVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNodeSpec(ShapeMapParser.NodeSpecContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShapeMapParser#triplePattern}.
+	 * Visit a parse tree produced by the {@code triplePatternObject}
+	 * labeled alternative in {@link ShapeMapParser#triplePattern}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTriplePattern(ShapeMapParser.TriplePatternContext ctx);
+	T visitTriplePatternObject(ShapeMapParser.TriplePatternObjectContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code triplePatternSubject}
+	 * labeled alternative in {@link ShapeMapParser#triplePattern}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTriplePatternSubject(ShapeMapParser.TriplePatternSubjectContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShapeMapParser#objectTerm}.
 	 * @param ctx the parse tree
@@ -94,12 +102,6 @@ public interface ShapeMapVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPredicate(ShapeMapParser.PredicateContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShapeMapParser#rdfType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRdfType(ShapeMapParser.RdfTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShapeMapParser#iri}.
 	 * @param ctx the parse tree

@@ -45,6 +45,15 @@ public class ShapeAssociation {
 	public Optional<Object> getAppInfo(){
 		return Optional.of(appInfo) ;
 	}
+
+
+	@Override
+	public String toString() {
+		if (status!=null || reason!=null || appInfo!=null)
+			return "ShapeAssociation [nodeSelector=" + nodeSelector + ", shapeSelector=" + shapeSelector + ", status="
+						+ status + ", reason=" + reason + ", appInfo=" + appInfo + "]";
+		return nodeSelector+" @"+shapeSelector;
+	}
 	
 	
 }

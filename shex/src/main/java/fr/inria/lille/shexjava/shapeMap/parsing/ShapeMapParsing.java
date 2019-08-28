@@ -1,8 +1,16 @@
 package fr.inria.lille.shexjava.shapeMap.parsing;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.rdf.api.BlankNode;
@@ -14,6 +22,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.simple.Types;
 import org.apache.commons.text.StringEscapeUtils;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSelector;
@@ -35,7 +44,6 @@ import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.ObjectTermContext
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.PredicateContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.PrefixedNameContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.RdfLiteralContext;
-import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.RdfTypeContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.ShapeAssociationContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.ShapeMapContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.ShapeSpecContext;
@@ -49,6 +57,18 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 	private Map<String,String> prefixes;
 	
 
+	public BaseShapeMap parse( InputStream is) throws IOException {
+		rdfFactory = GlobalFactory.RDFFactory;
+		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
+		CharStream inputStream = CharStreams.fromReader(isr);
+		ShapeMapLexer lexer = new ShapeMapLexer(inputStream);
+		CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+		ShapeMapParser parser = new ShapeMapParser(commonTokenStream);   
+
+		return this.visitShapeMap(parser.shapeMap());
+
+	}
+	
 	@Override
 	public BaseShapeMap visitShapeMap(ShapeMapContext ctx) {
 		return new BaseShapeMap(ctx.shapeAssociation().stream().map(c -> this.visitShapeAssociation(c)).collect(Collectors.toList()));
@@ -69,20 +89,28 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 	@Override
 	public NodeSelector visitNodeSpec(NodeSpecContext ctx) {
 		if (ctx.triplePattern()!=null)
-			return this.visitTriplePattern(ctx.triplePattern());
+			return (NodeSelector) ctx.triplePattern().accept(this);
 		if (ctx.objectTerm()!=null)
 			return new NodeSeletorRDFTerm(this.visitObjectTerm(ctx.objectTerm()));
 		return null;
 	}
 	
+	
 	@Override
-	public NodeSelector visitTriplePattern(TriplePatternContext ctx) {
+	public NodeSelectorFilterSubject visitTriplePatternObject(ShapeMapParser.TriplePatternObjectContext ctx) {
 		if (ctx.objectTerm()!=null)
 			return new NodeSelectorFilterSubject(this.visitPredicate(ctx.predicate()), this.visitObjectTerm(ctx.objectTerm()));
+		return new NodeSelectorFilterSubject(this.visitPredicate(ctx.predicate()));
+
+	}
+	
+	@Override
+	public NodeSelectorFilterObject visitTriplePatternSubject(ShapeMapParser.TriplePatternSubjectContext ctx) {
 		if (ctx.subjectTerm()!=null)
 			return new NodeSelectorFilterObject(this.visitSubjectTerm(ctx.subjectTerm()), this.visitPredicate(ctx.predicate()));
-		return null;
+		return new NodeSelectorFilterObject(this.visitPredicate(ctx.predicate()));
 	}
+	
 
 	@Override
 	public RDFTerm visitObjectTerm(ObjectTermContext ctx) {
@@ -181,21 +209,16 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 
 	@Override
 	public IRI visitPredicate(PredicateContext ctx) {
-		if (ctx.iri() != null)
-			return visitIri(ctx.iri());
-		return visitRdfType(ctx.rdfType());
+		return visitIri(ctx.iri());
 	}
 
-	@Override
-	public IRI visitRdfType(RdfTypeContext ctx) {
-		return rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"); 
-	}
 
 	@Override
 	public IRI visitIri(IriContext ctx) {
-		TerminalNode iri = ctx.IRIREF();
-		if (iri != null) {
-			String iris = iri.getText();
+		if (ctx.RDF_TYPE()!=null)
+			return rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"); 
+		if (ctx.IRIREF() != null) {
+			String iris = ctx.IRIREF().getText();
 			iris = iris.substring(1,iris.length()-1);
 			return rdfFactory.createIRI(StringEscapeUtils.unescapeJava(iris));
 		}

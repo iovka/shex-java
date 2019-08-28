@@ -11,6 +11,12 @@ public class NodeSelectorFilterSubject implements NodeSelector {
 	protected IRI predicate;
 	protected RDFTerm object;
 	
+	
+	public NodeSelectorFilterSubject(IRI predicate) {
+		super();
+		this.predicate = predicate;
+		this.object = null;
+	}
 		
 	public NodeSelectorFilterSubject(IRI predicate, RDFTerm object) {
 		super();
@@ -24,4 +30,13 @@ public class NodeSelectorFilterSubject implements NodeSelector {
 		return g.stream(null, predicate, object).map(tr -> tr.getSubject()).collect(Collectors.toSet());
 	}
 
+
+	@Override
+	public String toString() {
+		if (object == null)
+			return "{ FOCUS "+predicate.ntriplesString()+" _ }";
+		return "{ FOCUS "+predicate.ntriplesString()+" "+object.ntriplesString()+" }";	}
+
+	
+	
 }

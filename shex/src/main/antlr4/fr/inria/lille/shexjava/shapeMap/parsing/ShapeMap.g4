@@ -31,10 +31,10 @@ grammar ShapeMap;
 
 shapeMap                    : shapeAssociation (',' shapeAssociation)* ;
 shapeAssociation            : nodeSpec shapeSpec ;
-shapeSpec                   : '@' (iri | 'START') ;
+shapeSpec                   : '@START' | '@' 'START' | '@' iri ;
 nodeSpec                    : objectTerm | triplePattern ;
-triplePattern               : '{' 'FOCUS' predicate (objectTerm | '_') '}'
-                            | '{' (subjectTerm | '_') predicate  'FOCUS' '}'
+triplePattern               : '{' 'FOCUS' predicate (objectTerm | '_') '}'      # triplePatternObject
+                            | '{' (subjectTerm | '_') predicate  'FOCUS' '}'    # triplePatternSubject
                             ;
 objectTerm                  : subjectTerm
                             | literal
@@ -60,11 +60,9 @@ string                      : STRING_LITERAL_LONG1
 				            | STRING_LITERAL2
 				            ;
 langString                  : ( STRING_LITERAL_LONG1 | STRING_LITERAL_LONG2 | STRING_LITERAL1 | STRING_LITERAL2 ) LANGTAG ;
-predicate                   : iri
-				            | rdfType
-			            	;
-rdfType			            : RDF_TYPE ;
-iri                         : IRIREF
+predicate                   : iri ;
+iri                         : RDF_TYPE
+                            | IRIREF
 			            	| prefixedName
 				            ;
 prefixedName                : PNAME_LN

@@ -10,4 +10,9 @@ public class ShapeSelectorStart extends ShapeSelector {
 		return schema.getStart().getId();
 	}
 
+	@Override
+	public String toString() {
+		return " START";
+	}
+
 }

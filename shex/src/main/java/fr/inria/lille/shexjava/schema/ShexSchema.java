@@ -284,11 +284,11 @@ public class ShexSchema {
 	
 	
 	private void computeStratification () throws NotStratifiedException {
-		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> depG = computeDependencesGraph();
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> depG = computeGraphOfDependences();
 		List<Graph<Label, DefaultWeightedEdge>> strConComp = checkIfGraphCanBeStratified(depG);
 
 		// Shrink the strongly connected component and memorize how the shrink was performed.
-		Map<Label,Set<Label>> revIndex = new HashMap<>(); // for a vertex, contains the set of the vertices of the scc
+		Map<Label,Set<Label>> revIndex = new HashMap<>(); // for a vertex, contains the set of the vertices shrink on it
 		strConComp.stream().forEach(scc -> revIndex.put(scc.vertexSet().iterator().next(), scc.vertexSet()));
 		Map<Label,Label> index = new HashMap<>(); // for a vertex, the map contains the vertex on which it has been shrink
 		revIndex.entrySet().stream().forEach(entry -> entry.getValue().stream().forEach(v -> index.put(v,entry.getKey())));
@@ -300,7 +300,7 @@ public class ShexSchema {
 			.map(edge -> new Pair<Label,Label>(index.get(depG.getEdgeSource(edge)),index.get(depG.getEdgeTarget(edge))))
 			.filter(pair -> !pair.one.equals(pair.two)).forEach(pair -> dag.addEdge(pair.one,pair.two));
 				
-		// Compute Stratification using an iterator of the dag
+		// Compute the stratification using an iterator of the dag
 		stratification = new HashMap<>();
 		int counterStrat = dag.vertexSet().size()-1;
 		for (Label s:dag) {
@@ -518,7 +518,7 @@ public class ShexSchema {
 	}
 	
 	
-	private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeDependencesGraph() {
+	private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeGraphOfDependences() {
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
 		
@@ -526,14 +526,14 @@ public class ShexSchema {
 															  .collect(Collectors.toList());
 		shapes.stream().forEach(la -> builder.addVertex(la));
 		
-		Map<Pair<Label,Label>,Boolean> edges = computeSetOfEdgesForTheDepencyGraph(shapes);
+		Map<Pair<Label,Label>,Boolean> edges = computeTheSetOfEdgesForTheGraphOfDependences(shapes);
 		edges.entrySet().stream().forEach(entry -> builder.addEdge(entry.getKey().one, entry.getKey().two, entry.getValue()?1:-1));
 		
 		return builder.build();
 	}
 	
 	
-	private Map<Pair<Label,Label>,Boolean> computeSetOfEdgesForTheDepencyGraph(List<Label> shapes) {
+	private Map<Pair<Label,Label>,Boolean> computeTheSetOfEdgesForTheGraphOfDependences(List<Label> shapes) {
 		Map<Pair<Label,Label>,Boolean> edges = new HashMap<>();
 		
 		ComputeReferenceSign signComputator = new ComputeReferenceSign();
@@ -561,17 +561,20 @@ public class ShexSchema {
 		return edges;
 	}
 	
+	
 	private Set<TripleConstraint> getSetOfTripleConstraintOfAShape(Shape shape) {
 		CollectTripleConstraintOfAShape tcCollector = new CollectTripleConstraintOfAShape();
 		shape.getTripleExpression().accept(tcCollector);
 		return tcCollector.getResult();
 	}
 	
+	
 	private Set<Label> getSetOfShapeInTheShapeExprOfATripleConstraint(TripleConstraint tc) {
 		ShapeCollectorOfAShapeExpr shapeCol = new ShapeCollectorOfAShapeExpr();
 		tc.getShapeExpr().accept(shapeCol);
 		return shapeCol.getResult();
 	}
+	
 	
 	class CollectTripleConstraintOfAShape extends TripleExpressionVisitor<Set<TripleConstraint>> {
 		private Set<TripleConstraint> set;
