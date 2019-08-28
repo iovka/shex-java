@@ -284,56 +284,30 @@ public class ShexSchema {
 	
 	
 	private void computeStratification () throws NotStratifiedException {
-		//Starting to check and compute stratification
-		//DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = this.refineDependencesGraphWithShapeOnly();	
-		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph = computeDependencesGraph();
-		// Compute strongly connected components
-		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
-		kscInspector = new KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge>(dependecesGraph);
-		List<Graph<Label,DefaultWeightedEdge>> strConComp = kscInspector.getStronglyConnectedComponents();
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> depG = computeDependencesGraph();
+		List<Graph<Label, DefaultWeightedEdge>> strConComp = checkIfGraphCanBeStratified(depG);
 
-		// Check that there is no negative edge in a strongly connected component
-		for (Graph<Label,DefaultWeightedEdge> scc:strConComp) 
-			for (DefaultWeightedEdge wedge:scc.edgeSet()) 
-				if(scc.getEdgeWeight(wedge)<0) 
-					throw new NotStratifiedException("The set of rules is not stratified (negative edge found in a strongly connected component).");
-
-		//	Create a directed acyclic graph to compute the topological sort
+		// Shrink the strongly connected component and memorize how the shrink was performed.
+		Map<Label,Set<Label>> revIndex = new HashMap<>(); // for a vertex, contains the set of the vertices of the scc
+		strConComp.stream().forEach(scc -> revIndex.put(scc.vertexSet().iterator().next(), scc.vertexSet()));
+		Map<Label,Label> index = new HashMap<>(); // for a vertex, the map contains the vertex on which it has been shrink
+		revIndex.entrySet().stream().forEach(entry -> entry.getValue().stream().forEach(v -> index.put(v,entry.getKey())));
+		
+		// A new graph is going to be created with the strongly connected component shrink to one vertex
 		DirectedAcyclicGraph<Label,DefaultEdge> dag = new DirectedAcyclicGraph<>(DefaultEdge.class);
-
-		// create an index map 
-		Map<Label,Label> index = new HashMap<>();
-		Map<Label,Set<Label>> revIndex = new HashMap<>();
-		for (Graph<Label,DefaultWeightedEdge> scc:strConComp) {
-			Label representant = null;
-			for (Label dest:scc.vertexSet()) {
-				if (representant==null) {
-					representant=dest;
-					revIndex.put(representant, scc.vertexSet());
-					dag.addVertex(representant);
-				}
-				index.put(dest,representant);
-			}
-		}
-		
-		// add the edges
-		for(DefaultWeightedEdge wedge:dependecesGraph.edgeSet()) {
-			Label source = index.get(dependecesGraph.getEdgeSource(wedge));
-			Label target = index.get(dependecesGraph.getEdgeTarget(wedge));
-			if(!source.equals(target))
-				dag.addEdge(source,target);
-		}
-		
+		revIndex.keySet().stream().forEach(v -> dag.addVertex(v) );
+		depG.edgeSet().stream()
+			.map(edge -> new Pair<Label,Label>(index.get(depG.getEdgeSource(edge)),index.get(depG.getEdgeTarget(edge))))
+			.filter(pair -> !pair.one.equals(pair.two)).forEach(pair -> dag.addEdge(pair.one,pair.two));
+				
 		// Compute Stratification using an iterator of the dag
 		stratification = new HashMap<>();
 		int counterStrat = dag.vertexSet().size()-1;
 		for (Label s:dag) {
-			Set<Label> tmp = new HashSet<>();
-			for (Label l:revIndex.get(s))
-				tmp.add((Label) l);
-			stratification.put(counterStrat,Collections.unmodifiableSet(tmp));
+			stratification.put(counterStrat,Collections.unmodifiableSet(revIndex.get(s)));
 			counterStrat--;
 		}
+		
 		stratification = Collections.unmodifiableMap(stratification);
 	}
 	
@@ -528,6 +502,22 @@ public class ShexSchema {
 	// Stratification computation and access v2
 	// -------------------------------------------------------------------------------
 
+	private List<Graph<Label, DefaultWeightedEdge>> checkIfGraphCanBeStratified(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph) throws NotStratifiedException {
+		// Compute strongly connected components
+		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
+		kscInspector = new KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge>(dependecesGraph);
+		List<Graph<Label,DefaultWeightedEdge>> strConComp = kscInspector.getStronglyConnectedComponents();
+
+		// Check that there is no negative edge in a strongly connected component
+		for (Graph<Label,DefaultWeightedEdge> scc:strConComp) 
+			for (DefaultWeightedEdge wedge:scc.edgeSet()) 
+				if(scc.getEdgeWeight(wedge)<0) 
+					throw new NotStratifiedException("The set of rules is not stratified (negative edge found in a strongly connected component).");
+
+		return strConComp;
+	}
+	
+	
 	private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeDependencesGraph() {
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));

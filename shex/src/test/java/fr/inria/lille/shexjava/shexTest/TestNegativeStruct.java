@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.shexTest;
 
+import static org.junit.Assert.fail;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,7 +114,8 @@ public class TestNegativeStruct {
 			if (pass){
     			passed.add(new TestResultForTestReport(testName, true, null, "negativeStructure"));
     		} else {
-				failed.add(new TestResultForTestReport(testName, false, null, "negativeStructure"));					
+				failed.add(new TestResultForTestReport(testName, false, null, "negativeStructure"));	
+				fail(testName+" did not throw any errors.");
     		}
 		}catch (Exception e) {
 			if (pass && ((e instanceof CyclicReferencesException)
@@ -120,8 +123,8 @@ public class TestNegativeStruct {
 					      || (e instanceof UndefinedReferenceException)
 					     ) ) {
 				errors.add(new TestResultForTestReport(testName, false, e.getMessage(), "negativeStructure"));
+				fail(testName+" throw an unexpected errors: "+e.getMessage());
 			}else {
-				//System.out.println(e.getMessage());
 				passed.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeStructure"));				
 			}
 		}
