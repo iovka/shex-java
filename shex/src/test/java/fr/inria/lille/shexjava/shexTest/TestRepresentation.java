@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.shexTest;
 
+import static org.junit.Assert.fail;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -100,24 +102,9 @@ public class TestRepresentation {
     		passed.add(new TestResultForTestReport(testName, true, null, "schemas"));
     	}catch (Exception e) {
     		failed.add(new TestResultForTestReport(testName, false, e.getMessage(), "schemas"));
+			fail("Exception during the test: "+e.getMessage());
     	}
-
     }
-
-    @AfterClass
-	public static void ending() {
-    	System.out.println("Result for negative structure tests:");
-		System.out.println("Passed : "+passed.size());
-    	System.out.println("Failed : "+failed.size());
-		printTestCaseNames("  > ",failed);
-
-	}
-    
-    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
-    	for (TestResultForTestReport report:reports)
-    		System.out.println(prefix+report.name+" ("+report.description+")");
-    }
-	
 	
 	//--------------------------------------------------
 	// Utils functions for test

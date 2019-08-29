@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
@@ -128,20 +129,12 @@ public class TestValidation_ShExJ_Jena_Refine {
 	@Test
     public void runTest() {
 		//System.out.println(testCase);
-    	List<Object> reasons = new ArrayList<>();
-    	for (Value object: testCase.traits) {
-    		if (skippedIris.contains(object)) {
-    			reasons.add(object);
-    		}
-    	}
+    	List<Object> reasons = testCase.traits.stream().filter(trait -> skippedIris.contains(trait)).collect(Collectors.toList());
     	if (reasons.size()>0) {
-    		String message = "Skipping test because some trait is not supported.";
-    		skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
+    		skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because some trait is not supported.", "validation"));
     		return;
     	}	
     	if (! testCase.isWellDefined()) {
-    		System.err.println("! well defined: "+testCase.testName);
-    		System.err.println("! well defined: "+testCase.traits);
     		failed.add(new TestResultForTestReport(testCase.testName, false, "Incorrect test definition.", "validation"));
     		return;
     	}
@@ -149,11 +142,9 @@ public class TestValidation_ShExJ_Jena_Refine {
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
     		if(! schemaFile.toFile().exists()) {
-    			String message = "Skipping test because schema file does not exists.";	
-    			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
-    			return;
+    			skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because schema file does not exists.", "validation"));
+    			return ;
     		}
-
 	    	
     		// Fix for dealing with the absence of namespace specification in jena.
 	    	if (testCase.focusNode instanceof org.apache.commons.rdf.api.IRI) {

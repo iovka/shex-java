@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.parsing;
 
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.rdf4j.RDF4J;
@@ -43,6 +45,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -121,36 +124,31 @@ public class TestShExCParserShExJSerializer {
     
     @Parameter
     public TestCase testCase;
-        	
+    
+    
+    @Before
+	public void beforeMethod() {
+		List<Object> reasons = testCase.traits.stream().filter(trait -> skippedIris.contains(trait)).collect(Collectors.toList());
+		if (reasons.size()>0) 
+			skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because some trait is not supported.", "validation"));
+		assumeTrue(reasons.size()==0);
+
+		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
+		if(! schemaFile.toFile().exists())
+			skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because schema file does not exists.", "validation"));
+		assumeTrue(schemaFile.toFile().exists());
+	}
+    
 	@Test
     public void runTest() {
-    	List<Object> reasons = new ArrayList<>();
-    	for (Value object: testCase.traits) {
-    		if (skippedIris.contains(object)) {
-    			reasons.add(object);
-    		}
-    	}
-    	if (reasons.size()>0) {
-    		String message = "Skipping test because some trait is not supported.";
-    		skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
-    		return;
-    	}	
     	if (! testCase.isWellDefined()) {
-    		System.err.println("! well defined: "+testCase.testName);
-    		System.err.println("! well defined: "+testCase.traits);
     		failed.add(new TestResultForTestReport(testCase.testName, false, "Incorrect test definition.", "validation"));
-    		return;
+			fail("Incorrect test definition.");
     	}
     	ShexSchema fromJson = null;
 		ShexSchema toJson = null;
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
-
-    		if(! schemaFile.toFile().exists()) {
-    			String message = "Skipping test because schema file does not exists.";	
-    			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
-    		}
-			
     		RDF factory = new CommonFactory();
     		
 			fromJson = GenParser.parseSchema(factory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
@@ -165,31 +163,11 @@ public class TestShExCParserShExJSerializer {
     			failed.add(new TestResultForTestReport(testCase.testName, false, null, "failed"));
     			fail("Failed: "+testCase.testName);
 			}
-
     	}catch (Exception e) {
-    		e.printStackTrace();
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
 			fail("Exception: "+testCase.testName);
 			
     	}
-    }
-    
-	
-    @AfterClass
-	public static void ending() {
-    	System.out.println("Result for ShExC parser - ShExJ serialiser tests:");
-		System.out.println("Skipped: "+skiped.size());
-		printTestCaseNames("  > ",skiped);
-		System.out.println("Passed : "+passed.size());
-		System.out.println("Failed : "+failed.size());
-		printTestCaseNames("  > ",failed);
-		System.out.println("Errors : "+errors.size());
-		printTestCaseNames("  > ",errors);
-	}
-    
-    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
-    	for (TestResultForTestReport report:reports)
-    		System.out.println(prefix+report.name);
     }
 	
 	//--------------------------------------------------

@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.rdf4j.RDF4J;
@@ -120,20 +121,12 @@ public class TestValidation_ShExR_RDF4J_Recursive {
         	
 	@Test
     public void runTest() {
-    	List<Object> reasons = new ArrayList<>();
-    	for (Value object: testCase.traits) {
-    		if (skippedIris.contains(object)) {
-    			reasons.add(object);
-    		}
-    	}
+    	List<Object> reasons = testCase.traits.stream().filter(trait -> skippedIris.contains(trait)).collect(Collectors.toList());
     	if (reasons.size()>0) {
-    		String message = "Skipping test because some trait is not supported.";
-    		skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
+    		skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because some trait is not supported.", "validation"));
     		return;
     	}	
     	if (! testCase.isWellDefined()) {
-    		System.err.println("! well defined: "+testCase.testName);
-    		System.err.println("! well defined: "+testCase.traits);
     		failed.add(new TestResultForTestReport(testCase.testName, false, "Incorrect test definition.", "validation"));
     		return;
     	}
@@ -143,10 +136,10 @@ public class TestValidation_ShExR_RDF4J_Recursive {
     		Path dataFile = Paths.get(getDataFileName(testCase.dataFileName));
 
     		if(! schemaFile.toFile().exists()) {
-    			String message = "Skipping test because schema file does not exists.";	
-    			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));
-    			return;
+    			skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because schema file does not exists.", "validation"));
+    			return ;
     		}
+    		
     		if(schemaFile.toString().equals(dataFile.toString())) {
     			String message = "Skipping test because schema file == dataFile.";	
     			skiped.add(new TestResultForTestReport(testCase.testName, false, message, "validation"));

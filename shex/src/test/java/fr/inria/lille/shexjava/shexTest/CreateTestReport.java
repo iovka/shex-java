@@ -68,6 +68,7 @@ public class CreateTestReport {
 		t.printHeader();
 		
 		JUnitCore.runClasses(TestValidation_ShExC_RDF4J_Recursive.class);
+		
 		for (TestResultForTestReport r : TestValidation_ShExC_RDF4J_Recursive.passed)
 			t.printTestResult(r);
 		for (TestResultForTestReport r : TestValidation_ShExC_RDF4J_Recursive.skiped)

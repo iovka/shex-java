@@ -130,22 +130,6 @@ public class TestNegativeStruct {
 		}
 
     }
-    
-    @AfterClass
-	public static void ending() {
-    	System.out.println("Result for negative structure tests:");
-		System.out.println("Passed : "+passed.size());
-    	System.out.println("Failed : "+failed.size());
-		printTestCaseNames("  > ",failed);
-		System.out.println("Errors : "+errors.size());
-		printTestCaseNames("  > ",errors);
-	}
-    
-    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
-    	for (TestResultForTestReport report:reports)
-    		System.out.println(prefix+report.name+" ("+report.description+")");
-    }
-	
 	
 	//--------------------------------------------------
 	// Utils functions for test

@@ -1,6 +1,8 @@
 package fr.inria.lille.shexjava.shapeMap;
 
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -18,10 +20,10 @@ public class ShapeMapParsingTest {
 	@Test
 	public void test() {
 		String shMap = "{ FOCUS <http://inria.fr/node1> _ } @START";
-		System.out.println(shMap);
 		try {
 			BaseShapeMap result = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
-			System.out.println(result);
+			assertEquals(result.getAssociations().size(), 1);
+			assertEquals(result.getAssociations().iterator().next().toString(), "{ FOCUS <http://inria.fr/node1> _ } @ START");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -32,10 +34,10 @@ public class ShapeMapParsingTest {
 	@Test
 	public void test1() {
 		String shMap = "a @<http://inria.fr/Shape>";
-		System.out.println(shMap);
 		try {
 			BaseShapeMap result = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
-			System.out.println(result);
+			assertEquals(result.getAssociations().size(), 1);
+			assertEquals(result.getAssociations().iterator().next().toString(), "a @<http://inria.fr/Shape>");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -45,10 +47,10 @@ public class ShapeMapParsingTest {
 	@Test
 	public void test2() {
 		String shMap = "{ FOCUS <http://inria.fr/node1> _ } @START, { _ <http://inria.fr/node1> FOCUS } @START";
-		System.out.println(shMap);
 		try {
 			BaseShapeMap result = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
-			System.out.println(result);
+			assertEquals(result.getAssociations().size(), 2);
+			assertEquals(result.getAssociations().iterator().next().toString(), "{ FOCUS <http://inria.fr/node1> _ } @ START");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,10 +61,10 @@ public class ShapeMapParsingTest {
 	@Test
 	public void test3() {
 		String shMap = "{ FOCUS <http://inria.fr/node1> true } @START";
-		System.out.println(shMap);
 		try {
 			BaseShapeMap result = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
-			System.out.println(result);
+			assertEquals(result.getAssociations().size(), 1);
+			assertEquals(result.getAssociations().iterator().next().toString(), "{ FOCUS <http://inria.fr/node1> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> } @ START");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
