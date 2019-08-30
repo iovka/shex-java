@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -38,7 +38,6 @@ import org.eclipse.rdf4j.rio.ParserConfig;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
-import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -81,19 +80,17 @@ public class TestNegativeStruct {
 	@Parameters
     public static Collection<Object[]> parameters() throws IOException {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
-	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
-	    	List<Object[]> parameters = new ArrayList<Object[]>();
-	    	String selectedTest = "";
-			for (Resource testNode : manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT).subjects()) {
-	    		if (selectedTest.contentEquals("") || getTestName(manifest, testNode).equals(selectedTest)) {
-					Object[] params =  new Object[3];
-		    		params[0]=getTestName(manifest, testNode);
-		    		params[1]=getSchemaFileName(manifest, testNode);
-		    		params[2]=false;
-		    		parameters.add(params);
-	    		}
-			}
-	        return parameters;
+			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
+			List<Resource> testNodes = manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT).subjects()
+											   .parallelStream().collect(Collectors.toList());
+
+			String selectedTest = "";
+			if (!selectedTest.equals(""))
+				testNodes = testNodes.parallelStream().filter(node -> getTestName(manifest, node).equals(selectedTest)).collect(Collectors.toList());
+			
+			return testNodes.parallelStream()
+					.map(node -> {Object[] params={getTestName(manifest, node),getSchemaFileName(manifest, node),false};
+								  return params;}).collect(Collectors.toList());
     	}
     	return Collections.emptyList();
     }
