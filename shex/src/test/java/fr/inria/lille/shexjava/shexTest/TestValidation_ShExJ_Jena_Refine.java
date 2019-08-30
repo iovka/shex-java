@@ -166,10 +166,6 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 		}
 	}
 
-	//--------------------------------------------------
-	// Utils functions for test
-	//--------------------------------------------------
-
 	public String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(GITHUB_URL.length());
 		fp = fp.substring(0,fp.length()-4)+"json";

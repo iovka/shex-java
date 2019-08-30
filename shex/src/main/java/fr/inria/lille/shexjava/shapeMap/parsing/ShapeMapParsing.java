@@ -12,7 +12,6 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.IRI;
@@ -49,7 +48,6 @@ import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.ShapeMapContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.ShapeSpecContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.StringContext;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.SubjectTermContext;
-import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParser.TriplePatternContext;
 import fr.inria.lille.shexjava.util.XPath;
 
 public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {

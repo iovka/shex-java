@@ -65,24 +65,13 @@ public class TestRepresentation {
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	private static final Resource REPRESENTATION_TEST = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#RepresentationTest");
 
-		
+	// the following collections are used for the test report
 	public static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
 	
 	@Parameters
     public static Collection<Object[]> parameters() throws IOException {
     	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
-//	    	Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
-//	    	List<Object[]> parameters = new ArrayList<Object[]>();
-//	    	String selectedTest = "";
-//			for (Resource testNode : manifest.filter(null,RDF_TYPE,REPRESENTATION_TEST).subjects()) {
-//	    		Object[] params =  new Object[2];
-//	    		params[0]=getTestName(manifest, testNode);
-//	    		params[1]=getSchemaFileName(manifest, testNode);
-//	    		if (selectedTest.equals("") || ((String) params[0]).equals(selectedTest))
-//	    			parameters.add(params);
-//			}
-//	        return parameters;
 			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
 			List<Resource> testNodes = manifest.filter(null,RDF_TYPE,REPRESENTATION_TEST).subjects()
 											   .parallelStream().collect(Collectors.toList());
@@ -117,9 +106,7 @@ public class TestRepresentation {
     	}
     }
 	
-	//--------------------------------------------------
-	// Utils functions for test
-	//--------------------------------------------------
+
     private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
     private static String getTestName (Model manifest, Resource testNode) {
 		return Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();

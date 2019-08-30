@@ -37,10 +37,6 @@ public abstract class AbstractValidationTest {
     @Parameter
     public TestCase testCase;
     
-	
-	//--------------------------------------------------
-	// Utils functions for test
-	//--------------------------------------------------
 
 	public ValidationAlgorithmAbstract performValidation() throws Exception {
 		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
@@ -62,12 +58,10 @@ public abstract class AbstractValidationTest {
 
 	public abstract ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph );
 
-
 	public String getDataFileName (Resource res) {
 		String fp = res.toString().substring(GITHUB_URL.length());	
 		return Paths.get(TEST_DIR,Paths.get(fp).toString()).toString();
 	}
-
 
 	public static Model parseTurtleFile(String filename,String baseURI) throws IOException{
 		Path fp = Paths.get(filename);

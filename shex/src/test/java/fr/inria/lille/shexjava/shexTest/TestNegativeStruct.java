@@ -70,9 +70,7 @@ public class TestNegativeStruct {
 	private static final IRI RDF_TYPE = RDF_FACTORY.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 	private static final Resource NEGATIVE_STRUCT = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#NegativeStructure");
 
-	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
-	private static final IRI TEST_SHEX_IRI = RDF_FACTORY.createIRI("https://shexspec.github.io/shexTest/ns#shex");
-	
+	// the following collections are used for the test report
 	public static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
@@ -128,14 +126,12 @@ public class TestNegativeStruct {
 
     }
 	
-	//--------------------------------------------------
-	// Utils functions for test
-	//--------------------------------------------------
-
+	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
     private static String getTestName (Model manifest, Resource testNode) {
 		return Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();
 	}
-
+    
+	private static final IRI TEST_SHEX_IRI = RDF_FACTORY.createIRI("https://shexspec.github.io/shexTest/ns#shex");
 	private static Path getSchemaFileName (Model manifest, Resource testNode) {
 		String filename = Models.getPropertyString(manifest, testNode, TEST_SHEX_IRI).get();
 		filename = filename.substring(GITHUB_URL.length());

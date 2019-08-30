@@ -57,6 +57,7 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
  */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExC_RDF4J_Recursive extends AbstractValidationTest {
+	// the following collections are used for the test report
 	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> skiped = new HashSet<TestResultForTestReport>();

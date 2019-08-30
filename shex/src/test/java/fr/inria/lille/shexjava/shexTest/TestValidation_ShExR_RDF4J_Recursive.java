@@ -119,10 +119,6 @@ public class TestValidation_ShExR_RDF4J_Recursive extends AbstractValidationTest
 		}
     }
 	
-	//--------------------------------------------------
-	// Utils functions for test
-	//--------------------------------------------------
-
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
     	fp = fp.substring(0,fp.length()-4)+"ttl";

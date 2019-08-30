@@ -57,7 +57,7 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
  */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationTest {
-	
+	// the following collections are used for the test report
 	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
 	public static final Set<TestResultForTestReport> skiped = new HashSet<TestResultForTestReport>();
@@ -130,17 +130,6 @@ public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationT
 		}
 	}
 
-    
-    
-    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
-    	for (TestResultForTestReport report:reports)
-    		System.out.println(prefix+report.name);
-    }
-	
-	
-	//--------------------------------------------------
-	// Utils functions for test
-	//--------------------------------------------------
 
     public String getSchemaFileName (Resource res) {
     	String fp = res.toString().substring(GITHUB_URL.length());
