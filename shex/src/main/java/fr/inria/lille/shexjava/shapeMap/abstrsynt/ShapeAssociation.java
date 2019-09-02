@@ -45,6 +45,21 @@ public class ShapeAssociation {
 	public Optional<Object> getAppInfo(){
 		return Optional.of(appInfo) ;
 	}
+	
+
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+
+
+	public void setReason(Object reason) {
+		this.reason = reason;
+	}
+
+
+	public void setAppInfo(Object appInfo) {
+		this.appInfo = appInfo;
+	}
 
 
 	@Override

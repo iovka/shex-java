@@ -10,4 +10,9 @@ public class ResultShapeMap extends BaseShapeMap {
 		super(associations);
 	}
 
+	@Override
+	public String toString() {
+		return "ResultShapeMap [associations="+associations+"]";
+	}
+
 }

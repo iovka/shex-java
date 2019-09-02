@@ -7,6 +7,8 @@ import com.moz.kiji.annotations.ApiStability.Stable;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
+import fr.inria.lille.shexjava.shapeMap.ResultShapeMap;
 
 /** Allows to validate a graph against a ShEx schema.
  * 
@@ -33,6 +35,15 @@ public interface ValidationAlgorithm {
 	 */ 
 	@Stable
 	public boolean validate (RDFTerm focusNode, Label label);
+	
+	/** Constructs a shape map that allows to validate a focus node against a type.
+	 * Returns a shape map with the results of the associations found in the shapeMap passed to the function.
+	 * 
+	 * @param shapeMap The shapeMap with the asociations requested.
+	 * @return a shape map with the result
+	 * @exception IllegalArgumentException if the label does not belong to the schema
+	 */ 
+	public ResultShapeMap validate (BaseShapeMap shapeMap);
 		
 	/** The typing that proves the result returned by previous validations.  */
 	@Stable

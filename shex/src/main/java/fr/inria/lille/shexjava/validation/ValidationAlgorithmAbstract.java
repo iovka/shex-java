@@ -17,7 +17,9 @@
 package fr.inria.lille.shexjava.validation;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
@@ -25,6 +27,11 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
+import fr.inria.lille.shexjava.shapeMap.ResultShapeMap;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSeletorRDFTerm;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelectorLabel;
 import fr.inria.lille.shexjava.util.ComputationController;
 import fr.inria.lille.shexjava.util.SimpleComputationController;
 
@@ -58,13 +65,32 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		this.graph = graph;
 		this.schema = schema;
 		this.controller = controller;
-		//this.allGraphNodes = CommonGraph.getAllNodes(graph);
 
 		resetTyping();
 	
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();
 		this.matchingObservers = new HashSet<>();
 	}
+	
+	
+	public ResultShapeMap validate(BaseShapeMap shapeMap) {
+		List<ShapeAssociation> results = new ArrayList<>();
+		
+		for (ShapeAssociation sa:shapeMap.getAssociations()) {
+			Label seLabel = sa.getShapeSelector().apply(schema);
+			for(RDFTerm node:sa.getNodeSelector().apply(graph)) {
+				ShapeAssociation saRes = new ShapeAssociation(new NodeSeletorRDFTerm(node), new ShapeSelectorLabel(seLabel));
+				if (validate(node,seLabel))
+					saRes.setStatus(Status.CONFORMANT);
+				else 
+					saRes.setStatus(Status.NONCONFORMANT);
+				results.add(saRes);
+			}
+		}
+		
+		return new ResultShapeMap(results);
+	}
+	
 	
 	// ---------------------------------------------------------------------------------
 	// Observers related

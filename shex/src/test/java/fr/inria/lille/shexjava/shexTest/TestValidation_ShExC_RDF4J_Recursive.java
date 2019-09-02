@@ -136,7 +136,6 @@ public class TestValidation_ShExC_RDF4J_Recursive extends AbstractValidationTest
 		return Paths.get(TEST_DIR,Paths.get(fp).toString()).toString();
 	}
 
-
 	public Graph getRDFGraph() throws IOException {
 		Model data = parseTurtleFile(getDataFileName(testCase.dataFileName),GITHUB_URL+"validation/");
 		return (new RDF4J()).asGraph(data);
