@@ -42,6 +42,12 @@ public class MatchingCollector {
 	public LocalMatching getMatching (RDFTerm node, Label label) {
 		return matchings.get(new Pair<>(node, label));
 	}
+	
+	
+
+	public Map<Pair<RDFTerm, Label>, LocalMatching> getMatchingMap() {
+		return matchings;
+	}
 
 	public void startValidation() {
 		// Nothing to do

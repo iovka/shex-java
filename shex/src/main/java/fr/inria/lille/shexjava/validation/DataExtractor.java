@@ -21,6 +21,7 @@ import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.Pair;
 
 public class DataExtractor{
+	
 	public void extractValidPart(ShexSchema schema, Typing t, MatchingCollector mColl, Graph resultGraph) {
 		HashSet<Pair<RDFTerm,Label>> visited = new HashSet<>();
 		VisitorValidPart visitor = new VisitorValidPart(schema,t,mColl,resultGraph,visited);
