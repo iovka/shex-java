@@ -1,6 +1,7 @@
 package fr.inria.lille.shexjava.shapeMap;
 
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
@@ -25,8 +26,7 @@ public class ShapeMapParsingTest {
 			assertEquals(result.getAssociations().size(), 1);
 			assertEquals(result.getAssociations().iterator().next().toString(), "{ FOCUS <http://inria.fr/node1> _ } @ START");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail("Exception during the parsing");
 		}
 	}
 	
@@ -52,8 +52,7 @@ public class ShapeMapParsingTest {
 			assertEquals(result.getAssociations().size(), 2);
 			assertEquals(result.getAssociations().iterator().next().toString(), "{ FOCUS <http://inria.fr/node1> _ } @ START");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail("Exception during the parsing");
 		}
 	}
 
@@ -66,8 +65,7 @@ public class ShapeMapParsingTest {
 			assertEquals(result.getAssociations().size(), 1);
 			assertEquals(result.getAssociations().iterator().next().toString(), "{ FOCUS <http://inria.fr/node1> \"true\"^^<http://www.w3.org/2001/XMLSchema#boolean> } @ START");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail("Exception during the parsing");
 		}
 	}
 	

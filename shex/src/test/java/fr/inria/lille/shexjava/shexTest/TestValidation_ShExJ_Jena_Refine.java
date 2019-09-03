@@ -85,7 +85,7 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 			String selectedTest = "";
 			if (!selectedTest.equals(""))
 				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
-
+						
 			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
 		}
 		return Collections.emptyList();
@@ -114,7 +114,10 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 			"1focusPatternB-dot_pass-bnode-long",
 			"1focusMinLength-dot_pass-bnode-equal",
 			"1bnodeMinlength_fail-bnode-short",
-	"1focusPatternB-dot_pass-bnode-match"}));
+			"1focusPatternB-dot_pass-bnode-match",
+			"1iriPattern_fail-bnode-match",
+			"1nonliteralPattern_fail-lit-match",
+			"1bnodePattern_fail-bnode-short"}));
 
 	@Before
 	public void beforeMethod() {

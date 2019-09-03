@@ -16,6 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.shexTest;
 
+import static org.junit.Assume.assumeTrue;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +41,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -99,7 +102,18 @@ public class TestNegativeSyntax {
     	return Collections.emptyList();
     }
     
+  //A list of tests to ignore because they contain a test on the name of a bnode and jena do not give stable bnode name
+  	protected static final Set<String> ignoredTests = new HashSet<>(Arrays.asList(new String[] {
+  			"1datatypeRef1",
+  			"1unknowndatatypeMaxInclusive"}));
     
+  	@Before
+	public void beforeMethod() {
+  		if (ignoredTests.contains(testName))
+			failed.add(new TestResultForTestReport(testName, false, null, "negativeSyntax"));
+		assumeTrue(!ignoredTests.contains(testName));
+	}
+  	
     @Parameter
     public String testName;
     @Parameter(1)
@@ -117,19 +131,6 @@ public class TestNegativeSyntax {
 
     }
     
-    @AfterClass
-	public static void ending() {
-    	System.out.println("Result for negative syntax tests:");
-		System.out.println("Failed : "+failed.size());
-		printTestCaseNames("  > ",failed);
-		System.out.println("Passed : "+errors.size());
-	}
-    
-    public static void printTestCaseNames(String prefix, Set<TestResultForTestReport> reports) {
-    	for (TestResultForTestReport report:reports)
-    		System.out.println(prefix+report.name);
-    }
-	
 	
 	private static final IRI TEST_NAME_IRI = RDF_FACTORY.createIRI("http://www.w3.org/2001/sw/DataAccess/tests/test-manifest#name");
     private static String getTestName (Model manifest, Resource testNode) {

@@ -1,5 +1,9 @@
 package fr.inria.lille.shexjava.validation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 
 import org.apache.commons.rdf.api.Graph;
@@ -33,10 +37,10 @@ public class DataExtractorTest {
 	static Triple n1_a_human = GlobalFactory.RDFFactory.createTriple(n1, a, human);
 	static Triple n1_first_john = GlobalFactory.RDFFactory.createTriple(n1, first, john);
 	static Triple n1_last_smith = GlobalFactory.RDFFactory.createTriple(n1, last, smith);
-	static Triple n2_a_v23 = GlobalFactory.RDFFactory.createTriple(n2, a, human);
+	static Triple n2_a_human = GlobalFactory.RDFFactory.createTriple(n2, a, human);
 	static Triple n2_first_paul = GlobalFactory.RDFFactory.createTriple(n2, first, paul);
 	static Triple n2_last_east = GlobalFactory.RDFFactory.createTriple(n2, last, eastwood);
-	static Triple n3_a_v23 = GlobalFactory.RDFFactory.createTriple(n3, a, human);
+	static Triple n3_a_human = GlobalFactory.RDFFactory.createTriple(n3, a, human);
 	static Triple n3_first_alien = GlobalFactory.RDFFactory.createTriple(n3, first, alien);
 
 	Graph graph;
@@ -49,15 +53,15 @@ public class DataExtractorTest {
 		graph.add(n1_a_human);
 		graph.add(n1_first_john);
 		graph.add(n1_last_smith);
-		graph.add(n2_a_v23);
+		graph.add(n2_a_human);
 		graph.add(n2_first_paul);
 		graph.add(n2_last_east);
-		graph.add(n3_a_v23);
+		graph.add(n3_a_human);
 		graph.add(n3_first_alien);
 	}
 	
 	@Test
-	public void testWithShapeLabel() {		
+	public void test() {		
 		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/first> IRI; }";
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
@@ -70,16 +74,21 @@ public class DataExtractorTest {
 			Graph result = GlobalFactory.RDFFactory.createGraph();
 			DataExtractor extractor = new DataExtractor();
 			extractor.extractValidPart(schema, algo.getTyping(), mColl, result);
-			System.out.println("Result:");
-			result.stream().forEach(tr -> System.out.println(tr));
+			assertEquals(result.size(),6);
+			assertTrue(result.contains(n1_a_human));
+			assertTrue(result.contains(n1_first_john));
+			assertTrue(result.contains(n2_a_human));
+			assertTrue(result.contains(n2_first_paul));
+			assertTrue(result.contains(n3_a_human));
+			assertTrue(result.contains(n3_first_alien));
 		} catch ( Exception e) {
-			e.printStackTrace();
+			fail("Exception during the parsing");
 		}
 	}
 	
 	
 	@Test
-	public void test2WithShapeLabel() {
+	public void test2() {
 		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/last> IRI; }";
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
@@ -92,10 +101,37 @@ public class DataExtractorTest {
 			Graph result = GlobalFactory.RDFFactory.createGraph();
 			DataExtractor extractor = new DataExtractor();
 			extractor.extractValidPart(schema, algo.getTyping(), mColl, result);
-			System.out.println("Result:");
-			result.stream().forEach(tr -> System.out.println(tr));
+			assertEquals(result.size(),4);
+			assertTrue(result.contains(n1_a_human));
+			assertTrue(result.contains(n1_last_smith));
+			assertTrue(result.contains(n2_a_human));
+			assertTrue(result.contains(n2_last_east));
 		} catch ( Exception e) {
-			e.printStackTrace();
+			fail("Exception during the parsing");
+		}
+	}
+	
+	@Test
+	public void test3() {
+		String schemaSt = "<http://inria.fr/Person> { <http://a.b/first> IRI; <http://a.b/last> IRI; }";
+		try {
+			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
+			MatchingCollector mColl = new MatchingCollector();
+			
+			RefineValidation algo = new RefineValidation(schema, graph);
+			algo.addMatchingObserver(mColl);
+			algo.validate();
+			
+			Graph result = GlobalFactory.RDFFactory.createGraph();
+			DataExtractor extractor = new DataExtractor();
+			extractor.extractValidPart(schema, algo.getTyping(), mColl, result);
+			assertEquals(result.size(),4);
+			assertTrue(result.contains(n1_first_john));
+			assertTrue(result.contains(n1_last_smith));
+			assertTrue(result.contains(n2_first_paul));
+			assertTrue(result.contains(n2_last_east));
+		} catch ( Exception e) {
+			fail("Exception during the parsing");
 		}
 	}
 }
