@@ -136,6 +136,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		@Override
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
 			result = expr.contains(node);
+			typing.setStatus(node, expr.getId(), result?Status.CONFORMANT:Status.NONCONFORMANT);
 		}
 
 		@Override
