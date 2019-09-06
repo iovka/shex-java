@@ -1,12 +1,12 @@
 package fr.inria.lille.shexjava.validation;
 
-import java.util.HashSet;
 import java.util.Map.Entry;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
@@ -18,19 +18,46 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
-import fr.inria.lille.shexjava.util.Pair;
+import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
+import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
 
 public class DataExtractor{
+	protected ShexSchema schema;
+	protected Graph inputGraph;
+	protected RecursiveValidationWithMemorization validation;
+	protected MatchingCollector mColl;
 	
-	public void extractValidPart(ShexSchema schema, Typing t, MatchingCollector mColl, Graph resultGraph) {
-		HashSet<Pair<RDFTerm,Label>> visited = new HashSet<>();
-		VisitorValidPart visitor = new VisitorValidPart(schema,t,mColl,resultGraph,visited);
-		for (Pair<RDFTerm, Label> key:t.getStatusMap().keySet()) {
-			if (!visited.contains(key) && t.getStatus(key.one, key.two).equals(Status.CONFORMANT)) {
-				visitor.setCurrentNode(key.one);
-				schema.getShapeExprsMap().get(key.two).accept(visitor);
+	public DataExtractor(ShexSchema schema, Graph inputGraph) {
+		super();
+		this.schema = schema;
+		this.inputGraph = inputGraph;
+		validation = new RecursiveValidationWithMemorization(schema, inputGraph);
+		mColl = new MatchingCollector();
+		validation.addMatchingObserver(mColl);
+	}
+	
+	
+	public DataView extractValidPart(BaseShapeMap shapeMap) {
+		Graph graph = GlobalFactory.RDFFactory.createGraph();
+		return extractValidPart(shapeMap,graph);
+	}
+	
+
+	public DataView extractValidPart(BaseShapeMap shapeMap, Graph resultGraph) {
+		validation.validate(shapeMap);
+		VisitorValidPart visitor = new VisitorValidPart(schema,validation.getTyping(),mColl,resultGraph);
+
+		for (ShapeAssociation sa:shapeMap.getAssociations()) {
+			Label seLabel = sa.getShapeSelector().apply(schema);
+			for(RDFTerm node:sa.getNodeSelector().apply(inputGraph)) {
+				if (validation.getTyping().getStatus(node, seLabel).equals(Status.CONFORMANT)) {
+					visitor.setCurrentNode(node);
+					schema.getShapeExprsMap().get(seLabel).accept(visitor);
+				}
 			}
 		}
+		
+		return new DataView(resultGraph, visitor.getResTyping(), visitor.getResMColl());
 	}
 	
 	
@@ -39,22 +66,33 @@ public class DataExtractor{
 		protected Typing t;
 		protected MatchingCollector mColl;
 		protected Graph resultGraph;
-		protected HashSet<Pair<RDFTerm,Label>> visited;
 		protected RDFTerm currentNode;
+		protected TypingForValidation resTyping;
+		protected MatchingCollector resMColl;
 				
-		public VisitorValidPart(ShexSchema schema, Typing t, MatchingCollector mColl, Graph resultGraph,
-				HashSet<Pair<RDFTerm, Label>> visited) {
+		public VisitorValidPart(ShexSchema schema, Typing t, MatchingCollector mColl, Graph resultGraph) {
 			super();
 			this.schema = schema;
 			this.t = t;
 			this.mColl = mColl;
 			this.resultGraph = resultGraph;
-			this.visited = visited;
+			this.resTyping = new TypingForValidation();
+			this.resMColl = new MatchingCollector();
 		}
 
 
 		public void setCurrentNode(RDFTerm currentNode) {
 			this.currentNode = currentNode;
+		}
+
+
+		public TypingForValidation getResTyping() {
+			return resTyping;
+		}
+
+
+		public MatchingCollector getResMColl() {
+			return resMColl;
 		}
 
 
@@ -65,77 +103,69 @@ public class DataExtractor{
 
 		
 		public void visitShapeAnd (ShapeAnd expr, Object ... arguments) {
-			Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(currentNode, expr.getId());
-			if (visited.contains(key))
-				return ;
-			visited.add(key);
-			
-			for (ShapeExpr subExpr: expr.getSubExpressions()) {
-				key = new Pair<RDFTerm,Label>(currentNode, subExpr.getId());
-				if (!visited.contains(key)) {
-					subExpr.accept(this, arguments);
-				}
-			}
-		}
-
-		public void visitShapeOr (ShapeOr expr, Object ... arguments) {
-			Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(currentNode, expr.getId());
-			if (visited.contains(key))
-				return ;
-			visited.add(key);
-			
-			for (ShapeExpr subExpr: expr.getSubExpressions()) {
-				key = new Pair<RDFTerm,Label>(currentNode, subExpr.getId());
-				if (!visited.contains(key)) {
+			if (validation.getTyping().getStatus(currentNode, expr.getId()).equals(Status.CONFORMANT)) {
+				resTyping.setStatus(currentNode, expr.getId(), Status.CONFORMANT);
+				for (ShapeExpr subExpr: expr.getSubExpressions()) {
+					resTyping.setStatus(currentNode, subExpr.getId(), validation.getTyping().getStatus(currentNode, subExpr.getId()));
 					subExpr.accept(this, arguments);
 				}
 			}
 		}
 		
-		public void visitShapeNot (ShapeNot expr, Object ...arguments) {
-			Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(currentNode, expr.getId());
-			if (visited.contains(key))
-				return ;
-			visited.add(key);
-			expr.getSubExpression().accept(this, arguments);
+
+		public void visitShapeOr (ShapeOr expr, Object ... arguments) {
+			if (validation.getTyping().getStatus(currentNode, expr.getId()).equals(Status.CONFORMANT)) {
+				resTyping.setStatus(currentNode, expr.getId(), Status.CONFORMANT);
+				for (ShapeExpr subExpr: expr.getSubExpressions()) {
+					resTyping.setStatus(currentNode, subExpr.getId(), validation.getTyping().getStatus(currentNode, subExpr.getId()));
+					if (validation.getTyping().getStatus(currentNode, subExpr.getId()).equals(Status.CONFORMANT)) 
+						subExpr.accept(this, arguments);
+				}
+			}
 		}
+		
+		
+		public void visitShapeNot (ShapeNot expr, Object ...arguments) {
+			// TODO: what to do if there is a negation ???
+		}
+		
 
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
-			Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(currentNode, expr.getId());
-			if (visited.contains(key))
-				return ;
-			visited.add(key);
-			if (t.getStatus(key.one, key.two).equals(Status.CONFORMANT)) {
-				LocalMatching matching = mColl.getMatching(key.one,key.two);
+			if (t.getStatus(currentNode, expr.getId()).equals(Status.CONFORMANT)) {
+				RDFTerm baseNode = currentNode;
+				LocalMatching matching = mColl.getMatching(currentNode, expr.getId());
+
+				resTyping.setStatus(currentNode, expr.getId(), Status.CONFORMANT);
+				resMColl.updateMatching(currentNode, expr.getId(), matching);
+				
 				for (Entry<Triple, Label> match:matching.getMatching().entrySet()) {
 					resultGraph.add(match.getKey());
-					if (match.getKey().getObject().equals(key.one))
+					if (match.getKey().getObject().equals(baseNode))
 						currentNode = match.getKey().getSubject();
 					else
 						currentNode = match.getKey().getObject();		
 					TripleConstraint tc = (TripleConstraint) schema.getTripleExprsMap().get(match.getValue());
 					tc.getShapeExpr().accept(this);
-					currentNode = key.one;
+					currentNode = baseNode;
 				}
 			}
 		}
 
+		
 		@Override
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-			Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(currentNode, expr.getId());
-			if (visited.contains(key))
-				return ;
-			visited.add(key);			
+			resTyping.setStatus(currentNode, expr.getId(), validation.getTyping().getStatus(currentNode, expr.getId()));
 		}
+		
 
 		@Override
 		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
-			Pair<RDFTerm, Label> key = new Pair<RDFTerm,Label>(currentNode, shapeRef.getId());
-			if (visited.contains(key))
-				return ;
-			visited.add(key);
 			shapeRef.getShapeDefinition().accept(this);
+			if (validation.getTyping().getStatus(currentNode, shapeRef.getId()).equals(Status.CONFORMANT)) {
+				resTyping.setStatus(currentNode, shapeRef.getId(), Status.CONFORMANT);
+				shapeRef.getShapeDefinition().accept(this);
+			}
 		}
 		
 	}

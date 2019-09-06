@@ -14,6 +14,7 @@ import org.junit.Test;
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.ShExCParser;
+import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParsing;
 
 public class DataExtractorTest {
@@ -63,17 +64,17 @@ public class DataExtractorTest {
 	@Test
 	public void test() {		
 		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/first> IRI; }";
+		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
-			MatchingCollector mColl = new MatchingCollector();
-			
-			RefineValidation algo = new RefineValidation(schema, graph);
-			algo.addMatchingObserver(mColl);
-			algo.validate();
+			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
+
+			DataExtractor extractor = new DataExtractor(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataExtractor extractor = new DataExtractor();
-			extractor.extractValidPart(schema, algo.getTyping(), mColl, result);
+			DataView view = extractor.extractValidPart(shapeMap, result);
+			
 			assertEquals(result.size(),6);
 			assertTrue(result.contains(n1_a_human));
 			assertTrue(result.contains(n1_first_john));
@@ -90,17 +91,16 @@ public class DataExtractorTest {
 	@Test
 	public void test2() {
 		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/last> IRI; }";
+		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
-			MatchingCollector mColl = new MatchingCollector();
-			
-			RefineValidation algo = new RefineValidation(schema, graph);
-			algo.addMatchingObserver(mColl);
-			algo.validate();
+			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
+
+			DataExtractor extractor = new DataExtractor(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataExtractor extractor = new DataExtractor();
-			extractor.extractValidPart(schema, algo.getTyping(), mColl, result);
+			DataView view = extractor.extractValidPart(shapeMap, result);
 			assertEquals(result.size(),4);
 			assertTrue(result.contains(n1_a_human));
 			assertTrue(result.contains(n1_last_smith));
@@ -113,18 +113,17 @@ public class DataExtractorTest {
 	
 	@Test
 	public void test3() {
-		String schemaSt = "<http://inria.fr/Person> { <http://a.b/first> IRI; <http://a.b/last> IRI; }";
+		String schemaSt = "<http://inria.fr/Person> IRI { <http://a.b/first> IRI; <http://a.b/last> IRI; }";
+		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
-			MatchingCollector mColl = new MatchingCollector();
-			
-			RefineValidation algo = new RefineValidation(schema, graph);
-			algo.addMatchingObserver(mColl);
-			algo.validate();
+			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
+
+			DataExtractor extractor = new DataExtractor(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataExtractor extractor = new DataExtractor();
-			extractor.extractValidPart(schema, algo.getTyping(), mColl, result);
+			DataView view = extractor.extractValidPart(shapeMap, result);
 			assertEquals(result.size(),4);
 			assertTrue(result.contains(n1_first_john));
 			assertTrue(result.contains(n1_last_smith));
