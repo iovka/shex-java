@@ -88,21 +88,21 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		this.getController().notifyComputationStart();
 		if (!this.getController().shouldContinue())
 			return false;
-		return recursiveValidation(focusNode,
-								 label,
-								 new LinkedList<>(),
-								 new DefaultDirectedGraph<>(DefaultEdge.class),
-								 new HashMap<>(),
-								 new HashMap<>());		
+		
+		hyp = new LinkedList<>();
+		g = new DefaultDirectedGraph<>(DefaultEdge.class);
+		unsavedResults = new HashMap<>();
+		lowestReqHyp= new HashMap<>();
+		
+		return recursiveValidation(focusNode,label);		
 	}
 
+	protected LinkedList<Pair<RDFTerm,Label>> hyp;
+	protected DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g;
+	protected Map<Pair<RDFTerm,Label>,Status> unsavedResults;
+	protected Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp;
 	
-	protected boolean recursiveValidation(RDFTerm focusNode, 
-										  Label label, 
-										  LinkedList<Pair<RDFTerm,Label>> hyp,
-										  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-										  Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-										  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp) {
+	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
 
 		if (!this.typing.getStatus(focusNode, label).equals(Status.NOTCOMPUTED))
 			return this.typing.isConformant(focusNode, label);
@@ -114,8 +114,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		
 		if (schema.getShapeExprsMap().get(label) instanceof NodeConstraint) {
 			boolean res = ((NodeConstraint)schema.getShapeExprsMap().get(label)).contains(focusNode);
-			updateGraph(focusNode, label, res?Status.CONFORMANT:Status.NONCONFORMANT, 
-						Collections.emptySet(), hyp, g, unsavedResults, lowestReqHyp);		
+			updateGraph(focusNode, label, res?Status.CONFORMANT:Status.NONCONFORMANT, Collections.emptySet());		
 			return res;		
 		}
 		
@@ -123,71 +122,56 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		
 		boolean res=false;
 		if (schema.getShapeExprsMap().get(label) instanceof ShapeNot)
-			res=recursiveValidationShapeNot(focusNode,label,hyp,g,unsavedResults,lowestReqHyp);
+			res=recursiveValidationShapeNot(focusNode,label);
 		if (schema.getShapeExprsMap().get(label) instanceof ShapeExprRef)
-			res=recursiveValidationShapeExprRef(focusNode,label,hyp,g,unsavedResults,lowestReqHyp);
+			res=recursiveValidationShapeExprRef(focusNode,label);
 		if (schema.getShapeExprsMap().get(label) instanceof ShapeOr)
-			res=recursiveValidationShapeOr(focusNode,label,hyp,g,unsavedResults,lowestReqHyp);
+			res=recursiveValidationShapeOr(focusNode,label);
 		if (schema.getShapeExprsMap().get(label) instanceof ShapeAnd)
-			res=recursiveValidationShapeAnd(focusNode,label,hyp,g,unsavedResults,lowestReqHyp);
+			res=recursiveValidationShapeAnd(focusNode,label);
 		if (schema.getShapeExprsMap().get(label) instanceof Shape)
-			res=recursiveValidationShape(focusNode,label,hyp,g,unsavedResults,lowestReqHyp);
+			res=recursiveValidationShape(focusNode,label);
 				
 		hyp.remove(key);
 		if (g.containsVertex(key)) {
 			unsavedResults.put(key, res?Status.CONFORMANT:Status.NONCONFORMANT);
-			memorize(focusNode,label,hyp,g,unsavedResults,lowestReqHyp);
+			memorize(focusNode,label);
 		}
 		return res;
 	}
 	
 	
-	protected boolean recursiveValidationShapeNot(RDFTerm focusNode, 
-			  Label label, 
-			  LinkedList<Pair<RDFTerm,Label>> hyp,
-			  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			  Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp) {
+	protected boolean recursiveValidationShapeNot(RDFTerm focusNode, Label label) {
 		
 		ShapeNot shape = (ShapeNot) schema.getShapeExprsMap().get(label);
 		
-		boolean res = ! this.recursiveValidation(focusNode, shape.getSubExpression().getId(),hyp,g,unsavedResults,lowestReqHyp);
+		boolean res = ! this.recursiveValidation(focusNode, shape.getSubExpression().getId());
 				
 		Set<Pair<RDFTerm,Label>> required = new HashSet<>();
 		required.add(new Pair<>(focusNode,shape.getSubExpression().getId()));
 				
-		updateGraph(focusNode, label, getStatus(res), required, hyp, g, unsavedResults, lowestReqHyp);			
+		updateGraph(focusNode, label, getStatus(res), required);			
 		
 		return res;
 	}
 	
 	
 	
-	protected boolean recursiveValidationShapeExprRef(RDFTerm focusNode, 
-			  Label label, 
-			  LinkedList<Pair<RDFTerm,Label>> hyp,
-			  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			  Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp) {
+	protected boolean recursiveValidationShapeExprRef(RDFTerm focusNode, Label label) {
 		
 		ShapeExprRef shape = (ShapeExprRef) schema.getShapeExprsMap().get(label);
 		
-		boolean res = this.recursiveValidation(focusNode, shape.getLabel(),hyp,g,unsavedResults,lowestReqHyp);
+		boolean res = this.recursiveValidation(focusNode, shape.getLabel());
 		
 		Set<Pair<RDFTerm,Label>> required = new HashSet<>();
 		required.add(new Pair<>(focusNode,shape.getLabel()));
 				
-		updateGraph(focusNode, label, getStatus(res), required, hyp, g, unsavedResults, lowestReqHyp);			
+		updateGraph(focusNode, label, getStatus(res), required);			
 		
 		return res;
 	}
 	
-	protected boolean recursiveValidationShapeAnd(RDFTerm focusNode, 
-			  Label label, 
-			  LinkedList<Pair<RDFTerm,Label>> hyp,
-			  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			  Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp) {
+	protected boolean recursiveValidationShapeAnd(RDFTerm focusNode, Label label) {
 		
 		ShapeAnd shape = (ShapeAnd) schema.getShapeExprsMap().get(label);
 		boolean res = true;
@@ -196,7 +180,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		
 		while(res && iter.hasNext()) {
 			ShapeExpr next = iter.next();
-			res = this.recursiveValidation(focusNode, next.getId(), hyp, g, unsavedResults, lowestReqHyp);
+			res = this.recursiveValidation(focusNode, next.getId());
 			if (res) {
 				required.add(new Pair<>(focusNode,next.getId()));
 			} else {
@@ -205,17 +189,12 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			}
 		}
 		
-		updateGraph(focusNode, label, getStatus(res), required, hyp, g, unsavedResults, lowestReqHyp);			
+		updateGraph(focusNode, label, getStatus(res), required);			
 		
 		return res;	
 	}
 	
-	protected boolean recursiveValidationShapeOr(RDFTerm focusNode, 
-			  Label label, 
-			  LinkedList<Pair<RDFTerm,Label>> hyp,
-			  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			  Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp) {
+	protected boolean recursiveValidationShapeOr(RDFTerm focusNode, Label label) {
 		
 		ShapeOr shape = (ShapeOr) schema.getShapeExprsMap().get(label);
 		boolean res = false;
@@ -224,7 +203,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		
 		while(!res && iter.hasNext()) {
 			ShapeExpr next = iter.next();
-			res = this.recursiveValidation(focusNode, next.getId(), hyp, g, unsavedResults, lowestReqHyp);
+			res = this.recursiveValidation(focusNode, next.getId());
 			if (res) {
 				required.clear();
 				required.add(new Pair<>(focusNode,next.getId()));
@@ -233,98 +212,51 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			}
 		}
 				
-		updateGraph(focusNode, label, getStatus(res), 
-					required, hyp, g, unsavedResults, lowestReqHyp);			
+		updateGraph(focusNode, label, getStatus(res), required );			
 		
 		return res;	
 	}
 	
 	
-	private boolean recursiveValidationShape (RDFTerm node,
-			Label label, 
-			LinkedList<Pair<RDFTerm,Label>> hyp,
-			DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-			Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp){
-
-		List<Triple> extraNeighbours = new ArrayList<>();
-		
+	private boolean recursiveValidationShape (RDFTerm node, Label label) {	
 		Shape shape = (Shape) schema.getShapeExprsMap().get(label);
-		
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
-		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
-		
-		// Match using only predicate 
+
 		TypingForValidation localTyping = new TypingForValidation();
-		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
-		Map<Triple,List<TripleConstraint>> matchingTC1 = 
-				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher).getPreMatching();
+		
+		Map<Triple, List<TripleConstraint>> matchingTC1 = computePreMatchingWithPredicateOnly(node, shape);
+		List<Triple> extraNeighbours = new ArrayList<>();
 
-		// Do the recursive call
-		for(Triple curTr:matchingTC1.keySet()) {	
-			List<TripleConstraint> curLTCs = matchingTC1.get(curTr);
-			
-			boolean tripleCanBeMatched=false;
-			RDFTerm destNode=curLTCs.size()>0&&curLTCs.get(0).getProperty().isForward()? curTr.getObject():curTr.getSubject();
-
-			for (TripleConstraint tc:curLTCs) {
-				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
-					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId(),hyp,g,unsavedResults,lowestReqHyp)) 
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);
-					else 
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);
-				} else 
-					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
-
-				tripleCanBeMatched = tripleCanBeMatched || localTyping.isConformant(destNode, tc.getShapeExpr().getId());
-			}
-
-			if (!(tripleCanBeMatched || shape.getExtraProperties().contains(curTr.getPredicate()))) {
-					// Looking at the calls that fails
-					Set<Pair<RDFTerm,Label>> required = new HashSet<>();
-					matchingTC1.get(curTr).stream().forEach(tc->required.add(new Pair<>(destNode,tc.getShapeExpr().getId())));
-					updateGraph(node, label, Status.NONCONFORMANT, required, hyp, g, unsavedResults, lowestReqHyp);
-					return false;
-			}
-		}
-
+		// the recursive cal are performed in the next function and the localTyping is populated
+		if (!performRecursiveCallAndComputeLocalMatching(node,shape,matchingTC1,localTyping,extraNeighbours))
+			return false;
+		
 		Map<Triple, Label> result = this.findMatching(node, shape, localTyping).getMatching();
 		// a matching has been found
 		if (result!=null) {
-			Set<Pair<RDFTerm,Label>> required = new HashSet<>();
 			// add in the requirement the matching
-			for (Triple tr:result.keySet()) {
-				Label shapeLab = ((TripleConstraint) schema.getTripleExprsMap().get(result.get(tr))).getShapeExpr().getId();
-				required.add(new Pair<>(getOther(tr,node), shapeLab ));
-			}
-			// add the triple that were matched to extra
-			for (Triple tri:extraNeighbours)
-				for (Label l:localTyping.getShapesLabel(getOther(tri,node)))
-					required.add(new Pair<>(getOther(tri,node), l));
-			updateGraph(node, label, Status.CONFORMANT, required, hyp, g, unsavedResults, lowestReqHyp);		
-
+			Set<Pair<RDFTerm,Label>> required = result.keySet().parallelStream()
+					.map(tr -> new Pair<>(getOther(tr,node), getShapeExprLabel(result.get(tr)))).collect(Collectors.toSet());
+			// add the triple that were matched to extra 
+			extraNeighbours.stream().forEach(tri -> localTyping.getShapesLabel(getOther(tri,node)).stream()
+											 .forEach(l -> required.add(new Pair<>(getOther(tri,node),l))));
+			updateGraph(node, label, Status.CONFORMANT, required);		
 			return true;
 		}
 		
 		// No matching has been found
-		Set<Pair<RDFTerm,Label>> required = new HashSet<>();
-		localTyping.getStatusMap().keySet().stream().filter(pair -> localTyping.isNonConformant(pair.one,pair.two))
-							      .forEach(req -> required.add(req));
-		updateGraph(node, label, Status.NONCONFORMANT, required, hyp, g, unsavedResults, lowestReqHyp);
+		Set<Pair<RDFTerm,Label>> required = localTyping.getStatusMap().keySet().stream()
+				.filter(pair -> localTyping.isNonConformant(pair.one,pair.two)).collect(Collectors.toSet());
+		updateGraph(node, label, Status.NONCONFORMANT, required);
 		return false;
 	}
 	
 	
-
-	// for updating the graph
+	// -------------------------------------------
+	// Functions that handles the memorization
+	//--------------------------------------------
 	
-	protected void memorize(RDFTerm focusNode, 
-			  Label label, 
-			  LinkedList<Pair<RDFTerm,Label>> hyp,
-			  DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			  Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-			  Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp) {
+	// memorize will do something only if you have a loop to an hypothesis
+	protected void memorize(RDFTerm focusNode,  Label label) {
 		
 		LinkedList<Pair<RDFTerm,Label>> S = new LinkedList<>();
 		Pair<RDFTerm,Label> baseKey = new Pair<>(focusNode,label);
@@ -366,24 +298,19 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	
 	// Update the graph of dependencies
 	
-	protected void updateGraph(RDFTerm focusNode,
-			Label label,
-			Status valRes,
-			Set<Pair<RDFTerm,Label>> required,
-			LinkedList<Pair<RDFTerm,Label>> hyp,
-			DefaultDirectedGraph<Pair<RDFTerm,Label>, DefaultEdge> g,
-			Map<Pair<RDFTerm,Label>,Status> unsavedResults,
-			Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp) {
+	protected void updateGraph(RDFTerm focusNode, Label label, Status valRes, Set<Pair<RDFTerm,Label>> required) {
 		
 		Pair<RDFTerm,Label> baseKey = new Pair<>(focusNode,label);
 
 		boolean canSave = true;
 		for(Pair<RDFTerm,Label> depKey:required) {
 			if (this.typing.getStatus(depKey.one, depKey.two).equals(Status.NOTCOMPUTED)) {
+				// if not in typing, then it must be in the graph
 				canSave = false;
 
 				if (!g.containsVertex(baseKey)) g.addVertex(baseKey);
-				if (!g.containsVertex(depKey)) g.addVertex(depKey);
+				if (!g.containsVertex(depKey)) g.addVertex(depKey); // depKey is not in the graph if is in hyp
+				
 				g.addEdge(baseKey, depKey);
 				
 				// Since the dep has not been saved, it mean that it must have a dependence to an hyp
@@ -418,6 +345,59 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	// Utils
 	// ----------------------------------------------------------
 	
+	private Map<Triple, List<TripleConstraint>> computePreMatchingWithPredicateOnly(RDFTerm node, Shape shape) {
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
+		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+		
+		// Match using only predicate 
+		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
+		Map<Triple,List<TripleConstraint>> matchingTC1 = 
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher).getPreMatching();
+		return matchingTC1;
+	}
+	
+	private boolean performRecursiveCallAndComputeLocalMatching(RDFTerm node,Shape shape,			
+			Map<Triple, List<TripleConstraint>> matchingTC1,
+			TypingForValidation resLocalTyping,
+			List<Triple> resTripleMatchedToExtra) {
+		
+		for(Triple curTr:matchingTC1.keySet()) {	
+			List<TripleConstraint> curLTCs = matchingTC1.get(curTr);
+			
+			boolean tripleCanBeMatched=false;
+			RDFTerm destNode=curLTCs.size()>0&&curLTCs.get(0).getProperty().isForward()? curTr.getObject():curTr.getSubject();
+
+			for (TripleConstraint tc:curLTCs) {
+				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
+					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
+						resLocalTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);
+					else 
+						resLocalTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);
+				} else 
+					resLocalTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
+
+				tripleCanBeMatched = tripleCanBeMatched || resLocalTyping.isConformant(destNode, tc.getShapeExpr().getId());
+			}
+			
+			if (!tripleCanBeMatched) {
+				if (shape.getExtraProperties().contains(curTr.getPredicate())) {
+					resTripleMatchedToExtra.add(curTr);
+				} else {
+					// Looking at the calls that fails
+					Set<Pair<RDFTerm,Label>> required = matchingTC1.get(curTr).stream()
+							.map(tc->new Pair<>(destNode,tc.getShapeExpr().getId()))
+							.collect(Collectors.toSet());
+					updateGraph(node, shape.getId(), Status.NONCONFORMANT, required);
+					return false;
+				}
+			}
+		}
+		return true;
+
+	}
+	
+	
 	private  RDFTerm getOther(Triple t, RDFTerm n){
 		if (t.getObject().equals(n))
 			return t.getSubject();
@@ -425,6 +405,10 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			return t.getObject();
 	}
 
+	private Label getShapeExprLabel(Label tcLabel) {
+		return ((TripleConstraint) schema.getTripleExprsMap().get(tcLabel)).getShapeExpr().getId();
+	}
+	
 	
 	private Status getStatus(boolean res) {
 		return res?Status.CONFORMANT:Status.NONCONFORMANT;
