@@ -33,12 +33,14 @@
 		<url>https://github.com/iovka/shex-java/tree/master</url>
 	</scm>
 
+	<!-- Used for the deployment on maven central repository -->
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+	<!-- Done -->
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -218,6 +220,7 @@
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 				</configuration>
 			</plugin>
+			<!-- The following plugins are used for the deployment on maven central repository -->
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
@@ -273,6 +276,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Done -->
 		</plugins>
 	</build>
 </project>

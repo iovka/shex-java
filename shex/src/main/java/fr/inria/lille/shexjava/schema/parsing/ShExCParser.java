@@ -125,7 +125,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	private Map<Label,ShapeExpr> rules;
 	private Map<String,String> prefixes;
 	private List<String> imports;
-	private String base;
+	private String base = "http://shexjava.fr/DefaultBase#";
 	private Path filename;
 	private ShapeExpr start;
 
@@ -152,7 +152,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		rules = new HashMap<Label,ShapeExpr>();
 		prefixes = new HashMap<String,String>();
 		imports = new ArrayList<String>();
-		base = null;
+		base = "http://shexjava.fr/DefaultBase#";
 		
 		Reader isr = new InputStreamReader(is,Charset.defaultCharset().name());
 		CharStream inputStream = CharStreams.fromReader(isr);
@@ -1033,7 +1033,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		if (iri != null) {
 			String iris = iri.getText();
 			iris = iris.substring(1,iris.length()-1);
-			if (base!=null)
+			if (base!=null && !ctx.getText().contains(":"))
 				return rdfFactory.createIRI(base+iris);
 			return rdfFactory.createIRI(StringEscapeUtils.unescapeJava(iris));
 		}

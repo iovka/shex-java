@@ -32,8 +32,7 @@ import fr.inria.lille.shexjava.shapeMap.ResultShapeMap;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSeletorRDFTerm;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelectorLabel;
-import fr.inria.lille.shexjava.util.ComputationController;
-import fr.inria.lille.shexjava.util.SimpleComputationController;
+import fr.inria.lille.shexjava.util.CommonGraph;
 
 
 /** An implementation of {@link ValidationAlgorithm} that offers some common utilities.
@@ -44,7 +43,7 @@ import fr.inria.lille.shexjava.util.SimpleComputationController;
 public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm {
 	protected Graph graph;
 	protected ShexSchema schema;
-	protected ComputationController controller;
+	protected ComputationController compController;
 	
 	protected DynamicCollectorOfTripleConstraints collectorTC;
 	
@@ -52,19 +51,14 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 
 	
 	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph) {
-		initialize(schema, graph, new SimpleComputationController());
+		initialize(schema, graph);
 	}
 	
 	
-	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph, ComputationController controller) {
-		initialize(schema, graph, controller);
-	}
 	
-	
-	private void initialize(ShexSchema schema, Graph graph, ComputationController controller) {
+	private void initialize(ShexSchema schema, Graph graph) {
 		this.graph = graph;
 		this.schema = schema;
-		this.controller = controller;
 
 		resetTyping();
 	
@@ -72,6 +66,42 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		this.matchingObservers = new HashSet<>();
 	}
 	
+	protected abstract boolean performValidation(RDFTerm focusNode, Label label) throws Exception;
+	
+	/** (non-Javadoc)
+	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
+	 */
+	@Override
+	public boolean validate(RDFTerm focusNode, Label label){
+		if (focusNode==null || label==null)
+			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
+		if (!schema.getShapeExprsMap().containsKey(label))
+			throw new IllegalArgumentException("Unknown label: "+label);
+//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
+//			throw new IllegalArgumentException("Node do not belong to the graph.");
+		try {
+			return performValidation(focusNode, label);
+		} catch (Exception e) {
+			// should be never used
+			System.err.println("Exception during the validation");
+			e.printStackTrace();
+			return false;
+		}	
+	}
+	
+	
+	
+	public boolean validate (RDFTerm focusNode, Label label, ComputationController compController) throws Exception {
+		this.compController = compController;
+		this.compController.start();
+		boolean res = performValidation(focusNode,label);
+		this.compController = null;
+		return res;
+	}
+
+	protected boolean validateWithNoException() {
+		return true;
+	}
 	
 	public ResultShapeMap validate(BaseShapeMap shapeMap) {
 		List<ShapeAssociation> results = new ArrayList<>();
@@ -124,13 +154,11 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		matchingObservers.remove(o);
 	}
 
-	public ComputationController getController() {
-		return controller;
+	
+	protected ComputationController getCompController() {
+		return compController;
 	}
 
-	public void setController(ComputationController controller) {
-		this.controller = controller;
-	}
-
+	
 	
 }

@@ -51,16 +51,8 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		super(schema,graph);
 	}
 	
-
-	@Override
-	public boolean validate(RDFTerm focusNode, Label label) {
-		if (focusNode==null || label==null)
-			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
-		if (!schema.getShapeExprsMap().containsKey(label))
-			throw new IllegalArgumentException("Unknown label: "+label);
-//		if (focusNode != null && ! allGraphNodes.contains(focusNode))
-//			throw new IllegalArgumentException("Node do not belong to the graph.");
-		
+	
+	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
 		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
@@ -72,10 +64,10 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	}
 	
 	
-	protected boolean recursiveValidation(RDFTerm focusNode, Label label) {
+	protected boolean recursiveValidation(RDFTerm focusNode, Label label) throws Exception {
 		this.typing.setStatus(focusNode, label, Status.CONFORMANT);
 		EvaluateShapeExpressionVisitor visitor = new EvaluateShapeExpressionVisitor(focusNode);
-		schema.getShapeExprsMap().get(label).accept(visitor);
+		visitor.accept(schema.getShapeExprsMap().get(label));
 		this.typing.removeNodeLabel(focusNode, label);
 		return visitor.result;
 		
@@ -92,7 +84,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	}
 	
 	
-	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
+	class EvaluateShapeExpressionVisitor  {
 		private RDFTerm node; 
 		private Boolean result;
 		
@@ -100,53 +92,62 @@ public class RecursiveValidation extends SORBEBasedValidation {
 			this.node = one;
 		}
 
-		@Override
+		
 		public Boolean getResult() {
 			if (result == null) return false;
 			return result;
 		}
 		
-		@Override
-		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
+		public void accept(ShapeExpr expr) throws Exception {
+			if (expr instanceof ShapeAnd)
+				this.visitShapeAnd((ShapeAnd) expr);
+			if (expr instanceof ShapeOr)
+				this.visitShapeOr((ShapeOr) expr);
+			if (expr instanceof ShapeNot)
+				this.visitShapeNot((ShapeNot) expr);
+			if (expr instanceof Shape)
+				this.visitShape((Shape) expr);
+			if (expr instanceof NodeConstraint)
+				this.visitNodeConstraint((NodeConstraint) expr);
+			if (expr instanceof ShapeExprRef)
+				this.visitShapeExprRef((ShapeExprRef) expr);
+		}
+		
+		public void visitShapeAnd(ShapeAnd expr) throws Exception {
 			for (ShapeExpr e : expr.getSubExpressions()) {
-				e.accept(this);
+				this.accept(e);
 				if (!result) break;
 			}
 		}
 
-		@Override
-		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+		public void visitShapeOr(ShapeOr expr) throws Exception {
 			for (ShapeExpr e : expr.getSubExpressions()) {
-				e.accept(this);
+				this.accept(e);
 				if (result) break;
 			}
 		}
 		
-		@Override
-		public void visitShapeNot(ShapeNot expr, Object... arguments) {
-			expr.getSubExpression().accept(this);
+		public void visitShapeNot(ShapeNot expr) throws Exception {
+			this.accept(expr.getSubExpression());
 			result = !result;
 		}
 		
-		@Override
-		public void visitShape(Shape expr, Object... arguments) {
+		public void visitShape(Shape expr) throws Exception {
 			result = isLocallyValid(node, expr);
 		}
 
-		@Override
-		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+		public void visitNodeConstraint(NodeConstraint expr) {
 			result = expr.contains(node);
 			typing.setStatus(node, expr.getId(), result?Status.CONFORMANT:Status.NONCONFORMANT);
 		}
 
-		@Override
-		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
-			ref.getShapeDefinition().accept(this);
+		public void visitShapeExprRef(ShapeExprRef ref) throws Exception {
+			this.accept(ref.getShapeDefinition());
 		}
 	}
 	
 	
-	private boolean isLocallyValid (RDFTerm node, Shape shape) {
+	private boolean isLocallyValid (RDFTerm node, Shape shape) throws Exception {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
@@ -163,7 +164,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
-	
+
 				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
@@ -172,7 +173,8 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				} else {
 					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
 				}
-			}
+
+			}			
 		}
 				
 		return this.findMatching(node, shape, localTyping).getMatching() != null;

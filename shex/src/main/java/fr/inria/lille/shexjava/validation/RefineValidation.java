@@ -59,12 +59,10 @@ import fr.inria.lille.shexjava.util.Pair;
 public class RefineValidation extends SORBEBasedValidation {
 	private boolean computed = false;
 	private TypingForValidation typing;
-	private Set<RDFTerm> allGraphNodes;
 
+	
 	public RefineValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
-		this.allGraphNodes = CommonGraph.getAllNodes(graph);
-
 	}
 
 	@Override
@@ -79,32 +77,24 @@ public class RefineValidation extends SORBEBasedValidation {
 	}
 	
 	/** (non-Javadoc)
+	 * @throws Exception 
 	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
 	 */
 	public void validate() {
-		computeMaximalTyping(null);
+		try {
+			computeMaximalTyping(null);
+		} catch (Exception e) {}
 	}
 	
 	
-	/** (non-Javadoc)
-	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
-	 */
-	@Override
-	public boolean validate (RDFTerm focusNode, Label label) {
-		if (focusNode==null || label==null)
-			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
-		if (!schema.getShapeExprsMap().containsKey(label))
-			throw new IllegalArgumentException("Unknown label: "+label);
-		if (focusNode != null && ! allGraphNodes.contains(focusNode))
-			throw new IllegalArgumentException("Node do not belong to the graph.");
-		
+	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
 		computeMaximalTyping(focusNode);
-
 		return typing.isConformant(focusNode, label);
 	}
 
 
-	private void computeMaximalTyping(RDFTerm focusNode) {
+
+	private void computeMaximalTyping(RDFTerm focusNode) throws Exception {
 		if (computed)
 			return;
 		// This will compute the typing for the shape only
@@ -126,7 +116,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		}
 		// This populate the typing with everything else
 		for (Label label:schema.getShapeExprsMap().keySet()) {
-			for (RDFTerm node : allGraphNodes) {		
+			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {		
 				if (satisfies(new Pair<>(node, label),false)) {
 					typing.setStatus(node, label, Status.CONFORMANT);
 				} else {
@@ -138,17 +128,19 @@ public class RefineValidation extends SORBEBasedValidation {
 	}
 
 	/** Tests whether the node satisfies the shape expresion with specified label and with the current typing 
-	 *  If validateShape is set to true, then the typing will not be used*/
-	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) {
+	 *  If validateShape is set to true, then the typing will not be used
+	 * @throws Exception */
+	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) throws Exception {
 		EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor(validateShape);
 		shexprEvaluator.setNode(nl.one);
-		schema.getShapeExprsMap().get(nl.two).accept(shexprEvaluator);
+		shexprEvaluator.accept(schema.getShapeExprsMap().get(nl.two));
 		return shexprEvaluator.getResult();
 	}
 	
 	
-	/** Tests whether the node's neighbourhood matches the shape with the current typing */
-	private boolean matches (RDFTerm node, Shape shape) {
+	/** Tests whether the node's neighbourhood matches the shape with the current typing 
+	 * @throws Exception */
+	private boolean matches (RDFTerm node, Shape shape) throws Exception {
 		// Since the algorithm first computing the typing with the shape only, in the same fashion as for the recursive algorithm, a localtyping must be computed without any cal to compute shape.
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
@@ -180,11 +172,13 @@ public class RefineValidation extends SORBEBasedValidation {
 	}	
 	
 
-	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {		
+
+	
+	class EvaluateShapeExpressionVisitor  {
 		private RDFTerm node; 
 		private Boolean result;
 		private boolean validateShape;
-	
+
 		void setNode (RDFTerm node) {
 			this.node = node;
 		}
@@ -193,51 +187,58 @@ public class RefineValidation extends SORBEBasedValidation {
 			this.validateShape = validateShape;
 		}
 		
-		@Override
 		public Boolean getResult() {
 			if (result == null) return false;
 			return result;
 		}
 		
-		@Override
-		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
+		public void accept(ShapeExpr expr) throws Exception {
+			if (expr instanceof ShapeAnd)
+				this.visitShapeAnd((ShapeAnd) expr);
+			if (expr instanceof ShapeOr)
+				this.visitShapeOr((ShapeOr) expr);
+			if (expr instanceof ShapeNot)
+				this.visitShapeNot((ShapeNot) expr);
+			if (expr instanceof Shape)
+				this.visitShape((Shape) expr);
+			if (expr instanceof NodeConstraint)
+				this.visitNodeConstraint((NodeConstraint) expr);
+			if (expr instanceof ShapeExprRef)
+				this.visitShapeExprRef((ShapeExprRef) expr);
+		}
+		
+		public void visitShapeAnd(ShapeAnd expr) throws Exception {
 			for (ShapeExpr e : expr.getSubExpressions()) {
-				e.accept(this);
+				this.accept(e);
 				if (!result) break;
 			}
-			
 		}
 
-		@Override
-		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+		public void visitShapeOr(ShapeOr expr) throws Exception {
 			for (ShapeExpr e : expr.getSubExpressions()) {
-				e.accept(this);
+				this.accept(e);
 				if (result) break;
 			}
 		}
 		
-		@Override
-		public void visitShapeNot(ShapeNot expr, Object... arguments) {
-			expr.getSubExpression().accept(this);
+		public void visitShapeNot(ShapeNot expr) throws Exception {
+			this.accept(expr.getSubExpression());
 			result = !result;
 		}
 		
-		@Override
-		public void visitShape(Shape expr, Object... arguments) {
+		public void visitShape(Shape expr) throws Exception {
 			if (validateShape)
 				result = matches(node, expr);
 			else
 				result = typing.isConformant(node, expr.getId());
 		}
 
-		@Override
-		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+		public void visitNodeConstraint(NodeConstraint expr) {
 			result = expr.contains(node);
 		}
 
-		@Override
-		public void visitShapeExprRef(ShapeExprRef ref, Object[] arguments) {
-			ref.getShapeDefinition().accept(this);
+		public void visitShapeExprRef(ShapeExprRef ref) throws Exception {
+			this.accept(ref.getShapeDefinition());
 		}
 	}
 
@@ -248,7 +249,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
 		Set<Label> labels = schema.getStratification().get(stratum); 
 		for (Label label: labels) {
-			for (RDFTerm node : allGraphNodes) {		
+			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {		
 				result.add(new Pair<>(node, label));
 				this.typing.setStatus(node, label, Status.CONFORMANT);
 			}

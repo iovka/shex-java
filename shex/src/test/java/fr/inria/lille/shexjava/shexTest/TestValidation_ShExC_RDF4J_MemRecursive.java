@@ -83,11 +83,12 @@ public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationT
 			testCases.addAll(manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects().parallelStream()
 									 .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
 									 .collect(Collectors.toList()));		
-
+			
+			//testCases = testCases.subList(101,102);
 			String selectedTest = "";
 			if (!selectedTest.equals(""))
 				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
-					
+			
 			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
     	}
     	return Collections.emptyList();
