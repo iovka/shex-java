@@ -24,7 +24,6 @@ import java.util.Iterator;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.Model;
@@ -37,7 +36,6 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.util.Pair;
 
 public class CertificateCollectorTest {
 	private final static RDF4J rdfFactory = new RDF4J();

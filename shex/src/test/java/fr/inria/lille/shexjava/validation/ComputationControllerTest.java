@@ -11,12 +11,9 @@ import org.apache.commons.rdf.api.Triple;
 import org.junit.Test;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.ShExCParser;
 import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
-import fr.inria.lille.shexjava.shapeMap.ResultShapeMap;
-import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParsing;
 
 public class ComputationControllerTest {
