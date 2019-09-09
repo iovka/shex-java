@@ -4,7 +4,7 @@
 
 	<groupId>fr.inria.lille.shexjava</groupId>
 	<artifactId>shexjava-core</artifactId>
-	<version>1.3</version>
+	<version>1.3alpha</version>
 	<packaging>jar</packaging>
 
 	<name>ShExjava</name>
