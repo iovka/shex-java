@@ -62,19 +62,17 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 			BagIterator bagIt = new BagIterator(preMatching);
 			IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 			while(result==null && bagIt.hasNext()){
-				//if (this.compController != null) compController.canContinu();
-					Bag bag = bagIt.next();
-					tripleExpression.accept(intervalComputation, bag, this);
-					if (intervalComputation.getResult().contains(1)) {
-						Map<Triple, Label> matching = bagIt.getCurrentBag();
-						matching = matching.entrySet().stream()
-								.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalNonsorbeVersion(x.getValue())));
-						result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
-						notifyMatchingFound(node, shape.getId(), result);
-					}
-//				} else {
-//					return null;
-//				}
+				if (this.compController != null) compController.canContinue();
+				Bag bag = bagIt.next();
+				tripleExpression.accept(intervalComputation, bag, this);
+				if (intervalComputation.getResult().contains(1)) {
+					Map<Triple, Label> matching = bagIt.getCurrentBag();
+					matching = matching.entrySet().stream()
+							.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalNonsorbeVersion(x.getValue())));
+					result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
+					notifyMatchingFound(node, shape.getId(), result);
+				}
+
 			}
 		}		
 

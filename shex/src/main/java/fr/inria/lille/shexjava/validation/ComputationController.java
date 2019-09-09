@@ -1,10 +1,6 @@
 package fr.inria.lille.shexjava.validation;
 
-public class ComputationController {
-	public void start() {
-		
-	}
-	
-	public void canContinu() throws Exception {
-	}
+public interface ComputationController {
+	public void start() ;	
+	public void canContinue() throws Exception;
 }

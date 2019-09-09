@@ -32,7 +32,6 @@ import fr.inria.lille.shexjava.shapeMap.ResultShapeMap;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.NodeSeletorRDFTerm;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelectorLabel;
-import fr.inria.lille.shexjava.util.CommonGraph;
 
 
 /** An implementation of {@link ValidationAlgorithm} that offers some common utilities.
@@ -53,45 +52,43 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	public ValidationAlgorithmAbstract(ShexSchema schema, Graph graph) {
 		initialize(schema, graph);
 	}
-	
-	
-	
+
+
+
 	private void initialize(ShexSchema schema, Graph graph) {
 		this.graph = graph;
 		this.schema = schema;
 
 		resetTyping();
-	
+
 		this.collectorTC = new DynamicCollectorOfTripleConstraints();
 		this.matchingObservers = new HashSet<>();
 	}
-	
+
 	protected abstract boolean performValidation(RDFTerm focusNode, Label label) throws Exception;
-	
+
 	/** (non-Javadoc)
 	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
 	 */
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label){
-		if (focusNode==null || label==null)
-			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
-		if (!schema.getShapeExprsMap().containsKey(label))
-			throw new IllegalArgumentException("Unknown label: "+label);
-//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
-//			throw new IllegalArgumentException("Node do not belong to the graph.");
 		try {
-			return performValidation(focusNode, label);
+			return validate(focusNode, label,null);
 		} catch (Exception e) {
-			// should be never used
+			// we should never be here
 			System.err.println("Exception during the validation");
 			e.printStackTrace();
 			return false;
 		}	
 	}
-	
-	
-	
+
 	public boolean validate (RDFTerm focusNode, Label label, ComputationController compController) throws Exception {
+		if (focusNode==null || label==null)
+			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
+		if (!schema.getShapeExprsMap().containsKey(label))
+			throw new IllegalArgumentException("Unknown label: "+label);
+		//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
+		//			throw new IllegalArgumentException("Node do not belong to the graph.");
 		this.compController = compController;
 		this.compController.start();
 		boolean res = performValidation(focusNode,label);
@@ -99,18 +96,28 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		return res;
 	}
 
-	protected boolean validateWithNoException() {
-		return true;
-	}
-	
+
+
 	public ResultShapeMap validate(BaseShapeMap shapeMap) {
+		try {
+			return validate(shapeMap,null);
+		} catch (Exception e) {
+			// we should never be here
+			System.err.println("Exception during the validation");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+
+	public ResultShapeMap validate(BaseShapeMap shapeMap, ComputationController compController) throws Exception {
 		List<ShapeAssociation> results = new ArrayList<>();
 		
 		for (ShapeAssociation sa:shapeMap.getAssociations()) {
 			Label seLabel = sa.getShapeSelector().apply(schema);
 			for(RDFTerm node:sa.getNodeSelector().apply(graph)) {
 				ShapeAssociation saRes = new ShapeAssociation(new NodeSeletorRDFTerm(node), new ShapeSelectorLabel(seLabel));
-				if (validate(node,seLabel))
+				if (validate(node,seLabel,compController))
 					saRes.setStatus(Status.CONFORMANT);
 				else 
 					saRes.setStatus(Status.NONCONFORMANT);

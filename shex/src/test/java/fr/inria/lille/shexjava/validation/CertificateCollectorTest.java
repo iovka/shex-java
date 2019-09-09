@@ -39,7 +39,7 @@ import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 import fr.inria.lille.shexjava.util.Pair;
 
-public class CertificateCollector {
+public class CertificateCollectorTest {
 	private final static RDF4J rdfFactory = new RDF4J();
 	private final static ValueFactory rdf4JFactory = SimpleValueFactory.getInstance();
 	

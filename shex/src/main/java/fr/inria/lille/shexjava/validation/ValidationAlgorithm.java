@@ -56,6 +56,8 @@ public interface ValidationAlgorithm {
 	 * @exception IllegalArgumentException if the label does not belong to the schema
 	 */ 
 	public ResultShapeMap validate (BaseShapeMap shapeMap) ;
+	
+	public ResultShapeMap validate(BaseShapeMap shapeMap, ComputationController compController) throws Exception ;
 		
 	/** The typing that proves the result returned by previous validations.  */
 	@Stable
