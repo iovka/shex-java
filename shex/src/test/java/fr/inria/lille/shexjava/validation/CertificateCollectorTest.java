@@ -87,13 +87,13 @@ public class CertificateCollectorTest {
 		RefineValidation validation = new RefineValidation(schema,graph);
 
 		validation.validate(bug1, new Label(rdfFactory.createIRI("http://a.example/BugReport")));
-		System.out.println();
-		System.out.println("TYPING:");
-		for (Pair<RDFTerm,Label> pair: validation.getTyping().getStatusMap().keySet())
-			if (!pair.two.isGenerated())
-				if (validation.getTyping().getStatus(pair.one, pair.two) == Status.NONCONFORMANT) {
-					System.out.println(pair+" > "+validation.getTyping().getStatus(pair.one, pair.two));
-				}
+//		System.out.println();
+//		System.out.println("TYPING:");
+//		for (Pair<RDFTerm,Label> pair: validation.getTyping().getStatusMap().keySet())
+//			if (!pair.two.isGenerated())
+//				if (validation.getTyping().getStatus(pair.one, pair.two) == Status.NONCONFORMANT) {
+//					System.out.println(pair+" > "+validation.getTyping().getStatus(pair.one, pair.two));
+//				}
 	}
 
 }

@@ -72,8 +72,12 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	 */
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label){
+		if (focusNode==null || label==null)
+			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
+		if (!schema.getShapeExprsMap().containsKey(label))
+			throw new IllegalArgumentException("Unknown label: "+label);
 		try {
-			return validate(focusNode, label,null);
+			return validate(focusNode, label, null);
 		} catch (Exception e) {
 			// we should never be here
 			System.err.println("Exception during the validation");
@@ -90,7 +94,7 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
 		//			throw new IllegalArgumentException("Node do not belong to the graph.");
 		this.compController = compController;
-		this.compController.start();
+		if (this.compController!=null) this.compController.start();
 		boolean res = performValidation(focusNode,label);
 		this.compController = null;
 		return res;
