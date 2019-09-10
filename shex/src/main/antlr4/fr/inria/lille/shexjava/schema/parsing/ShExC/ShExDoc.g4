@@ -41,7 +41,9 @@ notStartAction  : start | shapeExprDecl ;
 start           : KW_START '=' shapeExpression ;
 startActions	: codeDecl+ ;
 statement 		: directive | notStartAction ;
-shapeExprDecl   : shapeExprLabel (shapeExpression | KW_EXTERNAL) ;
+shapeExprDecl   : KW_ABSTRACT? shapeExprLabel (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
+                | shapeExprLabel KW_EXTENDS shapeExprLabel shapeExpression      # extendsShapeExpression
+                ;
 shapeExpression : shapeOr ;
 shapeOr  		: shapeAnd (KW_OR shapeAnd)* ;
 shapeAnd		: shapeNot (KW_AND shapeNot)* ;
@@ -189,8 +191,10 @@ includeSet      : '&' tripleExprLabel+ ;
 
 
 // Keywords
+KW_ABSTRACT         : A B S T R A C T ;
 KW_BASE 			: B A S E ;
 KW_EXTERNAL			: E X T E R N A L ;
+KW_EXTENDS          : E X T E N D S ;
 KW_IMPORT           : I M P O R T ;
 KW_PREFIX       	: P R E F I X ;
 KW_START        	: S T A R T ;

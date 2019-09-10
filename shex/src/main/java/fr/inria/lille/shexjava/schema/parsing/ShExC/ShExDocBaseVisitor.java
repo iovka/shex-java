@@ -80,7 +80,14 @@ public class ShExDocBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitShapeExprDecl(ShExDocParser.ShapeExprDeclContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBaseShapeExpression(ShExDocParser.BaseShapeExpressionContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitExtendsShapeExpression(ShExDocParser.ExtendsShapeExpressionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

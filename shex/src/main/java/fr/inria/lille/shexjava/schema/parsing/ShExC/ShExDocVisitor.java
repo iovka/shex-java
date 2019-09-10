@@ -65,11 +65,19 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStatement(ShExDocParser.StatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#shapeExprDecl}.
+	 * Visit a parse tree produced by the {@code baseShapeExpression}
+	 * labeled alternative in {@link ShExDocParser#shapeExprDecl}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShapeExprDecl(ShExDocParser.ShapeExprDeclContext ctx);
+	T visitBaseShapeExpression(ShExDocParser.BaseShapeExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code extendsShapeExpression}
+	 * labeled alternative in {@link ShExDocParser#shapeExprDecl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExtendsShapeExpression(ShExDocParser.ExtendsShapeExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#shapeExpression}.
 	 * @param ctx the parse tree

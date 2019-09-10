@@ -31,11 +31,13 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.abstrsynt.AbstractShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
 import fr.inria.lille.shexjava.schema.abstrsynt.AnnotedObject;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.EmptyShape;
 import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
+import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
@@ -250,8 +252,9 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	// Shape structure
 	//--------------------------------------------
 
+	
 	@Override 
-	public ShapeExpr visitShapeExprDecl(ShExDocParser.ShapeExprDeclContext ctx) {
+	public ShapeExpr visitBaseShapeExpression(ShExDocParser.BaseShapeExpressionContext ctx) {
 		Label label = (Label) visitShapeExprLabel(ctx.shapeExprLabel());
 		ShapeExpr expr ;
 		if (ctx.KW_EXTERNAL()!=null) {
@@ -259,12 +262,28 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		}else {
 			expr = (ShapeExpr) visitShapeExpression(ctx.shapeExpression());
 		}
-		expr.setId(label);
+		if (ctx.KW_ABSTRACT()!=null)
+			expr = new AbstractShapeExpr(expr);
 		if (rules.containsKey(label))
 			throw new IllegalArgumentException("Label "+label+" allready used.");
+		expr.setId(label);
 		rules.put(label,expr);
 		return expr; 
 	}
+	
+	
+	@Override 
+	public ShapeExpr visitExtendsShapeExpression(ShExDocParser.ExtendsShapeExpressionContext ctx) {
+		Label labelBaseShapeExpr = (Label) visitShapeExprLabel(ctx.shapeExprLabel(1));
+		ShapeExpr extension = visitShapeExpression(ctx.shapeExpression());
+		ExtendsShapeExpr expr = new ExtendsShapeExpr(labelBaseShapeExpr,extension);
+		
+		Label label = (Label) visitShapeExprLabel(ctx.shapeExprLabel(0));
+		expr.setId(label);
+
+		return expr;
+	}
+	
 
 	@Override 
 	public ShapeExpr visitShapeExpression(ShExDocParser.ShapeExpressionContext ctx) { 

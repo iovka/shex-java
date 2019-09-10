@@ -1,23 +1,13 @@
 // Generated from fr/inria/lille/shexjava/schema/parsing/ShExC/ShExDoc.g4 by ANTLR 4.7.1
 package fr.inria.lille.shexjava.schema.parsing.ShExC;
-import java.util.List;
-
-import org.antlr.v4.runtime.NoViableAltException;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.RuntimeMetaData;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.Vocabulary;
-import org.antlr.v4.runtime.VocabularyImpl;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
+import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.tree.ParseTreeVisitor;
-import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class ShExDocParser extends Parser {
@@ -29,16 +19,17 @@ public class ShExDocParser extends Parser {
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
 		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, T__16=17, 
-		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, KW_BASE=23, KW_EXTERNAL=24, 
-		KW_IMPORT=25, KW_PREFIX=26, KW_START=27, KW_VIRTUAL=28, KW_CLOSED=29, 
-		KW_EXTRA=30, KW_LITERAL=31, KW_IRI=32, KW_NONLITERAL=33, KW_BNODE=34, 
-		KW_AND=35, KW_OR=36, KW_MININCLUSIVE=37, KW_MINEXCLUSIVE=38, KW_MAXINCLUSIVE=39, 
-		KW_MAXEXCLUSIVE=40, KW_LENGTH=41, KW_MINLENGTH=42, KW_MAXLENGTH=43, KW_TOTALDIGITS=44, 
-		KW_FRACTIONDIGITS=45, KW_NOT=46, KW_TRUE=47, KW_FALSE=48, PASS=49, COMMENT=50, 
-		CODE=51, RDF_TYPE=52, IRIREF=53, PNAME_NS=54, PNAME_LN=55, ATPNAME_NS=56, 
-		ATPNAME_LN=57, REGEXP=58, REGEXP_FLAGS=59, BLANK_NODE_LABEL=60, LANGTAG=61, 
-		INTEGER=62, DECIMAL=63, DOUBLE=64, STEM_MARK=65, UNBOUNDED=66, STRING_LITERAL1=67, 
-		STRING_LITERAL2=68, STRING_LITERAL_LONG1=69, STRING_LITERAL_LONG2=70;
+		T__17=18, T__18=19, T__19=20, T__20=21, T__21=22, KW_ABSTRACT=23, KW_BASE=24, 
+		KW_EXTERNAL=25, KW_EXTENDS=26, KW_IMPORT=27, KW_PREFIX=28, KW_START=29, 
+		KW_VIRTUAL=30, KW_CLOSED=31, KW_EXTRA=32, KW_LITERAL=33, KW_IRI=34, KW_NONLITERAL=35, 
+		KW_BNODE=36, KW_AND=37, KW_OR=38, KW_MININCLUSIVE=39, KW_MINEXCLUSIVE=40, 
+		KW_MAXINCLUSIVE=41, KW_MAXEXCLUSIVE=42, KW_LENGTH=43, KW_MINLENGTH=44, 
+		KW_MAXLENGTH=45, KW_TOTALDIGITS=46, KW_FRACTIONDIGITS=47, KW_NOT=48, KW_TRUE=49, 
+		KW_FALSE=50, PASS=51, COMMENT=52, CODE=53, RDF_TYPE=54, IRIREF=55, PNAME_NS=56, 
+		PNAME_LN=57, ATPNAME_NS=58, ATPNAME_LN=59, REGEXP=60, REGEXP_FLAGS=61, 
+		BLANK_NODE_LABEL=62, LANGTAG=63, INTEGER=64, DECIMAL=65, DOUBLE=66, STEM_MARK=67, 
+		UNBOUNDED=68, STRING_LITERAL1=69, STRING_LITERAL2=70, STRING_LITERAL_LONG1=71, 
+		STRING_LITERAL_LONG2=72;
 	public static final int
 		RULE_shExDoc = 0, RULE_directive = 1, RULE_baseDecl = 2, RULE_prefixDecl = 3, 
 		RULE_importDecl = 4, RULE_notStartAction = 5, RULE_start = 6, RULE_startActions = 7, 
@@ -84,21 +75,22 @@ public class ShExDocParser extends Parser {
 		"'^'", "'['", "']'", "'-'", "'@'", "'&'", "'//'", "'+'", "'?'", "','", 
 		"'^^'", "'%'", null, null, null, null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, "'true'", "'false'", null, null, null, "'a'", null, null, 
-		null, null, null, null, null, null, null, null, null, null, "'~'", "'*'"
+		null, null, null, null, "'true'", "'false'", null, null, null, "'a'", 
+		null, null, null, null, null, null, null, null, null, null, null, null, 
+		"'~'", "'*'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, null, null, "KW_BASE", 
-		"KW_EXTERNAL", "KW_IMPORT", "KW_PREFIX", "KW_START", "KW_VIRTUAL", "KW_CLOSED", 
-		"KW_EXTRA", "KW_LITERAL", "KW_IRI", "KW_NONLITERAL", "KW_BNODE", "KW_AND", 
-		"KW_OR", "KW_MININCLUSIVE", "KW_MINEXCLUSIVE", "KW_MAXINCLUSIVE", "KW_MAXEXCLUSIVE", 
-		"KW_LENGTH", "KW_MINLENGTH", "KW_MAXLENGTH", "KW_TOTALDIGITS", "KW_FRACTIONDIGITS", 
-		"KW_NOT", "KW_TRUE", "KW_FALSE", "PASS", "COMMENT", "CODE", "RDF_TYPE", 
-		"IRIREF", "PNAME_NS", "PNAME_LN", "ATPNAME_NS", "ATPNAME_LN", "REGEXP", 
-		"REGEXP_FLAGS", "BLANK_NODE_LABEL", "LANGTAG", "INTEGER", "DECIMAL", "DOUBLE", 
-		"STEM_MARK", "UNBOUNDED", "STRING_LITERAL1", "STRING_LITERAL2", "STRING_LITERAL_LONG1", 
-		"STRING_LITERAL_LONG2"
+		null, null, null, null, null, null, null, null, null, null, null, "KW_ABSTRACT", 
+		"KW_BASE", "KW_EXTERNAL", "KW_EXTENDS", "KW_IMPORT", "KW_PREFIX", "KW_START", 
+		"KW_VIRTUAL", "KW_CLOSED", "KW_EXTRA", "KW_LITERAL", "KW_IRI", "KW_NONLITERAL", 
+		"KW_BNODE", "KW_AND", "KW_OR", "KW_MININCLUSIVE", "KW_MINEXCLUSIVE", "KW_MAXINCLUSIVE", 
+		"KW_MAXEXCLUSIVE", "KW_LENGTH", "KW_MINLENGTH", "KW_MAXLENGTH", "KW_TOTALDIGITS", 
+		"KW_FRACTIONDIGITS", "KW_NOT", "KW_TRUE", "KW_FALSE", "PASS", "COMMENT", 
+		"CODE", "RDF_TYPE", "IRIREF", "PNAME_NS", "PNAME_LN", "ATPNAME_NS", "ATPNAME_LN", 
+		"REGEXP", "REGEXP_FLAGS", "BLANK_NODE_LABEL", "LANGTAG", "INTEGER", "DECIMAL", 
+		"DOUBLE", "STEM_MARK", "UNBOUNDED", "STRING_LITERAL1", "STRING_LITERAL2", 
+		"STRING_LITERAL_LONG1", "STRING_LITERAL_LONG2"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -204,11 +196,12 @@ public class ShExDocParser extends Parser {
 			setState(162);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__21) | (1L << KW_START) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN) | (1L << BLANK_NODE_LABEL))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__21) | (1L << KW_ABSTRACT) | (1L << KW_START) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN) | (1L << BLANK_NODE_LABEL))) != 0)) {
 				{
 				setState(154);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
+				case KW_ABSTRACT:
 				case KW_START:
 				case IRIREF:
 				case PNAME_NS:
@@ -231,7 +224,7 @@ public class ShExDocParser extends Parser {
 				setState(159);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_BASE) | (1L << KW_IMPORT) | (1L << KW_PREFIX) | (1L << KW_START) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN) | (1L << BLANK_NODE_LABEL))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_ABSTRACT) | (1L << KW_BASE) | (1L << KW_IMPORT) | (1L << KW_PREFIX) | (1L << KW_START) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN) | (1L << BLANK_NODE_LABEL))) != 0)) {
 					{
 					{
 					setState(156);
@@ -470,6 +463,7 @@ public class ShExDocParser extends Parser {
 				start();
 				}
 				break;
+			case KW_ABSTRACT:
 			case IRIREF:
 			case PNAME_NS:
 			case PNAME_LN:
@@ -622,6 +616,7 @@ public class ShExDocParser extends Parser {
 				directive();
 				}
 				break;
+			case KW_ABSTRACT:
 			case KW_START:
 			case IRIREF:
 			case PNAME_NS:
@@ -649,6 +644,17 @@ public class ShExDocParser extends Parser {
 	}
 
 	public static class ShapeExprDeclContext extends ParserRuleContext {
+		public ShapeExprDeclContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_shapeExprDecl; }
+	 
+		public ShapeExprDeclContext() { }
+		public void copyFrom(ShapeExprDeclContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class BaseShapeExpressionContext extends ShapeExprDeclContext {
 		public ShapeExprLabelContext shapeExprLabel() {
 			return getRuleContext(ShapeExprLabelContext.class,0);
 		}
@@ -656,13 +662,29 @@ public class ShExDocParser extends Parser {
 			return getRuleContext(ShapeExpressionContext.class,0);
 		}
 		public TerminalNode KW_EXTERNAL() { return getToken(ShExDocParser.KW_EXTERNAL, 0); }
-		public ShapeExprDeclContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_shapeExprDecl; }
+		public TerminalNode KW_ABSTRACT() { return getToken(ShExDocParser.KW_ABSTRACT, 0); }
+		public BaseShapeExpressionContext(ShapeExprDeclContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ShExDocVisitor ) return ((ShExDocVisitor<? extends T>)visitor).visitShapeExprDecl(this);
+			if ( visitor instanceof ShExDocVisitor ) return ((ShExDocVisitor<? extends T>)visitor).visitBaseShapeExpression(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class ExtendsShapeExpressionContext extends ShapeExprDeclContext {
+		public List<ShapeExprLabelContext> shapeExprLabel() {
+			return getRuleContexts(ShapeExprLabelContext.class);
+		}
+		public ShapeExprLabelContext shapeExprLabel(int i) {
+			return getRuleContext(ShapeExprLabelContext.class,i);
+		}
+		public TerminalNode KW_EXTENDS() { return getToken(ShExDocParser.KW_EXTENDS, 0); }
+		public ShapeExpressionContext shapeExpression() {
+			return getRuleContext(ShapeExpressionContext.class,0);
+		}
+		public ExtendsShapeExpressionContext(ShapeExprDeclContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof ShExDocVisitor ) return ((ShExDocVisitor<? extends T>)visitor).visitExtendsShapeExpression(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -670,57 +692,89 @@ public class ShExDocParser extends Parser {
 	public final ShapeExprDeclContext shapeExprDecl() throws RecognitionException {
 		ShapeExprDeclContext _localctx = new ShapeExprDeclContext(_ctx, getState());
 		enterRule(_localctx, 18, RULE_shapeExprDecl);
+		int _la;
 		try {
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(198);
-			shapeExprLabel();
-			setState(201);
+			setState(211);
 			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case T__1:
-			case T__2:
-			case T__7:
-			case T__9:
-			case T__11:
-			case T__14:
-			case T__15:
-			case KW_CLOSED:
-			case KW_EXTRA:
-			case KW_LITERAL:
-			case KW_IRI:
-			case KW_NONLITERAL:
-			case KW_BNODE:
-			case KW_MININCLUSIVE:
-			case KW_MINEXCLUSIVE:
-			case KW_MAXINCLUSIVE:
-			case KW_MAXEXCLUSIVE:
-			case KW_LENGTH:
-			case KW_MINLENGTH:
-			case KW_MAXLENGTH:
-			case KW_TOTALDIGITS:
-			case KW_FRACTIONDIGITS:
-			case KW_NOT:
-			case IRIREF:
-			case PNAME_NS:
-			case PNAME_LN:
-			case ATPNAME_NS:
-			case ATPNAME_LN:
-			case REGEXP:
+			switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
+			case 1:
+				_localctx = new BaseShapeExpressionContext(_localctx);
+				enterOuterAlt(_localctx, 1);
 				{
 				setState(199);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+				if (_la==KW_ABSTRACT) {
+					{
+					setState(198);
+					match(KW_ABSTRACT);
+					}
+				}
+
+				setState(201);
+				shapeExprLabel();
+				setState(204);
+				_errHandler.sync(this);
+				switch (_input.LA(1)) {
+				case T__1:
+				case T__2:
+				case T__7:
+				case T__9:
+				case T__11:
+				case T__14:
+				case T__15:
+				case KW_CLOSED:
+				case KW_EXTRA:
+				case KW_LITERAL:
+				case KW_IRI:
+				case KW_NONLITERAL:
+				case KW_BNODE:
+				case KW_MININCLUSIVE:
+				case KW_MINEXCLUSIVE:
+				case KW_MAXINCLUSIVE:
+				case KW_MAXEXCLUSIVE:
+				case KW_LENGTH:
+				case KW_MINLENGTH:
+				case KW_MAXLENGTH:
+				case KW_TOTALDIGITS:
+				case KW_FRACTIONDIGITS:
+				case KW_NOT:
+				case IRIREF:
+				case PNAME_NS:
+				case PNAME_LN:
+				case ATPNAME_NS:
+				case ATPNAME_LN:
+				case REGEXP:
+					{
+					setState(202);
+					shapeExpression();
+					}
+					break;
+				case KW_EXTERNAL:
+					{
+					setState(203);
+					match(KW_EXTERNAL);
+					}
+					break;
+				default:
+					throw new NoViableAltException(this);
+				}
+				}
+				break;
+			case 2:
+				_localctx = new ExtendsShapeExpressionContext(_localctx);
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(206);
+				shapeExprLabel();
+				setState(207);
+				match(KW_EXTENDS);
+				setState(208);
+				shapeExprLabel();
+				setState(209);
 				shapeExpression();
 				}
 				break;
-			case KW_EXTERNAL:
-				{
-				setState(200);
-				match(KW_EXTERNAL);
-				}
-				break;
-			default:
-				throw new NoViableAltException(this);
-			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -755,7 +809,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(203);
+			setState(213);
 			shapeOr();
 			}
 		}
@@ -799,21 +853,21 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(205);
+			setState(215);
 			shapeAnd();
-			setState(210);
+			setState(220);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==KW_OR) {
 				{
 				{
-				setState(206);
+				setState(216);
 				match(KW_OR);
-				setState(207);
+				setState(217);
 				shapeAnd();
 				}
 				}
-				setState(212);
+				setState(222);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -859,21 +913,21 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(213);
+			setState(223);
 			shapeNot();
-			setState(218);
+			setState(228);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==KW_AND) {
 				{
 				{
-				setState(214);
+				setState(224);
 				match(KW_AND);
-				setState(215);
+				setState(225);
 				shapeNot();
 				}
 				}
-				setState(220);
+				setState(230);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -915,17 +969,17 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(222);
+			setState(232);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==T__1 || _la==KW_NOT) {
 				{
-				setState(221);
+				setState(231);
 				negation();
 				}
 			}
 
-			setState(224);
+			setState(234);
 			shapeAtom();
 			}
 		}
@@ -960,7 +1014,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(226);
+			setState(236);
 			_la = _input.LA(1);
 			if ( !(_la==T__1 || _la==KW_NOT) ) {
 			_errHandler.recoverInline(this);
@@ -1004,7 +1058,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(228);
+			setState(238);
 			inlineShapeOr();
 			}
 		}
@@ -1048,21 +1102,21 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(230);
+			setState(240);
 			inlineShapeAnd();
-			setState(235);
+			setState(245);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==KW_OR) {
 				{
 				{
-				setState(231);
+				setState(241);
 				match(KW_OR);
-				setState(232);
+				setState(242);
 				inlineShapeAnd();
 				}
 				}
-				setState(237);
+				setState(247);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -1108,21 +1162,21 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(238);
+			setState(248);
 			inlineShapeNot();
-			setState(243);
+			setState(253);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==KW_AND) {
 				{
 				{
-				setState(239);
+				setState(249);
 				match(KW_AND);
-				setState(240);
+				setState(250);
 				inlineShapeNot();
 				}
 				}
-				setState(245);
+				setState(255);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -1164,17 +1218,17 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(247);
+			setState(257);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==T__1 || _la==KW_NOT) {
 				{
-				setState(246);
+				setState(256);
 				negation();
 				}
 			}
 
-			setState(249);
+			setState(259);
 			inlineShapeAtom();
 			}
 		}
@@ -1217,33 +1271,33 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(254);
+			setState(264);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__15) | (1L << KW_CLOSED) | (1L << KW_EXTRA))) != 0)) {
 				{
 				{
-				setState(251);
+				setState(261);
 				qualifier();
 				}
 				}
-				setState(256);
+				setState(266);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(257);
+			setState(267);
 			match(T__2);
-			setState(259);
+			setState(269);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__6) | (1L << T__7) | (1L << T__10) | (1L << T__15) | (1L << RDF_TYPE) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN))) != 0)) {
 				{
-				setState(258);
+				setState(268);
 				oneOfShape();
 				}
 			}
 
-			setState(261);
+			setState(271);
 			match(T__3);
 			}
 		}
@@ -1295,49 +1349,49 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(266);
+			setState(276);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__15) | (1L << KW_CLOSED) | (1L << KW_EXTRA))) != 0)) {
 				{
 				{
-				setState(263);
+				setState(273);
 				qualifier();
 				}
 				}
-				setState(268);
+				setState(278);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(269);
+			setState(279);
 			match(T__2);
-			setState(271);
+			setState(281);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__1) | (1L << T__6) | (1L << T__7) | (1L << T__10) | (1L << T__15) | (1L << RDF_TYPE) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN))) != 0)) {
 				{
-				setState(270);
+				setState(280);
 				oneOfShape();
 				}
 			}
 
-			setState(273);
+			setState(283);
 			match(T__3);
-			setState(277);
+			setState(287);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__16) {
 				{
 				{
-				setState(274);
+				setState(284);
 				annotation();
 				}
 				}
-				setState(279);
+				setState(289);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(280);
+			setState(290);
 			semanticActions();
 			}
 		}
@@ -1375,27 +1429,27 @@ public class ShExDocParser extends Parser {
 		QualifierContext _localctx = new QualifierContext(_ctx, getState());
 		enterRule(_localctx, 42, RULE_qualifier);
 		try {
-			setState(285);
+			setState(295);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__15:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(282);
+				setState(292);
 				includeSet();
 				}
 				break;
 			case KW_EXTRA:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(283);
+				setState(293);
 				extraPropertySet();
 				}
 				break;
 			case KW_CLOSED:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(284);
+				setState(294);
 				match(KW_CLOSED);
 				}
 				break;
@@ -1440,19 +1494,19 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(287);
+			setState(297);
 			match(KW_EXTRA);
-			setState(289); 
+			setState(299); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(288);
+				setState(298);
 				predicate();
 				}
 				}
-				setState(291); 
+				setState(301); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << RDF_TYPE) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN))) != 0) );
@@ -1491,20 +1545,20 @@ public class ShExDocParser extends Parser {
 		OneOfShapeContext _localctx = new OneOfShapeContext(_ctx, getState());
 		enterRule(_localctx, 46, RULE_oneOfShape);
 		try {
-			setState(295);
+			setState(305);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,22,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,24,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(293);
+				setState(303);
 				groupShape();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(294);
+				setState(304);
 				multiElementOneOf();
 				}
 				break;
@@ -1546,21 +1600,21 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(297);
+			setState(307);
 			groupShape();
-			setState(300); 
+			setState(310); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(298);
+				setState(308);
 				match(T__4);
-				setState(299);
+				setState(309);
 				groupShape();
 				}
 				}
-				setState(302); 
+				setState(312); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==T__4 );
@@ -1599,20 +1653,20 @@ public class ShExDocParser extends Parser {
 		GroupShapeContext _localctx = new GroupShapeContext(_ctx, getState());
 		enterRule(_localctx, 50, RULE_groupShape);
 		try {
-			setState(306);
+			setState(316);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,24,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,26,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(304);
+				setState(314);
 				singleElementGroup();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(305);
+				setState(315);
 				multiElementGroup();
 				}
 				break;
@@ -1651,14 +1705,14 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(308);
+			setState(318);
 			unaryShape();
-			setState(310);
+			setState(320);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==T__5) {
 				{
-				setState(309);
+				setState(319);
 				match(T__5);
 				}
 			}
@@ -1702,9 +1756,9 @@ public class ShExDocParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(312);
+			setState(322);
 			unaryShape();
-			setState(315); 
+			setState(325); 
 			_errHandler.sync(this);
 			_alt = 1;
 			do {
@@ -1712,9 +1766,9 @@ public class ShExDocParser extends Parser {
 				case 1:
 					{
 					{
-					setState(313);
+					setState(323);
 					match(T__5);
-					setState(314);
+					setState(324);
 					unaryShape();
 					}
 					}
@@ -1722,16 +1776,16 @@ public class ShExDocParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(317); 
+				setState(327); 
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,26,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,28,_ctx);
 			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
-			setState(320);
+			setState(330);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==T__5) {
 				{
-				setState(319);
+				setState(329);
 				match(T__5);
 				}
 			}
@@ -1778,7 +1832,7 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 56, RULE_unaryShape);
 		int _la;
 		try {
-			setState(331);
+			setState(341);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__1:
@@ -1791,19 +1845,19 @@ public class ShExDocParser extends Parser {
 			case PNAME_LN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(324);
+				setState(334);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==T__6) {
 					{
-					setState(322);
+					setState(332);
 					match(T__6);
-					setState(323);
+					setState(333);
 					tripleExprLabel();
 					}
 				}
 
-				setState(328);
+				setState(338);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case T__1:
@@ -1813,13 +1867,13 @@ public class ShExDocParser extends Parser {
 				case PNAME_NS:
 				case PNAME_LN:
 					{
-					setState(326);
+					setState(336);
 					tripleConstraint();
 					}
 					break;
 				case T__7:
 					{
-					setState(327);
+					setState(337);
 					encapsulatedShape();
 					}
 					break;
@@ -1831,7 +1885,7 @@ public class ShExDocParser extends Parser {
 			case T__15:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(330);
+				setState(340);
 				include();
 				}
 				break;
@@ -1884,37 +1938,37 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(333);
+			setState(343);
 			match(T__7);
-			setState(334);
+			setState(344);
 			oneOfShape();
-			setState(335);
+			setState(345);
 			match(T__8);
-			setState(337);
+			setState(347);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (((((_la - 3)) & ~0x3f) == 0 && ((1L << (_la - 3)) & ((1L << (T__2 - 3)) | (1L << (T__17 - 3)) | (1L << (T__18 - 3)) | (1L << (UNBOUNDED - 3)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__17) | (1L << T__18))) != 0) || _la==UNBOUNDED) {
 				{
-				setState(336);
+				setState(346);
 				cardinality();
 				}
 			}
 
-			setState(342);
+			setState(352);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__16) {
 				{
 				{
-				setState(339);
+				setState(349);
 				annotation();
 				}
 				}
-				setState(344);
+				setState(354);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(345);
+			setState(355);
 			semanticActions();
 			}
 		}
@@ -1990,7 +2044,7 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 60, RULE_shapeAtom);
 		int _la;
 		try {
-			setState(357);
+			setState(367);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__11:
@@ -2014,14 +2068,14 @@ public class ShExDocParser extends Parser {
 				_localctx = new ShapeAtomNodeConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(347);
+				setState(357);
 				nodeConstraint();
-				setState(349);
+				setState(359);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__14) | (1L << T__15) | (1L << KW_CLOSED) | (1L << KW_EXTRA) | (1L << ATPNAME_NS) | (1L << ATPNAME_LN))) != 0)) {
 					{
-					setState(348);
+					setState(358);
 					shapeOrRef();
 					}
 				}
@@ -2038,7 +2092,7 @@ public class ShExDocParser extends Parser {
 				_localctx = new ShapeAtomShapeOrRefContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(351);
+				setState(361);
 				shapeOrRef();
 				}
 				break;
@@ -2046,11 +2100,11 @@ public class ShExDocParser extends Parser {
 				_localctx = new ShapeAtomShapeExpressionContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(352);
+				setState(362);
 				match(T__7);
-				setState(353);
+				setState(363);
 				shapeExpression();
-				setState(354);
+				setState(364);
 				match(T__8);
 				}
 				break;
@@ -2058,7 +2112,7 @@ public class ShExDocParser extends Parser {
 				_localctx = new ShapeAtomAnyContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(356);
+				setState(366);
 				match(T__9);
 				}
 				break;
@@ -2141,7 +2195,7 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 62, RULE_inlineShapeAtom);
 		int _la;
 		try {
-			setState(372);
+			setState(382);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__11:
@@ -2165,14 +2219,14 @@ public class ShExDocParser extends Parser {
 				_localctx = new InlineShapeAtomNodeConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(359);
+				setState(369);
 				nodeConstraint();
-				setState(361);
+				setState(371);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,35,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,37,_ctx) ) {
 				case 1:
 					{
-					setState(360);
+					setState(370);
 					inlineShapeOrRef();
 					}
 					break;
@@ -2189,14 +2243,14 @@ public class ShExDocParser extends Parser {
 				_localctx = new InlineShapeAtomShapeOrRefContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(363);
+				setState(373);
 				inlineShapeOrRef();
-				setState(365);
+				setState(375);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__11) | (1L << KW_LITERAL) | (1L << KW_IRI) | (1L << KW_NONLITERAL) | (1L << KW_BNODE) | (1L << KW_MININCLUSIVE) | (1L << KW_MINEXCLUSIVE) | (1L << KW_MAXINCLUSIVE) | (1L << KW_MAXEXCLUSIVE) | (1L << KW_LENGTH) | (1L << KW_MINLENGTH) | (1L << KW_MAXLENGTH) | (1L << KW_TOTALDIGITS) | (1L << KW_FRACTIONDIGITS) | (1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN) | (1L << REGEXP))) != 0)) {
 					{
-					setState(364);
+					setState(374);
 					nodeConstraint();
 					}
 				}
@@ -2207,11 +2261,11 @@ public class ShExDocParser extends Parser {
 				_localctx = new InlineShapeAtomShapeExpressionContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(367);
+				setState(377);
 				match(T__7);
-				setState(368);
+				setState(378);
 				shapeExpression();
-				setState(369);
+				setState(379);
 				match(T__8);
 				}
 				break;
@@ -2219,7 +2273,7 @@ public class ShExDocParser extends Parser {
 				_localctx = new InlineShapeAtomAnyContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(371);
+				setState(381);
 				match(T__9);
 				}
 				break;
@@ -2335,26 +2389,26 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 64, RULE_nodeConstraint);
 		int _la;
 		try {
-			setState(407);
+			setState(417);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case KW_LITERAL:
 				_localctx = new NodeConstraintLiteralContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(374);
+				setState(384);
 				match(KW_LITERAL);
-				setState(378);
+				setState(388);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_MININCLUSIVE) | (1L << KW_MINEXCLUSIVE) | (1L << KW_MAXINCLUSIVE) | (1L << KW_MAXEXCLUSIVE) | (1L << KW_LENGTH) | (1L << KW_MINLENGTH) | (1L << KW_MAXLENGTH) | (1L << KW_TOTALDIGITS) | (1L << KW_FRACTIONDIGITS) | (1L << REGEXP))) != 0)) {
 					{
 					{
-					setState(375);
+					setState(385);
 					xsFacet();
 					}
 					}
-					setState(380);
+					setState(390);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -2366,19 +2420,19 @@ public class ShExDocParser extends Parser {
 				_localctx = new NodeConstraintNonLiteralContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(381);
+				setState(391);
 				nonLiteralKind();
-				setState(385);
+				setState(395);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_LENGTH) | (1L << KW_MINLENGTH) | (1L << KW_MAXLENGTH) | (1L << REGEXP))) != 0)) {
 					{
 					{
-					setState(382);
+					setState(392);
 					stringFacet();
 					}
 					}
-					setState(387);
+					setState(397);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -2390,19 +2444,19 @@ public class ShExDocParser extends Parser {
 				_localctx = new NodeConstraintDatatypeContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(388);
+				setState(398);
 				datatype();
-				setState(392);
+				setState(402);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_MININCLUSIVE) | (1L << KW_MINEXCLUSIVE) | (1L << KW_MAXINCLUSIVE) | (1L << KW_MAXEXCLUSIVE) | (1L << KW_LENGTH) | (1L << KW_MINLENGTH) | (1L << KW_MAXLENGTH) | (1L << KW_TOTALDIGITS) | (1L << KW_FRACTIONDIGITS) | (1L << REGEXP))) != 0)) {
 					{
 					{
-					setState(389);
+					setState(399);
 					xsFacet();
 					}
 					}
-					setState(394);
+					setState(404);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -2412,19 +2466,19 @@ public class ShExDocParser extends Parser {
 				_localctx = new NodeConstraintValueSetContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(395);
+				setState(405);
 				valueSet();
-				setState(399);
+				setState(409);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_MININCLUSIVE) | (1L << KW_MINEXCLUSIVE) | (1L << KW_MAXINCLUSIVE) | (1L << KW_MAXEXCLUSIVE) | (1L << KW_LENGTH) | (1L << KW_MINLENGTH) | (1L << KW_MAXLENGTH) | (1L << KW_TOTALDIGITS) | (1L << KW_FRACTIONDIGITS) | (1L << REGEXP))) != 0)) {
 					{
 					{
-					setState(396);
+					setState(406);
 					xsFacet();
 					}
 					}
-					setState(401);
+					setState(411);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -2443,17 +2497,17 @@ public class ShExDocParser extends Parser {
 				_localctx = new NodeConstraintFacetContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(403); 
+				setState(413); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				do {
 					{
 					{
-					setState(402);
+					setState(412);
 					xsFacet();
 					}
 					}
-					setState(405); 
+					setState(415); 
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_MININCLUSIVE) | (1L << KW_MINEXCLUSIVE) | (1L << KW_MAXINCLUSIVE) | (1L << KW_MAXEXCLUSIVE) | (1L << KW_LENGTH) | (1L << KW_MINLENGTH) | (1L << KW_MAXLENGTH) | (1L << KW_TOTALDIGITS) | (1L << KW_FRACTIONDIGITS) | (1L << REGEXP))) != 0) );
@@ -2496,7 +2550,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(409);
+			setState(419);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_IRI) | (1L << KW_NONLITERAL) | (1L << KW_BNODE))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -2541,7 +2595,7 @@ public class ShExDocParser extends Parser {
 		XsFacetContext _localctx = new XsFacetContext(_ctx, getState());
 		enterRule(_localctx, 68, RULE_xsFacet);
 		try {
-			setState(413);
+			setState(423);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case KW_LENGTH:
@@ -2550,7 +2604,7 @@ public class ShExDocParser extends Parser {
 			case REGEXP:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(411);
+				setState(421);
 				stringFacet();
 				}
 				break;
@@ -2562,7 +2616,7 @@ public class ShExDocParser extends Parser {
 			case KW_FRACTIONDIGITS:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(412);
+				setState(422);
 				numericFacet();
 				}
 				break;
@@ -2604,7 +2658,7 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 70, RULE_stringFacet);
 		int _la;
 		try {
-			setState(422);
+			setState(432);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case KW_LENGTH:
@@ -2612,23 +2666,23 @@ public class ShExDocParser extends Parser {
 			case KW_MAXLENGTH:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(415);
+				setState(425);
 				stringLength();
-				setState(416);
+				setState(426);
 				match(INTEGER);
 				}
 				break;
 			case REGEXP:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(418);
+				setState(428);
 				match(REGEXP);
-				setState(420);
+				setState(430);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==REGEXP_FLAGS) {
 					{
-					setState(419);
+					setState(429);
 					match(REGEXP_FLAGS);
 					}
 				}
@@ -2672,7 +2726,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(424);
+			setState(434);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_LENGTH) | (1L << KW_MINLENGTH) | (1L << KW_MAXLENGTH))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -2721,7 +2775,7 @@ public class ShExDocParser extends Parser {
 		NumericFacetContext _localctx = new NumericFacetContext(_ctx, getState());
 		enterRule(_localctx, 74, RULE_numericFacet);
 		try {
-			setState(432);
+			setState(442);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case KW_MININCLUSIVE:
@@ -2730,9 +2784,9 @@ public class ShExDocParser extends Parser {
 			case KW_MAXEXCLUSIVE:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(426);
+				setState(436);
 				numericRange();
-				setState(427);
+				setState(437);
 				numericLiteral();
 				}
 				break;
@@ -2740,9 +2794,9 @@ public class ShExDocParser extends Parser {
 			case KW_FRACTIONDIGITS:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(429);
+				setState(439);
 				numericLength();
-				setState(430);
+				setState(440);
 				match(INTEGER);
 				}
 				break;
@@ -2784,7 +2838,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(434);
+			setState(444);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << KW_MININCLUSIVE) | (1L << KW_MINEXCLUSIVE) | (1L << KW_MAXINCLUSIVE) | (1L << KW_MAXEXCLUSIVE))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -2828,7 +2882,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(436);
+			setState(446);
 			_la = _input.LA(1);
 			if ( !(_la==KW_TOTALDIGITS || _la==KW_FRACTIONDIGITS) ) {
 			_errHandler.recoverInline(this);
@@ -2891,45 +2945,45 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(439);
+			setState(449);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==T__1 || _la==T__10) {
 				{
-				setState(438);
+				setState(448);
 				senseFlags();
 				}
 			}
 
-			setState(441);
+			setState(451);
 			predicate();
-			setState(442);
+			setState(452);
 			inlineShapeExpression();
-			setState(444);
+			setState(454);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (((((_la - 3)) & ~0x3f) == 0 && ((1L << (_la - 3)) & ((1L << (T__2 - 3)) | (1L << (T__17 - 3)) | (1L << (T__18 - 3)) | (1L << (UNBOUNDED - 3)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__2) | (1L << T__17) | (1L << T__18))) != 0) || _la==UNBOUNDED) {
 				{
-				setState(443);
+				setState(453);
 				cardinality();
 				}
 			}
 
-			setState(449);
+			setState(459);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__16) {
 				{
 				{
-				setState(446);
+				setState(456);
 				annotation();
 				}
 				}
-				setState(451);
+				setState(461);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(452);
+			setState(462);
 			semanticActions();
 			}
 		}
@@ -2961,20 +3015,20 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 82, RULE_senseFlags);
 		int _la;
 		try {
-			setState(462);
+			setState(472);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(454);
+				setState(464);
 				match(T__1);
-				setState(456);
+				setState(466);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==T__10) {
 					{
-					setState(455);
+					setState(465);
 					match(T__10);
 					}
 				}
@@ -2984,14 +3038,14 @@ public class ShExDocParser extends Parser {
 			case T__10:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(458);
+				setState(468);
 				match(T__10);
-				setState(460);
+				setState(470);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==T__1) {
 					{
-					setState(459);
+					setState(469);
 					match(T__1);
 					}
 				}
@@ -3038,23 +3092,23 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(464);
+			setState(474);
 			match(T__11);
-			setState(468);
+			setState(478);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (((((_la - 10)) & ~0x3f) == 0 && ((1L << (_la - 10)) & ((1L << (T__9 - 10)) | (1L << (T__14 - 10)) | (1L << (KW_TRUE - 10)) | (1L << (KW_FALSE - 10)) | (1L << (IRIREF - 10)) | (1L << (PNAME_NS - 10)) | (1L << (PNAME_LN - 10)) | (1L << (LANGTAG - 10)) | (1L << (INTEGER - 10)) | (1L << (DECIMAL - 10)) | (1L << (DOUBLE - 10)) | (1L << (STRING_LITERAL1 - 10)) | (1L << (STRING_LITERAL2 - 10)) | (1L << (STRING_LITERAL_LONG1 - 10)) | (1L << (STRING_LITERAL_LONG2 - 10)))) != 0)) {
 				{
 				{
-				setState(465);
+				setState(475);
 				valueSetValue();
 				}
 				}
-				setState(470);
+				setState(480);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(471);
+			setState(481);
 			match(T__12);
 			}
 		}
@@ -3113,7 +3167,7 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 86, RULE_valueSetValue);
 		int _la;
 		try {
-			setState(494);
+			setState(504);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
@@ -3121,7 +3175,7 @@ public class ShExDocParser extends Parser {
 			case PNAME_LN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(473);
+				setState(483);
 				iriRange();
 				}
 				break;
@@ -3136,7 +3190,7 @@ public class ShExDocParser extends Parser {
 			case STRING_LITERAL_LONG2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(474);
+				setState(484);
 				literalRange();
 				}
 				break;
@@ -3144,55 +3198,19 @@ public class ShExDocParser extends Parser {
 			case LANGTAG:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(475);
+				setState(485);
 				languageRange();
 				}
 				break;
 			case T__9:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(476);
+				setState(486);
 				match(T__9);
-				setState(492);
+				setState(502);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,58,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,60,_ctx) ) {
 				case 1:
-					{
-					setState(478); 
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-					do {
-						{
-						{
-						setState(477);
-						iriExclusion();
-						}
-						}
-						setState(480); 
-						_errHandler.sync(this);
-						_la = _input.LA(1);
-					} while ( _la==T__13 );
-					}
-					break;
-				case 2:
-					{
-					setState(483); 
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-					do {
-						{
-						{
-						setState(482);
-						literalExclusion();
-						}
-						}
-						setState(485); 
-						_errHandler.sync(this);
-						_la = _input.LA(1);
-					} while ( _la==T__13 );
-					}
-					break;
-				case 3:
 					{
 					setState(488); 
 					_errHandler.sync(this);
@@ -3201,10 +3219,46 @@ public class ShExDocParser extends Parser {
 						{
 						{
 						setState(487);
-						languageExclusion();
+						iriExclusion();
 						}
 						}
 						setState(490); 
+						_errHandler.sync(this);
+						_la = _input.LA(1);
+					} while ( _la==T__13 );
+					}
+					break;
+				case 2:
+					{
+					setState(493); 
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+					do {
+						{
+						{
+						setState(492);
+						literalExclusion();
+						}
+						}
+						setState(495); 
+						_errHandler.sync(this);
+						_la = _input.LA(1);
+					} while ( _la==T__13 );
+					}
+					break;
+				case 3:
+					{
+					setState(498); 
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+					do {
+						{
+						{
+						setState(497);
+						languageExclusion();
+						}
+						}
+						setState(500); 
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 					} while ( _la==T__13 );
@@ -3257,26 +3311,26 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(496);
+			setState(506);
 			iri();
-			setState(504);
+			setState(514);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==STEM_MARK) {
 				{
-				setState(497);
+				setState(507);
 				match(STEM_MARK);
-				setState(501);
+				setState(511);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==T__13) {
 					{
 					{
-					setState(498);
+					setState(508);
 					iriExclusion();
 					}
 					}
-					setState(503);
+					setState(513);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -3319,16 +3373,16 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(506);
+			setState(516);
 			match(T__13);
-			setState(507);
+			setState(517);
 			iri();
-			setState(509);
+			setState(519);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==STEM_MARK) {
 				{
-				setState(508);
+				setState(518);
 				match(STEM_MARK);
 				}
 			}
@@ -3375,26 +3429,26 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(511);
+			setState(521);
 			literal();
-			setState(519);
+			setState(529);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==STEM_MARK) {
 				{
-				setState(512);
+				setState(522);
 				match(STEM_MARK);
-				setState(516);
+				setState(526);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==T__13) {
 					{
 					{
-					setState(513);
+					setState(523);
 					literalExclusion();
 					}
 					}
-					setState(518);
+					setState(528);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -3437,16 +3491,16 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(521);
+			setState(531);
 			match(T__13);
-			setState(522);
+			setState(532);
 			literal();
-			setState(524);
+			setState(534);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==STEM_MARK) {
 				{
-				setState(523);
+				setState(533);
 				match(STEM_MARK);
 				}
 			}
@@ -3489,32 +3543,32 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 96, RULE_languageRange);
 		int _la;
 		try {
-			setState(544);
+			setState(554);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case LANGTAG:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(526);
+				setState(536);
 				match(LANGTAG);
-				setState(534);
+				setState(544);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==STEM_MARK) {
 					{
-					setState(527);
+					setState(537);
 					match(STEM_MARK);
-					setState(531);
+					setState(541);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					while (_la==T__13) {
 						{
 						{
-						setState(528);
+						setState(538);
 						languageExclusion();
 						}
 						}
-						setState(533);
+						setState(543);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 					}
@@ -3526,21 +3580,21 @@ public class ShExDocParser extends Parser {
 			case T__14:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(536);
+				setState(546);
 				match(T__14);
-				setState(537);
+				setState(547);
 				match(STEM_MARK);
-				setState(541);
+				setState(551);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==T__13) {
 					{
 					{
-					setState(538);
+					setState(548);
 					languageExclusion();
 					}
 					}
-					setState(543);
+					setState(553);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -3582,16 +3636,16 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(546);
+			setState(556);
 			match(T__13);
-			setState(547);
+			setState(557);
 			match(LANGTAG);
-			setState(549);
+			setState(559);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==STEM_MARK) {
 				{
-				setState(548);
+				setState(558);
 				match(STEM_MARK);
 				}
 			}
@@ -3634,7 +3688,7 @@ public class ShExDocParser extends Parser {
 		LiteralContext _localctx = new LiteralContext(_ctx, getState());
 		enterRule(_localctx, 100, RULE_literal);
 		try {
-			setState(554);
+			setState(564);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STRING_LITERAL1:
@@ -3643,7 +3697,7 @@ public class ShExDocParser extends Parser {
 			case STRING_LITERAL_LONG2:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(551);
+				setState(561);
 				rdfLiteral();
 				}
 				break;
@@ -3652,7 +3706,7 @@ public class ShExDocParser extends Parser {
 			case DOUBLE:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(552);
+				setState(562);
 				numericLiteral();
 				}
 				break;
@@ -3660,7 +3714,7 @@ public class ShExDocParser extends Parser {
 			case KW_FALSE:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(553);
+				setState(563);
 				booleanLiteral();
 				}
 				break;
@@ -3701,7 +3755,7 @@ public class ShExDocParser extends Parser {
 		ShapeOrRefContext _localctx = new ShapeOrRefContext(_ctx, getState());
 		enterRule(_localctx, 102, RULE_shapeOrRef);
 		try {
-			setState(558);
+			setState(568);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__2:
@@ -3710,7 +3764,7 @@ public class ShExDocParser extends Parser {
 			case KW_EXTRA:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(556);
+				setState(566);
 				shapeDefinition();
 				}
 				break;
@@ -3719,7 +3773,7 @@ public class ShExDocParser extends Parser {
 			case ATPNAME_LN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(557);
+				setState(567);
 				shapeRef();
 				}
 				break;
@@ -3760,7 +3814,7 @@ public class ShExDocParser extends Parser {
 		InlineShapeOrRefContext _localctx = new InlineShapeOrRefContext(_ctx, getState());
 		enterRule(_localctx, 104, RULE_inlineShapeOrRef);
 		try {
-			setState(562);
+			setState(572);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__2:
@@ -3769,7 +3823,7 @@ public class ShExDocParser extends Parser {
 			case KW_EXTRA:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(560);
+				setState(570);
 				inlineShapeDefinition();
 				}
 				break;
@@ -3778,7 +3832,7 @@ public class ShExDocParser extends Parser {
 			case ATPNAME_LN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(561);
+				setState(571);
 				shapeRef();
 				}
 				break;
@@ -3818,29 +3872,29 @@ public class ShExDocParser extends Parser {
 		ShapeRefContext _localctx = new ShapeRefContext(_ctx, getState());
 		enterRule(_localctx, 106, RULE_shapeRef);
 		try {
-			setState(568);
+			setState(578);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case ATPNAME_LN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(564);
+				setState(574);
 				match(ATPNAME_LN);
 				}
 				break;
 			case ATPNAME_NS:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(565);
+				setState(575);
 				match(ATPNAME_NS);
 				}
 				break;
 			case T__14:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(566);
+				setState(576);
 				match(T__14);
-				setState(567);
+				setState(577);
 				shapeExprLabel();
 				}
 				break;
@@ -3880,9 +3934,9 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(570);
+			setState(580);
 			match(T__15);
-			setState(571);
+			setState(581);
 			tripleExprLabel();
 			}
 		}
@@ -3922,17 +3976,17 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(576);
+			setState(586);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__21) {
 				{
 				{
-				setState(573);
+				setState(583);
 				codeDecl();
 				}
 				}
-				setState(578);
+				setState(588);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -3976,18 +4030,18 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(579);
+			setState(589);
 			match(T__16);
-			setState(580);
+			setState(590);
 			predicate();
-			setState(583);
+			setState(593);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
 			case PNAME_NS:
 			case PNAME_LN:
 				{
-				setState(581);
+				setState(591);
 				iri();
 				}
 				break;
@@ -4001,7 +4055,7 @@ public class ShExDocParser extends Parser {
 			case STRING_LITERAL_LONG1:
 			case STRING_LITERAL_LONG2:
 				{
-				setState(582);
+				setState(592);
 				literal();
 				}
 				break;
@@ -4043,7 +4097,7 @@ public class ShExDocParser extends Parser {
 		PredicateContext _localctx = new PredicateContext(_ctx, getState());
 		enterRule(_localctx, 114, RULE_predicate);
 		try {
-			setState(587);
+			setState(597);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
@@ -4051,14 +4105,14 @@ public class ShExDocParser extends Parser {
 			case PNAME_LN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(585);
+				setState(595);
 				iri();
 				}
 				break;
 			case RDF_TYPE:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(586);
+				setState(596);
 				rdfType();
 				}
 				break;
@@ -4096,7 +4150,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(589);
+			setState(599);
 			match(RDF_TYPE);
 			}
 		}
@@ -4132,7 +4186,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(591);
+			setState(601);
 			iri();
 			}
 		}
@@ -4198,14 +4252,14 @@ public class ShExDocParser extends Parser {
 		CardinalityContext _localctx = new CardinalityContext(_ctx, getState());
 		enterRule(_localctx, 120, RULE_cardinality);
 		try {
-			setState(597);
+			setState(607);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case UNBOUNDED:
 				_localctx = new StarCardinalityContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(593);
+				setState(603);
 				match(UNBOUNDED);
 				}
 				break;
@@ -4213,7 +4267,7 @@ public class ShExDocParser extends Parser {
 				_localctx = new PlusCardinalityContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(594);
+				setState(604);
 				match(T__17);
 				}
 				break;
@@ -4221,7 +4275,7 @@ public class ShExDocParser extends Parser {
 				_localctx = new OptionalCardinalityContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(595);
+				setState(605);
 				match(T__18);
 				}
 				break;
@@ -4229,7 +4283,7 @@ public class ShExDocParser extends Parser {
 				_localctx = new RepeatCardinalityContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(596);
+				setState(606);
 				repeatRange();
 				}
 				break;
@@ -4287,18 +4341,18 @@ public class ShExDocParser extends Parser {
 		enterRule(_localctx, 122, RULE_repeatRange);
 		int _la;
 		try {
-			setState(609);
+			setState(619);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,80,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,82,_ctx) ) {
 			case 1:
 				_localctx = new ExactRangeContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(599);
+				setState(609);
 				match(T__2);
-				setState(600);
+				setState(610);
 				match(INTEGER);
-				setState(601);
+				setState(611);
 				match(T__3);
 				}
 				break;
@@ -4306,18 +4360,18 @@ public class ShExDocParser extends Parser {
 				_localctx = new MinMaxRangeContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(602);
+				setState(612);
 				match(T__2);
-				setState(603);
+				setState(613);
 				match(INTEGER);
-				setState(604);
+				setState(614);
 				match(T__19);
-				setState(606);
+				setState(616);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==INTEGER || _la==UNBOUNDED) {
 					{
-					setState(605);
+					setState(615);
 					_la = _input.LA(1);
 					if ( !(_la==INTEGER || _la==UNBOUNDED) ) {
 					_errHandler.recoverInline(this);
@@ -4330,7 +4384,7 @@ public class ShExDocParser extends Parser {
 					}
 				}
 
-				setState(608);
+				setState(618);
 				match(T__3);
 				}
 				break;
@@ -4369,7 +4423,7 @@ public class ShExDocParser extends Parser {
 		ShapeExprLabelContext _localctx = new ShapeExprLabelContext(_ctx, getState());
 		enterRule(_localctx, 124, RULE_shapeExprLabel);
 		try {
-			setState(613);
+			setState(623);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
@@ -4377,14 +4431,14 @@ public class ShExDocParser extends Parser {
 			case PNAME_LN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(611);
+				setState(621);
 				iri();
 				}
 				break;
 			case BLANK_NODE_LABEL:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(612);
+				setState(622);
 				blankNode();
 				}
 				break;
@@ -4425,7 +4479,7 @@ public class ShExDocParser extends Parser {
 		TripleExprLabelContext _localctx = new TripleExprLabelContext(_ctx, getState());
 		enterRule(_localctx, 126, RULE_tripleExprLabel);
 		try {
-			setState(617);
+			setState(627);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
@@ -4433,14 +4487,14 @@ public class ShExDocParser extends Parser {
 			case PNAME_LN:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(615);
+				setState(625);
 				iri();
 				}
 				break;
 			case BLANK_NODE_LABEL:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(616);
+				setState(626);
 				blankNode();
 				}
 				break;
@@ -4481,9 +4535,9 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(619);
+			setState(629);
 			_la = _input.LA(1);
-			if ( !(((((_la - 62)) & ~0x3f) == 0 && ((1L << (_la - 62)) & ((1L << (INTEGER - 62)) | (1L << (DECIMAL - 62)) | (1L << (DOUBLE - 62)))) != 0)) ) {
+			if ( !(((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (INTEGER - 64)) | (1L << (DECIMAL - 64)) | (1L << (DOUBLE - 64)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -4529,22 +4583,22 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(621);
+			setState(631);
 			string();
-			setState(625);
+			setState(635);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,83,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,85,_ctx) ) {
 			case 1:
 				{
-				setState(622);
+				setState(632);
 				match(LANGTAG);
 				}
 				break;
 			case 2:
 				{
-				setState(623);
+				setState(633);
 				match(T__20);
-				setState(624);
+				setState(634);
 				datatype();
 				}
 				break;
@@ -4583,7 +4637,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(627);
+			setState(637);
 			_la = _input.LA(1);
 			if ( !(_la==KW_TRUE || _la==KW_FALSE) ) {
 			_errHandler.recoverInline(this);
@@ -4629,9 +4683,9 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(629);
+			setState(639);
 			_la = _input.LA(1);
-			if ( !(((((_la - 67)) & ~0x3f) == 0 && ((1L << (_la - 67)) & ((1L << (STRING_LITERAL1 - 67)) | (1L << (STRING_LITERAL2 - 67)) | (1L << (STRING_LITERAL_LONG1 - 67)) | (1L << (STRING_LITERAL_LONG2 - 67)))) != 0)) ) {
+			if ( !(((((_la - 69)) & ~0x3f) == 0 && ((1L << (_la - 69)) & ((1L << (STRING_LITERAL1 - 69)) | (1L << (STRING_LITERAL2 - 69)) | (1L << (STRING_LITERAL_LONG1 - 69)) | (1L << (STRING_LITERAL_LONG2 - 69)))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -4672,13 +4726,13 @@ public class ShExDocParser extends Parser {
 		IriContext _localctx = new IriContext(_ctx, getState());
 		enterRule(_localctx, 136, RULE_iri);
 		try {
-			setState(633);
+			setState(643);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IRIREF:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(631);
+				setState(641);
 				match(IRIREF);
 				}
 				break;
@@ -4686,7 +4740,7 @@ public class ShExDocParser extends Parser {
 			case PNAME_LN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(632);
+				setState(642);
 				prefixedName();
 				}
 				break;
@@ -4726,7 +4780,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(635);
+			setState(645);
 			_la = _input.LA(1);
 			if ( !(_la==PNAME_NS || _la==PNAME_LN) ) {
 			_errHandler.recoverInline(this);
@@ -4768,7 +4822,7 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(637);
+			setState(647);
 			match(BLANK_NODE_LABEL);
 			}
 		}
@@ -4806,11 +4860,11 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(639);
+			setState(649);
 			match(T__21);
-			setState(640);
+			setState(650);
 			iri();
-			setState(641);
+			setState(651);
 			_la = _input.LA(1);
 			if ( !(_la==T__21 || _la==CODE) ) {
 			_errHandler.recoverInline(this);
@@ -4858,19 +4912,19 @@ public class ShExDocParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(643);
+			setState(653);
 			match(T__15);
-			setState(645); 
+			setState(655); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(644);
+				setState(654);
 				tripleExprLabel();
 				}
 				}
-				setState(647); 
+				setState(657); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << IRIREF) | (1L << PNAME_NS) | (1L << PNAME_LN) | (1L << BLANK_NODE_LABEL))) != 0) );
@@ -4888,7 +4942,7 @@ public class ShExDocParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3H\u028c\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3J\u0296\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -4901,62 +4955,63 @@ public class ShExDocParser extends Parser {
 		"\3\2\7\2\u00a0\n\2\f\2\16\2\u00a3\13\2\5\2\u00a5\n\2\3\2\3\2\3\3\3\3\3"+
 		"\3\5\3\u00ac\n\3\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3\7\3\7\5\7\u00ba"+
 		"\n\7\3\b\3\b\3\b\3\b\3\t\6\t\u00c1\n\t\r\t\16\t\u00c2\3\n\3\n\5\n\u00c7"+
-		"\n\n\3\13\3\13\3\13\5\13\u00cc\n\13\3\f\3\f\3\r\3\r\3\r\7\r\u00d3\n\r"+
-		"\f\r\16\r\u00d6\13\r\3\16\3\16\3\16\7\16\u00db\n\16\f\16\16\16\u00de\13"+
-		"\16\3\17\5\17\u00e1\n\17\3\17\3\17\3\20\3\20\3\21\3\21\3\22\3\22\3\22"+
-		"\7\22\u00ec\n\22\f\22\16\22\u00ef\13\22\3\23\3\23\3\23\7\23\u00f4\n\23"+
-		"\f\23\16\23\u00f7\13\23\3\24\5\24\u00fa\n\24\3\24\3\24\3\25\7\25\u00ff"+
-		"\n\25\f\25\16\25\u0102\13\25\3\25\3\25\5\25\u0106\n\25\3\25\3\25\3\26"+
-		"\7\26\u010b\n\26\f\26\16\26\u010e\13\26\3\26\3\26\5\26\u0112\n\26\3\26"+
-		"\3\26\7\26\u0116\n\26\f\26\16\26\u0119\13\26\3\26\3\26\3\27\3\27\3\27"+
-		"\5\27\u0120\n\27\3\30\3\30\6\30\u0124\n\30\r\30\16\30\u0125\3\31\3\31"+
-		"\5\31\u012a\n\31\3\32\3\32\3\32\6\32\u012f\n\32\r\32\16\32\u0130\3\33"+
-		"\3\33\5\33\u0135\n\33\3\34\3\34\5\34\u0139\n\34\3\35\3\35\3\35\6\35\u013e"+
-		"\n\35\r\35\16\35\u013f\3\35\5\35\u0143\n\35\3\36\3\36\5\36\u0147\n\36"+
-		"\3\36\3\36\5\36\u014b\n\36\3\36\5\36\u014e\n\36\3\37\3\37\3\37\3\37\5"+
-		"\37\u0154\n\37\3\37\7\37\u0157\n\37\f\37\16\37\u015a\13\37\3\37\3\37\3"+
-		" \3 \5 \u0160\n \3 \3 \3 \3 \3 \3 \5 \u0168\n \3!\3!\5!\u016c\n!\3!\3"+
-		"!\5!\u0170\n!\3!\3!\3!\3!\3!\5!\u0177\n!\3\"\3\"\7\"\u017b\n\"\f\"\16"+
-		"\"\u017e\13\"\3\"\3\"\7\"\u0182\n\"\f\"\16\"\u0185\13\"\3\"\3\"\7\"\u0189"+
-		"\n\"\f\"\16\"\u018c\13\"\3\"\3\"\7\"\u0190\n\"\f\"\16\"\u0193\13\"\3\""+
-		"\6\"\u0196\n\"\r\"\16\"\u0197\5\"\u019a\n\"\3#\3#\3$\3$\5$\u01a0\n$\3"+
-		"%\3%\3%\3%\3%\5%\u01a7\n%\5%\u01a9\n%\3&\3&\3\'\3\'\3\'\3\'\3\'\3\'\5"+
-		"\'\u01b3\n\'\3(\3(\3)\3)\3*\5*\u01ba\n*\3*\3*\3*\5*\u01bf\n*\3*\7*\u01c2"+
-		"\n*\f*\16*\u01c5\13*\3*\3*\3+\3+\5+\u01cb\n+\3+\3+\5+\u01cf\n+\5+\u01d1"+
-		"\n+\3,\3,\7,\u01d5\n,\f,\16,\u01d8\13,\3,\3,\3-\3-\3-\3-\3-\6-\u01e1\n"+
-		"-\r-\16-\u01e2\3-\6-\u01e6\n-\r-\16-\u01e7\3-\6-\u01eb\n-\r-\16-\u01ec"+
-		"\5-\u01ef\n-\5-\u01f1\n-\3.\3.\3.\7.\u01f6\n.\f.\16.\u01f9\13.\5.\u01fb"+
-		"\n.\3/\3/\3/\5/\u0200\n/\3\60\3\60\3\60\7\60\u0205\n\60\f\60\16\60\u0208"+
-		"\13\60\5\60\u020a\n\60\3\61\3\61\3\61\5\61\u020f\n\61\3\62\3\62\3\62\7"+
-		"\62\u0214\n\62\f\62\16\62\u0217\13\62\5\62\u0219\n\62\3\62\3\62\3\62\7"+
-		"\62\u021e\n\62\f\62\16\62\u0221\13\62\5\62\u0223\n\62\3\63\3\63\3\63\5"+
-		"\63\u0228\n\63\3\64\3\64\3\64\5\64\u022d\n\64\3\65\3\65\5\65\u0231\n\65"+
-		"\3\66\3\66\5\66\u0235\n\66\3\67\3\67\3\67\3\67\5\67\u023b\n\67\38\38\3"+
-		"8\39\79\u0241\n9\f9\169\u0244\139\3:\3:\3:\3:\5:\u024a\n:\3;\3;\5;\u024e"+
-		"\n;\3<\3<\3=\3=\3>\3>\3>\3>\5>\u0258\n>\3?\3?\3?\3?\3?\3?\3?\5?\u0261"+
-		"\n?\3?\5?\u0264\n?\3@\3@\5@\u0268\n@\3A\3A\5A\u026c\nA\3B\3B\3C\3C\3C"+
-		"\3C\5C\u0274\nC\3D\3D\3E\3E\3F\3F\5F\u027c\nF\3G\3G\3H\3H\3I\3I\3I\3I"+
-		"\3J\3J\6J\u0288\nJ\rJ\16J\u0289\3J\2\2K\2\4\6\b\n\f\16\20\22\24\26\30"+
-		"\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080"+
-		"\u0082\u0084\u0086\u0088\u008a\u008c\u008e\u0090\u0092\2\r\4\2\4\4\60"+
-		"\60\3\2\"$\3\2+-\3\2\'*\3\2./\4\2@@DD\3\2@B\3\2\61\62\3\2EH\3\289\4\2"+
-		"\30\30\65\65\2\u02a9\2\u0097\3\2\2\2\4\u00ab\3\2\2\2\6\u00ad\3\2\2\2\b"+
-		"\u00b0\3\2\2\2\n\u00b4\3\2\2\2\f\u00b9\3\2\2\2\16\u00bb\3\2\2\2\20\u00c0"+
-		"\3\2\2\2\22\u00c6\3\2\2\2\24\u00c8\3\2\2\2\26\u00cd\3\2\2\2\30\u00cf\3"+
-		"\2\2\2\32\u00d7\3\2\2\2\34\u00e0\3\2\2\2\36\u00e4\3\2\2\2 \u00e6\3\2\2"+
-		"\2\"\u00e8\3\2\2\2$\u00f0\3\2\2\2&\u00f9\3\2\2\2(\u0100\3\2\2\2*\u010c"+
-		"\3\2\2\2,\u011f\3\2\2\2.\u0121\3\2\2\2\60\u0129\3\2\2\2\62\u012b\3\2\2"+
-		"\2\64\u0134\3\2\2\2\66\u0136\3\2\2\28\u013a\3\2\2\2:\u014d\3\2\2\2<\u014f"+
-		"\3\2\2\2>\u0167\3\2\2\2@\u0176\3\2\2\2B\u0199\3\2\2\2D\u019b\3\2\2\2F"+
-		"\u019f\3\2\2\2H\u01a8\3\2\2\2J\u01aa\3\2\2\2L\u01b2\3\2\2\2N\u01b4\3\2"+
-		"\2\2P\u01b6\3\2\2\2R\u01b9\3\2\2\2T\u01d0\3\2\2\2V\u01d2\3\2\2\2X\u01f0"+
-		"\3\2\2\2Z\u01f2\3\2\2\2\\\u01fc\3\2\2\2^\u0201\3\2\2\2`\u020b\3\2\2\2"+
-		"b\u0222\3\2\2\2d\u0224\3\2\2\2f\u022c\3\2\2\2h\u0230\3\2\2\2j\u0234\3"+
-		"\2\2\2l\u023a\3\2\2\2n\u023c\3\2\2\2p\u0242\3\2\2\2r\u0245\3\2\2\2t\u024d"+
-		"\3\2\2\2v\u024f\3\2\2\2x\u0251\3\2\2\2z\u0257\3\2\2\2|\u0263\3\2\2\2~"+
-		"\u0267\3\2\2\2\u0080\u026b\3\2\2\2\u0082\u026d\3\2\2\2\u0084\u026f\3\2"+
-		"\2\2\u0086\u0275\3\2\2\2\u0088\u0277\3\2\2\2\u008a\u027b\3\2\2\2\u008c"+
-		"\u027d\3\2\2\2\u008e\u027f\3\2\2\2\u0090\u0281\3\2\2\2\u0092\u0285\3\2"+
+		"\n\n\3\13\5\13\u00ca\n\13\3\13\3\13\3\13\5\13\u00cf\n\13\3\13\3\13\3\13"+
+		"\3\13\3\13\5\13\u00d6\n\13\3\f\3\f\3\r\3\r\3\r\7\r\u00dd\n\r\f\r\16\r"+
+		"\u00e0\13\r\3\16\3\16\3\16\7\16\u00e5\n\16\f\16\16\16\u00e8\13\16\3\17"+
+		"\5\17\u00eb\n\17\3\17\3\17\3\20\3\20\3\21\3\21\3\22\3\22\3\22\7\22\u00f6"+
+		"\n\22\f\22\16\22\u00f9\13\22\3\23\3\23\3\23\7\23\u00fe\n\23\f\23\16\23"+
+		"\u0101\13\23\3\24\5\24\u0104\n\24\3\24\3\24\3\25\7\25\u0109\n\25\f\25"+
+		"\16\25\u010c\13\25\3\25\3\25\5\25\u0110\n\25\3\25\3\25\3\26\7\26\u0115"+
+		"\n\26\f\26\16\26\u0118\13\26\3\26\3\26\5\26\u011c\n\26\3\26\3\26\7\26"+
+		"\u0120\n\26\f\26\16\26\u0123\13\26\3\26\3\26\3\27\3\27\3\27\5\27\u012a"+
+		"\n\27\3\30\3\30\6\30\u012e\n\30\r\30\16\30\u012f\3\31\3\31\5\31\u0134"+
+		"\n\31\3\32\3\32\3\32\6\32\u0139\n\32\r\32\16\32\u013a\3\33\3\33\5\33\u013f"+
+		"\n\33\3\34\3\34\5\34\u0143\n\34\3\35\3\35\3\35\6\35\u0148\n\35\r\35\16"+
+		"\35\u0149\3\35\5\35\u014d\n\35\3\36\3\36\5\36\u0151\n\36\3\36\3\36\5\36"+
+		"\u0155\n\36\3\36\5\36\u0158\n\36\3\37\3\37\3\37\3\37\5\37\u015e\n\37\3"+
+		"\37\7\37\u0161\n\37\f\37\16\37\u0164\13\37\3\37\3\37\3 \3 \5 \u016a\n"+
+		" \3 \3 \3 \3 \3 \3 \5 \u0172\n \3!\3!\5!\u0176\n!\3!\3!\5!\u017a\n!\3"+
+		"!\3!\3!\3!\3!\5!\u0181\n!\3\"\3\"\7\"\u0185\n\"\f\"\16\"\u0188\13\"\3"+
+		"\"\3\"\7\"\u018c\n\"\f\"\16\"\u018f\13\"\3\"\3\"\7\"\u0193\n\"\f\"\16"+
+		"\"\u0196\13\"\3\"\3\"\7\"\u019a\n\"\f\"\16\"\u019d\13\"\3\"\6\"\u01a0"+
+		"\n\"\r\"\16\"\u01a1\5\"\u01a4\n\"\3#\3#\3$\3$\5$\u01aa\n$\3%\3%\3%\3%"+
+		"\3%\5%\u01b1\n%\5%\u01b3\n%\3&\3&\3\'\3\'\3\'\3\'\3\'\3\'\5\'\u01bd\n"+
+		"\'\3(\3(\3)\3)\3*\5*\u01c4\n*\3*\3*\3*\5*\u01c9\n*\3*\7*\u01cc\n*\f*\16"+
+		"*\u01cf\13*\3*\3*\3+\3+\5+\u01d5\n+\3+\3+\5+\u01d9\n+\5+\u01db\n+\3,\3"+
+		",\7,\u01df\n,\f,\16,\u01e2\13,\3,\3,\3-\3-\3-\3-\3-\6-\u01eb\n-\r-\16"+
+		"-\u01ec\3-\6-\u01f0\n-\r-\16-\u01f1\3-\6-\u01f5\n-\r-\16-\u01f6\5-\u01f9"+
+		"\n-\5-\u01fb\n-\3.\3.\3.\7.\u0200\n.\f.\16.\u0203\13.\5.\u0205\n.\3/\3"+
+		"/\3/\5/\u020a\n/\3\60\3\60\3\60\7\60\u020f\n\60\f\60\16\60\u0212\13\60"+
+		"\5\60\u0214\n\60\3\61\3\61\3\61\5\61\u0219\n\61\3\62\3\62\3\62\7\62\u021e"+
+		"\n\62\f\62\16\62\u0221\13\62\5\62\u0223\n\62\3\62\3\62\3\62\7\62\u0228"+
+		"\n\62\f\62\16\62\u022b\13\62\5\62\u022d\n\62\3\63\3\63\3\63\5\63\u0232"+
+		"\n\63\3\64\3\64\3\64\5\64\u0237\n\64\3\65\3\65\5\65\u023b\n\65\3\66\3"+
+		"\66\5\66\u023f\n\66\3\67\3\67\3\67\3\67\5\67\u0245\n\67\38\38\38\39\7"+
+		"9\u024b\n9\f9\169\u024e\139\3:\3:\3:\3:\5:\u0254\n:\3;\3;\5;\u0258\n;"+
+		"\3<\3<\3=\3=\3>\3>\3>\3>\5>\u0262\n>\3?\3?\3?\3?\3?\3?\3?\5?\u026b\n?"+
+		"\3?\5?\u026e\n?\3@\3@\5@\u0272\n@\3A\3A\5A\u0276\nA\3B\3B\3C\3C\3C\3C"+
+		"\5C\u027e\nC\3D\3D\3E\3E\3F\3F\5F\u0286\nF\3G\3G\3H\3H\3I\3I\3I\3I\3J"+
+		"\3J\6J\u0292\nJ\rJ\16J\u0293\3J\2\2K\2\4\6\b\n\f\16\20\22\24\26\30\32"+
+		"\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080"+
+		"\u0082\u0084\u0086\u0088\u008a\u008c\u008e\u0090\u0092\2\r\4\2\4\4\62"+
+		"\62\3\2$&\3\2-/\3\2),\3\2\60\61\4\2BBFF\3\2BD\3\2\63\64\3\2GJ\3\2:;\4"+
+		"\2\30\30\67\67\2\u02b5\2\u0097\3\2\2\2\4\u00ab\3\2\2\2\6\u00ad\3\2\2\2"+
+		"\b\u00b0\3\2\2\2\n\u00b4\3\2\2\2\f\u00b9\3\2\2\2\16\u00bb\3\2\2\2\20\u00c0"+
+		"\3\2\2\2\22\u00c6\3\2\2\2\24\u00d5\3\2\2\2\26\u00d7\3\2\2\2\30\u00d9\3"+
+		"\2\2\2\32\u00e1\3\2\2\2\34\u00ea\3\2\2\2\36\u00ee\3\2\2\2 \u00f0\3\2\2"+
+		"\2\"\u00f2\3\2\2\2$\u00fa\3\2\2\2&\u0103\3\2\2\2(\u010a\3\2\2\2*\u0116"+
+		"\3\2\2\2,\u0129\3\2\2\2.\u012b\3\2\2\2\60\u0133\3\2\2\2\62\u0135\3\2\2"+
+		"\2\64\u013e\3\2\2\2\66\u0140\3\2\2\28\u0144\3\2\2\2:\u0157\3\2\2\2<\u0159"+
+		"\3\2\2\2>\u0171\3\2\2\2@\u0180\3\2\2\2B\u01a3\3\2\2\2D\u01a5\3\2\2\2F"+
+		"\u01a9\3\2\2\2H\u01b2\3\2\2\2J\u01b4\3\2\2\2L\u01bc\3\2\2\2N\u01be\3\2"+
+		"\2\2P\u01c0\3\2\2\2R\u01c3\3\2\2\2T\u01da\3\2\2\2V\u01dc\3\2\2\2X\u01fa"+
+		"\3\2\2\2Z\u01fc\3\2\2\2\\\u0206\3\2\2\2^\u020b\3\2\2\2`\u0215\3\2\2\2"+
+		"b\u022c\3\2\2\2d\u022e\3\2\2\2f\u0236\3\2\2\2h\u023a\3\2\2\2j\u023e\3"+
+		"\2\2\2l\u0244\3\2\2\2n\u0246\3\2\2\2p\u024c\3\2\2\2r\u024f\3\2\2\2t\u0257"+
+		"\3\2\2\2v\u0259\3\2\2\2x\u025b\3\2\2\2z\u0261\3\2\2\2|\u026d\3\2\2\2~"+
+		"\u0271\3\2\2\2\u0080\u0275\3\2\2\2\u0082\u0277\3\2\2\2\u0084\u0279\3\2"+
+		"\2\2\u0086\u027f\3\2\2\2\u0088\u0281\3\2\2\2\u008a\u0285\3\2\2\2\u008c"+
+		"\u0287\3\2\2\2\u008e\u0289\3\2\2\2\u0090\u028b\3\2\2\2\u0092\u028f\3\2"+
 		"\2\2\u0094\u0096\5\4\3\2\u0095\u0094\3\2\2\2\u0096\u0099\3\2\2\2\u0097"+
 		"\u0095\3\2\2\2\u0097\u0098\3\2\2\2\u0098\u00a4\3\2\2\2\u0099\u0097\3\2"+
 		"\2\2\u009a\u009d\5\f\7\2\u009b\u009d\5\20\t\2\u009c\u009a\3\2\2\2\u009c"+
@@ -4965,173 +5020,176 @@ public class ShExDocParser extends Parser {
 		"\u00a5\3\2\2\2\u00a3\u00a1\3\2\2\2\u00a4\u009c\3\2\2\2\u00a4\u00a5\3\2"+
 		"\2\2\u00a5\u00a6\3\2\2\2\u00a6\u00a7\7\2\2\3\u00a7\3\3\2\2\2\u00a8\u00ac"+
 		"\5\6\4\2\u00a9\u00ac\5\b\5\2\u00aa\u00ac\5\n\6\2\u00ab\u00a8\3\2\2\2\u00ab"+
-		"\u00a9\3\2\2\2\u00ab\u00aa\3\2\2\2\u00ac\5\3\2\2\2\u00ad\u00ae\7\31\2"+
-		"\2\u00ae\u00af\7\67\2\2\u00af\7\3\2\2\2\u00b0\u00b1\7\34\2\2\u00b1\u00b2"+
-		"\78\2\2\u00b2\u00b3\7\67\2\2\u00b3\t\3\2\2\2\u00b4\u00b5\7\33\2\2\u00b5"+
-		"\u00b6\7\67\2\2\u00b6\13\3\2\2\2\u00b7\u00ba\5\16\b\2\u00b8\u00ba\5\24"+
-		"\13\2\u00b9\u00b7\3\2\2\2\u00b9\u00b8\3\2\2\2\u00ba\r\3\2\2\2\u00bb\u00bc"+
-		"\7\35\2\2\u00bc\u00bd\7\3\2\2\u00bd\u00be\5\26\f\2\u00be\17\3\2\2\2\u00bf"+
+		"\u00a9\3\2\2\2\u00ab\u00aa\3\2\2\2\u00ac\5\3\2\2\2\u00ad\u00ae\7\32\2"+
+		"\2\u00ae\u00af\79\2\2\u00af\7\3\2\2\2\u00b0\u00b1\7\36\2\2\u00b1\u00b2"+
+		"\7:\2\2\u00b2\u00b3\79\2\2\u00b3\t\3\2\2\2\u00b4\u00b5\7\35\2\2\u00b5"+
+		"\u00b6\79\2\2\u00b6\13\3\2\2\2\u00b7\u00ba\5\16\b\2\u00b8\u00ba\5\24\13"+
+		"\2\u00b9\u00b7\3\2\2\2\u00b9\u00b8\3\2\2\2\u00ba\r\3\2\2\2\u00bb\u00bc"+
+		"\7\37\2\2\u00bc\u00bd\7\3\2\2\u00bd\u00be\5\26\f\2\u00be\17\3\2\2\2\u00bf"+
 		"\u00c1\5\u0090I\2\u00c0\u00bf\3\2\2\2\u00c1\u00c2\3\2\2\2\u00c2\u00c0"+
 		"\3\2\2\2\u00c2\u00c3\3\2\2\2\u00c3\21\3\2\2\2\u00c4\u00c7\5\4\3\2\u00c5"+
 		"\u00c7\5\f\7\2\u00c6\u00c4\3\2\2\2\u00c6\u00c5\3\2\2\2\u00c7\23\3\2\2"+
-		"\2\u00c8\u00cb\5~@\2\u00c9\u00cc\5\26\f\2\u00ca\u00cc\7\32\2\2\u00cb\u00c9"+
-		"\3\2\2\2\u00cb\u00ca\3\2\2\2\u00cc\25\3\2\2\2\u00cd\u00ce\5\30\r\2\u00ce"+
-		"\27\3\2\2\2\u00cf\u00d4\5\32\16\2\u00d0\u00d1\7&\2\2\u00d1\u00d3\5\32"+
-		"\16\2\u00d2\u00d0\3\2\2\2\u00d3\u00d6\3\2\2\2\u00d4\u00d2\3\2\2\2\u00d4"+
-		"\u00d5\3\2\2\2\u00d5\31\3\2\2\2\u00d6\u00d4\3\2\2\2\u00d7\u00dc\5\34\17"+
-		"\2\u00d8\u00d9\7%\2\2\u00d9\u00db\5\34\17\2\u00da\u00d8\3\2\2\2\u00db"+
-		"\u00de\3\2\2\2\u00dc\u00da\3\2\2\2\u00dc\u00dd\3\2\2\2\u00dd\33\3\2\2"+
-		"\2\u00de\u00dc\3\2\2\2\u00df\u00e1\5\36\20\2\u00e0\u00df\3\2\2\2\u00e0"+
-		"\u00e1\3\2\2\2\u00e1\u00e2\3\2\2\2\u00e2\u00e3\5> \2\u00e3\35\3\2\2\2"+
-		"\u00e4\u00e5\t\2\2\2\u00e5\37\3\2\2\2\u00e6\u00e7\5\"\22\2\u00e7!\3\2"+
-		"\2\2\u00e8\u00ed\5$\23\2\u00e9\u00ea\7&\2\2\u00ea\u00ec\5$\23\2\u00eb"+
-		"\u00e9\3\2\2\2\u00ec\u00ef\3\2\2\2\u00ed\u00eb\3\2\2\2\u00ed\u00ee\3\2"+
-		"\2\2\u00ee#\3\2\2\2\u00ef\u00ed\3\2\2\2\u00f0\u00f5\5&\24\2\u00f1\u00f2"+
-		"\7%\2\2\u00f2\u00f4\5&\24\2\u00f3\u00f1\3\2\2\2\u00f4\u00f7\3\2\2\2\u00f5"+
-		"\u00f3\3\2\2\2\u00f5\u00f6\3\2\2\2\u00f6%\3\2\2\2\u00f7\u00f5\3\2\2\2"+
-		"\u00f8\u00fa\5\36\20\2\u00f9\u00f8\3\2\2\2\u00f9\u00fa\3\2\2\2\u00fa\u00fb"+
-		"\3\2\2\2\u00fb\u00fc\5@!\2\u00fc\'\3\2\2\2\u00fd\u00ff\5,\27\2\u00fe\u00fd"+
-		"\3\2\2\2\u00ff\u0102\3\2\2\2\u0100\u00fe\3\2\2\2\u0100\u0101\3\2\2\2\u0101"+
-		"\u0103\3\2\2\2\u0102\u0100\3\2\2\2\u0103\u0105\7\5\2\2\u0104\u0106\5\60"+
-		"\31\2\u0105\u0104\3\2\2\2\u0105\u0106\3\2\2\2\u0106\u0107\3\2\2\2\u0107"+
-		"\u0108\7\6\2\2\u0108)\3\2\2\2\u0109\u010b\5,\27\2\u010a\u0109\3\2\2\2"+
-		"\u010b\u010e\3\2\2\2\u010c\u010a\3\2\2\2\u010c\u010d\3\2\2\2\u010d\u010f"+
-		"\3\2\2\2\u010e\u010c\3\2\2\2\u010f\u0111\7\5\2\2\u0110\u0112\5\60\31\2"+
-		"\u0111\u0110\3\2\2\2\u0111\u0112\3\2\2\2\u0112\u0113\3\2\2\2\u0113\u0117"+
-		"\7\6\2\2\u0114\u0116\5r:\2\u0115\u0114\3\2\2\2\u0116\u0119\3\2\2\2\u0117"+
-		"\u0115\3\2\2\2\u0117\u0118\3\2\2\2\u0118\u011a\3\2\2\2\u0119\u0117\3\2"+
-		"\2\2\u011a\u011b\5p9\2\u011b+\3\2\2\2\u011c\u0120\5\u0092J\2\u011d\u0120"+
-		"\5.\30\2\u011e\u0120\7\37\2\2\u011f\u011c\3\2\2\2\u011f\u011d\3\2\2\2"+
-		"\u011f\u011e\3\2\2\2\u0120-\3\2\2\2\u0121\u0123\7 \2\2\u0122\u0124\5t"+
-		";\2\u0123\u0122\3\2\2\2\u0124\u0125\3\2\2\2\u0125\u0123\3\2\2\2\u0125"+
-		"\u0126\3\2\2\2\u0126/\3\2\2\2\u0127\u012a\5\64\33\2\u0128\u012a\5\62\32"+
-		"\2\u0129\u0127\3\2\2\2\u0129\u0128\3\2\2\2\u012a\61\3\2\2\2\u012b\u012e"+
-		"\5\64\33\2\u012c\u012d\7\7\2\2\u012d\u012f\5\64\33\2\u012e\u012c\3\2\2"+
-		"\2\u012f\u0130\3\2\2\2\u0130\u012e\3\2\2\2\u0130\u0131\3\2\2\2\u0131\63"+
-		"\3\2\2\2\u0132\u0135\5\66\34\2\u0133\u0135\58\35\2\u0134\u0132\3\2\2\2"+
-		"\u0134\u0133\3\2\2\2\u0135\65\3\2\2\2\u0136\u0138\5:\36\2\u0137\u0139"+
-		"\7\b\2\2\u0138\u0137\3\2\2\2\u0138\u0139\3\2\2\2\u0139\67\3\2\2\2\u013a"+
-		"\u013d\5:\36\2\u013b\u013c\7\b\2\2\u013c\u013e\5:\36\2\u013d\u013b\3\2"+
-		"\2\2\u013e\u013f\3\2\2\2\u013f\u013d\3\2\2\2\u013f\u0140\3\2\2\2\u0140"+
-		"\u0142\3\2\2\2\u0141\u0143\7\b\2\2\u0142\u0141\3\2\2\2\u0142\u0143\3\2"+
-		"\2\2\u01439\3\2\2\2\u0144\u0145\7\t\2\2\u0145\u0147\5\u0080A\2\u0146\u0144"+
-		"\3\2\2\2\u0146\u0147\3\2\2\2\u0147\u014a\3\2\2\2\u0148\u014b\5R*\2\u0149"+
-		"\u014b\5<\37\2\u014a\u0148\3\2\2\2\u014a\u0149\3\2\2\2\u014b\u014e\3\2"+
-		"\2\2\u014c\u014e\5n8\2\u014d\u0146\3\2\2\2\u014d\u014c\3\2\2\2\u014e;"+
-		"\3\2\2\2\u014f\u0150\7\n\2\2\u0150\u0151\5\60\31\2\u0151\u0153\7\13\2"+
-		"\2\u0152\u0154\5z>\2\u0153\u0152\3\2\2\2\u0153\u0154\3\2\2\2\u0154\u0158"+
-		"\3\2\2\2\u0155\u0157\5r:\2\u0156\u0155\3\2\2\2\u0157\u015a\3\2\2\2\u0158"+
-		"\u0156\3\2\2\2\u0158\u0159\3\2\2\2\u0159\u015b\3\2\2\2\u015a\u0158\3\2"+
-		"\2\2\u015b\u015c\5p9\2\u015c=\3\2\2\2\u015d\u015f\5B\"\2\u015e\u0160\5"+
-		"h\65\2\u015f\u015e\3\2\2\2\u015f\u0160\3\2\2\2\u0160\u0168\3\2\2\2\u0161"+
-		"\u0168\5h\65\2\u0162\u0163\7\n\2\2\u0163\u0164\5\26\f\2\u0164\u0165\7"+
-		"\13\2\2\u0165\u0168\3\2\2\2\u0166\u0168\7\f\2\2\u0167\u015d\3\2\2\2\u0167"+
-		"\u0161\3\2\2\2\u0167\u0162\3\2\2\2\u0167\u0166\3\2\2\2\u0168?\3\2\2\2"+
-		"\u0169\u016b\5B\"\2\u016a\u016c\5j\66\2\u016b\u016a\3\2\2\2\u016b\u016c"+
-		"\3\2\2\2\u016c\u0177\3\2\2\2\u016d\u016f\5j\66\2\u016e\u0170\5B\"\2\u016f"+
-		"\u016e\3\2\2\2\u016f\u0170\3\2\2\2\u0170\u0177\3\2\2\2\u0171\u0172\7\n"+
-		"\2\2\u0172\u0173\5\26\f\2\u0173\u0174\7\13\2\2\u0174\u0177\3\2\2\2\u0175"+
-		"\u0177\7\f\2\2\u0176\u0169\3\2\2\2\u0176\u016d\3\2\2\2\u0176\u0171\3\2"+
-		"\2\2\u0176\u0175\3\2\2\2\u0177A\3\2\2\2\u0178\u017c\7!\2\2\u0179\u017b"+
-		"\5F$\2\u017a\u0179\3\2\2\2\u017b\u017e\3\2\2\2\u017c\u017a\3\2\2\2\u017c"+
-		"\u017d\3\2\2\2\u017d\u019a\3\2\2\2\u017e\u017c\3\2\2\2\u017f\u0183\5D"+
-		"#\2\u0180\u0182\5H%\2\u0181\u0180\3\2\2\2\u0182\u0185\3\2\2\2\u0183\u0181"+
-		"\3\2\2\2\u0183\u0184\3\2\2\2\u0184\u019a\3\2\2\2\u0185\u0183\3\2\2\2\u0186"+
-		"\u018a\5x=\2\u0187\u0189\5F$\2\u0188\u0187\3\2\2\2\u0189\u018c\3\2\2\2"+
-		"\u018a\u0188\3\2\2\2\u018a\u018b\3\2\2\2\u018b\u019a\3\2\2\2\u018c\u018a"+
-		"\3\2\2\2\u018d\u0191\5V,\2\u018e\u0190\5F$\2\u018f\u018e\3\2\2\2\u0190"+
-		"\u0193\3\2\2\2\u0191\u018f\3\2\2\2\u0191\u0192\3\2\2\2\u0192\u019a\3\2"+
-		"\2\2\u0193\u0191\3\2\2\2\u0194\u0196\5F$\2\u0195\u0194\3\2\2\2\u0196\u0197"+
-		"\3\2\2\2\u0197\u0195\3\2\2\2\u0197\u0198\3\2\2\2\u0198\u019a\3\2\2\2\u0199"+
-		"\u0178\3\2\2\2\u0199\u017f\3\2\2\2\u0199\u0186\3\2\2\2\u0199\u018d\3\2"+
-		"\2\2\u0199\u0195\3\2\2\2\u019aC\3\2\2\2\u019b\u019c\t\3\2\2\u019cE\3\2"+
-		"\2\2\u019d\u01a0\5H%\2\u019e\u01a0\5L\'\2\u019f\u019d\3\2\2\2\u019f\u019e"+
-		"\3\2\2\2\u01a0G\3\2\2\2\u01a1\u01a2\5J&\2\u01a2\u01a3\7@\2\2\u01a3\u01a9"+
-		"\3\2\2\2\u01a4\u01a6\7<\2\2\u01a5\u01a7\7=\2\2\u01a6\u01a5\3\2\2\2\u01a6"+
-		"\u01a7\3\2\2\2\u01a7\u01a9\3\2\2\2\u01a8\u01a1\3\2\2\2\u01a8\u01a4\3\2"+
-		"\2\2\u01a9I\3\2\2\2\u01aa\u01ab\t\4\2\2\u01abK\3\2\2\2\u01ac\u01ad\5N"+
-		"(\2\u01ad\u01ae\5\u0082B\2\u01ae\u01b3\3\2\2\2\u01af\u01b0\5P)\2\u01b0"+
-		"\u01b1\7@\2\2\u01b1\u01b3\3\2\2\2\u01b2\u01ac\3\2\2\2\u01b2\u01af\3\2"+
-		"\2\2\u01b3M\3\2\2\2\u01b4\u01b5\t\5\2\2\u01b5O\3\2\2\2\u01b6\u01b7\t\6"+
-		"\2\2\u01b7Q\3\2\2\2\u01b8\u01ba\5T+\2\u01b9\u01b8\3\2\2\2\u01b9\u01ba"+
-		"\3\2\2\2\u01ba\u01bb\3\2\2\2\u01bb\u01bc\5t;\2\u01bc\u01be\5 \21\2\u01bd"+
-		"\u01bf\5z>\2\u01be\u01bd\3\2\2\2\u01be\u01bf\3\2\2\2\u01bf\u01c3\3\2\2"+
-		"\2\u01c0\u01c2\5r:\2\u01c1\u01c0\3\2\2\2\u01c2\u01c5\3\2\2\2\u01c3\u01c1"+
-		"\3\2\2\2\u01c3\u01c4\3\2\2\2\u01c4\u01c6\3\2\2\2\u01c5\u01c3\3\2\2\2\u01c6"+
-		"\u01c7\5p9\2\u01c7S\3\2\2\2\u01c8\u01ca\7\4\2\2\u01c9\u01cb\7\r\2\2\u01ca"+
-		"\u01c9\3\2\2\2\u01ca\u01cb\3\2\2\2\u01cb\u01d1\3\2\2\2\u01cc\u01ce\7\r"+
-		"\2\2\u01cd\u01cf\7\4\2\2\u01ce\u01cd\3\2\2\2\u01ce\u01cf\3\2\2\2\u01cf"+
-		"\u01d1\3\2\2\2\u01d0\u01c8\3\2\2\2\u01d0\u01cc\3\2\2\2\u01d1U\3\2\2\2"+
-		"\u01d2\u01d6\7\16\2\2\u01d3\u01d5\5X-\2\u01d4\u01d3\3\2\2\2\u01d5\u01d8"+
-		"\3\2\2\2\u01d6\u01d4\3\2\2\2\u01d6\u01d7\3\2\2\2\u01d7\u01d9\3\2\2\2\u01d8"+
-		"\u01d6\3\2\2\2\u01d9\u01da\7\17\2\2\u01daW\3\2\2\2\u01db\u01f1\5Z.\2\u01dc"+
-		"\u01f1\5^\60\2\u01dd\u01f1\5b\62\2\u01de\u01ee\7\f\2\2\u01df\u01e1\5\\"+
-		"/\2\u01e0\u01df\3\2\2\2\u01e1\u01e2\3\2\2\2\u01e2\u01e0\3\2\2\2\u01e2"+
-		"\u01e3\3\2\2\2\u01e3\u01ef\3\2\2\2\u01e4\u01e6\5`\61\2\u01e5\u01e4\3\2"+
-		"\2\2\u01e6\u01e7\3\2\2\2\u01e7\u01e5\3\2\2\2\u01e7\u01e8\3\2\2\2\u01e8"+
-		"\u01ef\3\2\2\2\u01e9\u01eb\5d\63\2\u01ea\u01e9\3\2\2\2\u01eb\u01ec\3\2"+
-		"\2\2\u01ec\u01ea\3\2\2\2\u01ec\u01ed\3\2\2\2\u01ed\u01ef\3\2\2\2\u01ee"+
-		"\u01e0\3\2\2\2\u01ee\u01e5\3\2\2\2\u01ee\u01ea\3\2\2\2\u01ef\u01f1\3\2"+
-		"\2\2\u01f0\u01db\3\2\2\2\u01f0\u01dc\3\2\2\2\u01f0\u01dd\3\2\2\2\u01f0"+
-		"\u01de\3\2\2\2\u01f1Y\3\2\2\2\u01f2\u01fa\5\u008aF\2\u01f3\u01f7\7C\2"+
-		"\2\u01f4\u01f6\5\\/\2\u01f5\u01f4\3\2\2\2\u01f6\u01f9\3\2\2\2\u01f7\u01f5"+
-		"\3\2\2\2\u01f7\u01f8\3\2\2\2\u01f8\u01fb\3\2\2\2\u01f9\u01f7\3\2\2\2\u01fa"+
-		"\u01f3\3\2\2\2\u01fa\u01fb\3\2\2\2\u01fb[\3\2\2\2\u01fc\u01fd\7\20\2\2"+
-		"\u01fd\u01ff\5\u008aF\2\u01fe\u0200\7C\2\2\u01ff\u01fe\3\2\2\2\u01ff\u0200"+
-		"\3\2\2\2\u0200]\3\2\2\2\u0201\u0209\5f\64\2\u0202\u0206\7C\2\2\u0203\u0205"+
-		"\5`\61\2\u0204\u0203\3\2\2\2\u0205\u0208\3\2\2\2\u0206\u0204\3\2\2\2\u0206"+
-		"\u0207\3\2\2\2\u0207\u020a\3\2\2\2\u0208\u0206\3\2\2\2\u0209\u0202\3\2"+
-		"\2\2\u0209\u020a\3\2\2\2\u020a_\3\2\2\2\u020b\u020c\7\20\2\2\u020c\u020e"+
-		"\5f\64\2\u020d\u020f\7C\2\2\u020e\u020d\3\2\2\2\u020e\u020f\3\2\2\2\u020f"+
-		"a\3\2\2\2\u0210\u0218\7?\2\2\u0211\u0215\7C\2\2\u0212\u0214\5d\63\2\u0213"+
-		"\u0212\3\2\2\2\u0214\u0217\3\2\2\2\u0215\u0213\3\2\2\2\u0215\u0216\3\2"+
-		"\2\2\u0216\u0219\3\2\2\2\u0217\u0215\3\2\2\2\u0218\u0211\3\2\2\2\u0218"+
-		"\u0219\3\2\2\2\u0219\u0223\3\2\2\2\u021a\u021b\7\21\2\2\u021b\u021f\7"+
-		"C\2\2\u021c\u021e\5d\63\2\u021d\u021c\3\2\2\2\u021e\u0221\3\2\2\2\u021f"+
+		"\2\u00c8\u00ca\7\31\2\2\u00c9\u00c8\3\2\2\2\u00c9\u00ca\3\2\2\2\u00ca"+
+		"\u00cb\3\2\2\2\u00cb\u00ce\5~@\2\u00cc\u00cf\5\26\f\2\u00cd\u00cf\7\33"+
+		"\2\2\u00ce\u00cc\3\2\2\2\u00ce\u00cd\3\2\2\2\u00cf\u00d6\3\2\2\2\u00d0"+
+		"\u00d1\5~@\2\u00d1\u00d2\7\34\2\2\u00d2\u00d3\5~@\2\u00d3\u00d4\5\26\f"+
+		"\2\u00d4\u00d6\3\2\2\2\u00d5\u00c9\3\2\2\2\u00d5\u00d0\3\2\2\2\u00d6\25"+
+		"\3\2\2\2\u00d7\u00d8\5\30\r\2\u00d8\27\3\2\2\2\u00d9\u00de\5\32\16\2\u00da"+
+		"\u00db\7(\2\2\u00db\u00dd\5\32\16\2\u00dc\u00da\3\2\2\2\u00dd\u00e0\3"+
+		"\2\2\2\u00de\u00dc\3\2\2\2\u00de\u00df\3\2\2\2\u00df\31\3\2\2\2\u00e0"+
+		"\u00de\3\2\2\2\u00e1\u00e6\5\34\17\2\u00e2\u00e3\7\'\2\2\u00e3\u00e5\5"+
+		"\34\17\2\u00e4\u00e2\3\2\2\2\u00e5\u00e8\3\2\2\2\u00e6\u00e4\3\2\2\2\u00e6"+
+		"\u00e7\3\2\2\2\u00e7\33\3\2\2\2\u00e8\u00e6\3\2\2\2\u00e9\u00eb\5\36\20"+
+		"\2\u00ea\u00e9\3\2\2\2\u00ea\u00eb\3\2\2\2\u00eb\u00ec\3\2\2\2\u00ec\u00ed"+
+		"\5> \2\u00ed\35\3\2\2\2\u00ee\u00ef\t\2\2\2\u00ef\37\3\2\2\2\u00f0\u00f1"+
+		"\5\"\22\2\u00f1!\3\2\2\2\u00f2\u00f7\5$\23\2\u00f3\u00f4\7(\2\2\u00f4"+
+		"\u00f6\5$\23\2\u00f5\u00f3\3\2\2\2\u00f6\u00f9\3\2\2\2\u00f7\u00f5\3\2"+
+		"\2\2\u00f7\u00f8\3\2\2\2\u00f8#\3\2\2\2\u00f9\u00f7\3\2\2\2\u00fa\u00ff"+
+		"\5&\24\2\u00fb\u00fc\7\'\2\2\u00fc\u00fe\5&\24\2\u00fd\u00fb\3\2\2\2\u00fe"+
+		"\u0101\3\2\2\2\u00ff\u00fd\3\2\2\2\u00ff\u0100\3\2\2\2\u0100%\3\2\2\2"+
+		"\u0101\u00ff\3\2\2\2\u0102\u0104\5\36\20\2\u0103\u0102\3\2\2\2\u0103\u0104"+
+		"\3\2\2\2\u0104\u0105\3\2\2\2\u0105\u0106\5@!\2\u0106\'\3\2\2\2\u0107\u0109"+
+		"\5,\27\2\u0108\u0107\3\2\2\2\u0109\u010c\3\2\2\2\u010a\u0108\3\2\2\2\u010a"+
+		"\u010b\3\2\2\2\u010b\u010d\3\2\2\2\u010c\u010a\3\2\2\2\u010d\u010f\7\5"+
+		"\2\2\u010e\u0110\5\60\31\2\u010f\u010e\3\2\2\2\u010f\u0110\3\2\2\2\u0110"+
+		"\u0111\3\2\2\2\u0111\u0112\7\6\2\2\u0112)\3\2\2\2\u0113\u0115\5,\27\2"+
+		"\u0114\u0113\3\2\2\2\u0115\u0118\3\2\2\2\u0116\u0114\3\2\2\2\u0116\u0117"+
+		"\3\2\2\2\u0117\u0119\3\2\2\2\u0118\u0116\3\2\2\2\u0119\u011b\7\5\2\2\u011a"+
+		"\u011c\5\60\31\2\u011b\u011a\3\2\2\2\u011b\u011c\3\2\2\2\u011c\u011d\3"+
+		"\2\2\2\u011d\u0121\7\6\2\2\u011e\u0120\5r:\2\u011f\u011e\3\2\2\2\u0120"+
+		"\u0123\3\2\2\2\u0121\u011f\3\2\2\2\u0121\u0122\3\2\2\2\u0122\u0124\3\2"+
+		"\2\2\u0123\u0121\3\2\2\2\u0124\u0125\5p9\2\u0125+\3\2\2\2\u0126\u012a"+
+		"\5\u0092J\2\u0127\u012a\5.\30\2\u0128\u012a\7!\2\2\u0129\u0126\3\2\2\2"+
+		"\u0129\u0127\3\2\2\2\u0129\u0128\3\2\2\2\u012a-\3\2\2\2\u012b\u012d\7"+
+		"\"\2\2\u012c\u012e\5t;\2\u012d\u012c\3\2\2\2\u012e\u012f\3\2\2\2\u012f"+
+		"\u012d\3\2\2\2\u012f\u0130\3\2\2\2\u0130/\3\2\2\2\u0131\u0134\5\64\33"+
+		"\2\u0132\u0134\5\62\32\2\u0133\u0131\3\2\2\2\u0133\u0132\3\2\2\2\u0134"+
+		"\61\3\2\2\2\u0135\u0138\5\64\33\2\u0136\u0137\7\7\2\2\u0137\u0139\5\64"+
+		"\33\2\u0138\u0136\3\2\2\2\u0139\u013a\3\2\2\2\u013a\u0138\3\2\2\2\u013a"+
+		"\u013b\3\2\2\2\u013b\63\3\2\2\2\u013c\u013f\5\66\34\2\u013d\u013f\58\35"+
+		"\2\u013e\u013c\3\2\2\2\u013e\u013d\3\2\2\2\u013f\65\3\2\2\2\u0140\u0142"+
+		"\5:\36\2\u0141\u0143\7\b\2\2\u0142\u0141\3\2\2\2\u0142\u0143\3\2\2\2\u0143"+
+		"\67\3\2\2\2\u0144\u0147\5:\36\2\u0145\u0146\7\b\2\2\u0146\u0148\5:\36"+
+		"\2\u0147\u0145\3\2\2\2\u0148\u0149\3\2\2\2\u0149\u0147\3\2\2\2\u0149\u014a"+
+		"\3\2\2\2\u014a\u014c\3\2\2\2\u014b\u014d\7\b\2\2\u014c\u014b\3\2\2\2\u014c"+
+		"\u014d\3\2\2\2\u014d9\3\2\2\2\u014e\u014f\7\t\2\2\u014f\u0151\5\u0080"+
+		"A\2\u0150\u014e\3\2\2\2\u0150\u0151\3\2\2\2\u0151\u0154\3\2\2\2\u0152"+
+		"\u0155\5R*\2\u0153\u0155\5<\37\2\u0154\u0152\3\2\2\2\u0154\u0153\3\2\2"+
+		"\2\u0155\u0158\3\2\2\2\u0156\u0158\5n8\2\u0157\u0150\3\2\2\2\u0157\u0156"+
+		"\3\2\2\2\u0158;\3\2\2\2\u0159\u015a\7\n\2\2\u015a\u015b\5\60\31\2\u015b"+
+		"\u015d\7\13\2\2\u015c\u015e\5z>\2\u015d\u015c\3\2\2\2\u015d\u015e\3\2"+
+		"\2\2\u015e\u0162\3\2\2\2\u015f\u0161\5r:\2\u0160\u015f\3\2\2\2\u0161\u0164"+
+		"\3\2\2\2\u0162\u0160\3\2\2\2\u0162\u0163\3\2\2\2\u0163\u0165\3\2\2\2\u0164"+
+		"\u0162\3\2\2\2\u0165\u0166\5p9\2\u0166=\3\2\2\2\u0167\u0169\5B\"\2\u0168"+
+		"\u016a\5h\65\2\u0169\u0168\3\2\2\2\u0169\u016a\3\2\2\2\u016a\u0172\3\2"+
+		"\2\2\u016b\u0172\5h\65\2\u016c\u016d\7\n\2\2\u016d\u016e\5\26\f\2\u016e"+
+		"\u016f\7\13\2\2\u016f\u0172\3\2\2\2\u0170\u0172\7\f\2\2\u0171\u0167\3"+
+		"\2\2\2\u0171\u016b\3\2\2\2\u0171\u016c\3\2\2\2\u0171\u0170\3\2\2\2\u0172"+
+		"?\3\2\2\2\u0173\u0175\5B\"\2\u0174\u0176\5j\66\2\u0175\u0174\3\2\2\2\u0175"+
+		"\u0176\3\2\2\2\u0176\u0181\3\2\2\2\u0177\u0179\5j\66\2\u0178\u017a\5B"+
+		"\"\2\u0179\u0178\3\2\2\2\u0179\u017a\3\2\2\2\u017a\u0181\3\2\2\2\u017b"+
+		"\u017c\7\n\2\2\u017c\u017d\5\26\f\2\u017d\u017e\7\13\2\2\u017e\u0181\3"+
+		"\2\2\2\u017f\u0181\7\f\2\2\u0180\u0173\3\2\2\2\u0180\u0177\3\2\2\2\u0180"+
+		"\u017b\3\2\2\2\u0180\u017f\3\2\2\2\u0181A\3\2\2\2\u0182\u0186\7#\2\2\u0183"+
+		"\u0185\5F$\2\u0184\u0183\3\2\2\2\u0185\u0188\3\2\2\2\u0186\u0184\3\2\2"+
+		"\2\u0186\u0187\3\2\2\2\u0187\u01a4\3\2\2\2\u0188\u0186\3\2\2\2\u0189\u018d"+
+		"\5D#\2\u018a\u018c\5H%\2\u018b\u018a\3\2\2\2\u018c\u018f\3\2\2\2\u018d"+
+		"\u018b\3\2\2\2\u018d\u018e\3\2\2\2\u018e\u01a4\3\2\2\2\u018f\u018d\3\2"+
+		"\2\2\u0190\u0194\5x=\2\u0191\u0193\5F$\2\u0192\u0191\3\2\2\2\u0193\u0196"+
+		"\3\2\2\2\u0194\u0192\3\2\2\2\u0194\u0195\3\2\2\2\u0195\u01a4\3\2\2\2\u0196"+
+		"\u0194\3\2\2\2\u0197\u019b\5V,\2\u0198\u019a\5F$\2\u0199\u0198\3\2\2\2"+
+		"\u019a\u019d\3\2\2\2\u019b\u0199\3\2\2\2\u019b\u019c\3\2\2\2\u019c\u01a4"+
+		"\3\2\2\2\u019d\u019b\3\2\2\2\u019e\u01a0\5F$\2\u019f\u019e\3\2\2\2\u01a0"+
+		"\u01a1\3\2\2\2\u01a1\u019f\3\2\2\2\u01a1\u01a2\3\2\2\2\u01a2\u01a4\3\2"+
+		"\2\2\u01a3\u0182\3\2\2\2\u01a3\u0189\3\2\2\2\u01a3\u0190\3\2\2\2\u01a3"+
+		"\u0197\3\2\2\2\u01a3\u019f\3\2\2\2\u01a4C\3\2\2\2\u01a5\u01a6\t\3\2\2"+
+		"\u01a6E\3\2\2\2\u01a7\u01aa\5H%\2\u01a8\u01aa\5L\'\2\u01a9\u01a7\3\2\2"+
+		"\2\u01a9\u01a8\3\2\2\2\u01aaG\3\2\2\2\u01ab\u01ac\5J&\2\u01ac\u01ad\7"+
+		"B\2\2\u01ad\u01b3\3\2\2\2\u01ae\u01b0\7>\2\2\u01af\u01b1\7?\2\2\u01b0"+
+		"\u01af\3\2\2\2\u01b0\u01b1\3\2\2\2\u01b1\u01b3\3\2\2\2\u01b2\u01ab\3\2"+
+		"\2\2\u01b2\u01ae\3\2\2\2\u01b3I\3\2\2\2\u01b4\u01b5\t\4\2\2\u01b5K\3\2"+
+		"\2\2\u01b6\u01b7\5N(\2\u01b7\u01b8\5\u0082B\2\u01b8\u01bd\3\2\2\2\u01b9"+
+		"\u01ba\5P)\2\u01ba\u01bb\7B\2\2\u01bb\u01bd\3\2\2\2\u01bc\u01b6\3\2\2"+
+		"\2\u01bc\u01b9\3\2\2\2\u01bdM\3\2\2\2\u01be\u01bf\t\5\2\2\u01bfO\3\2\2"+
+		"\2\u01c0\u01c1\t\6\2\2\u01c1Q\3\2\2\2\u01c2\u01c4\5T+\2\u01c3\u01c2\3"+
+		"\2\2\2\u01c3\u01c4\3\2\2\2\u01c4\u01c5\3\2\2\2\u01c5\u01c6\5t;\2\u01c6"+
+		"\u01c8\5 \21\2\u01c7\u01c9\5z>\2\u01c8\u01c7\3\2\2\2\u01c8\u01c9\3\2\2"+
+		"\2\u01c9\u01cd\3\2\2\2\u01ca\u01cc\5r:\2\u01cb\u01ca\3\2\2\2\u01cc\u01cf"+
+		"\3\2\2\2\u01cd\u01cb\3\2\2\2\u01cd\u01ce\3\2\2\2\u01ce\u01d0\3\2\2\2\u01cf"+
+		"\u01cd\3\2\2\2\u01d0\u01d1\5p9\2\u01d1S\3\2\2\2\u01d2\u01d4\7\4\2\2\u01d3"+
+		"\u01d5\7\r\2\2\u01d4\u01d3\3\2\2\2\u01d4\u01d5\3\2\2\2\u01d5\u01db\3\2"+
+		"\2\2\u01d6\u01d8\7\r\2\2\u01d7\u01d9\7\4\2\2\u01d8\u01d7\3\2\2\2\u01d8"+
+		"\u01d9\3\2\2\2\u01d9\u01db\3\2\2\2\u01da\u01d2\3\2\2\2\u01da\u01d6\3\2"+
+		"\2\2\u01dbU\3\2\2\2\u01dc\u01e0\7\16\2\2\u01dd\u01df\5X-\2\u01de\u01dd"+
+		"\3\2\2\2\u01df\u01e2\3\2\2\2\u01e0\u01de\3\2\2\2\u01e0\u01e1\3\2\2\2\u01e1"+
+		"\u01e3\3\2\2\2\u01e2\u01e0\3\2\2\2\u01e3\u01e4\7\17\2\2\u01e4W\3\2\2\2"+
+		"\u01e5\u01fb\5Z.\2\u01e6\u01fb\5^\60\2\u01e7\u01fb\5b\62\2\u01e8\u01f8"+
+		"\7\f\2\2\u01e9\u01eb\5\\/\2\u01ea\u01e9\3\2\2\2\u01eb\u01ec\3\2\2\2\u01ec"+
+		"\u01ea\3\2\2\2\u01ec\u01ed\3\2\2\2\u01ed\u01f9\3\2\2\2\u01ee\u01f0\5`"+
+		"\61\2\u01ef\u01ee\3\2\2\2\u01f0\u01f1\3\2\2\2\u01f1\u01ef\3\2\2\2\u01f1"+
+		"\u01f2\3\2\2\2\u01f2\u01f9\3\2\2\2\u01f3\u01f5\5d\63\2\u01f4\u01f3\3\2"+
+		"\2\2\u01f5\u01f6\3\2\2\2\u01f6\u01f4\3\2\2\2\u01f6\u01f7\3\2\2\2\u01f7"+
+		"\u01f9\3\2\2\2\u01f8\u01ea\3\2\2\2\u01f8\u01ef\3\2\2\2\u01f8\u01f4\3\2"+
+		"\2\2\u01f9\u01fb\3\2\2\2\u01fa\u01e5\3\2\2\2\u01fa\u01e6\3\2\2\2\u01fa"+
+		"\u01e7\3\2\2\2\u01fa\u01e8\3\2\2\2\u01fbY\3\2\2\2\u01fc\u0204\5\u008a"+
+		"F\2\u01fd\u0201\7E\2\2\u01fe\u0200\5\\/\2\u01ff\u01fe\3\2\2\2\u0200\u0203"+
+		"\3\2\2\2\u0201\u01ff\3\2\2\2\u0201\u0202\3\2\2\2\u0202\u0205\3\2\2\2\u0203"+
+		"\u0201\3\2\2\2\u0204\u01fd\3\2\2\2\u0204\u0205\3\2\2\2\u0205[\3\2\2\2"+
+		"\u0206\u0207\7\20\2\2\u0207\u0209\5\u008aF\2\u0208\u020a\7E\2\2\u0209"+
+		"\u0208\3\2\2\2\u0209\u020a\3\2\2\2\u020a]\3\2\2\2\u020b\u0213\5f\64\2"+
+		"\u020c\u0210\7E\2\2\u020d\u020f\5`\61\2\u020e\u020d\3\2\2\2\u020f\u0212"+
+		"\3\2\2\2\u0210\u020e\3\2\2\2\u0210\u0211\3\2\2\2\u0211\u0214\3\2\2\2\u0212"+
+		"\u0210\3\2\2\2\u0213\u020c\3\2\2\2\u0213\u0214\3\2\2\2\u0214_\3\2\2\2"+
+		"\u0215\u0216\7\20\2\2\u0216\u0218\5f\64\2\u0217\u0219\7E\2\2\u0218\u0217"+
+		"\3\2\2\2\u0218\u0219\3\2\2\2\u0219a\3\2\2\2\u021a\u0222\7A\2\2\u021b\u021f"+
+		"\7E\2\2\u021c\u021e\5d\63\2\u021d\u021c\3\2\2\2\u021e\u0221\3\2\2\2\u021f"+
 		"\u021d\3\2\2\2\u021f\u0220\3\2\2\2\u0220\u0223\3\2\2\2\u0221\u021f\3\2"+
-		"\2\2\u0222\u0210\3\2\2\2\u0222\u021a\3\2\2\2\u0223c\3\2\2\2\u0224\u0225"+
-		"\7\20\2\2\u0225\u0227\7?\2\2\u0226\u0228\7C\2\2\u0227\u0226\3\2\2\2\u0227"+
-		"\u0228\3\2\2\2\u0228e\3\2\2\2\u0229\u022d\5\u0084C\2\u022a\u022d\5\u0082"+
-		"B\2\u022b\u022d\5\u0086D\2\u022c\u0229\3\2\2\2\u022c\u022a\3\2\2\2\u022c"+
-		"\u022b\3\2\2\2\u022dg\3\2\2\2\u022e\u0231\5*\26\2\u022f\u0231\5l\67\2"+
-		"\u0230\u022e\3\2\2\2\u0230\u022f\3\2\2\2\u0231i\3\2\2\2\u0232\u0235\5"+
-		"(\25\2\u0233\u0235\5l\67\2\u0234\u0232\3\2\2\2\u0234\u0233\3\2\2\2\u0235"+
-		"k\3\2\2\2\u0236\u023b\7;\2\2\u0237\u023b\7:\2\2\u0238\u0239\7\21\2\2\u0239"+
-		"\u023b\5~@\2\u023a\u0236\3\2\2\2\u023a\u0237\3\2\2\2\u023a\u0238\3\2\2"+
-		"\2\u023bm\3\2\2\2\u023c\u023d\7\22\2\2\u023d\u023e\5\u0080A\2\u023eo\3"+
-		"\2\2\2\u023f\u0241\5\u0090I\2\u0240\u023f\3\2\2\2\u0241\u0244\3\2\2\2"+
-		"\u0242\u0240\3\2\2\2\u0242\u0243\3\2\2\2\u0243q\3\2\2\2\u0244\u0242\3"+
-		"\2\2\2\u0245\u0246\7\23\2\2\u0246\u0249\5t;\2\u0247\u024a\5\u008aF\2\u0248"+
-		"\u024a\5f\64\2\u0249\u0247\3\2\2\2\u0249\u0248\3\2\2\2\u024as\3\2\2\2"+
-		"\u024b\u024e\5\u008aF\2\u024c\u024e\5v<\2\u024d\u024b\3\2\2\2\u024d\u024c"+
-		"\3\2\2\2\u024eu\3\2\2\2\u024f\u0250\7\66\2\2\u0250w\3\2\2\2\u0251\u0252"+
-		"\5\u008aF\2\u0252y\3\2\2\2\u0253\u0258\7D\2\2\u0254\u0258\7\24\2\2\u0255"+
-		"\u0258\7\25\2\2\u0256\u0258\5|?\2\u0257\u0253\3\2\2\2\u0257\u0254\3\2"+
-		"\2\2\u0257\u0255\3\2\2\2\u0257\u0256\3\2\2\2\u0258{\3\2\2\2\u0259\u025a"+
-		"\7\5\2\2\u025a\u025b\7@\2\2\u025b\u0264\7\6\2\2\u025c\u025d\7\5\2\2\u025d"+
-		"\u025e\7@\2\2\u025e\u0260\7\26\2\2\u025f\u0261\t\7\2\2\u0260\u025f\3\2"+
-		"\2\2\u0260\u0261\3\2\2\2\u0261\u0262\3\2\2\2\u0262\u0264\7\6\2\2\u0263"+
-		"\u0259\3\2\2\2\u0263\u025c\3\2\2\2\u0264}\3\2\2\2\u0265\u0268\5\u008a"+
-		"F\2\u0266\u0268\5\u008eH\2\u0267\u0265\3\2\2\2\u0267\u0266\3\2\2\2\u0268"+
-		"\177\3\2\2\2\u0269\u026c\5\u008aF\2\u026a\u026c\5\u008eH\2\u026b\u0269"+
-		"\3\2\2\2\u026b\u026a\3\2\2\2\u026c\u0081\3\2\2\2\u026d\u026e\t\b\2\2\u026e"+
-		"\u0083\3\2\2\2\u026f\u0273\5\u0088E\2\u0270\u0274\7?\2\2\u0271\u0272\7"+
-		"\27\2\2\u0272\u0274\5x=\2\u0273\u0270\3\2\2\2\u0273\u0271\3\2\2\2\u0273"+
-		"\u0274\3\2\2\2\u0274\u0085\3\2\2\2\u0275\u0276\t\t\2\2\u0276\u0087\3\2"+
-		"\2\2\u0277\u0278\t\n\2\2\u0278\u0089\3\2\2\2\u0279\u027c\7\67\2\2\u027a"+
-		"\u027c\5\u008cG\2\u027b\u0279\3\2\2\2\u027b\u027a\3\2\2\2\u027c\u008b"+
-		"\3\2\2\2\u027d\u027e\t\13\2\2\u027e\u008d\3\2\2\2\u027f\u0280\7>\2\2\u0280"+
-		"\u008f\3\2\2\2\u0281\u0282\7\30\2\2\u0282\u0283\5\u008aF\2\u0283\u0284"+
-		"\t\f\2\2\u0284\u0091\3\2\2\2\u0285\u0287\7\22\2\2\u0286\u0288\5\u0080"+
-		"A\2\u0287\u0286\3\2\2\2\u0288\u0289\3\2\2\2\u0289\u0287\3\2\2\2\u0289"+
-		"\u028a\3\2\2\2\u028a\u0093\3\2\2\2X\u0097\u009c\u00a1\u00a4\u00ab\u00b9"+
-		"\u00c2\u00c6\u00cb\u00d4\u00dc\u00e0\u00ed\u00f5\u00f9\u0100\u0105\u010c"+
-		"\u0111\u0117\u011f\u0125\u0129\u0130\u0134\u0138\u013f\u0142\u0146\u014a"+
-		"\u014d\u0153\u0158\u015f\u0167\u016b\u016f\u0176\u017c\u0183\u018a\u0191"+
-		"\u0197\u0199\u019f\u01a6\u01a8\u01b2\u01b9\u01be\u01c3\u01ca\u01ce\u01d0"+
-		"\u01d6\u01e2\u01e7\u01ec\u01ee\u01f0\u01f7\u01fa\u01ff\u0206\u0209\u020e"+
-		"\u0215\u0218\u021f\u0222\u0227\u022c\u0230\u0234\u023a\u0242\u0249\u024d"+
-		"\u0257\u0260\u0263\u0267\u026b\u0273\u027b\u0289";
+		"\2\2\u0222\u021b\3\2\2\2\u0222\u0223\3\2\2\2\u0223\u022d\3\2\2\2\u0224"+
+		"\u0225\7\21\2\2\u0225\u0229\7E\2\2\u0226\u0228\5d\63\2\u0227\u0226\3\2"+
+		"\2\2\u0228\u022b\3\2\2\2\u0229\u0227\3\2\2\2\u0229\u022a\3\2\2\2\u022a"+
+		"\u022d\3\2\2\2\u022b\u0229\3\2\2\2\u022c\u021a\3\2\2\2\u022c\u0224\3\2"+
+		"\2\2\u022dc\3\2\2\2\u022e\u022f\7\20\2\2\u022f\u0231\7A\2\2\u0230\u0232"+
+		"\7E\2\2\u0231\u0230\3\2\2\2\u0231\u0232\3\2\2\2\u0232e\3\2\2\2\u0233\u0237"+
+		"\5\u0084C\2\u0234\u0237\5\u0082B\2\u0235\u0237\5\u0086D\2\u0236\u0233"+
+		"\3\2\2\2\u0236\u0234\3\2\2\2\u0236\u0235\3\2\2\2\u0237g\3\2\2\2\u0238"+
+		"\u023b\5*\26\2\u0239\u023b\5l\67\2\u023a\u0238\3\2\2\2\u023a\u0239\3\2"+
+		"\2\2\u023bi\3\2\2\2\u023c\u023f\5(\25\2\u023d\u023f\5l\67\2\u023e\u023c"+
+		"\3\2\2\2\u023e\u023d\3\2\2\2\u023fk\3\2\2\2\u0240\u0245\7=\2\2\u0241\u0245"+
+		"\7<\2\2\u0242\u0243\7\21\2\2\u0243\u0245\5~@\2\u0244\u0240\3\2\2\2\u0244"+
+		"\u0241\3\2\2\2\u0244\u0242\3\2\2\2\u0245m\3\2\2\2\u0246\u0247\7\22\2\2"+
+		"\u0247\u0248\5\u0080A\2\u0248o\3\2\2\2\u0249\u024b\5\u0090I\2\u024a\u0249"+
+		"\3\2\2\2\u024b\u024e\3\2\2\2\u024c\u024a\3\2\2\2\u024c\u024d\3\2\2\2\u024d"+
+		"q\3\2\2\2\u024e\u024c\3\2\2\2\u024f\u0250\7\23\2\2\u0250\u0253\5t;\2\u0251"+
+		"\u0254\5\u008aF\2\u0252\u0254\5f\64\2\u0253\u0251\3\2\2\2\u0253\u0252"+
+		"\3\2\2\2\u0254s\3\2\2\2\u0255\u0258\5\u008aF\2\u0256\u0258\5v<\2\u0257"+
+		"\u0255\3\2\2\2\u0257\u0256\3\2\2\2\u0258u\3\2\2\2\u0259\u025a\78\2\2\u025a"+
+		"w\3\2\2\2\u025b\u025c\5\u008aF\2\u025cy\3\2\2\2\u025d\u0262\7F\2\2\u025e"+
+		"\u0262\7\24\2\2\u025f\u0262\7\25\2\2\u0260\u0262\5|?\2\u0261\u025d\3\2"+
+		"\2\2\u0261\u025e\3\2\2\2\u0261\u025f\3\2\2\2\u0261\u0260\3\2\2\2\u0262"+
+		"{\3\2\2\2\u0263\u0264\7\5\2\2\u0264\u0265\7B\2\2\u0265\u026e\7\6\2\2\u0266"+
+		"\u0267\7\5\2\2\u0267\u0268\7B\2\2\u0268\u026a\7\26\2\2\u0269\u026b\t\7"+
+		"\2\2\u026a\u0269\3\2\2\2\u026a\u026b\3\2\2\2\u026b\u026c\3\2\2\2\u026c"+
+		"\u026e\7\6\2\2\u026d\u0263\3\2\2\2\u026d\u0266\3\2\2\2\u026e}\3\2\2\2"+
+		"\u026f\u0272\5\u008aF\2\u0270\u0272\5\u008eH\2\u0271\u026f\3\2\2\2\u0271"+
+		"\u0270\3\2\2\2\u0272\177\3\2\2\2\u0273\u0276\5\u008aF\2\u0274\u0276\5"+
+		"\u008eH\2\u0275\u0273\3\2\2\2\u0275\u0274\3\2\2\2\u0276\u0081\3\2\2\2"+
+		"\u0277\u0278\t\b\2\2\u0278\u0083\3\2\2\2\u0279\u027d\5\u0088E\2\u027a"+
+		"\u027e\7A\2\2\u027b\u027c\7\27\2\2\u027c\u027e\5x=\2\u027d\u027a\3\2\2"+
+		"\2\u027d\u027b\3\2\2\2\u027d\u027e\3\2\2\2\u027e\u0085\3\2\2\2\u027f\u0280"+
+		"\t\t\2\2\u0280\u0087\3\2\2\2\u0281\u0282\t\n\2\2\u0282\u0089\3\2\2\2\u0283"+
+		"\u0286\79\2\2\u0284\u0286\5\u008cG\2\u0285\u0283\3\2\2\2\u0285\u0284\3"+
+		"\2\2\2\u0286\u008b\3\2\2\2\u0287\u0288\t\13\2\2\u0288\u008d\3\2\2\2\u0289"+
+		"\u028a\7@\2\2\u028a\u008f\3\2\2\2\u028b\u028c\7\30\2\2\u028c\u028d\5\u008a"+
+		"F\2\u028d\u028e\t\f\2\2\u028e\u0091\3\2\2\2\u028f\u0291\7\22\2\2\u0290"+
+		"\u0292\5\u0080A\2\u0291\u0290\3\2\2\2\u0292\u0293\3\2\2\2\u0293\u0291"+
+		"\3\2\2\2\u0293\u0294\3\2\2\2\u0294\u0093\3\2\2\2Z\u0097\u009c\u00a1\u00a4"+
+		"\u00ab\u00b9\u00c2\u00c6\u00c9\u00ce\u00d5\u00de\u00e6\u00ea\u00f7\u00ff"+
+		"\u0103\u010a\u010f\u0116\u011b\u0121\u0129\u012f\u0133\u013a\u013e\u0142"+
+		"\u0149\u014c\u0150\u0154\u0157\u015d\u0162\u0169\u0171\u0175\u0179\u0180"+
+		"\u0186\u018d\u0194\u019b\u01a1\u01a3\u01a9\u01b0\u01b2\u01bc\u01c3\u01c8"+
+		"\u01cd\u01d4\u01d8\u01da\u01e0\u01ec\u01f1\u01f6\u01f8\u01fa\u0201\u0204"+
+		"\u0209\u0210\u0213\u0218\u021f\u0222\u0229\u022c\u0231\u0236\u023a\u023e"+
+		"\u0244\u024c\u0253\u0257\u0261\u026a\u026d\u0271\u0275\u027d\u0285\u0293";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
