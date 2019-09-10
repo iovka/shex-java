@@ -344,6 +344,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		return matchingTC1;
 	}
 	
+	// Very close to the normal recursive. The difference is in the stop in the case of a triple that can't be matched.
 	private boolean performRecursiveCallAndComputeLocalMatching(RDFTerm node,Shape shape,			
 			Map<Triple, List<TripleConstraint>> matchingTC1,
 			TypingForValidation resLocalTyping,

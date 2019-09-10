@@ -45,7 +45,6 @@ public interface ValidationAlgorithm {
 	 * @return true iff the subsequent call to {@link #getTyping() Typing#getStatus} returns {@link Status#CONFORMANT}
 	 * @exception IllegalArgumentException if the label does not belong to the schema
 	 */ 
-	@Stable
 	public boolean validate (RDFTerm focusNode, Label label, ComputationController compController) throws Exception;
 	
 	/** Constructs a shape map that allows to validate a focus node against a type.
@@ -57,6 +56,13 @@ public interface ValidationAlgorithm {
 	 */ 
 	public ResultShapeMap validate (BaseShapeMap shapeMap) ;
 	
+	/** Constructs a shape map that allows to validate a focus node against a type.
+	 * Returns a shape map with the results of the associations found in the shapeMap passed to the function.
+	 * 
+	 * @param shapeMap The shapeMap with the asociations requested.
+	 * @return a shape map with the result
+	 * @exception IllegalArgumentException if the label does not belong to the schema
+	 */ 
 	public ResultShapeMap validate(BaseShapeMap shapeMap, ComputationController compController) throws Exception ;
 		
 	/** The typing that proves the result returned by previous validations.  */
