@@ -205,10 +205,17 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	
 	private boolean recursiveValidationShape (RDFTerm node, Label label) throws Exception {	
 		Shape shape = (Shape) schema.getShapeExprsMap().get(label);
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
+		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 
-		TypingForValidation localTyping = new TypingForValidation();
+		// Match using only predicate 
+		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
+		Map<Triple,List<TripleConstraint>> matchingTC1 = 
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher).getPreMatching();
+
 		
-		Map<Triple, List<TripleConstraint>> matchingTC1 = computePreMatchingWithPredicateOnly(node, shape);
+		TypingForValidation localTyping = new TypingForValidation();
 		List<Triple> extraNeighbours = new ArrayList<>();
 
 		// the recursive call are performed in the next function and the localTyping is populated
@@ -217,7 +224,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			// the graph is update in the function call
 			return false;
 		
-		Map<Triple, Label> result = this.findMatching(node, shape, localTyping).getMatching();
+		Map<Triple, Label> result = this.findMatching(node, shape, localTyping, neighbourhood).getMatching();
 		if (result!=null) {
 			// A matching has been found
 			// add in required the requirement for the matching
@@ -331,18 +338,6 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	// ----------------------------------------------------------
 	// Utils
 	// ----------------------------------------------------------
-	
-	private Map<Triple, List<TripleConstraint>> computePreMatchingWithPredicateOnly(RDFTerm node, Shape shape) {
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
-		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
-		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
-		
-		// Match using only predicate 
-		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
-		Map<Triple,List<TripleConstraint>> matchingTC1 = 
-				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher).getPreMatching();
-		return matchingTC1;
-	}
 	
 	private boolean performRecursiveCallAndComputeLocalMatching(RDFTerm node,Shape shape,			
 			Map<Triple, List<TripleConstraint>> matchingTC1,

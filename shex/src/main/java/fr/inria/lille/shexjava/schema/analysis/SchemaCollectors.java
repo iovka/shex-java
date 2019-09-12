@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
+import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
@@ -183,6 +184,15 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 		if (filter.test(expr))
 			set.add((C)expr);
 		super.visitShapeNot(expr, arguments);
+	}
+
+	@Override
+	public void visitExtendsShapeExpr(ExtendsShapeExpr expr, Object... arguments) {
+		if (filter.test(expr))
+			set.add((C)expr);
+		if (expr.getBaseShapeExpr()!=null)
+			expr.getBaseShapeExpr().accept(this, arguments);		
+		expr.getExtension().accept(this, arguments);		
 	}
 
 }

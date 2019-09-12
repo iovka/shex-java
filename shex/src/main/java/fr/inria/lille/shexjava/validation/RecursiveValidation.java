@@ -16,16 +16,20 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
@@ -86,6 +90,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	class EvaluateShapeExpressionVisitor  {
 		private RDFTerm node; 
 		private Boolean result;
+		private List<Triple> neighbourhood = null;
 		
 		public EvaluateShapeExpressionVisitor(RDFTerm one) {
 			this.node = one;
@@ -110,6 +115,9 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				this.visitNodeConstraint((NodeConstraint) expr);
 			if (expr instanceof ShapeExprRef)
 				this.visitShapeExprRef((ShapeExprRef) expr);
+			if (expr instanceof ExtendsShapeExpr)
+				this.visitExtendsShapeExpr((ExtendsShapeExpr) expr);
+				
 		}
 		
 		public void visitShapeAnd(ShapeAnd expr) throws Exception {
@@ -132,7 +140,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		}
 		
 		public void visitShape(Shape expr) throws Exception {
-			result = isLocallyValid(node, expr);
+			result = isLocallyValid(node, expr,neighbourhood);
 		}
 
 		public void visitNodeConstraint(NodeConstraint expr) {
@@ -143,14 +151,32 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		public void visitShapeExprRef(ShapeExprRef ref) throws Exception {
 			this.accept(ref.getShapeDefinition());
 		}
+		
+		public void visitExtendsShapeExpr(ExtendsShapeExpr expr) throws Exception {
+			List<Triple> oldNeigh = neighbourhood;
+			// split the neighbourhood to the base and to the extension
+			List<TripleConstraint> constraints = collectorTC.getTCs(expr.getBaseShapeExpr());
+			neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, false);
+			this.accept(expr.getBaseShapeExpr());
+			if (result) {
+				HashSet<Triple> tmp = new HashSet<>(neighbourhood);
+				constraints = collectorTC.getTCs(expr.getExtension());
+				neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, false);
+				neighbourhood = neighbourhood.stream().filter(tr -> !tmp.contains(tr)).collect(Collectors.toList());
+				this.accept(expr.getExtension());
+			}
+			neighbourhood=oldNeigh;
+		}
 	}
 	
 	
-	private boolean isLocallyValid (RDFTerm node, Shape shape) throws Exception {
+	private boolean isLocallyValid (RDFTerm node, Shape shape, List<Triple> neighbourhood) throws Exception {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
-		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+		//List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+		if (neighbourhood==null)
+			neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
@@ -163,7 +189,6 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
-
 				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
@@ -175,8 +200,8 @@ public class RecursiveValidation extends SORBEBasedValidation {
 
 			}			
 		}
-				
-		return this.findMatching(node, shape, localTyping).getMatching() != null;
+					
+		return this.findMatching(node, shape, localTyping, neighbourhood).getMatching() != null;
 	}	
 
 	

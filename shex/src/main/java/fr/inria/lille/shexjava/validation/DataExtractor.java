@@ -9,6 +9,7 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
@@ -166,6 +167,13 @@ public class DataExtractor{
 				resTyping.setStatus(currentNode, shapeRef.getId(), Status.CONFORMANT);
 				shapeRef.getShapeDefinition().accept(this);
 			}
+		}
+
+
+		@Override
+		public void visitExtendsShapeExpr(ExtendsShapeExpr expr, Object... arguments) {
+			// TODO Data extractor and extension??? Auto-generated method stub
+			
 		}
 		
 	}

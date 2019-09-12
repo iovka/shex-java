@@ -42,7 +42,7 @@ start           : KW_START '=' shapeExpression ;
 startActions	: codeDecl+ ;
 statement 		: directive | notStartAction ;
 shapeExprDecl   : KW_ABSTRACT? shapeExprLabel (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
-                | shapeExprLabel KW_EXTENDS shapeExprLabel shapeExpression      # extendsShapeExpression
+                | shapeExprLabel KW_EXTENDS '@' shapeExprLabel shapeExpression      # extendsShapeExpression
                 ;
 shapeExpression : shapeOr ;
 shapeOr  		: shapeAnd (KW_OR shapeAnd)* ;

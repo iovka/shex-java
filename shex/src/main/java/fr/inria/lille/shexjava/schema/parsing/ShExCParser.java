@@ -273,13 +273,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	
 	
 	@Override 
-	public ShapeExpr visitExtendsShapeExpression(ShExDocParser.ExtendsShapeExpressionContext ctx) {
+	public ExtendsShapeExpr visitExtendsShapeExpression(ShExDocParser.ExtendsShapeExpressionContext ctx) {
 		Label labelBaseShapeExpr = (Label) visitShapeExprLabel(ctx.shapeExprLabel(1));
 		ShapeExpr extension = visitShapeExpression(ctx.shapeExpression());
 		ExtendsShapeExpr expr = new ExtendsShapeExpr(labelBaseShapeExpr,extension);
-		
+
 		Label label = (Label) visitShapeExprLabel(ctx.shapeExprLabel(0));
 		expr.setId(label);
+		rules.put(label,expr);
 
 		return expr;
 	}

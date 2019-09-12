@@ -43,6 +43,7 @@ import fr.inria.lille.shexjava.exception.NotStratifiedException;
 import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
+import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
@@ -259,6 +260,13 @@ public class ShexSchema {
 				 else 
 					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
 			}
+			if (sexpr instanceof ExtendsShapeExpr) {
+				ExtendsShapeExpr extexpr = (ExtendsShapeExpr) sexpr;
+				if (shexprsMap.containsKey(extexpr.getBaseShapeExprLabel())) 
+					extexpr.setBaseShapeExpr(shexprsMap.get(extexpr.getBaseShapeExprLabel()));
+				 else 
+					throw new UndefinedReferenceException("Undefined shape label for extension: " + extexpr.getBaseShapeExprLabel());
+			}
 		}
 	}
 	
@@ -416,6 +424,14 @@ public class ShexSchema {
 		
 		@Override
 		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+		}
+
+		@Override
+		public void visitExtendsShapeExpr(ExtendsShapeExpr expr, Object... arguments) {
+			set.add(new Pair<Label,Label>(expr.getId(),expr.getBaseShapeExpr().getId()));
+			expr.getBaseShapeExpr().accept(this, arguments);
+			set.add(new Pair<Label,Label>(expr.getId(),expr.getExtension().getId()));
+			expr.getExtension().accept(this, arguments);
 		}
 	}
 	
@@ -674,6 +690,12 @@ public class ShexSchema {
 			expr.getSubExpression().accept(this, arguments);
 			isPositive = !isPositive;
 		}
+
+		@Override
+		public void visitExtendsShapeExpr(ExtendsShapeExpr expr, Object... arguments) {
+			expr.getBaseShapeExpr().accept(this, arguments);
+			expr.getExtension().accept(this, arguments);
+		}
 		
 	}
 	
@@ -723,6 +745,12 @@ public class ShexSchema {
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			expr.getSubExpression().accept(this, arguments);
+		}
+
+		@Override
+		public void visitExtendsShapeExpr(ExtendsShapeExpr expr, Object... arguments) {
+			expr.getBaseShapeExpr().accept(this, arguments);
+			expr.getExtension().accept(this, arguments);
 		}
 		
 	}

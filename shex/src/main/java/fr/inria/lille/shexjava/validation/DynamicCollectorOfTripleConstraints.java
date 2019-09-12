@@ -25,11 +25,20 @@ import java.util.Map;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
+import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
+import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
+import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
+import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 
 /** Allows to compute the triple constraints that appear in a shape.
@@ -41,16 +50,26 @@ public class DynamicCollectorOfTripleConstraints {
 
 	private Map<Label, List<TripleConstraint>> collectedTCs = new HashMap<>();
 	
-	public List<TripleConstraint> getTCs (TripleExpr texpr) {
-		List<TripleConstraint> result = collectedTCs.get(texpr.getId());
+	public List<TripleConstraint> getTCs (ShapeExpr sexpr) {
+		List<TripleConstraint> result = collectedTCs.get(sexpr.getId());
 		if (result == null) {
-			texpr.accept(collector);
-			result = collector.getResult();
+			sexpr.accept(collectorForShapeExpr);
+			result = collectorForTripleExpr.getResult();
 		}
 		return result;
 	}
 	
-	private final TripleExpressionVisitor<List<TripleConstraint>> collector = new TripleExpressionVisitor<List<TripleConstraint>>() {
+	public List<TripleConstraint> getTCs (TripleExpr texpr) {
+		List<TripleConstraint> result = collectedTCs.get(texpr.getId());
+		if (result == null) {
+			texpr.accept(collectorForTripleExpr);
+			result = collectorForTripleExpr.getResult();
+		}
+		return result;
+	}
+	
+	
+	private final TripleExpressionVisitor<List<TripleConstraint>> collectorForTripleExpr = new TripleExpressionVisitor<List<TripleConstraint>>() {
 
 		private List<TripleConstraint> result;
 
@@ -106,5 +125,76 @@ public class DynamicCollectorOfTripleConstraints {
 			expr.getTripleExp().accept(this, arguments);
 			setResult(expr, getResult());
 		}
+	};
+	
+	//Collect the triple constraint bellows a shapeExpr
+	private final ShapeExpressionVisitor<List<TripleConstraint>> collectorForShapeExpr = new ShapeExpressionVisitor<List<TripleConstraint>>() {
+		private List<TripleConstraint> result;
+
+		private void setResult (ShapeExpr expr, List<TripleConstraint> result) {
+			this.result = result;
+			collectedTCs.put(expr.getId(), result);
+		}
+		
+		@Override
+		public List<TripleConstraint> getResult() {
+			return result;
+		}
+
+		public void visitShapeAnd (ShapeAnd expr, Object ... arguments) {
+			List<TripleConstraint> tmp = new ArrayList<TripleConstraint>();
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				tmp.addAll(this.getResult());
+			}
+			setResult(expr, tmp);
+		}
+
+		public void visitShapeOr (ShapeOr expr, Object ... arguments) {
+			List<TripleConstraint> tmp = new ArrayList<TripleConstraint>();
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				subExpr.accept(this, arguments);
+				tmp.addAll(this.getResult());
+			}
+			setResult(expr, tmp);
+		}
+		
+		public void visitShapeNot (ShapeNot expr, Object ...arguments) {
+			expr.getSubExpression().accept(this, arguments);
+			setResult(expr, this.getResult());
+		}
+		
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			result = collectedTCs.get(expr.getTripleExpression().getId());
+			if (result == null) {
+				expr.getTripleExpression().accept(collectorForTripleExpr);
+				result = collectorForTripleExpr.getResult();
+			}
+			setResult(expr, result);
+		}
+
+		@Override
+		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+			setResult(expr, Collections.emptyList());			
+		}
+
+		@Override
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
+			shapeRef.getShapeDefinition().accept(this, arguments);
+			setResult(shapeRef, this.getResult());			
+		}
+
+		@Override
+		public void visitExtendsShapeExpr(ExtendsShapeExpr expr, Object... arguments) {
+			List<TripleConstraint> tmp = new ArrayList<TripleConstraint>();
+			expr.getBaseShapeExpr().accept(this, arguments);
+			tmp.addAll(this.getResult());
+			expr.getExtension().accept(this, arguments);
+			tmp.addAll(this.getResult());
+			setResult(expr, tmp);
+			
+		}
+		
 	};
 }
