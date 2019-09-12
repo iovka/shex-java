@@ -51,10 +51,6 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	 * @throws Exception 
 	 */
 	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing, List<Triple> neighbourhood) throws Exception {
-//		System.out.println("Validationg: "+node+" with shape "+shape);
-//		System.out.println(typing.getStatusMap());
-//		System.out.println(neighbourhood);
-//		
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
 		if (neighbourhood == null)

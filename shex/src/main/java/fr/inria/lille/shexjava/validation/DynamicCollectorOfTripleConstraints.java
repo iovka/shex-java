@@ -54,7 +54,7 @@ public class DynamicCollectorOfTripleConstraints {
 		List<TripleConstraint> result = collectedTCs.get(sexpr.getId());
 		if (result == null) {
 			sexpr.accept(collectorForShapeExpr);
-			result = collectorForTripleExpr.getResult();
+			result = collectorForShapeExpr.getResult();
 		}
 		return result;
 	}
@@ -193,7 +193,6 @@ public class DynamicCollectorOfTripleConstraints {
 			expr.getExtension().accept(this, arguments);
 			tmp.addAll(this.getResult());
 			setResult(expr, tmp);
-			
 		}
 		
 	};

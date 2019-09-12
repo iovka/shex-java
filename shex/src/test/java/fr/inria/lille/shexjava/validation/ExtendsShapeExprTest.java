@@ -110,4 +110,30 @@ public class ExtendsShapeExprTest {
 		}
 	}
 	
+	@Test
+	public void basicRecursiveExtendsWithNoRepetition() {		
+		String schemaSt = "<http://inria.fr/Human> { a IRI } \n"
+						+ "<http://inria.fr/HumanFirst> EXTENDS @<http://inria.fr/Human>{<http://a.b/first> IRI}\n"
+						+ "<http://inria.fr/Person> EXTENDS @<http://inria.fr/HumanFirst> {  <http://a.b/last> IRI }";
+		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+
+		try {
+			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));			
+			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
+			RecursiveValidation valago = new RecursiveValidation(schema, graph);
+			ResultShapeMap result = valago.validate(shapeMap);
+
+			for(ShapeAssociation asso:result.getAssociations()) {
+				RDFTerm node = asso.getNodeSelector().apply(graph).iterator().next();
+				if (node.equals(n3))
+					assertTrue(asso.getStatus().get().equals(Status.NONCONFORMANT));
+				else
+					assertTrue(asso.getStatus().get().equals(Status.CONFORMANT));
+			}
+		} catch ( Exception e) {
+			e.printStackTrace();
+			fail("Exception during the parsing");
+		}
+	}
+	
 }
