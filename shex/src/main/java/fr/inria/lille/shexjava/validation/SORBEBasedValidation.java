@@ -47,6 +47,7 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	 * @param node
 	 * @param shape
 	 * @param typing
+	 * @param baseNeighbourhood if not null, then perform the validation on this neighborhood
 	 * @return a matching or null if none was found or cannot be found. 
 	 * @throws Exception 
 	 */

@@ -18,12 +18,10 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-import java.util.stream.Collector;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
@@ -160,14 +158,16 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		}
 		
 		public void visitExtendsShapeExpr(ExtendsShapeExpr expr) throws Exception {
-			//TODO: fix extends with correct 
 			List<Triple> oldNeigh = neighbourhood;
 			
+			// the neighbourhood to use
 			HashSet<Triple> baseNeigh;
-			if (neighbourhood == null)
+			if (neighbourhood == null) {
 				baseNeigh = new HashSet<>(graph.stream((BlankNodeOrIRI) node,null,null).collect(Collectors.toList()));
-			else
+				graph.stream(null,null,node).forEach(tr -> baseNeigh.add(tr));
+			}else
 				baseNeigh = new HashSet<>(neighbourhood);
+			
 			// split the neighbourhood to the base and to the extension
 			List<TripleConstraint> constraints = collectorTC.getTCs(expr.getBaseShapeExpr());
 			List<Triple> neighbourhoodBase = ValidationUtils.getMatchableNeighbourhood(new ArrayList<>(baseNeigh),node, constraints, false);
@@ -199,7 +199,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
-		//List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+
 		List<Triple> neighbourhood;
 		if (baseNeighbourhood == null)
 			neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());

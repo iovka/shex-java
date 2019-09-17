@@ -4,8 +4,6 @@ import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
-import fr.inria.lille.shexjava.util.CollectionToString;
-import fr.inria.lille.shexjava.util.RDFPrintUtils;
 
 public class ExtendsShapeExpr extends ShapeExpr {
 	protected Label baseShapeExprLabel;

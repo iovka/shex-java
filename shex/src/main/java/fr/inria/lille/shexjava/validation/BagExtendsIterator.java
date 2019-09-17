@@ -17,7 +17,6 @@
 package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Triple;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
@@ -66,8 +64,7 @@ public class BagExtendsIterator implements Iterator<Pair<List<Triple>, List<Trip
 		
 		neighbourhood = new ArrayList<>(baseNeigh);
 		neighbourhood.addAll(extNeigh);
-		unmatchableNeigh = selectedNeigh.parallelStream().filter(tr->!neighbourhood.contains(tr)).collect(Collectors.toList());
-
+		unmatchableNeigh = selectedNeigh.stream().filter(tr->!neighbourhood.contains(tr)).collect(Collectors.toList());
 		
 		Map<Triple,List<ShapeExpr>> product = new LinkedHashMap<Triple, List<ShapeExpr>>();
 		neighbourhood.stream().forEach(tr -> product.put(tr, new ArrayList<>()));
