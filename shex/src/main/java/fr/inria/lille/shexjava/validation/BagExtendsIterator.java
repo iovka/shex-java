@@ -55,10 +55,10 @@ public class BagExtendsIterator implements Iterator<Pair<List<Triple>, List<Trip
 	private int[] currentIndexes;
 	 
 
-//	In the constructor, the following field will be initialize:	 
-//	 - neighbourhood the set of triples over which all matchings will be enumerated
-//	 - allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
-//	 
+	//	In the constructor, the following field will be initialize:	 
+	//	 - neighbourhood the set of triples over which all matchings will be enumerated
+	//	 - allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
+	//	 
 	public BagExtendsIterator(ExtendsShapeExpr sexpr, Set<Triple> selectedNeigh, List<Triple> baseNeigh, List<Triple> extNeigh) {
 		this.sexpr = sexpr;
 		
@@ -72,6 +72,7 @@ public class BagExtendsIterator implements Iterator<Pair<List<Triple>, List<Trip
 		extNeigh.stream().forEach(tr -> product.get(tr).add(sexpr.getExtension()));
 
 		allMatches = new ArrayList<>();
+		neighbourhood = new ArrayList<Triple>();
 		for (Map.Entry<Triple, List<ShapeExpr>> e: product.entrySet()) {
 			neighbourhood.add(e.getKey());
 			allMatches.add(e.getValue());

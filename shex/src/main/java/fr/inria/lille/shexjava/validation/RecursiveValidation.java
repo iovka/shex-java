@@ -160,22 +160,21 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		public void visitExtendsShapeExpr(ExtendsShapeExpr expr) throws Exception {
 			List<Triple> oldNeigh = neighbourhood;
 			
-			// the neighbourhood to use
-			HashSet<Triple> baseNeigh;
+			// initialize the neighbourhood to use
+			ArrayList<Triple> baseNeigh;
 			if (neighbourhood == null) {
-				baseNeigh = new HashSet<>(graph.stream((BlankNodeOrIRI) node,null,null).collect(Collectors.toList()));
+				baseNeigh = new ArrayList<>(graph.stream((BlankNodeOrIRI) node,null,null).collect(Collectors.toList()));
 				graph.stream(null,null,node).forEach(tr -> baseNeigh.add(tr));
 			}else
-				baseNeigh = new HashSet<>(neighbourhood);
+				baseNeigh = new ArrayList<>(neighbourhood);
 			
 			// split the neighbourhood to the base and to the extension
 			List<TripleConstraint> constraints = collectorTC.getTCs(expr.getBaseShapeExpr());
-			List<Triple> neighbourhoodBase = ValidationUtils.getMatchableNeighbourhood(new ArrayList<>(baseNeigh),node, constraints, false);
+			List<Triple> neighbourhoodBase = ValidationUtils.getMatchableNeighbourhood(baseNeigh,node, constraints, false);
 			
 			constraints = collectorTC.getTCs(expr.getExtension());
-			List<Triple>  neighbourhoodExtension =  ValidationUtils.getMatchableNeighbourhood(new ArrayList<>(baseNeigh), node, constraints, false);
-
-			BagExtendsIterator iter = new BagExtendsIterator(expr,baseNeigh,neighbourhoodBase,neighbourhoodExtension);
+			List<Triple>  neighbourhoodExtension =  ValidationUtils.getMatchableNeighbourhood(baseNeigh, node, constraints, false);
+			BagExtendsIterator iter = new BagExtendsIterator(expr,new HashSet<>(baseNeigh),neighbourhoodBase,neighbourhoodExtension);
 			while (iter.hasNext()) {
 				Pair<List<Triple>, List<Triple>> nextSplit = iter.next();
 				neighbourhood = nextSplit.one;
@@ -189,7 +188,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 					}
 				}
 			}
-			result = false;
+			
 			neighbourhood=oldNeigh;
 		}
 	}
