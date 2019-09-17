@@ -121,6 +121,7 @@ public class ExtendsShapeExprTest {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));			
 			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
 			RecursiveValidation valago = new RecursiveValidation(schema, graph);
+			
 			ResultShapeMap result = valago.validate(shapeMap);
 
 			for(ShapeAssociation asso:result.getAssociations()) {

@@ -224,7 +224,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			// the graph is update in the function call
 			return false;
 		
-		Map<Triple, Label> result = this.findMatching(node, shape, localTyping, neighbourhood).getMatching();
+		Map<Triple, Label> result = this.findMatching(node, shape, localTyping, null).getMatching();
 		if (result!=null) {
 			// A matching has been found
 			// add in required the requirement for the matching

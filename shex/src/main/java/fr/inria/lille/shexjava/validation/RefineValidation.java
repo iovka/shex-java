@@ -167,7 +167,7 @@ public class RefineValidation extends SORBEBasedValidation {
 				}
 			}
 		}
-		return this.findMatching(node, shape, localTyping, neighbourhood).getMatching() != null;
+		return this.findMatching(node, shape, localTyping, null).getMatching() != null;
 	}	
 	
 

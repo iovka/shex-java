@@ -73,7 +73,7 @@ public class DataExtractorTest {
 			DataExtractor extractor = new DataExtractor(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataView view = extractor.extractValidPart(shapeMap, result);
+			DataView view = extractor.extractConformantPart(shapeMap, result);
 			
 			assertEquals(result.size(),6);
 			assertTrue(result.contains(n1_a_human));
@@ -100,7 +100,7 @@ public class DataExtractorTest {
 			DataExtractor extractor = new DataExtractor(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataView view = extractor.extractValidPart(shapeMap, result);
+			DataView view = extractor.extractConformantPart(shapeMap, result);
 			assertEquals(result.size(),4);
 			assertTrue(result.contains(n1_a_human));
 			assertTrue(result.contains(n1_last_smith));
@@ -123,7 +123,7 @@ public class DataExtractorTest {
 			DataExtractor extractor = new DataExtractor(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataView view = extractor.extractValidPart(shapeMap, result);
+			DataView view = extractor.extractConformantPart(shapeMap, result);
 			assertEquals(result.size(),4);
 			assertTrue(result.contains(n1_first_john));
 			assertTrue(result.contains(n1_last_smith));

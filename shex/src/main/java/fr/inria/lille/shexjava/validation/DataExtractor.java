@@ -38,13 +38,13 @@ public class DataExtractor{
 	}
 	
 	
-	public DataView extractValidPart(BaseShapeMap shapeMap) {
+	public DataView extractConformantPart(BaseShapeMap shapeMap) {
 		Graph graph = GlobalFactory.RDFFactory.createGraph();
-		return extractValidPart(shapeMap,graph);
+		return extractConformantPart(shapeMap,graph);
 	}
 	
 
-	public DataView extractValidPart(BaseShapeMap shapeMap, Graph resultGraph) {
+	public DataView extractConformantPart(BaseShapeMap shapeMap, Graph resultGraph) {
 		validation.validate(shapeMap);
 		VisitorValidPart visitor = new VisitorValidPart(schema,validation.getTyping(),mColl,resultGraph);
 

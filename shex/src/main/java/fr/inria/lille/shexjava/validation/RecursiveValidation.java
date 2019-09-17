@@ -18,6 +18,7 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.util.CommonGraph;
+import fr.inria.lille.shexjava.util.Pair;
 
 
 /** Implements the Recursive validation algorithm.
@@ -161,36 +163,48 @@ public class RecursiveValidation extends SORBEBasedValidation {
 			//TODO: fix extends with correct 
 			List<Triple> oldNeigh = neighbourhood;
 			
-			HashSet<Triple> baseNeigh;;
+			HashSet<Triple> baseNeigh;
 			if (neighbourhood == null)
 				baseNeigh = new HashSet<>(graph.stream((BlankNodeOrIRI) node,null,null).collect(Collectors.toList()));
 			else
 				baseNeigh = new HashSet<>(neighbourhood);
 			// split the neighbourhood to the base and to the extension
 			List<TripleConstraint> constraints = collectorTC.getTCs(expr.getBaseShapeExpr());
-			neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, false).stream()
-										   .filter(tr -> baseNeigh.contains(tr)).collect(Collectors.toList());
-			this.accept(expr.getBaseShapeExpr());
-			if (result) {
-				HashSet<Triple> tmp = new HashSet<>(neighbourhood);
-				constraints = collectorTC.getTCs(expr.getExtension());
-				neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, false);
-				neighbourhood = neighbourhood.stream().filter(tr -> baseNeigh.contains(tr) && !tmp.contains(tr))
-													.collect(Collectors.toList());
-				this.accept(expr.getExtension());
+			List<Triple> neighbourhoodBase = ValidationUtils.getMatchableNeighbourhood(new ArrayList<>(baseNeigh),node, constraints, false);
+			
+			constraints = collectorTC.getTCs(expr.getExtension());
+			List<Triple>  neighbourhoodExtension =  ValidationUtils.getMatchableNeighbourhood(new ArrayList<>(baseNeigh), node, constraints, false);
+
+			BagExtendsIterator iter = new BagExtendsIterator(expr,baseNeigh,neighbourhoodBase,neighbourhoodExtension);
+			while (iter.hasNext()) {
+				Pair<List<Triple>, List<Triple>> nextSplit = iter.next();
+				neighbourhood = nextSplit.one;
+				this.accept(expr.getBaseShapeExpr());
+				if (result) {
+					neighbourhood = nextSplit.two;
+					this.accept(expr.getExtension());
+					if (result) {
+						neighbourhood=oldNeigh;
+						return;
+					}
+				}
 			}
+			result = false;
 			neighbourhood=oldNeigh;
 		}
 	}
 	
 	
-	private boolean isLocallyValid (RDFTerm node, Shape shape, List<Triple> neighbourhood) throws Exception {
+	private boolean isLocallyValid (RDFTerm node, Shape shape, List<Triple> baseNeighbourhood) throws Exception {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 		//List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
-		if (neighbourhood==null)
+		List<Triple> neighbourhood;
+		if (baseNeighbourhood == null)
 			neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+		else
+			neighbourhood = ValidationUtils.getMatchableNeighbourhood(baseNeighbourhood,  node, constraints, shape.isClosed());
 
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
@@ -215,7 +229,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 			}			
 		}
 					
-		return this.findMatching(node, shape, localTyping, neighbourhood).getMatching() != null;
+		return this.findMatching(node, shape, localTyping, baseNeighbourhood).getMatching() != null;
 	}	
 
 	
