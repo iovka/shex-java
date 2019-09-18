@@ -177,16 +177,19 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		}
 	}
 	
-	private BagExtendsIterator getIteratorOfTheNeighbourhoodSplit(ExtendsShapeExpr expr, List<Triple> neighbourhood,RDFTerm node) {
+	private BagExtendsIterator getIteratorOfTheNeighbourhoodSplit(ExtendsShapeExpr esexpr, List<Triple> neighbourhood,RDFTerm node) {
 		List<Triple> baseNeigh = selectNeighbourhoodForExtendsValidation(neighbourhood,node);
 
-		List<TripleConstraint> constraints = collectorTC.getTCs(expr.getBaseShapeExpr());
-		List<Triple> neighbourhoodBase = ValidationUtils.getMatchableNeighbourhood(baseNeigh,node, constraints, false);
+		List<TripleConstraint> constraints = collectorTC.getTCs(esexpr.getBaseShapeExpr());
+		List<Triple> neighBase = ValidationUtils.getMatchableNeighbourhood(baseNeigh,node, constraints, false);
 		
-		constraints = collectorTC.getTCs(expr.getExtension());
-		List<Triple>  neighbourhoodExtension =  ValidationUtils.getMatchableNeighbourhood(baseNeigh, node, constraints, false);
+		constraints = collectorTC.getTCs(esexpr.getExtension());
+		List<Triple> neighExtension =  ValidationUtils.getMatchableNeighbourhood(baseNeigh, node, constraints, false);
 		
-		return new BagExtendsIterator(expr,new HashSet<>(baseNeigh),neighbourhoodBase,neighbourhoodExtension);			
+		List<Triple> unmatchNeigh = baseNeigh.stream().filter(tr->!neighBase.contains(tr) && !neighExtension.contains(tr))
+														  .collect(Collectors.toList());
+		
+		return new BagExtendsIterator(esexpr,unmatchNeigh,neighBase,neighExtension);			
 
 	}
 	
@@ -198,9 +201,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		} 
 		return new ArrayList<>(neighbourhood);
 	}
-	
-
-	
+		
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape, List<Triple> baseNeighbourhood) throws Exception {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);

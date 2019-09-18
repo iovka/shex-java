@@ -22,8 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.Triple;
 
@@ -41,10 +39,10 @@ import fr.inria.lille.shexjava.util.Pair;
 public class BagExtendsIterator implements Iterator<Pair<List<Triple>, List<Triple>>>{
 	private ExtendsShapeExpr sexpr;
 	
-	/** neighbourhood not match by either the base of the sexpr or the extension **/
-	List<Triple> unmatchableNeigh;
+	/** neighborhood not match by either the base of the sexpr or the extension. In a split, they are put in the extension neighborhood. **/
+	List<Triple> unmatchNeigh;
 	
-	/** The triples in the neighbourhood are used as index, their order in the list is important. */
+	/** The triples in the neighborhood are used as index, their order in the list is important. */
 	private List<Triple> neighbourhood;
 	/** allMatches.get(i) contains all shapeExpr matched with the triple neighbourhood.get(i) */
 	private List<List<ShapeExpr>> allMatches;
@@ -59,17 +57,17 @@ public class BagExtendsIterator implements Iterator<Pair<List<Triple>, List<Trip
 	//	 - neighbourhood the set of triples over which all matchings will be enumerated
 	//	 - allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
 	//	 
-	public BagExtendsIterator(ExtendsShapeExpr sexpr, Set<Triple> selectedNeigh, List<Triple> baseNeigh, List<Triple> extNeigh) {
-		this.sexpr = sexpr;
+	public BagExtendsIterator(ExtendsShapeExpr esexpr, List<Triple> unmatchNeigh, List<Triple> baseNeigh, List<Triple> extNeigh) {
+		this.sexpr = esexpr;
 		
 		neighbourhood = new ArrayList<>(baseNeigh);
 		neighbourhood.addAll(extNeigh);
-		unmatchableNeigh = selectedNeigh.stream().filter(tr->!neighbourhood.contains(tr)).collect(Collectors.toList());
+		this.unmatchNeigh = unmatchNeigh;
 		
 		Map<Triple,List<ShapeExpr>> product = new LinkedHashMap<Triple, List<ShapeExpr>>();
 		neighbourhood.stream().forEach(tr -> product.put(tr, new ArrayList<>()));
-		baseNeigh.stream().forEach(tr -> product.get(tr).add(sexpr.getBaseShapeExpr()));
-		extNeigh.stream().forEach(tr -> product.get(tr).add(sexpr.getExtension()));
+		baseNeigh.stream().forEach(tr -> product.get(tr).add(esexpr.getBaseShapeExpr()));
+		extNeigh.stream().forEach(tr -> product.get(tr).add(esexpr.getExtension()));
 
 		allMatches = new ArrayList<>();
 		neighbourhood = new ArrayList<Triple>();
@@ -114,7 +112,7 @@ public class BagExtendsIterator implements Iterator<Pair<List<Triple>, List<Trip
 			throw new NoSuchElementException();
 		
 		List<Triple> baseNeigh = new ArrayList<>();
-		List<Triple> extNeigh = new ArrayList<>(unmatchableNeigh);
+		List<Triple> extNeigh = new ArrayList<>(unmatchNeigh);
 		
 		for (int i = 1; i < currentIndexes.length; i++) {
 			if (allMatches.get(i-1).get(currentIndexes[i]).equals(sexpr.getBaseShapeExpr())) {
