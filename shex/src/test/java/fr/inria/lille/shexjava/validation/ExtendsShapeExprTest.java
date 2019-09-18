@@ -149,7 +149,7 @@ public class ExtendsShapeExprTest {
 
 	@Test
 	public void basicExtendsWithRepetition() {		
-		String schemaSt = "<http://inria.fr/Human> { a IRI; <http://a.b/first> [<http://a.b/node/john>] } \n"
+		String schemaSt = "<http://inria.fr/Human> { a IRI; <http://a.b/first> IRI } \n"
 						+ "<http://inria.fr/Ovni> EXTENDS @<http://inria.fr/Human> { <http://a.b/first> IRI; <http://a.b/last> IRI }";
 		String shMap = "{ FOCUS a <http://a.b/ovni> } @<http://inria.fr/Ovni>";
 

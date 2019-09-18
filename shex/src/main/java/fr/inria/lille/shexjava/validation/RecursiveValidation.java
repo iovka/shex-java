@@ -159,22 +159,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		
 		public void visitExtendsShapeExpr(ExtendsShapeExpr expr) throws Exception {
 			List<Triple> oldNeigh = neighbourhood;
-			
-			// initialize the neighbourhood to use
-			ArrayList<Triple> baseNeigh;
-			if (neighbourhood == null) {
-				baseNeigh = new ArrayList<>(graph.stream((BlankNodeOrIRI) node,null,null).collect(Collectors.toList()));
-				graph.stream(null,null,node).forEach(tr -> baseNeigh.add(tr));
-			}else
-				baseNeigh = new ArrayList<>(neighbourhood);
-			
-			// split the neighbourhood to the base and to the extension
-			List<TripleConstraint> constraints = collectorTC.getTCs(expr.getBaseShapeExpr());
-			List<Triple> neighbourhoodBase = ValidationUtils.getMatchableNeighbourhood(baseNeigh,node, constraints, false);
-			
-			constraints = collectorTC.getTCs(expr.getExtension());
-			List<Triple>  neighbourhoodExtension =  ValidationUtils.getMatchableNeighbourhood(baseNeigh, node, constraints, false);
-			BagExtendsIterator iter = new BagExtendsIterator(expr,new HashSet<>(baseNeigh),neighbourhoodBase,neighbourhoodExtension);
+			BagExtendsIterator iter = getIteratorOfTheNeighbourhoodSplit(expr,neighbourhood,node);			
 			while (iter.hasNext()) {
 				Pair<List<Triple>, List<Triple>> nextSplit = iter.next();
 				neighbourhood = nextSplit.one;
@@ -187,11 +172,34 @@ public class RecursiveValidation extends SORBEBasedValidation {
 						return;
 					}
 				}
-			}
-			
+			}			
 			neighbourhood=oldNeigh;
 		}
 	}
+	
+	private BagExtendsIterator getIteratorOfTheNeighbourhoodSplit(ExtendsShapeExpr expr, List<Triple> neighbourhood,RDFTerm node) {
+		List<Triple> baseNeigh = selectNeighbourhoodForExtendsValidation(neighbourhood,node);
+
+		List<TripleConstraint> constraints = collectorTC.getTCs(expr.getBaseShapeExpr());
+		List<Triple> neighbourhoodBase = ValidationUtils.getMatchableNeighbourhood(baseNeigh,node, constraints, false);
+		
+		constraints = collectorTC.getTCs(expr.getExtension());
+		List<Triple>  neighbourhoodExtension =  ValidationUtils.getMatchableNeighbourhood(baseNeigh, node, constraints, false);
+		
+		return new BagExtendsIterator(expr,new HashSet<>(baseNeigh),neighbourhoodBase,neighbourhoodExtension);			
+
+	}
+	
+	private List<Triple> selectNeighbourhoodForExtendsValidation(List<Triple> neighbourhood,RDFTerm node){
+		if (neighbourhood == null) {
+			List<Triple> baseNeigh = graph.stream((BlankNodeOrIRI) node,null,null).collect(Collectors.toList());
+			graph.stream(null,null,node).forEach(tr -> baseNeigh.add(tr));
+			return baseNeigh ;
+		} 
+		return new ArrayList<>(neighbourhood);
+	}
+	
+
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape, List<Triple> baseNeighbourhood) throws Exception {
