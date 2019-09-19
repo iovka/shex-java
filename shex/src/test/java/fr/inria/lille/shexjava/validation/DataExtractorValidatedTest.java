@@ -17,7 +17,7 @@ import fr.inria.lille.shexjava.schema.parsing.ShExCParser;
 import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
 import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParsing;
 
-public class DataExtractorTest {
+public class DataExtractorValidatedTest {
 	
 	protected ShapeMapParsing parser;
 	protected ShExCParser shexParser;
@@ -26,14 +26,16 @@ public class DataExtractorTest {
 	static IRI n1 = GlobalFactory.RDFFactory.createIRI("http://a.b/n1");
 	static IRI n2 = GlobalFactory.RDFFactory.createIRI("http://a.b/n2");
 	static IRI n3 = GlobalFactory.RDFFactory.createIRI("http://a.b/n3");
+	static IRI n4 = GlobalFactory.RDFFactory.createIRI("http://a.b/n4");
 	static IRI john = GlobalFactory.RDFFactory.createIRI("http://a.b/node/john");
 	static IRI smith = GlobalFactory.RDFFactory.createIRI("http://a.b/node/smith");
 	static IRI paul = GlobalFactory.RDFFactory.createIRI("http://a.b/node/paul");
 	static IRI eastwood = GlobalFactory.RDFFactory.createIRI("http://a.b/node/eastwood");
-	static IRI alien = GlobalFactory.RDFFactory.createIRI("http://a.b/node/alien");
+	static IRI allen = GlobalFactory.RDFFactory.createIRI("http://a.b/node/allen");
 	static IRI first = GlobalFactory.RDFFactory.createIRI("http://a.b/first");
 	static IRI last = GlobalFactory.RDFFactory.createIRI("http://a.b/last");
 	static IRI human = GlobalFactory.RDFFactory.createIRI("http://a.b/human");
+	static IRI ovni = GlobalFactory.RDFFactory.createIRI("http://a.b/ovni");
 
 	static Triple n1_a_human = GlobalFactory.RDFFactory.createTriple(n1, a, human);
 	static Triple n1_first_john = GlobalFactory.RDFFactory.createTriple(n1, first, john);
@@ -42,11 +44,12 @@ public class DataExtractorTest {
 	static Triple n2_first_paul = GlobalFactory.RDFFactory.createTriple(n2, first, paul);
 	static Triple n2_last_east = GlobalFactory.RDFFactory.createTriple(n2, last, eastwood);
 	static Triple n3_a_human = GlobalFactory.RDFFactory.createTriple(n3, a, human);
-	static Triple n3_first_alien = GlobalFactory.RDFFactory.createTriple(n3, first, alien);
+	static Triple n3_first_allen = GlobalFactory.RDFFactory.createTriple(n3, first, allen);
+	static Triple n4_a_ovni = GlobalFactory.RDFFactory.createTriple(n4, a, ovni);
 
 	Graph graph;
 	
-	public DataExtractorTest() {
+	public DataExtractorValidatedTest() {
 		parser = new ShapeMapParsing();
 		shexParser = new ShExCParser();
 		
@@ -58,13 +61,14 @@ public class DataExtractorTest {
 		graph.add(n2_first_paul);
 		graph.add(n2_last_east);
 		graph.add(n3_a_human);
-		graph.add(n3_first_alien);
+		graph.add(n3_first_allen);
+		graph.add(n4_a_ovni);
 	}
 	
 	@Test
 	public void test() {		
 		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/first> IRI; }";
-		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+		String shMap = "{ FOCUS a <http://a.b/human> } @<http://inria.fr/Person>";
 
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
@@ -73,7 +77,7 @@ public class DataExtractorTest {
 			DataExtractorConformant extractor = new DataExtractorConformant(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataView view = extractor.extractValidPart(shapeMap, result);
+			extractor.extractValidPart(shapeMap, result);
 			
 			assertEquals(result.size(),6);
 			assertTrue(result.contains(n1_a_human));
@@ -81,7 +85,7 @@ public class DataExtractorTest {
 			assertTrue(result.contains(n2_a_human));
 			assertTrue(result.contains(n2_first_paul));
 			assertTrue(result.contains(n3_a_human));
-			assertTrue(result.contains(n3_first_alien));
+			assertTrue(result.contains(n3_first_allen));
 		} catch ( Exception e) {
 			fail("Exception during the parsing");
 		}
@@ -91,7 +95,7 @@ public class DataExtractorTest {
 	@Test
 	public void test2() {
 		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/last> IRI; }";
-		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+		String shMap = "{ FOCUS a <http://a.b/human> } @<http://inria.fr/Person>";
 
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
@@ -100,7 +104,7 @@ public class DataExtractorTest {
 			DataExtractorConformant extractor = new DataExtractorConformant(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataView view = extractor.extractValidPart(shapeMap, result);
+			extractor.extractValidPart(shapeMap, result);
 			assertEquals(result.size(),4);
 			assertTrue(result.contains(n1_a_human));
 			assertTrue(result.contains(n1_last_smith));
@@ -114,7 +118,7 @@ public class DataExtractorTest {
 	@Test
 	public void test3() {
 		String schemaSt = "<http://inria.fr/Person> IRI { <http://a.b/first> IRI; <http://a.b/last> IRI; }";
-		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+		String shMap = "{ FOCUS a <http://a.b/human> } @<http://inria.fr/Person>";
 
 		try {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
@@ -123,7 +127,7 @@ public class DataExtractorTest {
 			DataExtractorConformant extractor = new DataExtractorConformant(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
-			DataView view = extractor.extractValidPart(shapeMap, result);
+			extractor.extractValidPart(shapeMap, result);
 			assertEquals(result.size(),4);
 			assertTrue(result.contains(n1_first_john));
 			assertTrue(result.contains(n1_last_smith));

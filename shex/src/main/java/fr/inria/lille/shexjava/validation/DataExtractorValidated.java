@@ -176,9 +176,6 @@ public class DataExtractorValidated{
 				List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 				List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(inputGraph, currentNode, constraints, expr.isClosed());
 
-				// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
-				TypingForValidation localTyping = new TypingForValidation();
-				
 				PreMatching preMatching = ValidationUtils.computePreMatching(currentNode, neighbourhood, constraints, expr.getExtraProperties(), ValidationUtils.getPredicateOnlyMatcher());
 				Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
 					

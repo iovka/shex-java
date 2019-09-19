@@ -52,7 +52,6 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	
 	
 	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
-		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
 			this.typing.setStatus(focusNode, label, Status.CONFORMANT);
