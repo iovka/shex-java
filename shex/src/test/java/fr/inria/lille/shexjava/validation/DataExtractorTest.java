@@ -70,7 +70,7 @@ public class DataExtractorTest {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
 			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
 
-			DataExtractor extractor = new DataExtractor(schema,graph);
+			DataExtractorConformant extractor = new DataExtractorConformant(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
 			DataView view = extractor.extractValidPart(shapeMap, result);
@@ -97,7 +97,7 @@ public class DataExtractorTest {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
 			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
 
-			DataExtractor extractor = new DataExtractor(schema,graph);
+			DataExtractorConformant extractor = new DataExtractorConformant(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
 			DataView view = extractor.extractValidPart(shapeMap, result);
@@ -120,7 +120,7 @@ public class DataExtractorTest {
 			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
 			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
 
-			DataExtractor extractor = new DataExtractor(schema,graph);
+			DataExtractorConformant extractor = new DataExtractorConformant(schema,graph);
 			
 			Graph result = GlobalFactory.RDFFactory.createGraph();
 			DataView view = extractor.extractValidPart(shapeMap, result);
