@@ -43,7 +43,7 @@ public class ComputationControllerTest {
 	static Triple n3_first_alien = GlobalFactory.RDFFactory.createTriple(n3, first, alien);
 	
 	@Test
-	public void testWithShapeLabel() {
+	public void testNoComputationController() {
 		Graph graph = GlobalFactory.RDFFactory.createGraph();
 		graph.add(n1_a_human);
 		graph.add(n1_first_john);
@@ -82,6 +82,61 @@ public class ComputationControllerTest {
 		public void canContinue() throws Exception {
 			throw new CompControllerException();			
 		}
+
+		@Override
+		public void stop() {			
+		}
 		
 	}
+
+	@Test
+	public void testWithShapeLabel() {
+		Graph graph = GlobalFactory.RDFFactory.createGraph();
+		graph.add(n1_a_human);
+		graph.add(n1_first_john);
+		graph.add(n1_last_smith);
+		graph.add(n2_a_v23);
+		graph.add(n2_first_paul);
+		graph.add(n2_last_east);
+		graph.add(n3_a_v23);
+		graph.add(n3_first_alien);
+
+		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/first> IRI; <http://a.b/last> IRI }";
+		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
+		try {
+			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
+			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
+			assertEquals(shapeMap.getAssociations().size(), 1);
+			
+			RecursiveValidationWithMemorization algo = new RecursiveValidationWithMemorization(schema, graph);
+			algo.validate(shapeMap,new LimitComputationController());
+			fail("exception expected.");
+		} catch ( Exception e) {
+			if (!(e instanceof CompControllerException))
+				fail("Not the right exception");
+		}
+	}
+	
+	
+	class LimitComputationController implements ComputationController{
+		int i=0;
+		
+		@Override
+		public void start() {
+		}
+
+		@Override
+		public void canContinue() throws Exception {
+			i++;
+			if (i>2)
+				throw new CompControllerException();			
+		}
+
+		@Override
+		public void stop() {
+			
+		}
+		
+	}
+
 }

@@ -22,13 +22,13 @@ import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
 
-public class DataExtractor{
+public class DataExtractorConformant{
 	protected ShexSchema schema;
 	protected Graph inputGraph;
 	protected RecursiveValidationWithMemorization validation;
 	protected MatchingCollector mColl;
 	
-	public DataExtractor(ShexSchema schema, Graph inputGraph) {
+	public DataExtractorConformant(ShexSchema schema, Graph inputGraph) {
 		super();
 		this.schema = schema;
 		this.inputGraph = inputGraph;
@@ -127,7 +127,7 @@ public class DataExtractor{
 		
 		
 		public void visitShapeNot (ShapeNot expr, Object ...arguments) {
-			// TODO: what to do if there is a negation ???
+			System.err.println("Negation "+expr.toPrettyString()+" found during the extraction of the conformant part.");
 		}
 		
 
@@ -161,7 +161,7 @@ public class DataExtractor{
 		
 
 		@Override
-		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
 			shapeRef.getShapeDefinition().accept(this);
 			if (validation.getTyping().getStatus(currentNode, shapeRef.getId()).equals(Status.CONFORMANT)) {
 				resTyping.setStatus(currentNode, shapeRef.getId(), Status.CONFORMANT);

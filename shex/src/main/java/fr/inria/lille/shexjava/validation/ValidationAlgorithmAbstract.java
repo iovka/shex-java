@@ -76,6 +76,8 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
+//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
+//		throw new IllegalArgumentException("Node do not belong to the graph.");
 		try {
 			return validate(focusNode, label, null);
 		} catch (Exception e) {
@@ -91,8 +93,8 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
-		//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
-		//			throw new IllegalArgumentException("Node do not belong to the graph.");
+//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
+//			throw new IllegalArgumentException("Node do not belong to the graph.");
 		this.compController = compController;
 		if (this.compController!=null) this.compController.start();
 		boolean res = performValidation(focusNode,label);

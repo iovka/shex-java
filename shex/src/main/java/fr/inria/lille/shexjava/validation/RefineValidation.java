@@ -86,6 +86,14 @@ public class RefineValidation extends SORBEBasedValidation {
 	}
 	
 	
+	public void validate (ComputationController compController) throws Exception {
+		this.compController = compController;
+		if (this.compController!=null) this.compController.start();
+		computeMaximalTyping(null);
+		this.compController = null;
+	}
+	
+	
 	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
 		computeMaximalTyping(focusNode);
 		return typing.isConformant(focusNode, label);

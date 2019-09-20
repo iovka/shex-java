@@ -4,7 +4,7 @@
 
 	<groupId>fr.inria.lille.shexjava</groupId>
 	<artifactId>shexjava-core</artifactId>
-	<version>1.3alpha</version>
+	<version>1.3beta</version>
 	<packaging>jar</packaging>
 
 	<name>ShExjava</name>
@@ -192,7 +192,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<!-- The following plugin generates the parser-->
+			<!-- The following plugin generates the parsers -->
 			<plugin>
 				<groupId>org.antlr</groupId>
 				<artifactId>antlr4-maven-plugin</artifactId>
@@ -222,6 +222,7 @@
 			</plugin>
 			<!-- The following plugins are used for the deployment on maven central repository -->
 			<plugin>
+				<!-- This plugin configure the release process. Autorealease is activated. -->
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
 				<version>1.6.7</version>
@@ -233,6 +234,7 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<!-- This plugin generates the jars -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>2.2.1</version>
@@ -246,6 +248,7 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<!-- This plugin generates the javadocs.  -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
@@ -263,6 +266,7 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<!-- This plugin sign the release -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.5</version>

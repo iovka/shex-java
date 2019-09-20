@@ -339,14 +339,28 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	// Utils
 	// ----------------------------------------------------------
 	
+
+	private Map<Triple, List<TripleConstraint>> computePreMatchingWithPredicateOnly(RDFTerm node, Shape shape) {
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
+		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+		
+		// Match using only predicate 
+		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
+		Map<Triple,List<TripleConstraint>> matchingTC1 = 
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher).getPreMatching();
+		return matchingTC1;
+	}
+	
+	// Very close to the normal recursive. The difference is in the stop in the case of a triple that can't be matched.
 	private boolean performRecursiveCallAndComputeLocalMatching(RDFTerm node,Shape shape,			
 			Map<Triple, List<TripleConstraint>> matchingTC1,
 			TypingForValidation resLocalTyping,
 			List<Triple> resTripleMatchedToExtra) throws Exception {
-		
+
 		for(Triple curTr:matchingTC1.keySet()) {	
 			List<TripleConstraint> curLTCs = matchingTC1.get(curTr);
-			
+
 			boolean tripleCanBeMatched=false;
 			RDFTerm destNode=curLTCs.size()>0&&curLTCs.get(0).getProperty().isForward()? curTr.getObject():curTr.getSubject();
 
@@ -361,7 +375,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 				tripleCanBeMatched = tripleCanBeMatched || resLocalTyping.isConformant(destNode, tc.getShapeExpr().getId());
 			}
-			
+
 			if (!tripleCanBeMatched) {
 				if (shape.getExtraProperties().contains(curTr.getPredicate())) {
 					resTripleMatchedToExtra.add(curTr);
@@ -378,8 +392,8 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		return true;
 
 	}
-	
-	
+
+
 	private  RDFTerm getOther(Triple t, RDFTerm n){
 		if (t.getObject().equals(n))
 			return t.getSubject();
@@ -390,12 +404,12 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	private Label getShapeExprLabel(Label tcLabel) {
 		return ((TripleConstraint) schema.getTripleExprsMap().get(tcLabel)).getShapeExpr().getId();
 	}
-	
-	
+
+
 	private Status getStatus(boolean res) {
 		return res?Status.CONFORMANT:Status.NONCONFORMANT;
 	}
-	
+
 	private boolean isNotComputed(Pair<RDFTerm,Label> key) {
 		return this.typing.getStatus(key.one, key.two).equals(Status.NOTCOMPUTED);
 	}
