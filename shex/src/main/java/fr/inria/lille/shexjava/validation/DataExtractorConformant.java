@@ -126,7 +126,7 @@ public class DataExtractorConformant{
 		
 		
 		public void visitShapeNot (ShapeNot expr, Object ...arguments) {
-			// TODO: what to do if there is a negation ???
+			System.err.println("Negation "+expr.toPrettyString()+" found during the extraction of the conformant part.");
 		}
 		
 
