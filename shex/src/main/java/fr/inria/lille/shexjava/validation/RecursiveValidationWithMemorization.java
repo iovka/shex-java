@@ -350,13 +350,14 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			TypingForValidation resLocalTyping,
 			List<Triple> resTripleMatchedToExtra) throws Exception {
 		
-		for(Triple curTr:matchingTC1.keySet()) {	
+		for(Triple curTr:matchingTC1.keySet()) {
 			List<TripleConstraint> curLTCs = matchingTC1.get(curTr);
 			
 			boolean tripleCanBeMatched=false;
 			RDFTerm destNode=curLTCs.size()>0&&curLTCs.get(0).getProperty().isForward()? curTr.getObject():curTr.getSubject();
 
 			for (TripleConstraint tc:curLTCs) {
+				if (this.compController != null) compController.canContinue();
 				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
 						resLocalTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);

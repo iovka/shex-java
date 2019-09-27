@@ -159,6 +159,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 			
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
 			for (TripleConstraint tc:entry.getValue()) {
+				if (this.compController != null) compController.canContinue();
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
