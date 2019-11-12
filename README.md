@@ -57,16 +57,21 @@ The api now uses commonsRDF (https://commons.apache.org/proper/commons-rdf/) as 
 
 The api works with a factory that implements the RDF interface of the commonsRDF api. This factory is the field RDFFactory of the class fr.inria.lille.shexjava.GlobalFactory. By default it is an RDF4J factory but can be change to Jena to something else. All the functions of the api that need to create RDF objects will use the GlobalFactory or the one passed in arguments if you want to use different factories.
 
-Code example to set the factory: 
+Code example to set the factory:
+
+```
 org.apache.commons.rdf.rdf4j.RDF4J factory = new org.apache.commons.rdf.rdf4j.RDF4J();
 GlobalFactory.RDFFactory = factory;
+```
 
 The import org.eclipse.rdf4j.model.IRI; need to change import org.apache.commons.rdf.api.IRI;. Same for Literal or BlankNode.
 
 Remove all imports to class of the package fr.inria.lille.shexjava.graph. The graph class used is now org.apache.commons.rdf.api.Graph. 
 
 Code example to create the graph: 
+```
 Graph dataGraph = factory.asGraph(data);
+```
 
 A complete small code example can be found in https://github.com/jdusart/DatatypesShExJava
 
@@ -77,7 +82,9 @@ The matching found beetween the triple constraints and the RDF triple can now be
 Similarly, a FailureAnalyzer can be add to the ValidationAlgorithm to try to find the reason of the failure and store the report.
 
 Code example:
+```
 validation.addFailureReportsCollector(new FailureAnalyzerSimple());
+```
 
 A new algorithm for validation as been introduced: RecursiveValidationWithMemorization.
 
@@ -104,7 +111,10 @@ On negative structure, the current implementation passes all the tests.
 On negative syntax, the current implementation passes 100 out of the 102 tests. 
 
 Command line example to run the tests and create the report for shexTest: 
+```
  > mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.inria.lille.shexjava.shexTest.CreateTestReport" -Dexec.args="http://example.fr/~me"
+ ```
+ 
 
 # Usage
 
@@ -118,7 +128,9 @@ You have an online validator available at http://shexjava.lille.inria.fr/ with p
 ### With execution through maven
 
  Command line example to run a validation:
+ ```
  >  mvn exec:java -Dexec.classpathScope=test -Dexec.mainClass="fr.inria.lille.shexjava.commandLine.Validate" -Dexec.args="-s  ../../shexTest/schemas/1dotSemi.shex -d file:///home/jdusart/Documents/Shex/workspace/shexTest/validation/Is1_Ip1_Io1.ttl -l http://a.example/S1 -f http://a.example/s1 -a recursive" 
+ ```
 
 ### With execution without maven
 
