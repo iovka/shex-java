@@ -27,6 +27,7 @@ public class NodeSelectorFilterSubject implements NodeSelector {
 	
 	@Override
 	public Collection<RDFTerm> apply(Graph g){
+		// FIXME here this should not be collected as set as anyway the stream guarantees there won't be duplicate objects
 		return g.stream(null, predicate, object).map(tr -> tr.getSubject()).collect(Collectors.toSet());
 	}
 
