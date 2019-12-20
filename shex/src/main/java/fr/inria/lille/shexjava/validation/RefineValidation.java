@@ -81,24 +81,24 @@ public class RefineValidation extends SORBEBasedValidation {
 	 */
 	public void validate() {
 		try {
-			computeMaximalTyping(null);
+			computeMaximalTyping();
 		} catch (Exception e) {}
 	}
 	
 	
 	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
-		computeMaximalTyping(focusNode);
+		computeMaximalTyping();
 		return typing.isConformant(focusNode, label);
 	}
 
 
 
-	private void computeMaximalTyping(RDFTerm focusNode) throws Exception {
+	private void computeMaximalTyping() throws Exception {
 		if (computed)
 			return;
 		// This will compute the typing for the shape only
 		for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
-			List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum);		
+			List<Pair<RDFTerm, Label>> elements = getAllLabelsForStratum(stratum);
 			boolean changed;
 			do {
 				changed = false;
@@ -244,7 +244,7 @@ public class RefineValidation extends SORBEBasedValidation {
 
 	// Typing utils
 
-	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum) {
+	private List<Pair<RDFTerm, Label>> getAllLabelsForStratum(int stratum) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
 		Set<Label> labels = schema.getStratification().get(stratum); 
 		for (Label label: labels) {
