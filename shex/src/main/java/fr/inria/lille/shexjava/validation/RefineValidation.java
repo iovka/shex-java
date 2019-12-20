@@ -16,12 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
@@ -57,9 +53,9 @@ import fr.inria.lille.shexjava.util.Pair;
  */
 public class RefineValidation extends SORBEBasedValidation {
 	private boolean computed = false;
+	private Set<RDFTerm> allGraphNodes;
 	private TypingForValidation typing;
 
-	
 	public RefineValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
 	}
@@ -74,7 +70,13 @@ public class RefineValidation extends SORBEBasedValidation {
 		this.typing = new TypingForValidation();
 		computed = false;
 	}
-	
+
+	private Set<RDFTerm> getAllGraphNodes () {
+		if (allGraphNodes == null)
+			allGraphNodes = Collections.unmodifiableSet(CommonGraph.getAllNodes(graph));
+		return allGraphNodes;
+	}
+
 	/** (non-Javadoc)
 	 * @throws Exception 
 	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
@@ -85,13 +87,10 @@ public class RefineValidation extends SORBEBasedValidation {
 		} catch (Exception e) {}
 	}
 	
-	
 	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
 		computeMaximalTyping();
 		return typing.isConformant(focusNode, label);
 	}
-
-
 
 	private void computeMaximalTyping() throws Exception {
 		if (computed)
@@ -115,7 +114,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		}
 		// This populate the typing with everything else
 		for (Label label:schema.getShapeExprsMap().keySet()) {
-			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {		
+			for (RDFTerm node : getAllGraphNodes()) {
 				if (satisfies(new Pair<>(node, label),false)) {
 					typing.setStatus(node, label, Status.CONFORMANT);
 				} else {
@@ -132,6 +131,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) throws Exception {
 		EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor(validateShape);
 		shexprEvaluator.setNode(nl.one);
+
 		shexprEvaluator.accept(schema.getShapeExprsMap().get(nl.two));
 		return shexprEvaluator.getResult();
 	}
@@ -151,8 +151,8 @@ public class RefineValidation extends SORBEBasedValidation {
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), ValidationUtils.getPredicateOnlyMatcher());
 		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
 			
-		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
-			for (TripleConstraint tc:entry.getValue()) {
+		for(Entry<Triple,List<TripleConstraint>> entry : matchingTC1.entrySet()) {
+			for (TripleConstraint tc : entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
@@ -169,10 +169,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		}
 		return this.findMatching(node, shape, localTyping).getMatching() != null;
 	}	
-	
 
-
-	
 	class EvaluateShapeExpressionVisitor  {
 		private RDFTerm node; 
 		private Boolean result;
@@ -248,7 +245,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
 		Set<Label> labels = schema.getStratification().get(stratum); 
 		for (Label label: labels) {
-			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {		
+			for (RDFTerm node : getAllGraphNodes()) {
 				result.add(new Pair<>(node, label));
 				this.typing.setStatus(node, label, Status.CONFORMANT);
 			}
