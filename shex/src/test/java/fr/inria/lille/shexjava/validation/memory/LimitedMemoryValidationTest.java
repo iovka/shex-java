@@ -5,14 +5,12 @@ import static org.junit.Assert.*;
 import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser;
+import fr.inria.lille.shexjava.util.RDF4JFactory;
+import fr.inria.lille.shexjava.validation.*;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
@@ -35,10 +33,6 @@ import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelector;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelectorLabel;
 import fr.inria.lille.shexjava.util.Pair;
-import fr.inria.lille.shexjava.validation.RecursiveValidation;
-import fr.inria.lille.shexjava.validation.RecursiveValidationWithMemorization;
-import fr.inria.lille.shexjava.validation.Status;
-import fr.inria.lille.shexjava.validation.ValidationAlgorithm;
 
 public class LimitedMemoryValidationTest {
 
@@ -46,9 +40,11 @@ public class LimitedMemoryValidationTest {
 	@Test//(expected=OutOfMemoryError.class)
 	//public void shouldFailWithLimitedMemory() throws Exception {
 	public static void main (String[] args) throws Exception {
-	
-		Path dataFile = Paths.get("/", "home","io","Documents", "Research", "tmp", "data", "classicaldb-20091211-d.ttl"); 
-		Path schemaFile = Paths.get("/", "home","io","Documents", "Research", "tmp", "schemas", "classical.shex");  
+
+		Pair<String, String> dataSchemaFiles = getDataSchemaFilesNames();
+
+		Path dataFile = Paths.get("/", "home","io","Documents", "Research", "tmp", "data", dataSchemaFiles.one);
+		Path schemaFile = Paths.get("/", "home","io","Documents", "Research", "tmp", "schemas", dataSchemaFiles.two);
 		List<Path> importDirectories = Collections.emptyList();
 	
 		RDF4J factory = new RDF4J(); 
@@ -64,63 +60,81 @@ public class LimitedMemoryValidationTest {
 		
 		// create the graph
 		Graph dataGraph = factory.asGraph(data);
-		
-		ValidationAlgorithm validation = new RecursiveValidationWithMemorization(schema, dataGraph);
-		
+		doValidation(schema, dataGraph, factory);
+
+	}
+
+	// ----------------------------------------------------------------------------------------
+	// Test Customization section
+	// ----------------------------------------------------------------------------------------
+
+	// Customize the data and schema files
+	static Pair<String, String> getDataSchemaFilesNames () {
+		String dataFile;
+		String schemaFile;
+
+		dataFile = "classicaldb.ttl";
+		schemaFile = "classical-recanalyse.shex";
+
+		return new Pair<>(dataFile, schemaFile);
+	}
+
+	// Customize the validation algorithm to run in test
+	static ValidationAlgorithm getValidationAlgorithm (ShexSchema schema, Graph dataGraph) {
+		// return new RecursiveValidation(schema, dataGraph);
+		return new RecursiveValidationWithMemorization(schema, dataGraph);
+	}
+
+	// Customize the type and shape to use in test
+	static Pair<IRI, Label> getTypeShapeForValidation (RDF4J factory) {
+		IRI type;
+		Label shape;
+
+		/*
+		type = factory.createIRI("http://purl.org/ontology/mo/MusicalWork");
+		shape = new Label(factory.createIRI("http://shex.gen/MusicalWork"));
+		 */
+
+		type = factory.createIRI("http://dbtune.org/classical/resource/type/Composer");
+		shape = new Label(factory.createIRI("http://shex.gen/Composer"));
+
+		return new Pair<>(type, shape);
+	}
+
+	// ----------------------------------------------------------------------------------------
+
+	static void doValidation (ShexSchema schema, Graph dataGraph, RDF4J factory) {
+		ValidationAlgorithm validation = getValidationAlgorithm(schema, dataGraph);
+		Pair<IRI, Label> typeShape = getTypeShapeForValidation(factory);
+
+		IRI type = typeShape.one;
+		Label shape = typeShape.two;
+
 		// create the input shape map
 		IRI rdftype = factory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		IRI moComposition = factory.createIRI("http://purl.org/ontology/mo/Composition");
-		Label compositionShapeLabel = new Label(factory.createIRI("http://shex.gen/Composition"));
-		ShapeSelector ss = new ShapeSelectorLabel(compositionShapeLabel);
 
-		
-		
-		// With single shape association
-		NodeSelector ns = new NodeSelectorFilterSubject(rdftype, moComposition);
+		ShapeSelector ss = new ShapeSelectorLabel(shape);
+		NodeSelector ns = new NodeSelectorFilterSubject(rdftype, type);
 		ShapeAssociation sa = new ShapeAssociation(ns, ss);
-		BaseShapeMap shmap = new BaseShapeMap(Collections.singletonList(sa)); 
-		ResultShapeMap result = validation.validate(shmap);	
-		
-		// With multiple shape associations
-		/*
-		Set<RDFTerm> nodes = dataGraph.stream(null, rdftype, moComposition)
-				.map(tr -> tr.getSubject()).collect(Collectors.toSet());
-		List<ShapeAssociation> sa = new ArrayList<>();
-		for (RDFTerm n : nodes) {
-			sa.add(new ShapeAssociation(new NodeSeletorRDFTerm(n), ss));
-		}
-		BaseShapeMap shmap = new BaseShapeMap(sa); 
-		ResultShapeMap result = validation.validate(shmap);*/
-		
-		// Common to both validations with shape associations
-		
+		BaseShapeMap shmap = new BaseShapeMap(Collections.singletonList(sa));
+		ResultShapeMap result = validation.validate(shmap);
+
 		int nb = 0;
 		for (ShapeAssociation x : result.getAssociations()) {
-			System.out.println(x);
+			//System.out.println(x);
 			nb++;
-			if (nb % 10 == 0)
-				System.out.print(".");
 		}
 		System.out.println("Number of valid associations : " + nb);
-		
-		
-		// Iterating through all the nodes, no shape association
-		/*Set<RDFTerm> nodes = dataGraph.stream(null, rdftype, moComposition)
-				.map(tr -> tr.getSubject()).collect(Collectors.toSet());
-		for (RDFTerm n : nodes) {
-			validation.validate(n, compositionShapeLabel);
+
+		Scanner s = new Scanner(System.in);
+		int count = 0;
+		Map<Pair<RDFTerm, Label>, Status> typingMap = validation.getTyping().getStatusMap();
+		for (Map.Entry<Pair<RDFTerm, Label>, Status> e : typingMap.entrySet()) {
+			System.out.println(e);
+			count++;
+			if (count % 10 == 0)
+				s.nextLine();
 		}
-		
-		int nb = 0;
-		for (Map.Entry<Pair<RDFTerm,Label>, Status> e: validation.getTyping().getStatusMap().entrySet()) {
-			if (e.getKey().two.equals(compositionShapeLabel)) {
-				System.out.println(e.getKey().one + " " + e.getKey().two + " : " + e.getValue());
-				nb++;
-			}
-		}
-		System.out.println("" + nb + " nodes validated");
-		*/	
 	}
-	
-	
+
 }

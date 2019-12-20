@@ -72,7 +72,6 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		this.typing = new TypingForValidation();
 	}
 
-	
 	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
 		hyp = new LinkedList<>();
 		g = new DefaultDirectedGraph<>(DefaultEdge.class);
@@ -91,7 +90,8 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	// lowestReqHyp contains for the unsavedResults a link to the lowest hypothesis that is dependent of.
 	protected Map<Pair<RDFTerm,Label>,Pair<RDFTerm,Label>> lowestReqHyp;
 	
-	
+
+	// TODO should return a status
 	protected boolean recursiveValidation(RDFTerm focusNode, Label label) throws Exception {
 
 		if (!this.typing.getStatus(focusNode, label).equals(Status.NOTCOMPUTED))
@@ -110,6 +110,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		
 		hyp.addLast(key);
 		boolean res=false;
+		// FIXME Should use a visitor here
 		if (schema.getShapeExprsMap().get(label) instanceof ShapeNot)
 			res=recursiveValidationShapeNot(focusNode,label);
 		if (schema.getShapeExprsMap().get(label) instanceof ShapeExprRef)
@@ -123,7 +124,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		hyp.remove(key);
 		
 		if (g.containsVertex(key)) {
-			unsavedResults.put(key, res?Status.CONFORMANT:Status.NONCONFORMANT);
+			unsavedResults.put(key, res ? Status.CONFORMANT : Status.NONCONFORMANT);
 			memorize(focusNode,label);
 		}
 		return res;
