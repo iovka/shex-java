@@ -34,7 +34,7 @@ import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelector;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeSelectorLabel;
 import fr.inria.lille.shexjava.util.Pair;
 
-public class LimitedMemoryValidationTest {
+public class LimitedMemoryValidation {
 
 	
 	@Test//(expected=OutOfMemoryError.class)
@@ -82,7 +82,8 @@ public class LimitedMemoryValidationTest {
 	// Customize the validation algorithm to run in test
 	static ValidationAlgorithm getValidationAlgorithm (ShexSchema schema, Graph dataGraph) {
 		// return new RecursiveValidation(schema, dataGraph);
-		return new RecursiveValidationWithMemorization(schema, dataGraph);
+		//return new RecursiveValidationWithMemorization(schema, dataGraph);
+		return new RefineValidation(schema, dataGraph);
 	}
 
 	// Customize the type and shape to use in test

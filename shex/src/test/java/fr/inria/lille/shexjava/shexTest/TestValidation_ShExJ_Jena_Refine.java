@@ -56,6 +56,7 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
  * @author Jérémie Dusart
+ * @author Iovka Boneva
  *
  */
 @RunWith(Parameterized.class)
@@ -132,7 +133,7 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 
 
 	@Test
-	public void runTest() {
+	public void runTest() throws Exception {
 		if (! testCase.isWellDefined()) 
 			fail("Incorrect test definition.");
 		
@@ -143,11 +144,10 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 					|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && typing.getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
 				// do nothing, test succeed
 			} else {
-				System.out.println(testCase.testName);
-				fail("Validation exception do not compute the right result.");
+				fail("Validation exception do not compute the right result for test " + testCase.testName);
 			}			
 		} catch (Exception e) {
-			fail("Exception during the validation: "+e.getMessage());
+			fail("Exception during the validation for test: " + testCase.testName);
 		}
 	}
 
