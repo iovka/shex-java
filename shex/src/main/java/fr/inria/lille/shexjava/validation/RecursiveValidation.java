@@ -158,7 +158,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), ValidationUtils.getPredicateOnlyMatcher());
 		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
 			
-		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
+		for(Map.Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {
 			for (TripleConstraint tc:entry.getValue()) {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())

@@ -50,11 +50,12 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	 * @return a matching or null if none was found or cannot be found. 
 	 * @throws Exception 
 	 */
-	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing) throws Exception {
+	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing)  throws Exception {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), ValidationUtils.getPredicateAndValueMatcher(typing));
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(),
+				ValidationUtils.getPredicateAndValueMatcher(typing));
 		
 		LocalMatching result = null;
 		// Look for correct matching within the pre-matching

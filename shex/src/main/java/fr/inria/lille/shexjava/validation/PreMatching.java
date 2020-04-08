@@ -11,7 +11,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * Represents a tri-partition of a set of triples (typically the neighbourhood of some node).
  * Triples that match some of the triple constraints are those that appear as keys in {@link #getPreMatching()} and are associated with non-empty list of triple constraints.
  * Triples that match some of the extra properties are in {@link #getMatchedToExtra()}.
- * Triples that matche neigther some triple constraint nor the extra properties are in {@link #getUnmatched()} that match no exhca property. 
+ * Triples that match neither some triple constraint nor the extra properties are in {@link #getUnmatched()}.
  * 
  * @author Iovka Boneva
  * 3 août 2018

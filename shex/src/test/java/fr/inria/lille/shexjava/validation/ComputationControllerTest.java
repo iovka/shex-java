@@ -85,8 +85,8 @@ public class ComputationControllerTest {
 		
 	}
 
-	@Test
-	public void testWithShapeLabel() {
+	@Test(expected=CompControllerException.class)
+	public void testWithShapeLabel() throws Exception {
 		Graph graph = GlobalFactory.RDFFactory.createGraph();
 		graph.add(n1_a_human);
 		graph.add(n1_first_john);
@@ -99,21 +99,14 @@ public class ComputationControllerTest {
 
 		String schemaSt = "<http://inria.fr/Person> { a IRI; <http://a.b/first> IRI; <http://a.b/last> IRI }";
 		String shMap = "{ FOCUS a _ } @<http://inria.fr/Person>";
-		try {
-			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
-			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
-			assertEquals(shapeMap.getAssociations().size(), 1);
+		ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())));
+		BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
+		assertEquals(shapeMap.getAssociations().size(), 1);
 			
-			RecursiveValidationWithMemorization algo = new RecursiveValidationWithMemorization(schema, graph);
-			algo.validate(shapeMap,new LimitComputationController());
-			fail("exception expected.");
-		} catch ( Exception e) {
-			if (!(e instanceof CompControllerException))
-				fail("Not the right exception");
-		}
+		RecursiveValidationWithMemorization algo = new RecursiveValidationWithMemorization(schema, graph);
+		algo.validate(shapeMap,new LimitComputationController());
 	}
-	
-	
+
 	class LimitComputationController implements ComputationController{
 		int i=0;
 		

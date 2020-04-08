@@ -36,6 +36,7 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
  * Memorizes already computed results. 
  * 
  * @author Jérémie Dusart
+ * @author Iovka Boneva
  */
 public class DynamicCollectorOfTripleConstraints {
 
