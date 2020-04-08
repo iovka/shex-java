@@ -42,7 +42,13 @@ public class LocalMatching {
 		return matchedToExtra;
 	}
 	
-	
-	
+	@Override
+	public String toString() {
+		StringBuffer s = new StringBuffer();
+		s.append(String.format("Matching=%s ; ", matching.toString()));
+		s.append(String.format("Extra=%s ; ", matchedToExtra.toString()));
+		s.append(String.format("Unmatched=%s", unmatched.toString()));
+		return s.toString();
+	}
 	
 }

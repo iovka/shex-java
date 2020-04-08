@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.schema.parsing;
 
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -65,6 +66,24 @@ public class GenParser {
 	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{
 		return parseSchema(GlobalFactory.RDFFactory,filepath,importDirectories);
 	}
+	
+	public static ShexSchema parseSchema (InputStream in, String syntax) throws Exception {
+		Map<Label,ShapeExpr> allRules = new HashMap<Label,ShapeExpr>();
+		ShapeExpr start = null;
+
+		Parser parser;			
+		if (".json".equals(syntax)) {
+			parser = new ShExJParser();
+		} else if (".shex".equals(syntax)) {
+			parser = new ShExCParser();
+		}else {
+			parser = new ShExRParser();
+		}
+		allRules.putAll(parser.getRules(in));
+		start = parser.getStart();
+		return new ShexSchema(GlobalFactory.RDFFactory,allRules,start);
+	}
+	
 	
 	/** The function try to find the imports, if any, in the list of directories provided. The format of the schema is infer from the file extension.
 	 * @param filepath
