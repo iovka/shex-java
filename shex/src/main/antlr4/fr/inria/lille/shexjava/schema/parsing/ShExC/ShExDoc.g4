@@ -41,8 +41,7 @@ notStartAction  : start | shapeExprDecl ;
 start           : KW_START '=' shapeExpression ;
 startActions	: semanticAction+ ;
 statement 		: directive | notStartAction ;
-shapeExprDecl   : KW_ABSTRACT? shapeExprLabel (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
-                | shapeExprLabel KW_EXTENDS '@' shapeExprLabel shapeExpression      # extendsShapeExpression
+shapeExprDecl   : KW_ABSTRACT? shapeExprLabel extension* (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
                 ;
 shapeExpression : shapeOr ;
 shapeOr  		: shapeAnd (KW_OR shapeAnd)* ;
@@ -184,6 +183,9 @@ prefixedName    : PNAME_LN
 				| PNAME_NS
 				;
 blankNode       : BLANK_NODE_LABEL ;
+extension       : KW_EXTENDS '@' shapeExprLabel
+                | '&' shapeExprLabel
+                ;
 semanticAction		: '%' iri (CODE | '%') ;
 
 // Reserved for future use

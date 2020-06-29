@@ -262,30 +262,26 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		}else {
 			expr = (ShapeExpr) visitShapeExpression(ctx.shapeExpression());
 		}
+		if (ctx.extension()!=null && !ctx.extension().isEmpty()) {
+			for (ShExDocParser.ExtensionContext extContext:ctx.extension())
+				expr = new ExtendsShapeExpr((Label) extContext.accept(this),expr);
+		}
 		if (ctx.KW_ABSTRACT()!=null)
 			expr = new AbstractShapeExpr(expr);
 		if (rules.containsKey(label))
-			throw new IllegalArgumentException("Label "+label+" allready used.");
+			throw new IllegalArgumentException("Label "+label+" already used.");
+
 		expr.setId(label);
 		rules.put(label,expr);
 		return expr; 
 	}
-	
-	
-	@Override 
-	public ExtendsShapeExpr visitExtendsShapeExpression(ShExDocParser.ExtendsShapeExpressionContext ctx) {
-		Label labelBaseShapeExpr = (Label) visitShapeExprLabel(ctx.shapeExprLabel(1));
-		ShapeExpr extension = visitShapeExpression(ctx.shapeExpression());
-		ExtendsShapeExpr expr = new ExtendsShapeExpr(labelBaseShapeExpr,extension);
 
-		Label label = (Label) visitShapeExprLabel(ctx.shapeExprLabel(0));
-		expr.setId(label);
-		rules.put(label,expr);
 
-		return expr;
+	@Override
+	public Label visitExtension(ShExDocParser.ExtensionContext ctx) {
+		return visitShapeExprLabel(ctx.shapeExprLabel());
 	}
 	
-
 	@Override 
 	public ShapeExpr visitShapeExpression(ShExDocParser.ShapeExpressionContext ctx) { 
 		return visitShapeOr(ctx.shapeOr()); 
