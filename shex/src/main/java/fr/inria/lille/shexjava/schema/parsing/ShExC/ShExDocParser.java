@@ -51,7 +51,8 @@ public class ShExDocParser extends Parser {
 		RULE_rdfType = 58, RULE_datatype = 59, RULE_cardinality = 60, RULE_repeatRange = 61, 
 		RULE_shapeExprLabel = 62, RULE_tripleExprLabel = 63, RULE_numericLiteral = 64, 
 		RULE_rdfLiteral = 65, RULE_booleanLiteral = 66, RULE_string = 67, RULE_iri = 68, 
-		RULE_prefixedName = 69, RULE_blankNode = 70, RULE_codeDecl = 71, RULE_includeSet = 72;
+		RULE_prefixedName = 69, RULE_blankNode = 70, RULE_semanticAction = 71, 
+		RULE_includeSet = 72;
 	public static final String[] ruleNames = {
 		"shExDoc", "directive", "baseDecl", "prefixDecl", "importDecl", "notStartAction", 
 		"start", "startActions", "statement", "shapeExprDecl", "shapeExpression", 
@@ -67,7 +68,7 @@ public class ShExDocParser extends Parser {
 		"shapeRef", "include", "semanticActions", "annotation", "predicate", "rdfType", 
 		"datatype", "cardinality", "repeatRange", "shapeExprLabel", "tripleExprLabel", 
 		"numericLiteral", "rdfLiteral", "booleanLiteral", "string", "iri", "prefixedName", 
-		"blankNode", "codeDecl", "includeSet"
+		"blankNode", "semanticAction", "includeSet"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
@@ -531,11 +532,11 @@ public class ShExDocParser extends Parser {
 	}
 
 	public static class StartActionsContext extends ParserRuleContext {
-		public List<CodeDeclContext> codeDecl() {
-			return getRuleContexts(CodeDeclContext.class);
+		public List<SemanticActionContext> semanticAction() {
+			return getRuleContexts(SemanticActionContext.class);
 		}
-		public CodeDeclContext codeDecl(int i) {
-			return getRuleContext(CodeDeclContext.class,i);
+		public SemanticActionContext semanticAction(int i) {
+			return getRuleContext(SemanticActionContext.class,i);
 		}
 		public StartActionsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -562,7 +563,7 @@ public class ShExDocParser extends Parser {
 				{
 				{
 				setState(189);
-				codeDecl();
+				semanticAction();
 				}
 				}
 				setState(192); 
@@ -3954,11 +3955,11 @@ public class ShExDocParser extends Parser {
 	}
 
 	public static class SemanticActionsContext extends ParserRuleContext {
-		public List<CodeDeclContext> codeDecl() {
-			return getRuleContexts(CodeDeclContext.class);
+		public List<SemanticActionContext> semanticAction() {
+			return getRuleContexts(SemanticActionContext.class);
 		}
-		public CodeDeclContext codeDecl(int i) {
-			return getRuleContext(CodeDeclContext.class,i);
+		public SemanticActionContext semanticAction(int i) {
+			return getRuleContext(SemanticActionContext.class,i);
 		}
 		public SemanticActionsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -3985,7 +3986,7 @@ public class ShExDocParser extends Parser {
 				{
 				{
 				setState(584);
-				codeDecl();
+				semanticAction();
 				}
 				}
 				setState(589);
@@ -4839,25 +4840,25 @@ public class ShExDocParser extends Parser {
 		return _localctx;
 	}
 
-	public static class CodeDeclContext extends ParserRuleContext {
+	public static class SemanticActionContext extends ParserRuleContext {
 		public IriContext iri() {
 			return getRuleContext(IriContext.class,0);
 		}
 		public TerminalNode CODE() { return getToken(ShExDocParser.CODE, 0); }
-		public CodeDeclContext(ParserRuleContext parent, int invokingState) {
+		public SemanticActionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_codeDecl; }
+		@Override public int getRuleIndex() { return RULE_semanticAction; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof ShExDocVisitor ) return ((ShExDocVisitor<? extends T>)visitor).visitCodeDecl(this);
+			if ( visitor instanceof ShExDocVisitor ) return ((ShExDocVisitor<? extends T>)visitor).visitSemanticAction(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final CodeDeclContext codeDecl() throws RecognitionException {
-		CodeDeclContext _localctx = new CodeDeclContext(_ctx, getState());
-		enterRule(_localctx, 142, RULE_codeDecl);
+	public final SemanticActionContext semanticAction() throws RecognitionException {
+		SemanticActionContext _localctx = new SemanticActionContext(_ctx, getState());
+		enterRule(_localctx, 142, RULE_semanticAction);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);

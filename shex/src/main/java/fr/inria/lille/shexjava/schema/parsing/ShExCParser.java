@@ -73,7 +73,7 @@ import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocBaseVisitor;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocLexer;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.BooleanLiteralContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.CodeDeclContext;
+import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.SemanticActionContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.DatatypeContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.EncapsulatedShapeContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.GroupShapeContext;
@@ -1079,7 +1079,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 
 	@Override
-	public Object visitCodeDecl(CodeDeclContext ctx) {
+	public Object visitSemanticAction(SemanticActionContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}

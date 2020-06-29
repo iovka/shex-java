@@ -548,11 +548,11 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBlankNode(ShExDocParser.BlankNodeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#codeDecl}.
+	 * Visit a parse tree produced by {@link ShExDocParser#semanticAction}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCodeDecl(ShExDocParser.CodeDeclContext ctx);
+	T visitSemanticAction(ShExDocParser.SemanticActionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#includeSet}.
 	 * @param ctx the parse tree

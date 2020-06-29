@@ -220,7 +220,7 @@ string
 iri
 prefixedName
 blankNode
-codeDecl
+semanticAction
 includeSet
 
 

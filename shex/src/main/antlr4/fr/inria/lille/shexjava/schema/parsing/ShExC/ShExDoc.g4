@@ -39,7 +39,7 @@ prefixDecl		: KW_PREFIX PNAME_NS IRIREF ;
 importDecl      : KW_IMPORT IRIREF ;
 notStartAction  : start | shapeExprDecl ;
 start           : KW_START '=' shapeExpression ;
-startActions	: codeDecl+ ;
+startActions	: semanticAction+ ;
 statement 		: directive | notStartAction ;
 shapeExprDecl   : KW_ABSTRACT? shapeExprLabel (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
                 | shapeExprLabel KW_EXTENDS '@' shapeExprLabel shapeExpression      # extendsShapeExpression
@@ -141,7 +141,7 @@ shapeRef 		: ATPNAME_LN
 				| '@' shapeExprLabel
 				;
 include			: '&' tripleExprLabel ;
-semanticActions	: codeDecl* ;
+semanticActions	: semanticAction* ;
 annotation      : '//' predicate (iri | literal) ;
 // BNF: predicate ::= iri | RDF_TYPE
 predicate       : iri
@@ -184,7 +184,7 @@ prefixedName    : PNAME_LN
 				| PNAME_NS
 				;
 blankNode       : BLANK_NODE_LABEL ;
-codeDecl		: '%' iri (CODE | '%') ;
+semanticAction		: '%' iri (CODE | '%') ;
 
 // Reserved for future use
 includeSet      : '&' tripleExprLabel+ ;
