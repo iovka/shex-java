@@ -77,7 +77,6 @@ import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.SemanticAction
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.DatatypeContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.EncapsulatedShapeContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.GroupShapeContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.IncludeSetContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAndContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAtomAnyContext;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAtomNodeConstraintContext;
@@ -262,10 +261,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		}else {
 			expr = (ShapeExpr) visitShapeExpression(ctx.shapeExpression());
 		}
-		if (ctx.extension()!=null && !ctx.extension().isEmpty()) {
-			for (ShExDocParser.ExtensionContext extContext:ctx.extension())
-				expr = new ExtendsShapeExpr((Label) extContext.accept(this),expr);
-		}
 		if (ctx.KW_ABSTRACT()!=null)
 			expr = new AbstractShapeExpr(expr);
 		if (rules.containsKey(label))
@@ -355,13 +350,16 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override 
-	public Shape visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx) {
+	public ShapeExpr visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx) {
 		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
+		List<Label> extensions = new ArrayList<Label>();
 		for (QualifierContext qua:ctx.qualifier()) {
-			if (qua.KW_CLOSED()!=null)
+			if (qua.KW_CLOSED()!=null){
 				closed= true;
-			else if (qua.extraPropertySet()!=null){
+			} else if (qua.extension()!=null){
+				extensions.add((Label) qua.extension().accept(this));
+			} else if (qua.extraPropertySet()!=null){
 				extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));
 			} else {
 				System.err.println("Qualifier: "+qua.getText());
@@ -374,17 +372,23 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		} else {
 			triple = new EmptyTripleExpression();
 		}				
-		return new Shape(triple, extra, closed);
-	}
+		ShapeExpr result = new Shape(triple, extra, closed);
+		for (Label label:extensions)
+			result = new ExtendsShapeExpr(label,result);
+		return result;
+        }
 
 	@Override
-	public Shape visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx) {
+	public ShapeExpr visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx) {
 		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
+		List<Label> extensions = new ArrayList<Label>();
 		for (QualifierContext qua:ctx.qualifier()) {
-			if (qua.KW_CLOSED()!=null)
+			if (qua.KW_CLOSED()!=null){
 				closed= true;
-			else if (qua.extraPropertySet()!=null){
+			} else if (qua.extension()!=null){
+				extensions.add((Label) qua.extension().accept(this));
+			} else if (qua.extraPropertySet()!=null){
 				extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));
 			} else {
 				System.err.println("Qualifier: "+qua.getText());
@@ -409,7 +413,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		
 		Shape result = new Shape(triple, extra, closed);
 		result.setAnnotations(annotations);
-		return result;
+                ShapeExpr expr = result;
+		for (Label label:extensions)
+			expr = new ExtendsShapeExpr(label,expr);
+		return expr;
 	}
 
 	//Not used
@@ -1079,12 +1086,6 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Object visitIncludeSet(IncludeSetContext ctx) {
-		// TODO Auto-generated method stub
-		return null;
-	} 
 
 	
 	//--------------------------------------------

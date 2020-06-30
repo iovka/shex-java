@@ -41,7 +41,7 @@ notStartAction  : start | shapeExprDecl ;
 start           : KW_START '=' shapeExpression ;
 startActions	: semanticAction+ ;
 statement 		: directive | notStartAction ;
-shapeExprDecl   : KW_ABSTRACT? shapeExprLabel extension* (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
+shapeExprDecl   : KW_ABSTRACT? shapeExprLabel /* extension* */ (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
                 ;
 shapeExpression : shapeOr ;
 shapeOr  		: shapeAnd (KW_OR shapeAnd)* ;
@@ -54,7 +54,7 @@ inlineShapeAnd  : inlineShapeNot (KW_AND inlineShapeNot)* ;
 inlineShapeNot  : negation? inlineShapeAtom ;
 inlineShapeDefinition : qualifier* '{' oneOfShape? '}' ;
 shapeDefinition : qualifier* '{' oneOfShape? '}' annotation* semanticActions ;
-qualifier       : includeSet | extraPropertySet | KW_CLOSED ;
+qualifier       : extension | extraPropertySet | KW_CLOSED ;
 extraPropertySet : KW_EXTRA predicate+ ;
 oneOfShape      : groupShape
 				| multiElementOneOf
@@ -187,9 +187,6 @@ extension       : KW_EXTENDS '@' shapeExprLabel
                 | '&' shapeExprLabel
                 ;
 semanticAction		: '%' iri (CODE | '%') ;
-
-// Reserved for future use
-includeSet      : '&' tripleExprLabel+ ;
 
 
 // Keywords

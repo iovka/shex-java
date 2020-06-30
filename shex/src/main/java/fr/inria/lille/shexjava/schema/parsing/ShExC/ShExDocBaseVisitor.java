@@ -620,11 +620,4 @@ public class ShExDocBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitSemanticAction(ShExDocParser.SemanticActionContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitIncludeSet(ShExDocParser.IncludeSetContext ctx) { return visitChildren(ctx); }
 }

@@ -552,10 +552,4 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSemanticAction(ShExDocParser.SemanticActionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link ShExDocParser#includeSet}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIncludeSet(ShExDocParser.IncludeSetContext ctx);
 }
