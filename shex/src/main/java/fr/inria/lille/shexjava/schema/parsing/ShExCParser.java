@@ -253,7 +253,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	
 	@Override 
-	public ShapeExpr visitBaseShapeExpression(ShExDocParser.BaseShapeExpressionContext ctx) {
+	public ShapeExpr visitShapeExprDecl(ShExDocParser.ShapeExprDeclContext ctx) {
 		Label label = (Label) visitShapeExprLabel(ctx.shapeExprLabel());
 		ShapeExpr expr ;
 		if (ctx.KW_EXTERNAL()!=null) {

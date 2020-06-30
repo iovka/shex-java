@@ -41,7 +41,7 @@ notStartAction  : start | shapeExprDecl ;
 start           : KW_START '=' shapeExpression ;
 startActions	: semanticAction+ ;
 statement 		: directive | notStartAction ;
-shapeExprDecl   : KW_ABSTRACT? shapeExprLabel /* extension* */ (shapeExpression | KW_EXTERNAL)   # baseShapeExpression
+shapeExprDecl   : KW_ABSTRACT? shapeExprLabel /* extension* */ (shapeExpression | KW_EXTERNAL)
                 ;
 shapeExpression : shapeOr ;
 shapeOr  		: shapeAnd (KW_OR shapeAnd)* ;
@@ -187,6 +187,11 @@ extension       : KW_EXTENDS '@' shapeExprLabel
                 | '&' shapeExprLabel
                 ;
 semanticAction		: '%' iri (CODE | '%') ;
+
+/* Not implemented yet, but reserved for future enhancement */
+restrictions    : KW_RESTRICTS shapeExprLabel
+                | '-' shapeExprLabel
+                ;
 
 
 // Keywords
