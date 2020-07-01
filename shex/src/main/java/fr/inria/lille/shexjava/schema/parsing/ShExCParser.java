@@ -349,12 +349,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	public ShapeExpr visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx) {
 		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
-		List<Label> extensions = new ArrayList<Label>();
+		List<Label> bases = new ArrayList<Label>();
 		for (QualifierContext qua:ctx.qualifier()) {
 			if (qua.KW_CLOSED()!=null){
 				closed= true;
 			} else if (qua.extension()!=null){
-				extensions.add((Label) qua.extension().accept(this));
+				bases.add((Label) qua.extension().accept(this));
 			} else if (qua.extraPropertySet()!=null){
 				extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));
 			} else {
@@ -368,22 +368,25 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		} else {
 			triple = new EmptyTripleExpression();
 		}				
-		ShapeExpr result = new Shape(triple, extra, closed);
-		for (Label label:extensions)
-			result = new ExtendsShapeExpr(label,result);
-		return result;
-        }
+		Shape result = new Shape(triple, extra, closed);
+		if (bases.size() != 0)
+			result.setBaseLabels(bases);
+		ShapeExpr expr = result;
+		for (Label label:bases)
+			expr = new ExtendsShapeExpr(label,expr);
+		return expr;
+	}
 
 	@Override
 	public ShapeExpr visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx) {
 		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
-		List<Label> extensions = new ArrayList<Label>();
+		List<Label> bases = new ArrayList<Label>();
 		for (QualifierContext qua:ctx.qualifier()) {
 			if (qua.KW_CLOSED()!=null){
 				closed= true;
 			} else if (qua.extension()!=null){
-				extensions.add((Label) qua.extension().accept(this));
+				bases.add((Label) qua.extension().accept(this));
 			} else if (qua.extraPropertySet()!=null){
 				extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));
 			} else {
@@ -409,8 +412,10 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		
 		Shape result = new Shape(triple, extra, closed);
 		result.setAnnotations(annotations);
-                ShapeExpr expr = result;
-		for (Label label:extensions)
+		if (bases.size() != 0)
+			result.setBaseLabels(bases);
+		ShapeExpr expr = result;
+		for (Label label:bases)
 			expr = new ExtendsShapeExpr(label,expr);
 		return expr;
 	}

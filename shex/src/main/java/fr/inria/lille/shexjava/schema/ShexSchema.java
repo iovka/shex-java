@@ -252,22 +252,8 @@ public class ShexSchema {
 
 		
 	private void checkThatAllShapeExprRefsAreDefined() throws UndefinedReferenceException {
-		for (ShapeExpr sexpr : shexprsMap.values()){
-			if (sexpr instanceof ShapeExprRef) {
-				ShapeExprRef ref = (ShapeExprRef) sexpr;
-				if (shexprsMap.containsKey(ref.getLabel())) 
-					ref.setShapeDefinition(shexprsMap.get(ref.getLabel()));
-				 else 
-					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
-			}
-			if (sexpr instanceof ExtendsShapeExpr) {
-				ExtendsShapeExpr extexpr = (ExtendsShapeExpr) sexpr;
-				if (shexprsMap.containsKey(extexpr.getBaseShapeExprLabel())) 
-					extexpr.setBaseShapeExpr(shexprsMap.get(extexpr.getBaseShapeExprLabel()));
-				 else 
-					throw new UndefinedReferenceException("Undefined shape label for extension: " + extexpr.getBaseShapeExprLabel());
-			}
-		}
+		for (ShapeExpr sexpr : shexprsMap.values())
+			sexpr.resolveReferences(shexprsMap);
 	}
 	
 	
