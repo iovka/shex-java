@@ -119,12 +119,19 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInlineShapeNot(ShExDocParser.InlineShapeNotContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code shapeAtomNodeConstraint}
+	 * Visit a parse tree produced by the {@code shapeAtomNonLitNodeConstraint}
 	 * labeled alternative in {@link ShExDocParser#shapeAtom}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShapeAtomNodeConstraint(ShExDocParser.ShapeAtomNodeConstraintContext ctx);
+	T visitShapeAtomNonLitNodeConstraint(ShExDocParser.ShapeAtomNonLitNodeConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code shapeAtomLitNodeConstraint}
+	 * labeled alternative in {@link ShExDocParser#shapeAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitShapeAtomLitNodeConstraint(ShExDocParser.ShapeAtomLitNodeConstraintContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code shapeAtomShapeOrRef}
 	 * labeled alternative in {@link ShExDocParser#shapeAtom}.
@@ -147,12 +154,19 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitShapeAtomAny(ShExDocParser.ShapeAtomAnyContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code inlineShapeAtomNodeConstraint}
+	 * Visit a parse tree produced by the {@code inlineShapeAtomNonLitNodeConstraint}
 	 * labeled alternative in {@link ShExDocParser#inlineShapeAtom}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitInlineShapeAtomNodeConstraint(ShExDocParser.InlineShapeAtomNodeConstraintContext ctx);
+	T visitInlineShapeAtomNonLitNodeConstraint(ShExDocParser.InlineShapeAtomNonLitNodeConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code inlineShapeAtomLitNodeConstraint}
+	 * labeled alternative in {@link ShExDocParser#inlineShapeAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInlineShapeAtomLitNodeConstraint(ShExDocParser.InlineShapeAtomLitNodeConstraintContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code inlineShapeAtomShapeOrRef}
 	 * labeled alternative in {@link ShExDocParser#inlineShapeAtom}.
@@ -194,39 +208,65 @@ public interface ShExDocVisitor<T> extends ParseTreeVisitor<T> {
 	T visitShapeRef(ShExDocParser.ShapeRefContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintLiteral}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintLiteral(ShExDocParser.NodeConstraintLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintNonLiteral}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintNonLiteral(ShExDocParser.NodeConstraintNonLiteralContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintDatatype}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintDatatype(ShExDocParser.NodeConstraintDatatypeContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code nodeConstraintValueSet}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNodeConstraintValueSet(ShExDocParser.NodeConstraintValueSetContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code nodeConstraintFacet}
-	 * labeled alternative in {@link ShExDocParser#nodeConstraint}.
+	 * Visit a parse tree produced by the {@code nodeConstraintNumericFacet}
+	 * labeled alternative in {@link ShExDocParser#inlineLitNodeConstraint}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNodeConstraintFacet(ShExDocParser.NodeConstraintFacetContext ctx);
+	T visitNodeConstraintNumericFacet(ShExDocParser.NodeConstraintNumericFacetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#litNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLitNodeConstraint(ShExDocParser.LitNodeConstraintContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code litNodeConstraintLiteral}
+	 * labeled alternative in {@link ShExDocParser#inlineNonLitNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLitNodeConstraintLiteral(ShExDocParser.LitNodeConstraintLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code litNodeConstraintStringFacet}
+	 * labeled alternative in {@link ShExDocParser#inlineNonLitNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLitNodeConstraintStringFacet(ShExDocParser.LitNodeConstraintStringFacetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ShExDocParser#nonLitNodeConstraint}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNonLitNodeConstraint(ShExDocParser.NonLitNodeConstraintContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ShExDocParser#nonLiteralKind}.
 	 * @param ctx the parse tree

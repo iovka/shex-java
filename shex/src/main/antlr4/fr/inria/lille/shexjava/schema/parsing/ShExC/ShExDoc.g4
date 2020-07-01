@@ -24,7 +24,10 @@
 // Apr 09, 2017 - factor out shapeRef to match spec
 // Apr 09, 2017 - update repeatRange to allow differentiation of {INTEGER} and {INTEGER,}
 // Apr 09, 2017 - add STEM_MARK and UNBOUNDED tokens to eliminate lex token parsing
-// Jun 10, 2018 - add empty language stem
+// Apr 17, 2018 - add 2.1 rules -- extensions, restrictions and ABSTRACT
+// Aug 13, 2018 - Re-order rules to approximate Yacker BNF
+// Aug 13, 2018 - Remove '!' for NOT
+// Aug 13, 2018 - Add annotations and semanticActions to nodeconstraint
 
 
 grammar ShExDoc;
@@ -50,13 +53,15 @@ shapeAnd		: shapeNot (KW_AND shapeNot)* ;
 inlineShapeAnd  : inlineShapeNot (KW_AND inlineShapeNot)* ;
 shapeNot	    : KW_NOT? shapeAtom ;
 inlineShapeNot  : KW_NOT? inlineShapeAtom ;
-shapeAtom		: nodeConstraint shapeOrRef?    # shapeAtomNodeConstraint
-				| shapeOrRef                    # shapeAtomShapeOrRef
+shapeAtom		: nonLitNodeConstraint shapeOrRef?    # shapeAtomNonLitNodeConstraint
+                | litNodeConstraint             # shapeAtomLitNodeConstraint
+				| shapeOrRef nonLitNodeConstraint?    # shapeAtomShapeOrRef
 				| '(' shapeExpression ')'		# shapeAtomShapeExpression
 				| '.'							# shapeAtomAny			// no constraint
 				;
-inlineShapeAtom : nodeConstraint inlineShapeOrRef? # inlineShapeAtomNodeConstraint
-				| inlineShapeOrRef nodeConstraint? # inlineShapeAtomShapeOrRef
+inlineShapeAtom : inlineNonLitNodeConstraint inlineShapeOrRef? # inlineShapeAtomNonLitNodeConstraint
+                | inlineLitNodeConstraint             # inlineShapeAtomLitNodeConstraint
+				| inlineShapeOrRef inlineNonLitNodeConstraint? # inlineShapeAtomShapeOrRef
 				| '(' shapeExpression ')'		# inlineShapeAtomShapeExpression
 				| '.'							# inlineShapeAtomAny   // no constraint
 				;
@@ -70,12 +75,17 @@ shapeRef 		: ATPNAME_LN
 				| ATPNAME_NS
 				| '@' shapeExprLabel
 				;
-nodeConstraint  : KW_LITERAL xsFacet*			# nodeConstraintLiteral
+inlineLitNodeConstraint : KW_LITERAL xsFacet*	# nodeConstraintLiteral
 				| nonLiteralKind stringFacet*	# nodeConstraintNonLiteral
 				| datatype xsFacet*				# nodeConstraintDatatype
 				| valueSet xsFacet*				# nodeConstraintValueSet
-				| xsFacet+						# nodeConstraintFacet
+				| numericFacet+					# nodeConstraintNumericFacet
 				;
+litNodeConstraint : inlineLitNodeConstraint  annotation* semanticAction* ;
+inlineNonLitNodeConstraint  : nonLiteralKind stringFacet*	# litNodeConstraintLiteral
+                | stringFacet+                  # litNodeConstraintStringFacet
+				;
+nonLitNodeConstraint : inlineNonLitNodeConstraint  annotation* semanticAction* ;
 nonLiteralKind  : KW_IRI
 				| KW_BNODE
 				| KW_NONLITERAL
