@@ -22,22 +22,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 
 
 /** This class provide a set of functions to collect element from a set of rules. 
@@ -170,6 +155,12 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 		if (filter.test(expr))
 			set.add((C)expr);
 		super.visitShapeAnd(expr, arguments);
+	}
+
+	@Override
+	public void visitAbstractShape(AbstractShapeExpr expr, Object... arguments) {
+		if (filter.test(expr))
+			set.add((C)expr);
 	}
 
 	@Override

@@ -16,15 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.analysis;
 
-import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 
 /**
  * 
@@ -54,6 +46,7 @@ public abstract class ShapeExpressionVisitor<ResultType> {
 	
 	public abstract void visitExtendsShapeExpr(ExtendsShapeExpr expr, Object... arguments)	;
 	public abstract void visitShape (Shape expr, Object... arguments) ;
+	public abstract void visitAbstractShape (AbstractShapeExpr expr, Object... arguments) ;
 	public abstract void visitNodeConstraint (NodeConstraint expr, Object ... arguments);
 	public abstract void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments);
 	public void visitShapeExternal (ShapeExternal shapeExt, Object... arguments) {
