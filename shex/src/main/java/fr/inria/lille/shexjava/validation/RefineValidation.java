@@ -135,7 +135,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	/** Tests whether the node's neighbourhood matches the shape with the current typing */
 	private boolean matches (RDFTerm node, Shape shape) {
 		// Since the algorithm first computing the typing with the shape only, in the same fashion as for the recursive algorithm, a localtyping must be computed without any cal to compute shape.
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 

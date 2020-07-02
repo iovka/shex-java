@@ -147,7 +147,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	
 	
 	private boolean isLocallyValid (RDFTerm node, Shape shape) throws Exception {
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());

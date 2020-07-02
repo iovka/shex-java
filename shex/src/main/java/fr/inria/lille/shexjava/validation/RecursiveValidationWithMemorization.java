@@ -333,7 +333,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	// ----------------------------------------------------------
 	
 	private Map<Triple, List<TripleConstraint>> computePreMatchingWithPredicateOnly(RDFTerm node, Shape shape) {
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 		

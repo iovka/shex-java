@@ -60,14 +60,14 @@ public class SORBEGenerator {
 	
 	
 	/** Construct an equivalent triple expression that satisfies the SORBE requirement. 
-	 * @param shape
+	 * @param texpr
 	 * @return
 	 */
-	public TripleExpr getSORBETripleExpr(Shape shape) {
-		if (this.sorbeMap.containsKey(shape.getId()))
-			return this.sorbeMap.get(shape.getId());
-		shape.getTripleExpression().accept(generatorTE);
-		this.sorbeMap.put(shape.getId(), generatorTE.getResult());
+	public TripleExpr getSORBETripleExpr(TripleExpr texpr) {
+		if (this.sorbeMap.containsKey(texpr.getId()))
+			return this.sorbeMap.get(texpr.getId());
+		texpr.accept(generatorTE);
+		this.sorbeMap.put(texpr.getId(), generatorTE.getResult());
 		return generatorTE.getResult();
 	}
 
