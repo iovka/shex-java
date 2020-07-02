@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
@@ -80,23 +81,19 @@ public class RefineValidation extends SORBEBasedValidation {
 	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
 	 */
 	public void validate() {
-		try {
-			computeMaximalTyping(null);
-		} catch (Exception e) {}
+		computeMaximalTyping(null);
 	}
 	
 	
-	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
+	protected boolean performValidation(RDFTerm focusNode, Label label) {
 		computeMaximalTyping(focusNode);
 		return typing.isConformant(focusNode, label);
 	}
 
-
-
-	private void computeMaximalTyping(RDFTerm focusNode) throws Exception {
+	private void computeMaximalTyping(RDFTerm focusNode) {
 		if (computed)
 			return;
-		// This will compute the typing for the shape only
+		// Compute the maximal typing for the shapes only
 		for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
 			List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum);		
 			boolean changed;
@@ -113,7 +110,8 @@ public class RefineValidation extends SORBEBasedValidation {
 				}
 			} while (changed);
 		}
-		// This populate the typing with everything else
+		// TODO: the typing should store differently the shape labels and the other labels
+		// Populate the typing with all the labels from the schema
 		for (Label label:schema.getShapeExprsMap().keySet()) {
 			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {		
 				if (satisfies(new Pair<>(node, label),false)) {
@@ -128,18 +126,18 @@ public class RefineValidation extends SORBEBasedValidation {
 
 	/** Tests whether the node satisfies the shape expresion with specified label and with the current typing 
 	 *  If validateShape is set to true, then the typing will not be used
-	 * @throws Exception */
-	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) throws Exception {
+	 *  */
+	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) {
 		EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor(validateShape);
 		shexprEvaluator.setNode(nl.one);
-		shexprEvaluator.accept(schema.getShapeExprsMap().get(nl.two));
+		schema.getShapeExprsMap().get(nl.two).accept(shexprEvaluator);
 		return shexprEvaluator.getResult();
 	}
 	
 	
 	/** Tests whether the node's neighbourhood matches the shape with the current typing 
-	 * @throws Exception */
-	private boolean matches (RDFTerm node, Shape shape) throws Exception {
+	 */
+	private boolean matches (RDFTerm node, Shape shape) {
 		// Since the algorithm first computing the typing with the shape only, in the same fashion as for the recursive algorithm, a localtyping must be computed without any cal to compute shape.
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
@@ -169,11 +167,8 @@ public class RefineValidation extends SORBEBasedValidation {
 		}
 		return this.findMatching(node, shape, localTyping).getMatching() != null;
 	}	
-	
 
-
-	
-	class EvaluateShapeExpressionVisitor  {
+	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
 		private RDFTerm node; 
 		private Boolean result;
 		private boolean validateShape;
@@ -190,7 +185,8 @@ public class RefineValidation extends SORBEBasedValidation {
 			if (result == null) return false;
 			return result;
 		}
-		
+
+		/*
 		public void accept(ShapeExpr expr) throws Exception {
 			if (expr instanceof ShapeAnd)
 				this.visitShapeAnd((ShapeAnd) expr);
@@ -205,39 +201,44 @@ public class RefineValidation extends SORBEBasedValidation {
 			if (expr instanceof ShapeExprRef)
 				this.visitShapeExprRef((ShapeExprRef) expr);
 		}
-		
-		public void visitShapeAnd(ShapeAnd expr) throws Exception {
+		 */
+
+		@Override
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
-				this.accept(e);
+				e.accept(this);
 				if (!result) break;
 			}
 		}
 
-		public void visitShapeOr(ShapeOr expr) throws Exception {
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
-				this.accept(e);
+				e.accept(this);
 				if (result) break;
 			}
 		}
 		
-		public void visitShapeNot(ShapeNot expr) throws Exception {
-			this.accept(expr.getSubExpression());
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			expr.getSubExpression().accept(this);
 			result = !result;
 		}
-		
-		public void visitShape(Shape expr) throws Exception {
+
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
 			if (validateShape)
 				result = matches(node, expr);
 			else
 				result = typing.isConformant(node, expr.getId());
 		}
 
-		public void visitNodeConstraint(NodeConstraint expr) {
+		@Override
+		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
 			result = expr.contains(node);
 		}
 
-		public void visitShapeExprRef(ShapeExprRef ref) throws Exception {
-			this.accept(ref.getShapeDefinition());
+		@Override
+		public void visitShapeExprRef(ShapeExprRef ref, Object... arguments){
+			ref.getShapeDefinition().accept(this);
 		}
 	}
 

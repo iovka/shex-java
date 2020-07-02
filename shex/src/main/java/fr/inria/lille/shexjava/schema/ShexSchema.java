@@ -517,10 +517,10 @@ public class ShexSchema {
 		return strConComp;
 	}
 	
-	
+	// TODO EXTENDS : the stratification graph should be re-defined
 	private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeGraphOfDependences() {
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
-		builder = new GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>>(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
+		builder = new GraphBuilder(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
 		
 		List<Label> shapes = this.shexprsMap.keySet().stream().filter(la -> (this.shexprsMap.get(la) instanceof Shape))
 															  .collect(Collectors.toList());

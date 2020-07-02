@@ -50,7 +50,7 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	 * @return a matching or null if none was found or cannot be found. 
 	 * @throws Exception 
 	 */
-	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing) throws Exception {
+	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
@@ -62,7 +62,12 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 			BagIterator bagIt = new BagIterator(preMatching);
 			IntervalComputation intervalComputation = new IntervalComputation(this.collectorTC);
 			while(result==null && bagIt.hasNext()){
-				if (this.compController != null) compController.canContinue();
+				// TODO what to do with this exception ?
+				try {
+					if (this.compController != null) compController.canContinue();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				Bag bag = bagIt.next();
 				tripleExpression.accept(intervalComputation, bag, this);
 				if (intervalComputation.getResult().contains(1)) {

@@ -84,7 +84,8 @@ public class ValidationUtils {
 		
 		return new PreMatching(matchingTriplesMap, matchedToExtraTriples, unmatchedTriples);
 	}
-	
+
+	// TODO never used
 	/** Produces a map that with every triple constraint in the given list of triple constarints associates all the triples matched with this triple constraint in the given pre-matching.
 	 * 
 	 * @param preMatching
@@ -101,7 +102,7 @@ public class ValidationUtils {
 		return result;
 	}
 	
-	
+	// TODO never used
 	/** Produces a map that with every triple constraint from the given matching associates the list of triples that are matched with that triple constraint in the matching.
 	 * 
 	 * @param matching
