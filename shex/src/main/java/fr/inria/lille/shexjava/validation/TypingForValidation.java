@@ -32,7 +32,6 @@ import fr.inria.lille.shexjava.util.Pair;
  * @author jdusart
  *
  */
-// TODO: need for a typing class specific for the different alogithms: refine validation and recursive validation do not have the same needs
 public class TypingForValidation implements Typing {
 	private Map<Pair<RDFTerm,Label>,Status> status;
 	

@@ -12,7 +12,7 @@ import fr.inria.lille.shexjava.util.Pair;
 /** A simpler version of a shape map that associates a {@link Status} to pairs of a node and a label.
  * 
  * @author Iovka Boneva
- * 2 août 2018
+ * @author Jérémie Dusart
  */
 @Stable
 public interface Typing {
@@ -26,7 +26,7 @@ public interface Typing {
 	@Stable
 	public Status getStatus (RDFTerm node, Label label);
 	
-	/** Returns all pairs in the typing with theeir status.
+	/** Returns all pairs in the typing with their status.
 	 * 
 	 * @return
 	 */
@@ -34,7 +34,7 @@ public interface Typing {
 	public Map<Pair<RDFTerm, Label>, Status> getStatusMap(); 
 	
 	public default boolean isConformant (RDFTerm node, Label label) {
-		return getStatus(node, label) == Status.CONFORMANT;
+		return Status.CONFORMANT.equals(getStatus(node, label));
 	}
 
 }

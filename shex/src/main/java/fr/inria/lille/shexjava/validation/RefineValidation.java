@@ -58,7 +58,7 @@ import fr.inria.lille.shexjava.util.Pair;
  */
 public class RefineValidation extends SORBEBasedValidation {
 	private boolean computed = false;
-	private TypingForValidation typing;
+	private TypingForRefineValidation typing;
 
 	
 	public RefineValidation(ShexSchema schema, Graph graph) {
@@ -72,7 +72,7 @@ public class RefineValidation extends SORBEBasedValidation {
 	
 	@Override
 	public void resetTyping() {
-		this.typing = new TypingForValidation();
+		this.typing = new TypingForRefineValidation(CommonGraph.getAllNodes(graph), schema);
 		computed = false;
 	}
 	
@@ -95,30 +95,28 @@ public class RefineValidation extends SORBEBasedValidation {
 			return;
 		// Compute the maximal typing for the shapes only
 		for (int stratum = 0; stratum < schema.getStratification().size(); stratum++) {
-			List<Pair<RDFTerm, Label>> elements = addAllLabelsForStratum(stratum);		
+			typing.startStratum(schema.getStratification().get(stratum));
 			boolean changed;
 			do {
 				changed = false;
-				Iterator<Pair<RDFTerm, Label>> typesIt = elements.iterator();
+				Iterator<Pair<RDFTerm, Label>> typesIt = typing.currentStratumNodeShapeLabelPairsIterator();
 				while (typesIt.hasNext()) {
 					Pair<RDFTerm, Label> nl = typesIt.next();
 					if (! satisfies(nl,true)) {
 						typesIt.remove();
-						typing.setStatus(nl.one, nl.two, Status.NONCONFORMANT);
 						changed = true;
 					}
 				}
 			} while (changed);
+			typing.endStratum();
 		}
-		// TODO: the typing should store differently the shape labels and the other labels
 		// Populate the typing with all the labels from the schema
 		for (Label label:schema.getShapeExprsMap().keySet()) {
-			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {		
-				if (satisfies(new Pair<>(node, label),false)) {
-					typing.setStatus(node, label, Status.CONFORMANT);
-				} else {
-					typing.setStatus(node, label, Status.NONCONFORMANT);
-				}
+			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {
+				typing.setNonShapeLabelStatus(node, label,
+						satisfies(new Pair<>(node, label),false)
+							? Status.CONFORMANT : Status.NONCONFORMANT
+				);
 			}
 		}
 		computed = true;
@@ -128,15 +126,12 @@ public class RefineValidation extends SORBEBasedValidation {
 	 *  If validateShape is set to true, then the typing will not be used
 	 *  */
 	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) {
-		EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor(validateShape);
-		shexprEvaluator.setNode(nl.one);
+		EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor(validateShape, nl.one);
 		schema.getShapeExprsMap().get(nl.two).accept(shexprEvaluator);
 		return shexprEvaluator.getResult();
 	}
-	
-	
-	/** Tests whether the node's neighbourhood matches the shape with the current typing 
-	 */
+
+	/** Tests whether the node's neighbourhood matches the shape with the current typing */
 	private boolean matches (RDFTerm node, Shape shape) {
 		// Since the algorithm first computing the typing with the shape only, in the same fashion as for the recursive algorithm, a localtyping must be computed without any cal to compute shape.
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
@@ -156,7 +151,7 @@ public class RefineValidation extends SORBEBasedValidation {
 					destNode = entry.getKey().getSubject();
 	
 				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
-					if (this.satisfies(new Pair<RDFTerm, Label>(destNode, tc.getShapeExpr().getId()),false)) 
+					if (this.satisfies(new Pair(destNode, tc.getShapeExpr().getId()),false))
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
 					else
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);	
@@ -173,35 +168,16 @@ public class RefineValidation extends SORBEBasedValidation {
 		private Boolean result;
 		private boolean validateShape;
 
-		void setNode (RDFTerm node) {
+		public EvaluateShapeExpressionVisitor(boolean validateShape, RDFTerm node) {
 			this.node = node;
-		}
-		
-		public EvaluateShapeExpressionVisitor(boolean validateShape) {
 			this.validateShape = validateShape;
 		}
-		
+
+		@Override
 		public Boolean getResult() {
 			if (result == null) return false;
 			return result;
 		}
-
-		/*
-		public void accept(ShapeExpr expr) throws Exception {
-			if (expr instanceof ShapeAnd)
-				this.visitShapeAnd((ShapeAnd) expr);
-			if (expr instanceof ShapeOr)
-				this.visitShapeOr((ShapeOr) expr);
-			if (expr instanceof ShapeNot)
-				this.visitShapeNot((ShapeNot) expr);
-			if (expr instanceof Shape)
-				this.visitShape((Shape) expr);
-			if (expr instanceof NodeConstraint)
-				this.visitNodeConstraint((NodeConstraint) expr);
-			if (expr instanceof ShapeExprRef)
-				this.visitShapeExprRef((ShapeExprRef) expr);
-		}
-		 */
 
 		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
@@ -211,13 +187,15 @@ public class RefineValidation extends SORBEBasedValidation {
 			}
 		}
 
+		@Override
 		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
 				e.accept(this);
 				if (result) break;
 			}
 		}
-		
+
+		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			expr.getSubExpression().accept(this);
 			result = !result;
@@ -247,11 +225,12 @@ public class RefineValidation extends SORBEBasedValidation {
 
 	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum) {
 		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
-		Set<Label> labels = schema.getStratification().get(stratum); 
+		Set<Label> labels = schema.getStratification().get(stratum);
+		typing.startStratum(labels);
 		for (Label label: labels) {
-			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {		
+			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {
 				result.add(new Pair<>(node, label));
-				this.typing.setStatus(node, label, Status.CONFORMANT);
+				this.typing.setNonShapeLabelStatus(node, label, Status.CONFORMANT);
 			}
 		}
 		return result;
