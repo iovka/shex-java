@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.Iterator;
 
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.Literal;
@@ -84,7 +85,7 @@ public class CertificateCollectorTest {
 		
 		RefineValidation validation = new RefineValidation(schema,graph);
 
-		validation.validate(bug1, new Label(rdfFactory.createIRI("http://a.example/BugReport")));
+		validation.validate(bug1, new IRILabel(rdfFactory.createIRI("http://a.example/BugReport")));
 //		System.out.println();
 //		System.out.println("TYPING:");
 //		for (Pair<RDFTerm,Label> pair: validation.getTyping().getStatusMap().keySet())

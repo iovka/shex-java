@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.inria.lille.shexjava.schema.BNodeLabel;
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
@@ -762,23 +764,24 @@ public class ShExJParser implements Parser{
 	// FACTORY METHODS
 	// ----------------------------------------------------------------------
 
+	// FIXME why is this repeated twice ?
 	private Label createShapeLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new Label(rdfFactory.createIRI(string),generated);
+			return new IRILabel(rdfFactory.createIRI(string),generated);
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new Label(rdfFactory.createBlankNode(string),generated);
+			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
 		}
 	}
 
 	private Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new Label(rdfFactory.createIRI(string),generated);
+			return new IRILabel(rdfFactory.createIRI(string),generated);
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new Label(rdfFactory.createBlankNode(string),generated);
+			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
 		}
 	}
 

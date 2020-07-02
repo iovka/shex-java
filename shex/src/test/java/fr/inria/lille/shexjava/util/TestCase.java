@@ -18,6 +18,8 @@ package fr.inria.lille.shexjava.util;
 
 import java.util.Set;
 
+import fr.inria.lille.shexjava.schema.BNodeLabel;
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.BNode;
@@ -59,9 +61,9 @@ public 	class TestCase {
 			if (Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).isPresent()) {
 				Resource labelRes = Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).get();
 				if (labelRes instanceof BNode) {
-					shapeLabel = new Label(rdfFactory.createBlankNode(labelRes.stringValue()));
+					shapeLabel = new BNodeLabel(rdfFactory.createBlankNode(labelRes.stringValue()));
 				}else
-					shapeLabel = new Label((org.apache.commons.rdf.api.IRI) rdfFactory.asRDFTerm(labelRes));
+					shapeLabel = new IRILabel((org.apache.commons.rdf.api.IRI) rdfFactory.asRDFTerm(labelRes));
 				Value focus = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
 				focusNode = rdfFactory.asRDFTerm(focus);
 			}

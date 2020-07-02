@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.rdf4j.RDF4J;
@@ -53,9 +54,9 @@ public class TestMemorizationAlgorithm {
 		
 		
 		ValidationAlgorithmAbstract validation = new RecursiveValidationWithMemorization(schema,graph);
-		validation.validate(n1, new Label(rdfFactory.createIRI("http://a.example/S")));
+		validation.validate(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
 
-		if (validation.getTyping().getStatus(n1, new Label(rdfFactory.createIRI("http://a.example/S"))) == Status.CONFORMANT)
+		if (validation.getTyping().getStatus(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))) == Status.CONFORMANT)
 			fail();
 	}
 	
@@ -77,12 +78,12 @@ public class TestMemorizationAlgorithm {
 		
 		
 		ValidationAlgorithmAbstract validation = new RecursiveValidationWithMemorization(schema,graph);
-		validation.validate(n1, new Label(rdfFactory.createIRI("http://a.example/S")));
+		validation.validate(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
  
 		//for (Pair<RDFTerm, Label> key:validation.getTyping().getAllStatus().keySet())
 		//	System.out.println(key+":"+validation.getTyping().getStatus(key.one, key.two));
 		
-		if (validation.getTyping().getStatus(n1, new Label(rdfFactory.createIRI("http://a.example/S"))) == Status.NONCONFORMANT)
+		if (validation.getTyping().getStatus(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))) == Status.NONCONFORMANT)
 			fail();
 	}
 	

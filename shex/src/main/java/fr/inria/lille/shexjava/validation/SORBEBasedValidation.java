@@ -31,7 +31,8 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 
 /** This class implement the algorithm to find a matching based on SORBE.
- * @author jdusart
+ * @author Iovka Boneva
+ * @author Jérémie Dusart
  *
  */
 public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
@@ -41,8 +42,9 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		super(schema,graph);
 		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
 	}
-	
-	/** Try to find a matching for the shape on the node using the typing. See also the MatchingCollector or FailureReportsCollecto.
+
+
+	/** Try to find a matching for the shape on the node using the typing. See also the MatchingCollector or FailureReportsCollector.
 	 * 
 	 * @param node
 	 * @param shape
@@ -88,5 +90,5 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		
 		return result;
 	}
-	
+
 }

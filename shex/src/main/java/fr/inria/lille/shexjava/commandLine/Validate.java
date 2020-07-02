@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.rdf4j.RDF4J;
@@ -111,7 +112,7 @@ public class Validate {
 		
 		Label shapeLabel = null;
 		if (parameters.get("-l") != null)
-			shapeLabel = new Label(rdfFactory.createIRI(parameters.get("-l")));
+			shapeLabel = new IRILabel(rdfFactory.createIRI(parameters.get("-l")));
 		
 		ValidationAlgorithmAbstract val = null;
 		switch (parameters.get("-a")) {

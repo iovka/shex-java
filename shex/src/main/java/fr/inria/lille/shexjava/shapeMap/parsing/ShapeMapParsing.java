@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -80,7 +81,7 @@ public class ShapeMapParsing extends ShapeMapBaseVisitor<Object> {
 	@Override
 	public ShapeSelector visitShapeSpec(ShapeSpecContext ctx) {
 		if (ctx.iri()!=null)
-			return new ShapeSelectorLabel(new Label(this.visitIri(ctx.iri())));
+			return new ShapeSelectorLabel(new IRILabel(this.visitIri(ctx.iri())));
 		return new ShapeSelectorStart();
 	}
 

@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.schema.BNodeLabel;
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
@@ -823,9 +825,9 @@ public class ShExRParser implements Parser {
 	
 	private Label createLabel(RDFTerm value) {
 		if (value instanceof IRI)
-			return new Label((IRI) value);
+			return new IRILabel((IRI) value);
 		if (value instanceof BlankNode)
-			return new Label(rdfFactory.createBlankNode(((BlankNode) value).ntriplesString().substring(2)));
+			return new BNodeLabel(rdfFactory.createBlankNode(((BlankNode) value).ntriplesString().substring(2)));
 		
 		return null;
 	}
@@ -842,9 +844,9 @@ public class ShExRParser implements Parser {
 	
 	private void setLabel(TripleExpr triple,RDFTerm value) {
 		if (value instanceof IRI)
-			triple.setId(new Label((IRI) value));
+			triple.setId(new IRILabel((IRI) value));
 		if (value instanceof BlankNode & !value.ntriplesString().startsWith("gen-id"))
-			triple.setId(new  Label((BlankNode) value));
+			triple.setId(new  BNodeLabel((BlankNode) value));
 	}
 	
 	private boolean testTriples(RDFTerm node, IRI prop) {

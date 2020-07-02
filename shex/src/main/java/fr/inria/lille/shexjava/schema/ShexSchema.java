@@ -326,12 +326,13 @@ public class ShexSchema {
 		}
 		return true;
 	}
-	
+
+	// FIXME repeated method with createTripleLabel
 	private Label createShapeLabel (String string, boolean generated) {
 		if (isIriString(string))
-			return new Label(rdfFactory.createIRI(string),generated);
+			return new IRILabel(rdfFactory.createIRI(string),generated);
 		else 
-			return new Label(rdfFactory.createBlankNode(string),generated);
+			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
 	}
 	
 	private void addIdIfNone(ShapeExpr shape) {
@@ -344,9 +345,9 @@ public class ShexSchema {
 	
 	private Label createTripleLabel (String string,boolean generated) {
 		if (isIriString(string))
-			return new Label(rdfFactory.createIRI(string),generated);
+			return new IRILabel(rdfFactory.createIRI(string),generated);
 		else 
-			return new Label(rdfFactory.createBlankNode(string),generated);
+			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
 	}
 	
 	private void addIdIfNone (TripleExpr triple) {

@@ -34,7 +34,8 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 
 /** Allows to compute the triple constraints that appear in a shape.
  * Memorizes already computed results. 
- * 
+ *
+ * @author Iovka Boneva
  * @author Jérémie Dusart
  */
 public class DynamicCollectorOfTripleConstraints {

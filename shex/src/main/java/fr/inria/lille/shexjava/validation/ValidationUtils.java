@@ -58,6 +58,25 @@ public class ValidationUtils {
 			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
 		return neighbourhood;
 	}
+
+	public static Map<Triple, List<TripleConstraint>> computePreMatching (
+			List<Triple> triples,
+			RDFTerm focusNode,
+			List<TripleConstraint> tripleConstraints,
+			Typing typing,
+			Matcher matcher) {
+
+		LinkedHashMap<Triple,List<TripleConstraint>> matchingTriplesMap = new LinkedHashMap<>(triples.size());
+		for (Triple triple: triples) {
+			ArrayList<TripleConstraint> matching = new ArrayList<>();
+			matchingTriplesMap.put(triple, matching); // TODO should we add the empty lists as well ?
+			for (TripleConstraint tc: tripleConstraints) {
+				if (matcher.apply(focusNode, triple, tc, typing))
+					matching.add(tc);
+			}
+		}
+		return matchingTriplesMap;
+	}
 	
 	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood, 
 							List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties, Matcher matcher) {
@@ -69,13 +88,13 @@ public class ValidationUtils {
 		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: tripleConstraints) {
-				if (matcher.apply(focusNode, triple, tc)) {
+				if (matcher.apply(focusNode, triple, tc, null)) {
 					matching.add(tc);
 				}
 			} 
 			if (! matching.isEmpty()) 
 				matchingTriplesMap.put(triple, matching);
-			if (matching.isEmpty())
+			else
 				if (extraProperties.contains(triple.getPredicate())) 
 					matchedToExtraTriples.add(triple);
 				else
@@ -119,7 +138,7 @@ public class ValidationUtils {
 
 	private static Matcher predicateOnlyMatcher = new Matcher() {
 		@Override
-		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc) {
+		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing) {
 			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString())) {
 				return tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString());
 			}
@@ -137,7 +156,7 @@ public class ValidationUtils {
 		}
 		
 		@Override
-		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc) {
+		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing) {
 			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString()))
 				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString())) 
 					return shapeMap.isConformant(triple.getObject(), tc.getShapeExpr().getId());
@@ -147,6 +166,21 @@ public class ValidationUtils {
 			return false;
 		}
 	}
-	
+
+	public static Matcher predicateAndValueMatcher = new Matcher () {
+		@Override
+		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing) {
+			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString()))
+				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString()))
+					return typing.isConformant(triple.getObject(), tc.getShapeExpr().getId());
+			if (!tc.getProperty().isForward() && triple.getObject().ntriplesString().equals(focusNode.ntriplesString()))
+				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString()))
+					return typing.isConformant(triple.getSubject(), tc.getShapeExpr().getId());
+			return false;
+		}
+	};
+
+
+
 	private ValidationUtils () {}
 }

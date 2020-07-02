@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.inria.lille.shexjava.schema.BNodeLabel;
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -882,11 +884,11 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 			String ref = ctx.getText().substring(1);
 			String prefix = ref.split(":")[0]+":";
 			String name = ref.split(":")[1];
-			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)+name))); 
+			return new ShapeExprRef(new IRILabel(rdfFactory.createIRI(prefixes.get(prefix)+name)));
 		}
 		if (ctx.ATPNAME_NS()!=null) {
 			String prefix = ctx.getText().substring(1);
-			return new ShapeExprRef(new Label(rdfFactory.createIRI(prefixes.get(prefix)))); 
+			return new ShapeExprRef(new IRILabel(rdfFactory.createIRI(prefixes.get(prefix))));
 		}
 		return new ShapeExprRef((Label) ctx.shapeExprLabel().accept(this)); 
 	}
@@ -967,18 +969,18 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	public Label visitShapeExprLabel(ShExDocParser.ShapeExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
 		if (result instanceof IRI) 
-			return new Label((IRI) result);
+			return new IRILabel((IRI) result);
 		else 
-			return new Label((BlankNode) result);
+			return new BNodeLabel((BlankNode) result);
 	}
 	
 	@Override
 	public Label visitTripleExprLabel(ShExDocParser.TripleExprLabelContext ctx) {
 		Object result = visitChildren(ctx);
 		if (result instanceof IRI) 
-			return new Label((IRI) result);
+			return new IRILabel((IRI) result);
 		else 
-			return new Label((BlankNode) result);
+			return new BNodeLabel((BlankNode) result);
 	}
 
 	@Override

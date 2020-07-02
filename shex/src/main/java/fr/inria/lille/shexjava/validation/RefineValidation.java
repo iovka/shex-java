@@ -111,6 +111,7 @@ public class RefineValidation extends SORBEBasedValidation {
 			typing.endStratum();
 		}
 		// Populate the typing with all the labels from the schema
+		// TODO this could also be done in a stratified way
 		for (Label label:schema.getShapeExprsMap().keySet()) {
 			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {
 				typing.setNonShapeLabelStatus(node, label,

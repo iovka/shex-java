@@ -29,6 +29,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * 
  * @author Iovka Boneva
  * @author Antonin Durey
+ * @author Jérémie Dusart
  *
  */
 
@@ -44,14 +45,14 @@ public abstract class Matcher {
 	 * @param constraints
 	 */
 	@Deprecated
-	public LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTCs (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints) {
+	public LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTCs (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints, Typing typing) {
 		
 		LinkedHashMap<Triple,List<TripleConstraint>> result = new LinkedHashMap<>(neighbourhood.size()); 
 		
 		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: constraints) {
-				if (apply(focusNode,triple, tc)) {
+				if (apply(focusNode,triple, tc, typing)) {
 					matching.add(tc);
 				}
 			}	
@@ -59,15 +60,15 @@ public abstract class Matcher {
 		}
 		return result;
 	}
-	
-	/** 
+
+	/** Returns true iff the triple matches the triple constraint w.r.t. the given typing.
 	 * 
 	 * @param focusNode
 	 * @param triple
 	 * @param tc
 	 * @return
 	 */
-	public abstract boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc);
+	public abstract boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing);
 	
 	
 }

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import fr.inria.lille.shexjava.schema.IRILabel;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.rdf4j.RDF4J;
@@ -48,9 +49,9 @@ public class Test0cardinality {
 		graph.add(s1,rdfFactory.createIRI("http://a.example/a"),rdfFactory.createLiteral("test"));
 				
 		RefineValidation validation = new RefineValidation(schema,graph);
-		validation.validate(s1, new Label(rdfFactory.createIRI("http://a.example/S")));
+		validation.validate(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
 
-		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new Label(rdfFactory.createIRI("http://a.example/S"))));
+		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))));
 	}
 	
 	@Test
@@ -66,9 +67,9 @@ public class Test0cardinality {
 		graph.add(s1,rdfFactory.createIRI("http://a.example/c"),rdfFactory.createLiteral("test"));
 		
 		RefineValidation validation = new RefineValidation(schema,graph);
-		validation.validate(s1, new Label(rdfFactory.createIRI("http://a.example/S")));
+		validation.validate(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
 		
-		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new Label(rdfFactory.createIRI("http://a.example/S"))));
+		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))));
 	}
 
 }
