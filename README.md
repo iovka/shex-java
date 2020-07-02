@@ -134,12 +134,12 @@ You have an online validator available at http://shexjava.lille.inria.fr/ with p
 
 ### With execution without maven
 
-``sh
+```sh
 mvn package
 mvn dependency:build-classpath -Dmdep.includeScope=runtime -Dmdep.outputFile=cp.txt
 SHEXCP="target/shexjava-core-1.1.jar:"`cat cp.txt`
 java -cp $SHEXCP fr.inria.lille.shexjava.commandLine.Validate -s ../../shexTest/schemas/1dotSemi.shex -d https://raw.githubusercontent.com/shexSpec/shexTest/master/validation/Is1_Ip1_Io1.ttl   -l http://a.example/S1 -f http://a.example/s1 -a recursive
-``
+```
 
 ## Code Exemple
 
