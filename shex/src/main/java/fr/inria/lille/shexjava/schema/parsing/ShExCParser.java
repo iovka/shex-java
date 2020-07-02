@@ -72,60 +72,6 @@ import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExCErrorStrategy;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocBaseVisitor;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocLexer;
 import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.BooleanLiteralContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.SemanticActionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.DatatypeContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.BracketedTripleExprContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.GroupTripleExprContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAndContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAtomAnyContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAtomNonLitNodeConstraintContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAtomLitNodeConstraintContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAtomShapeExpressionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeAtomShapeOrRefContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeExpressionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeNotContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.InlineShapeOrRefContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.IriExclusionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.IriRangeContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LanguageExclusionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LanguageRangeContext; // ??
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LanguageRangeFullContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LanguageRangeAtContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LiteralContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LiteralExclusionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LiteralRangeContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.MultiElementGroupContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.MultiElementOneOfContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.NodeConstraintNumericFacetContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.NonLitNodeConstraintContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LitNodeConstraintContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LitNodeConstraintLiteralContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.LitNodeConstraintStringFacetContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.NumericLengthContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.NumericLiteralContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.NumericRangeContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.TripleExpressionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.OneOfTripleExprContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.QualifierContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.RawNumericContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.RdfLiteralContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.RdfTypeContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.RepeatCardinalityContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.SenseFlagsContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeAndContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeAtomAnyContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeAtomNonLitNodeConstraintContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeAtomLitNodeConstraintContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeAtomShapeExpressionContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeAtomShapeOrRefContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.NonLitNodeConstraintContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ShapeNotContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.SingleElementGroupContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.StringLengthContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.UnaryTripleExprContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.ValueSetValueContext;
-import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser.XsFacetContext;
 import fr.inria.lille.shexjava.util.DatatypeUtil;
 import fr.inria.lille.shexjava.util.Interval;
 import fr.inria.lille.shexjava.util.XPath;
@@ -294,7 +240,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	@Override 
 	public ShapeExpr visitShapeOr(ShExDocParser.ShapeOrContext ctx) { 
 		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (ShapeAndContext child:ctx.shapeAnd())
+		for (ShExDocParser.ShapeAndContext child:ctx.shapeAnd())
 				children.add(visitShapeAnd(child));
 		if (children.size()==1)
 			return children.get(0);
@@ -304,7 +250,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	@Override 
 	public ShapeExpr visitShapeAnd(ShExDocParser.ShapeAndContext ctx) { 
 		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (ShapeNotContext child:ctx.shapeNot())
+		for (ShExDocParser.ShapeNotContext child:ctx.shapeNot())
 			children.add(visitShapeNot(child));
 		if (children.size()==1)
 			return children.get(0);
@@ -320,14 +266,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public ShapeExpr visitInlineShapeExpression(InlineShapeExpressionContext ctx) {
+	public ShapeExpr visitInlineShapeExpression(ShExDocParser.InlineShapeExpressionContext ctx) {
 		return visitInlineShapeOr(ctx.inlineShapeOr());
 	}
 
 	@Override 
 	public ShapeExpr visitInlineShapeOr(ShExDocParser.InlineShapeOrContext ctx) { 
 		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (InlineShapeAndContext child:ctx.inlineShapeAnd())
+		for (ShExDocParser.InlineShapeAndContext child:ctx.inlineShapeAnd())
 			children.add(visitInlineShapeAnd(child));
 		if (children.size()==1)
 			return children.get(0);
@@ -337,7 +283,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	@Override 
 	public ShapeExpr visitInlineShapeAnd(ShExDocParser.InlineShapeAndContext ctx) { 
 		List<ShapeExpr> children = new ArrayList<ShapeExpr>();
-		for (InlineShapeNotContext child:ctx.inlineShapeNot())
+		for (ShExDocParser.InlineShapeNotContext child:ctx.inlineShapeNot())
 			children.add(visitInlineShapeNot(child));
 		if (children.size()==1)
 			return children.get(0);
@@ -357,7 +303,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
 		List<Label> bases = new ArrayList<Label>();
-		for (QualifierContext qua:ctx.qualifier()) {
+		for (ShExDocParser.QualifierContext qua:ctx.qualifier()) {
 			if (qua.KW_CLOSED()!=null){
 				closed= true;
 			} else if (qua.extension()!=null){
@@ -389,7 +335,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		Set<TCProperty> extra = new HashSet<TCProperty>();
 		boolean closed = false;
 		List<Label> bases = new ArrayList<Label>();
-		for (QualifierContext qua:ctx.qualifier()) {
+		for (ShExDocParser.QualifierContext qua:ctx.qualifier()) {
 			if (qua.KW_CLOSED()!=null){
 				closed= true;
 			} else if (qua.extension()!=null){
@@ -428,7 +374,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	//Not used
 	@Override
-	public Object visitQualifier(QualifierContext ctx) {
+	public Object visitQualifier(ShExDocParser.QualifierContext ctx) {
 		return null;
 	}
 
@@ -441,48 +387,48 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public TripleExpr visitTripleExpression(TripleExpressionContext ctx) {
+	public TripleExpr visitTripleExpression(ShExDocParser.TripleExpressionContext ctx) {
 		return visitOneOfTripleExpr(ctx.oneOfTripleExpr());
 	}
 
 	@Override
-	public TripleExpr visitOneOfTripleExpr(OneOfTripleExprContext ctx) {
+	public TripleExpr visitOneOfTripleExpr(ShExDocParser.OneOfTripleExprContext ctx) {
 		if (ctx.groupTripleExpr()!=null)
 			return visitGroupTripleExpr(ctx.groupTripleExpr());
 		return visitMultiElementOneOf(ctx.multiElementOneOf());
 	}
 
 	@Override
-	public TripleExpr visitMultiElementOneOf(MultiElementOneOfContext ctx) {
+	public TripleExpr visitMultiElementOneOf(ShExDocParser.MultiElementOneOfContext ctx) {
 		ArrayList<TripleExpr> children = new ArrayList<>();
-		for (GroupTripleExprContext child:ctx.groupTripleExpr())
+		for (ShExDocParser.GroupTripleExprContext child:ctx.groupTripleExpr())
 			children.add(visitGroupTripleExpr(child));
 		return new OneOf(children);
 	}
 
 
 	@Override
-	public TripleExpr visitGroupTripleExpr(GroupTripleExprContext ctx) {
+	public TripleExpr visitGroupTripleExpr(ShExDocParser.GroupTripleExprContext ctx) {
 		if (ctx.multiElementGroup()!=null)
 			return visitMultiElementGroup(ctx.multiElementGroup());
 		return visitSingleElementGroup(ctx.singleElementGroup());
 	}
 
 	@Override
-	public TripleExpr visitSingleElementGroup(SingleElementGroupContext ctx) {
+	public TripleExpr visitSingleElementGroup(ShExDocParser.SingleElementGroupContext ctx) {
 		return visitUnaryTripleExpr(ctx.unaryTripleExpr());
 	}
 
 	@Override
-	public TripleExpr visitMultiElementGroup(MultiElementGroupContext ctx) {
+	public TripleExpr visitMultiElementGroup(ShExDocParser.MultiElementGroupContext ctx) {
 		ArrayList<TripleExpr> children = new ArrayList<>();
-		for (UnaryTripleExprContext child:ctx.unaryTripleExpr())
+		for (ShExDocParser.UnaryTripleExprContext child:ctx.unaryTripleExpr())
 			children.add(visitUnaryTripleExpr(child));
 		return new EachOf(children);
 	}
 
 	@Override
-	public TripleExpr visitUnaryTripleExpr(UnaryTripleExprContext ctx) {
+	public TripleExpr visitUnaryTripleExpr(ShExDocParser.UnaryTripleExprContext ctx) {
 		if (ctx.include()!=null)
 			return visitInclude(ctx.include());
 		TripleExpr res;
@@ -496,7 +442,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public TripleExpr visitBracketedTripleExpr(BracketedTripleExprContext ctx) {
+	public TripleExpr visitBracketedTripleExpr(ShExDocParser.BracketedTripleExprContext ctx) {
 		TripleExpr result = visitTripleExpression(ctx.tripleExpression());//(ctx.innerShape());
 		
 		if (ctx.annotation()!=null && !ctx.annotation().isEmpty()) {
@@ -517,7 +463,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public ShapeExpr visitShapeAtomNonLitNodeConstraint(ShapeAtomNonLitNodeConstraintContext ctx) {
+	public ShapeExpr visitShapeAtomNonLitNodeConstraint(ShExDocParser.ShapeAtomNonLitNodeConstraintContext ctx) {
 		ShapeExpr result = (ShapeExpr) ctx.nonLitNodeConstraint().accept(this);
 		if (ctx.shapeOrRef()!=null) {
 			List<ShapeExpr> expressions = new ArrayList<ShapeExpr>();
@@ -529,12 +475,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public ShapeExpr visitShapeAtomLitNodeConstraint(ShapeAtomLitNodeConstraintContext ctx) {
+	public ShapeExpr visitShapeAtomLitNodeConstraint(ShExDocParser.ShapeAtomLitNodeConstraintContext ctx) {
 		return visitLitNodeConstraint(ctx.litNodeConstraint());
 	}
 
 	@Override
-	public ShapeExpr visitShapeAtomShapeOrRef(ShapeAtomShapeOrRefContext ctx) {
+	public ShapeExpr visitShapeAtomShapeOrRef(ShExDocParser.ShapeAtomShapeOrRefContext ctx) {
 		ShapeExpr result = visitShapeOrRef(ctx.shapeOrRef());
 		if (ctx.nonLitNodeConstraint()!=null) {
 			List<ShapeExpr> expressions = new ArrayList<ShapeExpr>();
@@ -546,17 +492,17 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public ShapeExpr visitShapeAtomShapeExpression(ShapeAtomShapeExpressionContext ctx) {
+	public ShapeExpr visitShapeAtomShapeExpression(ShExDocParser.ShapeAtomShapeExpressionContext ctx) {
 		return visitShapeExpression(ctx.shapeExpression());
 	}
 
 	@Override
-	public EmptyShape visitShapeAtomAny(ShapeAtomAnyContext ctx) {
+	public EmptyShape visitShapeAtomAny(ShExDocParser.ShapeAtomAnyContext ctx) {
 		return  new EmptyShape();
 	}
 
 	@Override
-	public Object visitInlineShapeAtomNonLitNodeConstraint(InlineShapeAtomNonLitNodeConstraintContext ctx) {
+	public Object visitInlineShapeAtomNonLitNodeConstraint(ShExDocParser.InlineShapeAtomNonLitNodeConstraintContext ctx) {
 		ShapeExpr result = (ShapeExpr) ctx.inlineNonLitNodeConstraint().accept(this);
 		if (ctx.inlineShapeOrRef()!=null) {
 			List<ShapeExpr> expressions = new ArrayList<ShapeExpr>();
@@ -568,12 +514,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitInlineShapeAtomLitNodeConstraint(InlineShapeAtomLitNodeConstraintContext ctx) {
+	public Object visitInlineShapeAtomLitNodeConstraint(ShExDocParser.InlineShapeAtomLitNodeConstraintContext ctx) {
 		return (ShapeExpr) ctx.inlineLitNodeConstraint().accept(this);
 	}
 
 	@Override
-	public Object visitInlineShapeAtomShapeOrRef(InlineShapeAtomShapeOrRefContext ctx) {
+	public Object visitInlineShapeAtomShapeOrRef(ShExDocParser.InlineShapeAtomShapeOrRefContext ctx) {
 		ShapeExpr result = visitInlineShapeOrRef(ctx.inlineShapeOrRef());
 		if (ctx.inlineNonLitNodeConstraint()!=null) {
 			List<ShapeExpr> expressions = new ArrayList<ShapeExpr>();
@@ -585,12 +531,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitInlineShapeAtomShapeExpression(InlineShapeAtomShapeExpressionContext ctx) {
+	public Object visitInlineShapeAtomShapeExpression(ShExDocParser.InlineShapeAtomShapeExpressionContext ctx) {
 		return visitShapeExpression(ctx.shapeExpression());
 	}
 
 	@Override
-	public Object visitInlineShapeAtomAny(InlineShapeAtomAnyContext ctx) {
+	public Object visitInlineShapeAtomAny(ShExDocParser.InlineShapeAtomAnyContext ctx) {
 		return  new EmptyShape();
 	}
 
@@ -598,7 +544,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	public NodeConstraint visitNodeConstraintLiteral(ShExDocParser.NodeConstraintLiteralContext ctx) {
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
 		constraints.add(NodeKindConstraint.LiteralKind);
-		for (XsFacetContext facet : ctx.xsFacet()) {
+		for (ShExDocParser.XsFacetContext facet : ctx.xsFacet()) {
 			constraints.add(visitXsFacet(facet));
 		}
 		return new NodeConstraint(cleanConstraint(constraints));
@@ -618,7 +564,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	public NodeConstraint visitNodeConstraintDatatype(ShExDocParser.NodeConstraintDatatypeContext ctx) { 
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
 		constraints.add(new DatatypeConstraint((IRI) ctx.datatype().accept(this)));
-		for (XsFacetContext facet : ctx.xsFacet()) {
+		for (ShExDocParser.XsFacetContext facet : ctx.xsFacet()) {
 			constraints.add(visitXsFacet(facet));
 		}
 		return new NodeConstraint(cleanConstraint(constraints));
@@ -628,14 +574,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	public NodeConstraint visitNodeConstraintValueSet(ShExDocParser.NodeConstraintValueSetContext ctx) { 
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
 		constraints.add((Constraint) ctx.valueSet().accept(this));
-		for (XsFacetContext facet : ctx.xsFacet()) {
+		for (ShExDocParser.XsFacetContext facet : ctx.xsFacet()) {
 			constraints.add(visitXsFacet(facet));
 		}
 		return new NodeConstraint(cleanConstraint(constraints));
 	}
 
 	@Override
-	public Object visitNodeConstraintNumericFacet(NodeConstraintNumericFacetContext ctx) {
+	public Object visitNodeConstraintNumericFacet(ShExDocParser.NodeConstraintNumericFacetContext ctx) {
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
 		for (ShExDocParser.NumericFacetContext facet : ctx.numericFacet()) {
 			constraints.add(visitNumericFacet(facet));
@@ -644,7 +590,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public NodeConstraint visitLitNodeConstraint(LitNodeConstraintContext ctx) {
+	public NodeConstraint visitLitNodeConstraint(ShExDocParser.LitNodeConstraintContext ctx) {
 		NodeConstraint result = (NodeConstraint) ctx.inlineLitNodeConstraint().accept(this);
 		if (ctx.annotation()!=null) {
 			List<Annotation> annotations = new ArrayList<Annotation>();
@@ -658,7 +604,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public NodeConstraint visitLitNodeConstraintLiteral(LitNodeConstraintLiteralContext ctx) {
+	public NodeConstraint visitLitNodeConstraintLiteral(ShExDocParser.LitNodeConstraintLiteralContext ctx) {
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
 		constraints.add((Constraint) ctx.nonLiteralKind().accept(this));
 		for (ShExDocParser.StringFacetContext facet : ctx.stringFacet()) {
@@ -668,7 +614,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public NodeConstraint visitLitNodeConstraintStringFacet(LitNodeConstraintStringFacetContext ctx) {
+	public NodeConstraint visitLitNodeConstraintStringFacet(ShExDocParser.LitNodeConstraintStringFacetContext ctx) {
 		List<Constraint> constraints = new ArrayList<Constraint>() ;
 		for (ShExDocParser.StringFacetContext facet : ctx.stringFacet()) {
 			constraints.add(visitStringFacet(facet));
@@ -677,7 +623,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public NodeConstraint visitNonLitNodeConstraint(NonLitNodeConstraintContext ctx) {
+	public NodeConstraint visitNonLitNodeConstraint(ShExDocParser.NonLitNodeConstraintContext ctx) {
 		NodeConstraint result = (NodeConstraint) ctx.inlineNonLitNodeConstraint().accept(this);
 		if (ctx.annotation()!=null) {
 			List<Annotation> annotations = new ArrayList<Annotation>();
@@ -701,7 +647,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Constraint visitXsFacet(XsFacetContext ctx) {
+	public Constraint visitXsFacet(ShExDocParser.XsFacetContext ctx) {
 		if (ctx.stringFacet()!=null)
 			return visitStringFacet(ctx.stringFacet());
 		return visitNumericFacet(ctx.numericFacet());
@@ -731,7 +677,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	//not used
 	@Override
-	public Constraint visitStringLength(StringLengthContext ctx) {
+	public Constraint visitStringLength(ShExDocParser.StringLengthContext ctx) {
 		return null;
 	}
 
@@ -761,13 +707,13 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	//not used
 	@Override
-	public Object visitNumericRange(NumericRangeContext ctx) {
+	public Object visitNumericRange(ShExDocParser.NumericRangeContext ctx) {
 		return null;
 	}
 	
 	//not used
 	@Override
-	public Object visitNumericLength(NumericLengthContext ctx) {
+	public Object visitNumericLength(ShExDocParser.NumericLengthContext ctx) {
 		return null;
 	}
 
@@ -801,7 +747,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 	//Not used
 	@Override
-	public Object visitSenseFlags(SenseFlagsContext ctx) {
+	public Object visitSenseFlags(ShExDocParser.SenseFlagsContext ctx) {
 		return null;
 	}
 
@@ -823,7 +769,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
    // Return either an explicit value (in the first three return it can) or a Constraint?
 	@Override
-	public Object visitValueSetValue(ValueSetValueContext ctx) {
+	public Object visitValueSetValue(ShExDocParser.ValueSetValueContext ctx) {
 		if (ctx.iriRange()!=null) 
 			return visitIriRange(ctx.iriRange());
 		if (ctx.literalRange()!=null) 
@@ -853,7 +799,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitIriRange(IriRangeContext ctx) {
+	public Object visitIriRange(ShExDocParser.IriRangeContext ctx) {
 		if (ctx.STEM_MARK()==null)
 			return visitIri(ctx.iri());
 		
@@ -863,7 +809,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 		
 		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> explicitValues = new HashSet<RDFTerm>();
-		for(IriExclusionContext exclu:ctx.iriExclusion()) {
+		for(ShExDocParser.IriExclusionContext exclu:ctx.iriExclusion()) {
 			Object res = exclu.accept(this);
 			if (res instanceof IRI)
 				explicitValues.add((IRI) res);
@@ -875,14 +821,14 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitIriExclusion(IriExclusionContext ctx) {
+	public Object visitIriExclusion(ShExDocParser.IriExclusionContext ctx) {
 		if (ctx.STEM_MARK()!=null)
 			return new IRIStemConstraint(visitIri(ctx.iri()).getIRIString());
 		return visitIri(ctx.iri());
 	}
 
 	@Override
-	public Object visitLiteralRange(LiteralRangeContext ctx) {
+	public Object visitLiteralRange(ShExDocParser.LiteralRangeContext ctx) {
 		Literal val = visitLiteral(ctx.literal());
 		if (ctx.STEM_MARK()==null) {
 			return val;
@@ -905,7 +851,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitLiteralExclusion(LiteralExclusionContext ctx) {
+	public Object visitLiteralExclusion(ShExDocParser.LiteralExclusionContext ctx) {
 		Literal val = visitLiteral(ctx.literal());
 		if (ctx.STEM_MARK()!=null)
 			return new LiteralStemConstraint(val.getLexicalForm());
@@ -913,7 +859,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitLanguageRangeFull(LanguageRangeFullContext ctx) {
+	public Object visitLanguageRangeFull(ShExDocParser.LanguageRangeFullContext ctx) {
 		String langtag="";
 		langtag = ctx.LANGTAG().getText().substring(1);
 		if (ctx.STEM_MARK()==null)
@@ -936,7 +882,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitLanguageRangeAt(LanguageRangeAtContext ctx) {
+	public Object visitLanguageRangeAt(ShExDocParser.LanguageRangeAtContext ctx) {
 		String langtag="";
 		
 		LanguageStemConstraint stem = new LanguageStemConstraint(langtag);
@@ -956,7 +902,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Object visitLanguageExclusion(LanguageExclusionContext ctx) {
+	public Object visitLanguageExclusion(ShExDocParser.LanguageExclusionContext ctx) {
 		String langtag = ctx.LANGTAG().getText().substring(1);
 		if (ctx.STEM_MARK()==null)
 			return new LanguageConstraint(langtag);
@@ -964,7 +910,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Literal visitLiteral(LiteralContext ctx) {
+	public Literal visitLiteral(ShExDocParser.LiteralContext ctx) {
 		if (ctx.rdfLiteral()!=null) 
 			return visitRdfLiteral(ctx.rdfLiteral());
 		if (ctx.numericLiteral()!=null)
@@ -982,7 +928,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public ShapeExpr visitInlineShapeOrRef(InlineShapeOrRefContext ctx) {
+	public ShapeExpr visitInlineShapeOrRef(ShExDocParser.InlineShapeOrRefContext ctx) {
 		if (ctx.inlineShapeDefinition()!=null)
 			return visitInlineShapeDefinition(ctx.inlineShapeDefinition());
 		return visitShapeRef(ctx.shapeRef());
@@ -1026,12 +972,12 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public IRI visitRdfType(RdfTypeContext ctx) {
+	public IRI visitRdfType(ShExDocParser.RdfTypeContext ctx) {
 		return rdfFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"); 
 	}
 
 	@Override
-	public IRI visitDatatype(DatatypeContext ctx) {
+	public IRI visitDatatype(ShExDocParser.DatatypeContext ctx) {
 		return visitIri(ctx.iri());
 	}
 
@@ -1051,7 +997,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Interval visitRepeatCardinality(RepeatCardinalityContext ctx) {
+	public Interval visitRepeatCardinality(ShExDocParser.RepeatCardinalityContext ctx) {
 		return (Interval) ctx.repeatRange().accept(this);
 	}
 
@@ -1088,7 +1034,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public BigDecimal visitRawNumeric(RawNumericContext ctx) {
+	public BigDecimal visitRawNumeric(ShExDocParser.RawNumericContext ctx) {
 		if (ctx.INTEGER()!=null)
 			return new BigDecimal(ctx.INTEGER().getText());
 		if (ctx.DOUBLE()!=null)
@@ -1097,7 +1043,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Literal visitNumericLiteral(NumericLiteralContext ctx) {
+	public Literal visitNumericLiteral(ShExDocParser.NumericLiteralContext ctx) {
 		if (ctx.INTEGER()!=null)
 			return  rdfFactory.createLiteral(ctx.INTEGER().getText(),Types.XSD_INTEGER);
 		if (ctx.DOUBLE()!=null)
@@ -1106,7 +1052,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Literal visitRdfLiteral(RdfLiteralContext ctx) {
+	public Literal visitRdfLiteral(ShExDocParser.RdfLiteralContext ctx) {
 		String value = (String) ctx.rdfString().accept(this);
 		if (ctx.datatype() != null)
 			return rdfFactory.createLiteral(value, (IRI) ctx.datatype().accept(this));
@@ -1116,7 +1062,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 	}
 
 	@Override
-	public Literal visitBooleanLiteral(BooleanLiteralContext ctx) {
+	public Literal visitBooleanLiteral(ShExDocParser.BooleanLiteralContext ctx) {
 		if (ctx.KW_FALSE()!=null)
 			return rdfFactory.createLiteral("false",Types.XSD_BOOLEAN);
 		return rdfFactory.createLiteral("true",Types.XSD_BOOLEAN);
@@ -1174,7 +1120,7 @@ public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 
 	@Override
-	public Object visitSemanticAction(SemanticActionContext ctx) {
+	public Object visitSemanticAction(ShExDocParser.SemanticActionContext ctx) {
 		// TODO Auto-generated method stub
 		return null;
 	}
