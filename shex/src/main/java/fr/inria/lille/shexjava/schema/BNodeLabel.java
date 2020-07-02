@@ -39,8 +39,6 @@ public class BNodeLabel extends Label {
         this(bnode, false);
     }
 
-    public boolean isIri () { return false; }
-    public boolean isBlankNode () { return true; }
     public boolean isGenerated() { return generated; }
 
     public String stringValue() { return bnode.ntriplesString(); }

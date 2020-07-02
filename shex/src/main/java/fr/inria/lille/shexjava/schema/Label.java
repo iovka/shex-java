@@ -30,8 +30,6 @@ import fr.inria.lille.shexjava.util.RDFPrintUtils;
  * @author Jérémie Dusart
  */
 public abstract class Label {
-	public abstract boolean isIri();
-	public abstract boolean isBlankNode();
 	public abstract boolean isGenerated();
 
 	public abstract String stringValue();

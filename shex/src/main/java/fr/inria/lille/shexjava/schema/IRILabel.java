@@ -39,8 +39,6 @@ public class IRILabel extends Label {
 	    this(iri, false);
     }
 
-    public boolean isIri () { return true; }
-    public boolean isBlankNode () { return false; }
     public boolean isGenerated() { return generated; }
 
     public String stringValue () { return iri.getIRIString(); }
