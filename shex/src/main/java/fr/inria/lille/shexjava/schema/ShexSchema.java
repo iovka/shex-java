@@ -423,21 +423,15 @@ public class ShexSchema {
 	
 	
 	class CollectGraphReferencesFromTriple extends TripleExpressionVisitor<Set<Pair<Label,Label>>> {
-		private Set<Pair<Label,Label>> set;
 
 		public CollectGraphReferencesFromTriple(Set<Pair<Label,Label>> set){
-			this.set = set;
-		}
-		
-		@Override
-		public Set<Pair<Label, Label>> getResult() {
-			return set;
+			setResult(set);
 		}
 
 		@Override		
 		public void visitEachOf (EachOf expr, Object ... arguments) {
 			for (TripleExpr subExpr: expr.getSubExpressions()) {
-				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
 			}
 			super.visitEachOf(expr, arguments);
 		}
@@ -445,7 +439,7 @@ public class ShexSchema {
 		@Override		
 		public void visitOneOf (OneOf expr, Object ... arguments) {
 			for (TripleExpr subExpr: expr.getSubExpressions()) {
-				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
 			}
 			super.visitOneOf(expr, arguments);
 		}
@@ -457,13 +451,13 @@ public class ShexSchema {
 		
 		@Override
 		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-			CollectGraphReferencesFromShape visitor = new CollectGraphReferencesFromShape(set);
+			CollectGraphReferencesFromShape visitor = new CollectGraphReferencesFromShape(getResult());
 			tc.getShapeExpr().accept(visitor,arguments);		
 		}
 
 		@Override
 		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
-			set.add(new Pair<Label,Label>(expr.getId(),expr.getLabel()));
+			getResult().add(new Pair<Label,Label>(expr.getId(),expr.getLabel()));
 		}
 
 		@Override
@@ -647,20 +641,14 @@ public class ShexSchema {
 	
 	
 	class ShapeCollectorOfAShapeExpr extends ShapeExpressionVisitor<Set<Label>> {
-		private Set<Label> shapes;
 
 		public ShapeCollectorOfAShapeExpr () {
-			shapes = new HashSet<Label>();
+			setResult(new HashSet<Label>());
 		}
-		
-		@Override
-		public Set<Label> getResult() {
-			return shapes;
-		}
-		
+
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
-			shapes.add(expr.getId());
+			getResult().add(expr.getId());
 		}
 		
 		@Override

@@ -32,8 +32,16 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
  * @param <ResultType>
  */
 public abstract class ShapeExpressionVisitor<ResultType> {
-	
-	public abstract ResultType getResult ();
+
+	protected ResultType result;
+
+	public ResultType getResult () {
+		return result;
+	}
+
+	protected void setResult (ResultType result) {
+		this.result = result;
+	}
 	
 	public void visitShapeAnd (ShapeAnd expr, Object ... arguments) {
 		for (ShapeExpr subExpr: expr.getSubExpressions()) {

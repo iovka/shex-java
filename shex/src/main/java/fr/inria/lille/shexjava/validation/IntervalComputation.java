@@ -39,7 +39,6 @@ import fr.inria.lille.shexjava.util.Interval;
  *
  */
 public class IntervalComputation extends TripleExpressionVisitor<Interval>{	
-	private Interval result;
 	private DynamicCollectorOfTripleConstraints collectorTC;
 	
 	public IntervalComputation(DynamicCollectorOfTripleConstraints collectorTC) {
@@ -48,21 +47,16 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 	}
 	
 	@Override
-	public Interval getResult() {
-		return result;
-	}
-
-	@Override
 	public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
 		Bag bag = (Bag) (arguments[0]);
 		
 		int nbOcc = bag.getMult(tc);
-		this.result = new Interval(nbOcc, nbOcc);
+		setResult(new Interval(nbOcc, nbOcc));
 	}
 
 	@Override
 	public void visitEmpty(EmptyTripleExpression emptyTripleExpression, Object[] arguments) {
-		this.result = Interval.STAR;
+		setResult(Interval.STAR);
 	}
 	
 	@Override
@@ -71,9 +65,9 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 		
 		for (TripleExpr subExpr : expr.getSubExpressions()) {
 			subExpr.accept(this, arguments);
-			res = add(res, this.result);
+			res = add(res, getResult());
 		}
-		this.result = res;
+		setResult(res);
 	}
 	
 	@Override
@@ -82,9 +76,9 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 
 		for (TripleExpr subExpr : expr.getSubExpressions()) {
 			subExpr.accept(this, arguments);
-			res = inter(res, this.result);
+			res = inter(res, getResult());
 		}
-		this.result = res;
+		setResult(res);
 	}
 
 	@Override
@@ -95,45 +89,45 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 		TripleExpr subExpr = expression.getSubExpression();
 		if (card.equals(Interval.STAR)) {
 			if (isEmptySubbag(bag, expression)) {
-				this.result = Interval.STAR;
+				setResult(Interval.STAR);
 			} else {
 				subExpr.accept(this, arguments);
-				if (! this.result.equals(Interval.EMPTY)) {
-					this.result = Interval.PLUS;
+				if (! this.getResult().equals(Interval.EMPTY)) {
+					setResult(Interval.PLUS);
 				}
 			}
 		}
 
 		else if (card.equals(Interval.PLUS)) {		
 			if (isEmptySubbag(bag, expression)) {
-				this.result = Interval.ZERO;
+				setResult(Interval.ZERO);
 			} else {
 				subExpr.accept(this, arguments);
-				if (! this.result.equals(Interval.EMPTY)) {
-					this.result = new Interval(1, this.result.max);
+				if (! this.getResult().equals(Interval.EMPTY)) {
+					setResult(new Interval(1, this.result.max));
 				} else {
-					this.result = Interval.EMPTY;
+					setResult(Interval.EMPTY);
 				}
 			}
 		}
 		
 		else if (card.equals(Interval.OPT)) {
 			subExpr.accept(this, arguments);
-			this.result = add(this.result, Interval.STAR);
+			setResult(add(getResult(), Interval.STAR));
 		}
 
 		else if (subExpr instanceof TripleConstraint) {
 			TripleConstraint tc = (TripleConstraint)  subExpr;
 			int nbOcc = bag.getMult(tc);
-			this.result = div(nbOcc, card);
+			setResult(div(nbOcc, card));
 		}
 
 		else if (card.equals(Interval.ZERO)) {
 			//throw new UnsupportedOperationException("not yet implemented");
 			if (isEmptySubbag(bag, expression)) {
-				this.result = Interval.STAR;
+				setResult(Interval.STAR);
 			} else {
-				this.result = Interval.EMPTY;
+				setResult(Interval.EMPTY);
 			}
 		}
 		

@@ -29,18 +29,10 @@ import java.util.List;
  * @author Iovka Boneva
  */
 public class CollectTripleConstraintsTE extends TripleExpressionVisitor<List<TripleConstraint>> {
-    private List<TripleConstraint> list;
 
     public CollectTripleConstraintsTE(){
-        this.list = new ArrayList<>();
+        setResult(new ArrayList<>());
     }
-
-    @Override
-    public List<TripleConstraint> getResult() {
-        return list;
-    }
-
-
     @Override
     public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
         expr.getSubExpression().accept(this, arguments);
@@ -48,7 +40,7 @@ public class CollectTripleConstraintsTE extends TripleExpressionVisitor<List<Tri
 
     @Override
     public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-        list.add(tc);
+        getResult().add(tc);
     }
 
     @Override

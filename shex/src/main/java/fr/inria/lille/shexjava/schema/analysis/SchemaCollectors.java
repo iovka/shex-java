@@ -200,11 +200,6 @@ class CollectElementsFromTriple<C> extends TripleExpressionVisitor<Set<C>>{
 	}
 
 	@Override
-	public Set<C> getResult() {
-		return set;
-	}
-
-	@Override
 	public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
 		if (filter.test(tc))
 			set.add((C)tc);

@@ -91,17 +91,11 @@ public class SORBEGenerator {
 	private GeneratorOfTripleExpr generatorTE = new GeneratorOfTripleExpr();
 	
 	private class GeneratorOfTripleExpr extends TripleExpressionVisitor<TripleExpr> {
-		private TripleExpr result=null;
-		
-		@Override
-		public TripleExpr getResult() {
-			return result;
-		}
 
 		@Override
 		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-			result = tc.clone();
-			setTripleLabel(result,tc);			
+			setResult(tc.clone());
+			setTripleLabel(getResult(),tc);
 		}
 
 		@Override
@@ -114,10 +108,10 @@ public class SORBEGenerator {
 			List<TripleExpr> newSubExprs = new ArrayList<TripleExpr>();
 			for (TripleExpr subExpr : expr.getSubExpressions()) {
 				subExpr.accept(this, arguments);
-				newSubExprs.add(result);
+				newSubExprs.add(getResult());
 			}
-			result = new EachOf(newSubExprs);
-			setTripleLabel(result,expr);
+			setResult(new EachOf(newSubExprs));
+			setTripleLabel(getResult(),expr);
 		}
 		
 		@Override
@@ -125,17 +119,17 @@ public class SORBEGenerator {
 			List<TripleExpr> newSubExprs = new ArrayList<TripleExpr>();
 			for (TripleExpr subExpr : expr.getSubExpressions()) {
 				subExpr.accept(this, arguments);
-				newSubExprs.add(result);
+				newSubExprs.add(getResult());
 			}
-			result = new OneOf(newSubExprs);
-			setTripleLabel(result,expr);
+			setResult(new OneOf(newSubExprs));
+			setTripleLabel(getResult(),expr);
 		}
 		
 
 		@Override
 		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
-			result = new EmptyTripleExpression();
-			setTripleLabel(result,expr);
+			setResult(new EmptyTripleExpression());
+			setTripleLabel(getResult(),expr);
 		}
 		
 		@Override
@@ -143,15 +137,15 @@ public class SORBEGenerator {
 			CheckIfContainsEmpty visitor = new CheckIfContainsEmpty();
 			expr.accept(visitor);
 			expr.getSubExpression().accept(this);
-			if (expr.getCardinality().equals(Interval.PLUS) & visitor.result) {
-				result = new RepeatedTripleExpression(result,Interval.STAR);
-				setTripleLabel(result,expr);
+			if (expr.getCardinality().equals(Interval.PLUS) & visitor.getResult()) {
+				setResult(new RepeatedTripleExpression(getResult(),Interval.STAR));
+				setTripleLabel(getResult(),expr);
 			} else if(expr.getCardinality().equals(Interval.PLUS)
 					  || expr.getCardinality().equals(Interval.STAR)
 					  || expr.getCardinality().equals(Interval.OPT)
 					  || expr.getCardinality().equals(Interval.ZERO)){
-				result = new RepeatedTripleExpression(result,expr.getCardinality());
-				setTripleLabel(result,expr);
+				setResult(new RepeatedTripleExpression(getResult(),expr.getCardinality()));
+				setTripleLabel(getResult(),expr);
 			} else {
 				Interval card = expr.getCardinality();
 				int nbClones = 0;
@@ -160,7 +154,7 @@ public class SORBEGenerator {
 
 				if (card.max == Interval.UNBOUND) {
 					nbClones = card.min -1;
-					TripleExpr tmp = new RepeatedTripleExpression(result, Interval.PLUS);
+					TripleExpr tmp = new RepeatedTripleExpression(getResult(), Interval.PLUS);
 					setTripleLabel(tmp,expr);
 					clones.add(tmp);
 				}else {
@@ -174,15 +168,15 @@ public class SORBEGenerator {
 				}
 				for (int i=0; i<nbOptClones;i++) {
 					expr.getSubExpression().accept(this);
-					TripleExpr tmp = new RepeatedTripleExpression(result, Interval.OPT);
+					TripleExpr tmp = new RepeatedTripleExpression(getResult(), Interval.OPT);
 					setTripleLabel(tmp,expr);
 					clones.add(tmp);
 				}
 				if (clones.size()==1)
-					result = clones.get(0);
+					setResult(clones.get(0));
 				else {
-					result = new EachOf(clones);
-					setTripleLabel(result,expr);
+					setResult(new EachOf(clones));
+					setTripleLabel(getResult(),expr);
 				}
 			}
 		}
@@ -204,28 +198,22 @@ public class SORBEGenerator {
 	
 	
 	class CheckIfContainsEmpty extends TripleExpressionVisitor<Boolean>{
-		private boolean result ;
-
-		@Override
-		public Boolean getResult() {
-			return result;
-		}
 
 		@Override
 		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-			result = false;
+			setResult(false);
 		}
 
 		@Override
 		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
-			result = false;
+			setResult(false);
 		}
 
 		@Override
 		public void visitEachOf(EachOf expr, Object... arguments) {
 			for (TripleExpr subExpr : expr.getSubExpressions()) {
 				subExpr.accept(this, arguments);
-				if (!result) 
+				if (!getResult())
 					return;
 			}
 		}
@@ -234,7 +222,7 @@ public class SORBEGenerator {
 		public void visitOneOf(OneOf expr, Object... arguments) {
 			for (TripleExpr subExpr : expr.getSubExpressions()) {
 				subExpr.accept(this, arguments);
-				if (result) 
+				if (getResult())
 					return;
 			}
 		}
@@ -242,7 +230,7 @@ public class SORBEGenerator {
 		@Override
 		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
 			if (expr.getCardinality().min == 0) {
-				result = true;
+				setResult(true);
 			} else {
 				expr.getSubExpression().accept(this, arguments);
 			}

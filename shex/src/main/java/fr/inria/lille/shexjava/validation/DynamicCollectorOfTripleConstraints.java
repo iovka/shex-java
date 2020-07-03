@@ -42,67 +42,11 @@ public class DynamicCollectorOfTripleConstraints {
 	public List<TripleConstraint> getTCs (TripleExpr texpr) {
 		List<TripleConstraint> result = collectedTCs.get(texpr.getId());
 		if (result == null) {
+			CollectTripleConstraintsTE collector = new CollectTripleConstraintsTE();
 			texpr.accept(collector);
 			result = collector.getResult();
+			collectedTCs.put(texpr.getId(), result);
 		}
 		return result;
 	}
-
-	private final TripleExpressionVisitor<List<TripleConstraint>> collector = new TripleExpressionVisitor<List<TripleConstraint>>() {
-
-		private List<TripleConstraint> result;
-
-		private void setResult (TripleExpr expr, List<TripleConstraint> result) {
-			this.result = result;
-			collectedTCs.put(expr.getId(), result);
-		}
-
-		@Override
-		public List<TripleConstraint> getResult() {
-			return result;
-		}
-
-		@Override
-		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-			setResult(tc, Collections.singletonList(tc));
-		}
-
-		@Override
-		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
-			setResult(expr, Collections.emptyList());
-		}
-
-		@Override
-		public void visitEachOf(EachOf expr, Object... arguments) {
-			List<TripleConstraint> newResult = new ArrayList<>();
-			for (TripleExpr subExpr : expr.getSubExpressions()) {
-				subExpr.accept(this, arguments);
-				newResult.addAll(getResult());
-			}
-			setResult(expr, newResult);
-		}
-
-		@Override
-		public void visitOneOf(OneOf expr, Object... arguments) {
-			List<TripleConstraint> newResult = new ArrayList<>();
-			for (TripleExpr subExpr : expr.getSubExpressions()) {
-				subExpr.accept(this, arguments);
-				newResult.addAll(getResult());
-			}
-			setResult(expr, newResult);
-		}
-
-
-		@Override
-		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
-			expr.getSubExpression().accept(this, arguments);
-			setResult(expr, getResult());
-		}
-
-		@Override
-		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
-			expr.getTripleExp().accept(this, arguments);
-			setResult(expr, getResult());
-		}
-	};
 }
