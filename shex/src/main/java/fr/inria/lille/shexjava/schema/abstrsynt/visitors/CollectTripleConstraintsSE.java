@@ -29,30 +29,23 @@ import java.util.List;
  * @author Iovka Boneva
  */
 public class CollectTripleConstraintsSE extends ShapeExpressionVisitor<List<TripleConstraint>> {
-    private List<TripleConstraint> list;
 
     public CollectTripleConstraintsSE(){
-        this.list = new ArrayList<>();
-    }
-
-
-    @Override
-    public List<TripleConstraint> getResult() {
-        return null;
+        setResult(new ArrayList<>());
     }
 
     @Override
     public void visitShape(Shape expr, Object... arguments) {
-
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
     public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-
+        throw new UnsupportedOperationException("not yet implemented");
     }
 
     @Override
     public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
-
+        throw new UnsupportedOperationException("not yet implemented");
     }
 }

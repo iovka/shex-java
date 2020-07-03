@@ -100,7 +100,6 @@ public class DataExtractor{
 		public Object getResult() {
 			return null;
 		}
-
 		
 		public void visitShapeAnd (ShapeAnd expr, Object ... arguments) {
 			if (validation.getTyping().getStatus(currentNode, expr.getId()).equals(Status.CONFORMANT)) {
@@ -126,7 +125,7 @@ public class DataExtractor{
 		
 		
 		public void visitShapeNot (ShapeNot expr, Object ...arguments) {
-			// TODO: what to do if there is a negation ???
+			throw new UnsupportedOperationException("not yet implemented");
 		}
 		
 

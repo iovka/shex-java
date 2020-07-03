@@ -166,7 +166,6 @@ public class RefineValidation extends SORBEBasedValidation {
 
 	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
 		private RDFTerm node; 
-		private Boolean result;
 		private boolean validateShape;
 
 		public EvaluateShapeExpressionVisitor(boolean validateShape, RDFTerm node) {
@@ -176,7 +175,7 @@ public class RefineValidation extends SORBEBasedValidation {
 
 		@Override
 		public Boolean getResult() {
-			if (result == null) return false;
+			if (super.getResult() == null) return false;
 			return result;
 		}
 
@@ -184,7 +183,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
 				e.accept(this);
-				if (!result) break;
+				if (!getResult()) break;
 			}
 		}
 
@@ -192,27 +191,27 @@ public class RefineValidation extends SORBEBasedValidation {
 		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
 				e.accept(this);
-				if (result) break;
+				if (getResult()) break;
 			}
 		}
 
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			expr.getSubExpression().accept(this);
-			result = !result;
+			setResult(!getResult());
 		}
 
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
 			if (validateShape)
-				result = matches(node, expr);
+				setResult(matches(node, expr));
 			else
-				result = typing.isConformant(node, expr.getId());
+				setResult(typing.isConformant(node, expr.getId()));
 		}
 
 		@Override
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-			result = expr.contains(node);
+			setResult(expr.contains(node));
 		}
 
 		@Override

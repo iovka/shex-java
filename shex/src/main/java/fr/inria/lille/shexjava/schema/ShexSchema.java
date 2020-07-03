@@ -364,24 +364,18 @@ public class ShexSchema {
 	//--------------------------------------------------------------------------------
 
 	class CollectGraphReferencesFromShape extends ShapeExpressionVisitor<Set<Pair<Label,Label>>> {
-		private Set<Pair<Label,Label>> set;
 
 		public CollectGraphReferencesFromShape () {	
-			this.set = new HashSet<Pair<Label,Label>>();
+			setResult(new HashSet<Pair<Label,Label>>());
 		}
 		
 		public CollectGraphReferencesFromShape (Set<Pair<Label,Label>> set) {	
-			this.set = set;
+			setResult(set);
 		}	
-		
-		@Override
-		public Set<Pair<Label,Label>> getResult() {
-			return set;
-		}
-		
+
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
-			CollectGraphReferencesFromTriple visitor = new CollectGraphReferencesFromTriple(set);
+			CollectGraphReferencesFromTriple visitor = new CollectGraphReferencesFromTriple(getResult());
 			expr.getTripleExpression().accept(visitor,arguments);
 		}
 		
@@ -391,13 +385,13 @@ public class ShexSchema {
 		
 		@Override
 		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
-			set.add(new Pair<Label,Label>(shapeRef.getId(),shapeRef.getLabel()));
+			getResult().add(new Pair<Label,Label>(shapeRef.getId(),shapeRef.getLabel()));
 		}
 		
 		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) {
-				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
 			}
 			super.visitShapeAnd(expr, arguments);
 		}
@@ -405,14 +399,14 @@ public class ShexSchema {
 		@Override
 		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) {
-				set.add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
+				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
 			}
 			super.visitShapeOr(expr, arguments);
 		}
 		
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
-			set.add(new Pair<Label,Label>(expr.getId(),expr.getSubExpression().getId()));
+			getResult().add(new Pair<Label,Label>(expr.getId(),expr.getSubExpression().getId()));
 			super.visitShapeNot(expr, arguments);
 		}
 		
@@ -574,30 +568,23 @@ public class ShexSchema {
 	class ComputeReferenceSign extends ShapeExpressionVisitor<Map<Pair<Label,Label>,Boolean>> {
 		private Label root;
 		private boolean isPositive;
-		private Map<Pair<Label,Label>,Boolean> collectedSign;
 
 		public ComputeReferenceSign () {	
-			this.collectedSign = new HashMap<Pair<Label,Label>,Boolean>();
+			setResult(new HashMap<Pair<Label,Label>,Boolean>());
 			isPositive = true;
 		}
-		
-		@Override
-		public Map<Pair<Label, Label>, Boolean> getResult() {
-			return collectedSign;
-		}
 
-		
 		public void setRoot(Label rootLabel) {
 			root = rootLabel;
 		}
 		
 		private void updateSign(Label shapeExpr) {
 			Pair<Label, Label> key = new Pair<Label,Label>(root, shapeExpr);
-			if (!collectedSign.containsKey(key))
-				collectedSign.put(key, isPositive);
+			if (!getResult().containsKey(key))
+				getResult().put(key, isPositive);
 			else 
 				if (!isPositive)
-					collectedSign.put(key, isPositive);
+					getResult().put(key, isPositive);
 		}
 		
 		@Override

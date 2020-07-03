@@ -113,20 +113,13 @@ public class MyValidation {
 	abstract class AbstractEvaluateShapeExprVistor extends ShapeExpressionVisitor<Boolean> {
 
 		protected final RDFTerm focusNode;
-		protected Boolean result = null;
-
 		AbstractEvaluateShapeExprVistor(RDFTerm focusNode) {
 			this.focusNode = focusNode;
 		}
 
 		@Override
-		public Boolean getResult() {
-			return result;
-		}
-
-		@Override
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-			result = expr.contains(focusNode);
+			setResult(expr.contains(focusNode));
 		}
 
 		@Override
@@ -138,7 +131,7 @@ public class MyValidation {
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
 				e.accept(this, arguments);
-				if (!result) break;
+				if (!getResult()) break;
 			}
 		}
 
@@ -146,14 +139,14 @@ public class MyValidation {
 		public void visitShapeOr(ShapeOr expr, Object... arguments) {
 			for (ShapeExpr e : expr.getSubExpressions()) {
 				e.accept(this, arguments);
-				if (result) break;
+				if (getResult()) break;
 			}
 		}
 
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			expr.getSubExpression().accept(this);
-			result = !result;
+			setResult(!getResult());
 		}
 	}
 

@@ -121,27 +121,21 @@ public class SchemaCollectors {
 
 class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 
-	private Set<C> set;
 	private Predicate<Object> filter;
 	private boolean traverseTripleExpressions;
 
 	public CollectElementsFromShape (Predicate<Object> filter, Set<C> collectionSet, boolean traverseTripleExpressions) {
-		this.set = collectionSet;
+		setResult(collectionSet);
 		this.filter = filter;
 		this.traverseTripleExpressions = traverseTripleExpressions;
 	}
 
 	@Override
-	public Set<C> getResult() {
-		return set;
-	}
-
-	@Override
 	public void visitShape(Shape expr, Object... arguments) {
 		if (filter.test(expr))
-			set.add((C)expr);
+			getResult().add((C)expr);
 		if (traverseTripleExpressions) {
-			CollectElementsFromTriple<C> c = new CollectElementsFromTriple<C>(filter,set, traverseTripleExpressions);
+			CollectElementsFromTriple<C> c = new CollectElementsFromTriple<C>(filter,getResult(), traverseTripleExpressions);
 			expr.getTripleExpression().accept(c, arguments);
 		}
 	}
@@ -149,39 +143,39 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 	@Override
 	public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
 		if (filter.test(expr))
-			set.add((C)expr);
+			getResult().add((C)expr);
 	}
 
 	@Override
 	public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 		if (filter.test(shapeRef))
-			set.add((C)shapeRef);
+			getResult().add((C)shapeRef);
 	}
 
 	@Override
 	public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
 		if (filter.test(shapeExt))
-			set.add((C)shapeExt);
+			getResult().add((C)shapeExt);
 	}
 
 	@Override
 	public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
 		if (filter.test(expr))
-			set.add((C)expr);
+			getResult().add((C)expr);
 		super.visitShapeAnd(expr, arguments);
 	}
 
 	@Override
 	public void visitShapeOr(ShapeOr expr, Object... arguments) {
 		if (filter.test(expr))
-			set.add((C)expr);
+			getResult().add((C)expr);
 		super.visitShapeOr(expr, arguments);
 	}
 
 	@Override
 	public void visitShapeNot(ShapeNot expr, Object... arguments) {
 		if (filter.test(expr))
-			set.add((C)expr);
+			getResult().add((C)expr);
 		super.visitShapeNot(expr, arguments);
 	}
 
