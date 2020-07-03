@@ -16,36 +16,52 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt.visitors;
 
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
+import fr.inria.lille.shexjava.util.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Iovka Boneva
  */
-public class CollectTripleConstraintsSE extends ShapeExpressionVisitor<List<TripleConstraint>> {
+public class CollectTripleConstraintsSE extends
+        ShapeExpressionVisitor<Pair<List<TripleConstraint>, Map<TripleConstraint, Deque<Object>>>> {
 
     public CollectTripleConstraintsSE(){
-        setResult(new ArrayList<>());
+        setResult(new Pair<>(new ArrayList<>(), new HashMap<>()));
     }
 
     @Override
     public void visitShape(Shape expr, Object... arguments) {
-        throw new UnsupportedOperationException("not yet implemented");
+        Deque<Object> parents = null;
+        if (arguments.length > 0) parents = (Deque) arguments[0];
+
+        if (parents != null) parents.push(expr);
+
+        for (ShapeExpr se : expr.getExtended()) {
+            if (parents != null) parents.push(se);
+            se.accept(this, arguments);
+            if (parents != null) parents.pop();
+        }
+        CollectTripleConstraintsTE tecollector = new CollectTripleConstraintsTE();
+        TripleExpr tripleExpr = expr.getTripleExpression();
+
+        if (parents != null) parents.push(tripleExpr);
+        tripleExpr.accept(tecollector, arguments);
+        if (parents != null) parents.pop();
+
+        getResult().one.addAll(tecollector.getResult().one);
+        getResult().two.putAll(tecollector.getResult().two);
+
+        if (parents != null) parents.pop();
     }
 
     @Override
-    public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-        throw new UnsupportedOperationException("not yet implemented");
-    }
+    public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {}
 
     @Override
     public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
-        throw new UnsupportedOperationException("not yet implemented");
+        shapeRef.getShapeDefinition().accept(this, arguments);
     }
 }

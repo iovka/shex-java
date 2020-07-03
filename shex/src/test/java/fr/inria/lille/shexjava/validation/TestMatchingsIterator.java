@@ -85,4 +85,40 @@ public class TestMatchingsIterator {
         assertFalse(it.hasNext());
     }
 
+    @Test
+    public void testRestrictedDomain () {
+        Map<Triple, List<TripleConstraint>> preMatching = new HashMap<>();
+        Triple A = mock(Triple.class);
+        Triple B = mock(Triple.class);
+        Triple C = mock(Triple.class);
+        TripleConstraint a1 = mock(TripleConstraint.class);
+        TripleConstraint a2 = mock(TripleConstraint.class);
+        TripleConstraint a3 = mock(TripleConstraint.class);
+        TripleConstraint b1 = mock(TripleConstraint.class);
+        TripleConstraint b2 = mock(TripleConstraint.class);
+        TripleConstraint c1 = mock(TripleConstraint.class);
+        TripleConstraint c2 = mock(TripleConstraint.class);
+
+        preMatching.put(A, Arrays.asList(a1, a2, a3));
+        preMatching.put(B, Arrays.asList(b1, b2));
+        preMatching.put(C, Arrays.asList(c1, c2));
+
+        MyMatchingsIterator it = new MyMatchingsIterator(preMatching, Arrays.asList(A,C));
+        Set<MyMatching> allElements = new HashSet<>();
+        while (it.hasNext()) {
+            allElements.add(it.next());
+        }
+
+        Set<Map<Triple, TripleConstraint>> expectedElements = new HashSet<>();
+        MyMatching m;
+        m = new MyMatching(); m.put(A, a1); m.put(C, c1); expectedElements.add(m);
+        m = new MyMatching(); m.put(A, a1); m.put(C, c2); expectedElements.add(m);
+        m = new MyMatching(); m.put(A, a2); m.put(C, c1); expectedElements.add(m);
+        m = new MyMatching(); m.put(A, a2); m.put(C, c2); expectedElements.add(m);
+        m = new MyMatching(); m.put(A, a3); m.put(C, c1); expectedElements.add(m);
+        m = new MyMatching(); m.put(A, a3); m.put(C, c2); expectedElements.add(m);
+
+        assertEquals(expectedElements, allElements);
+    }
+
 }

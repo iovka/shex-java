@@ -19,15 +19,12 @@ package fr.inria.lille.shexjava.validation;
 import java.util.*;
 
 import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
+import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsSE;
 import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsTE;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
+import fr.inria.lille.shexjava.util.Pair;
+import org.apache.commons.collections.map.HashedMap;
 
 /** Allows to compute the triple constraints that appear in a shape.
  * Memorizes already computed results. 
@@ -37,16 +34,48 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
  */
 public class DynamicCollectorOfTripleConstraints {
 
+	// TODO: use the expression as key instead of its label
 	private Map<Label, List<TripleConstraint>> collectedTCs = new HashMap<>();
-	
+	private Map<Pair<TripleConstraint, Shape>, Object> parentsMap = new HashedMap();
+
+	public Object getParentInShape (TripleConstraint tc, Shape shape) {
+		return parentsMap.get(new Pair(tc, shape));
+	}
+
 	public List<TripleConstraint> getTCs (TripleExpr texpr) {
 		List<TripleConstraint> result = collectedTCs.get(texpr.getId());
 		if (result == null) {
 			CollectTripleConstraintsTE collector = new CollectTripleConstraintsTE();
 			texpr.accept(collector);
-			result = collector.getResult();
+			result = collector.getResult().one;
 			collectedTCs.put(texpr.getId(), result);
 		}
 		return result;
+	}
+
+	public List<TripleConstraint> getTCs (Shape shape) {
+		List<TripleConstraint> tripleConstraints = collectedTCs.get(shape.getId());
+		Deque<Object> parents = new ArrayDeque<>();
+		if (tripleConstraints == null) {
+			CollectTripleConstraintsSE collector = new CollectTripleConstraintsSE();
+			shape.accept(collector, parents);
+			tripleConstraints = collector.getResult().one;
+			collectedTCs.put(shape.getId(), tripleConstraints);
+			updateParentStructure(collector.getResult().two);
+		}
+		return tripleConstraints;
+	}
+
+	private void updateParentStructure (Map<TripleConstraint, Deque<Object>> parentsMap) {
+		for (Map.Entry<TripleConstraint, Deque<Object>> e : parentsMap.entrySet()) {
+			TripleConstraint tc = e.getKey();
+			Deque<Object> parents = e.getValue();
+
+			while (! parents.isEmpty()) {
+				Object parent = parents.pop();
+				Object shape = (Shape) parents.pop();
+				this.parentsMap.put(new Pair(tc, shape), parent);
+			}
+		}
 	}
 }

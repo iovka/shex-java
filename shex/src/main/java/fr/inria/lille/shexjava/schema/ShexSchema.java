@@ -555,7 +555,7 @@ public class ShexSchema {
 	private List<TripleConstraint> getSetOfTripleConstraintOfAShape(Shape shape) {
 		CollectTripleConstraintsTE tcCollector = new CollectTripleConstraintsTE();
 		shape.getTripleExpression().accept(tcCollector);
-		return tcCollector.getResult();
+		return tcCollector.getResult().one;
 	}
 	
 	

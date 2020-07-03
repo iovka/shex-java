@@ -39,7 +39,9 @@ import org.apache.commons.rdf.api.Triple;
 public class CommonGraph {
 	
 	private CommonGraph() {}
-	
+
+
+	// TODO these should become streams instead of storing them to lists and streaming them again
 	public static List<Triple> getOutNeighbours(Graph g, RDFTerm focusNode){
 		if (focusNode instanceof Literal)
 			return Collections.emptyList();

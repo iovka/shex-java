@@ -39,17 +39,20 @@ public class MyMatchingsIterator implements Iterator<MyMatching>{
 	/** Used for the iteration: 0 <= currentIndexes[i] < sizes[i] */
 	private int[] currentIndexes;
 
+
+
+
 	//	In the constructor, the following field will be initialize:
 	//	 - neighbourhood the set of triples over which all matchings will be enumerated
 	//	 - allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
 	//
-	public MyMatchingsIterator(Map<Triple, List<TripleConstraint>> preMatching) {
-		neighbourhood = new ArrayList<>(preMatching.size());
-		allMatching = new ArrayList<>(preMatching.size());
+	public MyMatchingsIterator(Map<Triple, List<TripleConstraint>> preMatching, List<Triple> domain) {
+		neighbourhood = new ArrayList<>(domain.size());
+		allMatching = new ArrayList<>(domain.size());
 
-		for (Map.Entry<Triple, List<TripleConstraint>> e: preMatching.entrySet()) {
-			neighbourhood.add(e.getKey());
-			allMatching.add(e.getValue());
+		for (Triple e : domain) {
+			neighbourhood.add(e);
+			allMatching.add(preMatching.get(e));
 		}
 		currentIndexes = new int[allMatching.size()+1]; // Adding an artificial first column allows to write more easily all the operations
 		sizes = new int[allMatching.size()+1];
@@ -59,6 +62,10 @@ public class MyMatchingsIterator implements Iterator<MyMatching>{
 		}
 		currentIndexes[0] = 0;
 		sizes[0] = 1;
+	}
+
+	public MyMatchingsIterator(Map<Triple, List<TripleConstraint>> preMatching) {
+		this(preMatching, new ArrayList<>(preMatching.keySet()));
 	}
 
 	@Override

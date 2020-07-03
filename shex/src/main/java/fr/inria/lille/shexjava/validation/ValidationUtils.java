@@ -79,7 +79,8 @@ public class ValidationUtils {
 	}
 	
 	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood, 
-							List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties, Matcher matcher) {
+							List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties,
+							Typing typing, Matcher matcher) {
 		
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTriplesMap = new LinkedHashMap<>(neighbourhood.size());
 		ArrayList<Triple> matchedToExtraTriples = new ArrayList<>();
@@ -88,12 +89,12 @@ public class ValidationUtils {
 		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: tripleConstraints) {
-				if (matcher.apply(focusNode, triple, tc, null)) {
+				if (matcher.apply(focusNode, triple, tc, typing)) {
 					matching.add(tc);
 				}
 			} 
 			if (! matching.isEmpty()) 
-				matchingTriplesMap.put(triple, matching);
+				matchingTriplesMap.put(triple, matching);   // TODO why the empty list is not added ?
 			else
 				if (extraProperties.contains(triple.getPredicate())) 
 					matchedToExtraTriples.add(triple);

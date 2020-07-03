@@ -32,11 +32,11 @@ import fr.inria.lille.shexjava.util.CollectionToString;
 public class Shape extends ShapeExpr implements AnnotedObject {
 	private boolean closed;
 	private Set<TCProperty> extra;
-	private List<ShapeExpr> extended;
+	private List<ShapeExprRef> extended;
 	private TripleExpr tripleExpr;
 	private List<Annotation> annotations;
 
-	public Shape(TripleExpr tripleExpr, List<ShapeExpr> extended, Set<TCProperty> extraProps, boolean closed) {
+	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps, boolean closed) {
 		this.tripleExpr = tripleExpr;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
 		this.extended = Collections.unmodifiableList(new ArrayList(extended));
@@ -66,7 +66,7 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	public TripleExpr getTripleExpression () {
 		return tripleExpr;
 	}
-	public List<ShapeExpr> getExtended () { return extended; }
+	public List<ShapeExprRef> getExtended () { return extended; }
 	
 	public boolean isClosed () {
 		return this.closed;
@@ -90,9 +90,12 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 		String closedstr = isClosed() ? "CLOSED " : "";
 		String extraP = extra.isEmpty() ? "" : "EXTRA " + extra.toString();
 		String annot = "";
-		if (this.annotations!=null && this.annotations.isEmpty())
+		if (this.annotations!=null && ! this.annotations.isEmpty())
 			annot = CollectionToString.collectionToString(annotations," ; ","// [", "]")+" ";
-		return String.format("{%s%s%s%s}", closedstr, extraP, tripleExpr.toPrettyString(prefixes),annot);	
+		String extendedstr = "";
+		if (! this.extended.isEmpty())
+			extendedstr = CollectionToString.collectionToString(getExtended(), " ; ", " EXTENDS ", "") + " ";
+		return String.format("%s%s%s{%s}%s", closedstr, extraP, extendedstr, tripleExpr.toPrettyString(prefixes),annot);
 	}
 
 	

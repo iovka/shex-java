@@ -16,31 +16,32 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt.visitors;
 
-import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
+import fr.inria.lille.shexjava.util.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Iovka Boneva
  */
-public class CollectTripleConstraintsTE extends TripleExpressionVisitor<List<TripleConstraint>> {
+public class CollectTripleConstraintsTE
+        extends TripleExpressionVisitor<Pair<List<TripleConstraint>, Map<TripleConstraint, Deque<Object>>>> {
 
     public CollectTripleConstraintsTE(){
-        setResult(new ArrayList<>());
+        setResult(new Pair<>(new ArrayList<>(), new HashMap<>()));
     }
     @Override
-    public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
+    public void visitRepeated(RepeatedTripleExpression expr, Object... arguments) {
         expr.getSubExpression().accept(this, arguments);
     }
 
     @Override
     public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-        getResult().add(tc);
+        Deque<Object> parents = null;
+        if (arguments.length > 0) parents = (Deque) arguments[0];
+        getResult().one.add(tc);
+        if (parents != null) getResult().two.put(tc, new ArrayDeque<>(parents));
     }
 
     @Override

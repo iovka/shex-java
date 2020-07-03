@@ -23,8 +23,11 @@ import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Iovka Boneva
@@ -52,7 +55,7 @@ public class MyValidation {
 
 		// Enumerate all possible matchings from the triples to the triple constraints and look for a valid matching among them
 
-		TripleExpr sorbeTripleExpr = this.sorbeGenerator.getSORBETripleExpr(tripleExpr); // FIXME
+		TripleExpr sorbeTripleExpr = this.sorbeGenerator.getSORBETripleExpr(tripleExpr);
 		List<TripleConstraint> tripleConstraints = collectorTC.getTCs(sorbeTripleExpr);
 		Map<Triple, List<TripleConstraint>> matchingTriples =
 				ValidationUtils.computePreMatching(triples, focusNode, tripleConstraints, typing, ValidationUtils.predicateAndValueMatcher);
@@ -88,9 +91,21 @@ public class MyValidation {
 	}
 
 	private boolean satisfies (RDFTerm focusNode, Shape shape, Typing typing) {
-		// Get the neighbourhood
-		List<TripleConstraint> tripleConstraints = null; // FIXME
-		//List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, focusNode, constraints, shape.isClosed());
+//		// Collect the triple constraints
+//		Map<Object, List<TripleConstraint>> exprToTripleConstraintsMap = new HashMap<>();
+//		for (ShapeExprRef ext : shape.getExtended())
+//			exprToTripleConstraintsMap.put(ext, collectorTC.getTCs(ext));
+//		exprToTripleConstraintsMap.put(shape.getTripleExpression(), collectorTC.getTCs(shape.getTripleExpression()));
+//
+//		// Retrieve the appropriate neighbourhood
+//		List<TripleConstraint> allTripleConstraints =
+//				exprToTripleConstraintsMap.values().stream().flatMap(tcs -> tcs.stream()).collect(Collectors.toList());
+//		List<Triple> matchables = ValidationUtils.getMatchableNeighbourhood(graph, focusNode, allTripleConstraints, shape.isClosed());
+
+
+
+		// Split the neighbourhood between the
+
 
 		// Split the neighbourhood between matching, extra and unmatched
 
