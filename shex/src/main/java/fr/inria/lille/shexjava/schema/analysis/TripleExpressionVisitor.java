@@ -31,8 +31,15 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
  * @param <ResultType>
  */
 public abstract class TripleExpressionVisitor<ResultType> {
-	
-	public abstract ResultType getResult ();
+
+	protected ResultType result;
+
+	public ResultType getResult () {
+		return result;
+	}
+	protected void setResult(ResultType result) {
+		this.result = result;
+	}
 
 	public abstract void visitTripleConstraint (TripleConstraint tc, Object ... arguments);
 	

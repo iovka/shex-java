@@ -16,11 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
@@ -30,6 +26,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsTE;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 
 /** Allows to compute the triple constraints that appear in a shape.
@@ -50,7 +47,7 @@ public class DynamicCollectorOfTripleConstraints {
 		}
 		return result;
 	}
-	
+
 	private final TripleExpressionVisitor<List<TripleConstraint>> collector = new TripleExpressionVisitor<List<TripleConstraint>>() {
 
 		private List<TripleConstraint> result;
@@ -59,7 +56,7 @@ public class DynamicCollectorOfTripleConstraints {
 			this.result = result;
 			collectedTCs.put(expr.getId(), result);
 		}
-		
+
 		@Override
 		public List<TripleConstraint> getResult() {
 			return result;

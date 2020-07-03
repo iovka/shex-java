@@ -16,11 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.IRI;
@@ -36,14 +32,21 @@ import fr.inria.lille.shexjava.util.CollectionToString;
 public class Shape extends ShapeExpr implements AnnotedObject {
 	private boolean closed;
 	private Set<TCProperty> extra;
+	private List<ShapeExpr> extended;
 	private TripleExpr tripleExpr;
 	private List<Annotation> annotations;
 
-	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
-		this.tripleExpr = tripleExpression;
+	public Shape(TripleExpr tripleExpr, List<ShapeExpr> extended, Set<TCProperty> extraProps, boolean closed) {
+		this.tripleExpr = tripleExpr;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
+		this.extended = Collections.unmodifiableList(new ArrayList(extended));
 		this.closed = closed;
 		this.annotations = null;
+	}
+
+	// TODO to be removed
+	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
+		this(tripleExpression, Collections.emptyList(), extraProps, closed);
 	}
 	
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed, List<Annotation> annotations) {
@@ -63,6 +66,7 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	public TripleExpr getTripleExpression () {
 		return tripleExpr;
 	}
+	public List<ShapeExpr> getExtended () { return extended; }
 	
 	public boolean isClosed () {
 		return this.closed;

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsTE;
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.CycleDetector;
@@ -563,8 +564,8 @@ public class ShexSchema {
 	}
 	
 	
-	private Set<TripleConstraint> getSetOfTripleConstraintOfAShape(Shape shape) {
-		CollectTripleConstraintOfAShape tcCollector = new CollectTripleConstraintOfAShape();
+	private List<TripleConstraint> getSetOfTripleConstraintOfAShape(Shape shape) {
+		CollectTripleConstraintsTE tcCollector = new CollectTripleConstraintsTE();
 		shape.getTripleExpression().accept(tcCollector);
 		return tcCollector.getResult();
 	}
@@ -575,41 +576,7 @@ public class ShexSchema {
 		tc.getShapeExpr().accept(shapeCol);
 		return shapeCol.getResult();
 	}
-	
-	
-	class CollectTripleConstraintOfAShape extends TripleExpressionVisitor<Set<TripleConstraint>> {
-		private Set<TripleConstraint> set;
 
-		public CollectTripleConstraintOfAShape(){
-			this.set = new HashSet<TripleConstraint>();
-		}
-		
-		@Override
-		public Set<TripleConstraint> getResult() {
-			return set;
-		}
-
-				
-		@Override		
-		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
-			expr.getSubExpression().accept(this, arguments);
-		}
-		
-		@Override
-		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-			set.add(tc);
-		}
-
-		@Override
-		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
-			expr.getTripleExp().accept(this, arguments);
-		}
-
-		@Override
-		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {}	
-	}
-	
-	
 	class ComputeReferenceSign extends ShapeExpressionVisitor<Map<Pair<Label,Label>,Boolean>> {
 		private Label root;
 		private boolean isPositive;

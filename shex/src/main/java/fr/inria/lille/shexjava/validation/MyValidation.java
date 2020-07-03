@@ -46,13 +46,13 @@ public class MyValidation {
 	 * @return
 	 */
 	private boolean matches (List<Triple> triples,
-								RDFTerm focusNode,
-								TripleExpr tripleExpr,
-								Typing typing) {
+							 RDFTerm focusNode,
+							 TripleExpr tripleExpr,
+							 Typing typing) {
 
 		// Enumerate all possible matchings from the triples to the triple constraints and look for a valid matching among them
 
-		TripleExpr sorbeTripleExpr = this.sorbeGenerator.getSORBETripleExpr(null); // FIXME
+		TripleExpr sorbeTripleExpr = this.sorbeGenerator.getSORBETripleExpr(tripleExpr); // FIXME
 		List<TripleConstraint> tripleConstraints = collectorTC.getTCs(sorbeTripleExpr);
 		Map<Triple, List<TripleConstraint>> matchingTriples =
 				ValidationUtils.computePreMatching(triples, focusNode, tripleConstraints, typing, ValidationUtils.predicateAndValueMatcher);
@@ -64,6 +64,7 @@ public class MyValidation {
 				result = matching;
 			}
 		}
+		// TODO we might want to use the matching, in this case it should be translated to a matching on the non sorbe triple expression
 		return result != null;
 	}
 
@@ -81,10 +82,25 @@ public class MyValidation {
 							   ShapeExpr shapeExpr,
 							   Typing typing) {
 
-		throw new UnsupportedOperationException("not yet implemented");
-
-
+		EvaluateShapeExprOnNeighbourhoodVisitor eval = new EvaluateShapeExprOnNeighbourhoodVisitor(triples, focusNode, typing);
+		shapeExpr.accept(eval);
+		return eval.getResult();
 	}
+
+	private boolean satisfies (RDFTerm focusNode, Shape shape, Typing typing) {
+		// Get the neighbourhood
+		List<TripleConstraint> tripleConstraints = null; // FIXME
+		//List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, focusNode, constraints, shape.isClosed());
+
+		// Split the neighbourhood between matching, extra and unmatched
+
+		// Split between the different components of shape
+
+		// call satisfies(neighbourhood) on all the components
+
+		throw new UnsupportedOperationException("not yet implemented");
+	}
+
 
 	/** Tests whether the matching satisfies the triple expression locally, w/o inspecting whether each of the triple's opposite node satisfies
 	 * the value of the triple constraint. */
@@ -94,12 +110,14 @@ public class MyValidation {
 		return intervalComputation.getResult().contains(1);
 	}
 
-	class EvaluateShapeExprVisitor extends ShapeExpressionVisitor<Boolean> {
+	abstract class AbstractEvaluateShapeExprVistor extends ShapeExpressionVisitor<Boolean> {
 
-		private Boolean result;
-		private List<Triple> triples;
-		private RDFTerm focusNode;
-		private Typing typing;
+		protected final RDFTerm focusNode;
+		protected Boolean result = null;
+
+		AbstractEvaluateShapeExprVistor(RDFTerm focusNode) {
+			this.focusNode = focusNode;
+		}
 
 		@Override
 		public Boolean getResult() {
@@ -107,21 +125,65 @@ public class MyValidation {
 		}
 
 		@Override
-		public void visitShape(Shape expr, Object... arguments) {
-			// TODO how to use the matching ?
-			//return matches(triples, focusNode, expr.getTripleExpression(), )
-		}
-
-		@Override
 		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-
+			result = expr.contains(focusNode);
 		}
 
 		@Override
 		public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
+			shapeRef.getShapeDefinition().accept(this, arguments);
+		}
 
+		@Override
+		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
+			for (ShapeExpr e : expr.getSubExpressions()) {
+				e.accept(this, arguments);
+				if (!result) break;
+			}
+		}
+
+		@Override
+		public void visitShapeOr(ShapeOr expr, Object... arguments) {
+			for (ShapeExpr e : expr.getSubExpressions()) {
+				e.accept(this, arguments);
+				if (result) break;
+			}
+		}
+
+		@Override
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			expr.getSubExpression().accept(this);
+			result = !result;
 		}
 	}
 
+	class EvaluateShapeExprOnNeighbourhoodVisitor extends AbstractEvaluateShapeExprVistor {
+
+		private List<Triple> neighbourhood;
+		private Typing typing;
+
+		public EvaluateShapeExprOnNeighbourhoodVisitor(List<Triple> neighbourhood, RDFTerm focusNode, Typing typing) {
+			super(focusNode);
+			this.neighbourhood = neighbourhood;
+			this.typing = typing;
+		}
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			// The closed and extra qualifiers are ignored here
+			result = matches(neighbourhood, focusNode, expr.getTripleExpression(), typing);
+		}
+	}
+
+	class EvaluateShapeExprOnNodeVisitor extends AbstractEvaluateShapeExprVistor {
+
+		EvaluateShapeExprOnNodeVisitor(RDFTerm focusNode) {
+			super(focusNode);
+		}
+
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			throw new UnsupportedOperationException("not yet implemented");
+		}
+	}
 
 }
