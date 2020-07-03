@@ -104,7 +104,7 @@ public class IntervalComputation extends TripleExpressionVisitor<Interval>{
 			} else {
 				subExpr.accept(this, arguments);
 				if (! this.getResult().equals(Interval.EMPTY)) {
-					setResult(new Interval(1, this.result.max));
+					setResult(new Interval(1, getResult().max));
 				} else {
 					setResult(Interval.EMPTY);
 				}

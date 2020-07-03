@@ -176,7 +176,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		@Override
 		public Boolean getResult() {
 			if (super.getResult() == null) return false;
-			return result;
+			return super.getResult();
 		}
 
 		@Override

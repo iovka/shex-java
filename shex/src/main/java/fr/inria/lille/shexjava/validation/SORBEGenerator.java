@@ -164,7 +164,7 @@ public class SORBEGenerator {
 
 				for (int i=0; i<nbClones;i++) {
 					expr.getSubExpression().accept(this);
-					clones.add(result);	
+					clones.add(getResult());
 				}
 				for (int i=0; i<nbOptClones;i++) {
 					expr.getSubExpression().accept(this);

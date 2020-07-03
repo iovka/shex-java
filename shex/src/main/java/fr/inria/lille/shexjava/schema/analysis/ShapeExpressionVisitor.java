@@ -33,7 +33,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
  */
 public abstract class ShapeExpressionVisitor<ResultType> {
 
-	protected ResultType result;
+	private ResultType result;
 
 	public ResultType getResult () {
 		return result;

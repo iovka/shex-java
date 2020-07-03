@@ -32,7 +32,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
  */
 public abstract class TripleExpressionVisitor<ResultType> {
 
-	protected ResultType result;
+	private ResultType result;
 
 	public ResultType getResult () {
 		return result;

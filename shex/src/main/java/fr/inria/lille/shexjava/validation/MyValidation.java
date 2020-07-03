@@ -163,7 +163,7 @@ public class MyValidation {
 		@Override
 		public void visitShape(Shape expr, Object... arguments) {
 			// The closed and extra qualifiers are ignored here
-			result = matches(neighbourhood, focusNode, expr.getTripleExpression(), typing);
+			setResult(matches(neighbourhood, focusNode, expr.getTripleExpression(), typing));
 		}
 	}
 
