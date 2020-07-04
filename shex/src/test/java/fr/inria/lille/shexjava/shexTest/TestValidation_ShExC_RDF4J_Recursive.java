@@ -85,7 +85,7 @@ public class TestValidation_ShExC_RDF4J_Recursive extends AbstractValidationTest
 									 .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
 									 .collect(Collectors.toList()));		
 
-			String selectedTest = "";
+			String selectedTest = "1dot_pass-noOthers";
 			if (!selectedTest.equals(""))
 				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
 			
@@ -122,7 +122,7 @@ public class TestValidation_ShExC_RDF4J_Recursive extends AbstractValidationTest
 				passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
 			} else {
 				failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-				fail("Validation exception do not compute the right result.");
+				fail("Validation did not compute the expected result: test " + testCase.testName);
 			}			
 		}catch (Exception e) {
 			errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));

@@ -31,8 +31,7 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
 
 /** This class implement the algorithm to find a matching based on SORBE.
- * @author Iovka Boneva
- * @author Jérémie Dusart
+ * @author jdusart
  *
  */
 public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
@@ -42,9 +41,8 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		super(schema,graph);
 		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
 	}
-
-
-	/** Try to find a matching for the shape on the node using the typing. See also the MatchingCollector or FailureReportsCollector.
+	
+	/** Try to find a matching for the shape on the node using the typing. See also the MatchingCollector or FailureReportsCollecto.
 	 * 
 	 * @param node
 	 * @param shape
@@ -52,13 +50,13 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	 * @return a matching or null if none was found or cannot be found. 
 	 * @throws Exception 
 	 */
-	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing) {
+	protected LocalMatching findMatching (RDFTerm node, Shape shape, Typing typing)  {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(),
 				ValidationUtils.getPredicateAndValueMatcher(),
-				(n, se) -> typing.isConformant(node, se.getId()));
+				(n, se) -> typing.isConformant(n, se.getId()));
 		
 		LocalMatching result = null;
 		// Look for correct matching within the pre-matching
@@ -92,5 +90,5 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		
 		return result;
 	}
-
+	
 }

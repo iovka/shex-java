@@ -112,7 +112,7 @@ public class TestValidation_ShExR_RDF4J_Recursive extends AbstractValidationTest
     		Typing typing = performValidation().getTyping();
 			if (! ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && typing.isConformant(testCase.focusNode, testCase.shapeLabel))
 					|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && typing.getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT))){
-				fail("Validation exception do not compute the right result.");
+				fail("Validation did not compute the expected result: test " + testCase.testName);
 			}			
     	} catch (Exception e) {
 			fail("Exception during the validation: "+e.getMessage());

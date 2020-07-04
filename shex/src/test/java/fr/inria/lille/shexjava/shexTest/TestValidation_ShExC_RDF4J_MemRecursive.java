@@ -123,7 +123,7 @@ public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationT
 				passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
 			} else {
 				failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-				fail("Validation exception do not compute the right result.");
+				fail("Validation did not compute the expected result: test " + testCase.testName);
 			}			
 		} catch (Exception e) {
 			errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
