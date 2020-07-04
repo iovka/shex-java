@@ -129,22 +129,27 @@ public class ShexSchema {
 	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		this.start = start;
 		this.rdfFactory = rdfFactory;
-		
-		this.rules = new HashMap<>(rules);
-		if (start!=null && !this.rules.containsKey(start.getId()))
-			this.rules.put(start.getId(),start);
 
-		constructShexprMapAndCheckIdsAreUnique();
-		checkThatAllShapeExprRefsAreDefined();
-		constructTexprsMapAndCheckIdsAreUnique();
-		checkThatAllTripleExprRefsAreDefined();
+		Map<Label, ShapeExpr> rulesPlusStart = new HashMap<>(rules);
+		if (start!=null && !rulesPlusStart.containsKey(start.getId()))
+			rulesPlusStart.put(start.getId(),start);
+
+		this.rules = rulesPlusStart;
+
+		Map<Label, ShapeExpr> shapeExprsMap = constructShexprMapAndCheckIdsAreUnique(rulesPlusStart);
+		checkThatAllShapeExprRefsAreDefined(shapeExprsMap);
+		Map<Label, TripleExpr> tripleExprsMap = constructTexprsMapAndCheckIdsAreUnique(rulesPlusStart, shapeExprsMap);
+		checkThatAllTripleExprRefsAreDefined(tripleExprsMap);
+
+		this.shexprsMap = shapeExprsMap;
+		this.texprsMap = tripleExprsMap;
 
 		checkNoCyclicReferences();
 		computeStratification();
 		
 		this.rules = Collections.unmodifiableMap(rules);
-		this.texprsMap = Collections.unmodifiableMap(texprsMap);
-		this.shexprsMap = Collections.unmodifiableMap(shexprsMap);
+		this.texprsMap = Collections.unmodifiableMap(tripleExprsMap);
+		this.shexprsMap = Collections.unmodifiableMap(shapeExprsMap);
 	}
 	
 	/** The rules of the schema.
@@ -226,37 +231,39 @@ public class ShexSchema {
 	
 
 	/** Computes and populates {@link #shexprsMap} */
-	private void constructShexprMapAndCheckIdsAreUnique() {
-		shexprsMap = new HashMap<>();
-		Set<ShapeExpr> allShapes = SchemaCollectors.collectAllShapeExprs(this.rules);
+	private Map<Label, ShapeExpr> constructShexprMapAndCheckIdsAreUnique(Map<Label, ShapeExpr> rulesMap) {
+		Map<Label, ShapeExpr> result = new HashMap<>();
+		Set<ShapeExpr> allShapes = SchemaCollectors.collectAllShapeExprs(rulesMap);
 		for(ShapeExpr shexpr : allShapes) {
 			addIdIfNone(shexpr);
-			if (shexprsMap.containsKey(shexpr .getId()))
+			if (result.containsKey(shexpr .getId()))
 				throw new IllegalArgumentException("Label "+shexpr.getId()+" already used.");
-			shexprsMap.put(shexpr .getId(),shexpr );
+			result.put(shexpr .getId(),shexpr );
 		}
+		return result;
 	}
 	
 
 	/** Computes and populates {@link #texprsMap} */
-	private void constructTexprsMapAndCheckIdsAreUnique() {
-		texprsMap = new HashMap<>();
+	private Map<Label, TripleExpr> constructTexprsMapAndCheckIdsAreUnique(Map<Label, ShapeExpr> rulesMap, Map<Label, ShapeExpr> shapeExprsMap) {
+		Map<Label,TripleExpr> result = new HashMap<>();
 		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(this.rules);
 		for (TripleExpr tcexp : allTriples) {
 			addIdIfNone(tcexp);
-			if (shexprsMap.containsKey(tcexp.getId()) || texprsMap.containsKey(tcexp.getId()))
+			if (shapeExprsMap.containsKey(tcexp.getId()) || result.containsKey(tcexp.getId()))
 				throw new IllegalArgumentException("Label "+tcexp.getId()+" allready used.");
-			texprsMap.put(tcexp.getId(),tcexp);
+			result.put(tcexp.getId(),tcexp);
 		}
+		return result;
 	}
 
 		
-	private void checkThatAllShapeExprRefsAreDefined() throws UndefinedReferenceException {
-		for (ShapeExpr sexpr : shexprsMap.values()){
+	private void checkThatAllShapeExprRefsAreDefined(Map<Label, ShapeExpr> shapeExprsMap) throws UndefinedReferenceException {
+		for (ShapeExpr sexpr : shapeExprsMap.values()){
 			if (sexpr instanceof ShapeExprRef) {
 				ShapeExprRef ref = (ShapeExprRef) sexpr;
-				if (shexprsMap.containsKey(ref.getLabel())) 
-					ref.setShapeDefinition(shexprsMap.get(ref.getLabel()));
+				if (shapeExprsMap.containsKey(ref.getLabel()))
+					ref.setShapeDefinition(shapeExprsMap.get(ref.getLabel()));
 				 else 
 					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
 			}
@@ -264,12 +271,12 @@ public class ShexSchema {
 	}
 	
 	
-	private void checkThatAllTripleExprRefsAreDefined() throws UndefinedReferenceException {
-		for (TripleExpr texpr:texprsMap.values()){
+	private void checkThatAllTripleExprRefsAreDefined(Map<Label, TripleExpr> tripleExprsMap) throws UndefinedReferenceException {
+		for (TripleExpr texpr : tripleExprsMap.values()){
 			if (texpr instanceof TripleExprRef) {
 				TripleExprRef ref = (TripleExprRef) texpr;
-				if (texprsMap.containsKey(ref.getLabel())) 
-					ref.setTripleDefinition(texprsMap.get(ref.getLabel()));
+				if (tripleExprsMap.containsKey(ref.getLabel()))
+					ref.setTripleDefinition(tripleExprsMap.get(ref.getLabel()));
 				else 
 					throw new UndefinedReferenceException("Undefined triple label: " + ref.getLabel());
 			}
