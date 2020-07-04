@@ -98,12 +98,12 @@ public class ShexSchema {
 		Map<Label, TripleExpr> tripleExprsMap = constructTexprsMapAndCheckIdsAreUnique(rulesPlusStart, shapeExprsMap);
 		checkThatAllTripleExprRefsAreDefined(tripleExprsMap);
 
+		checkNoCyclicReferences(rulesPlusStart, shapeExprsMap, tripleExprsMap);
 		this.rules = rulesPlusStart;
 		this.shexprsMap = shapeExprsMap;
 		this.texprsMap = tripleExprsMap;
-		checkNoCyclicReferences(rulesPlusStart, shapeExprsMap, tripleExprsMap);
 
-		computeStratification();
+		this.stratification = Collections.unmodifiableMap(computeStratification(shapeExprsMap));
 
 		this.rules = Collections.unmodifiableMap(rules);
 		this.texprsMap = Collections.unmodifiableMap(tripleExprsMap);
@@ -297,8 +297,10 @@ public class ShexSchema {
 	}
 	
 	
-	private void computeStratification () throws NotStratifiedException {
-		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> depG = computeGraphOfDependences();
+	static private Map<Integer, Set<Label>> computeStratification (
+			Map<Label, ShapeExpr> shapeExprMap) throws NotStratifiedException {
+
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> depG = computeGraphOfDependences(shapeExprMap);
 		List<Graph<Label, DefaultWeightedEdge>> strConComp = checkIfGraphCanBeStratified(depG);
 
 		// Shrink the strongly connected component and memorize how the shrink was performed.
@@ -315,14 +317,13 @@ public class ShexSchema {
 			.filter(pair -> !pair.one.equals(pair.two)).forEach(pair -> dag.addEdge(pair.one,pair.two));
 				
 		// Compute the stratification using an iterator of the dag
-		stratification = new HashMap<>();
+		Map<Integer, Set<Label>> result = new HashMap<>();
 		int counterStrat = dag.vertexSet().size()-1;
 		for (Label s:dag) {
-			stratification.put(counterStrat,Collections.unmodifiableSet(revIndex.get(s)));
+			result.put(counterStrat,Collections.unmodifiableSet(revIndex.get(s)));
 			counterStrat--;
 		}
-		
-		stratification = Collections.unmodifiableMap(stratification);
+		return result;
 	}
 	
 	//--------------------------------------------------------------------------------
@@ -341,32 +342,23 @@ public class ShexSchema {
 		return true;
 	}
 
-	// FIXME repeated method with createTripleLabel
-	private Label createShapeLabel (String string, boolean generated) {
+	private Label createLabel (String string) {
 		if (isIriString(string))
-			return new IRILabel(rdfFactory.createIRI(string),generated);
+			return new IRILabel(rdfFactory.createIRI(string),true);
 		else 
-			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
+			return new BNodeLabel(rdfFactory.createBlankNode(string),true);
 	}
 	
 	private void addIdIfNone(ShapeExpr shape) {
 		if (shape.getId() == null) {
-			shape.setId(createShapeLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb),true));
+			shape.setId(createLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb)));
 			shapeLabelNb++;
-			//TODO pkoi ne pas laisser la factory gérer le compteur ? Sans doute pour le débuggage
 		}
 	}
-	
-	private Label createTripleLabel (String string,boolean generated) {
-		if (isIriString(string))
-			return new IRILabel(rdfFactory.createIRI(string),generated);
-		else 
-			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
-	}
-	
+
 	private void addIdIfNone (TripleExpr triple) {
 		if (triple.getId() == null) {
-			triple.setId(createTripleLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb),true));
+			triple.setId(createLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb)));
 			tripleLabelNb++;
 		}
 	}
@@ -506,7 +498,7 @@ public class ShexSchema {
 	// Stratification computation and access v2
 	// -------------------------------------------------------------------------------
 
-	private List<Graph<Label, DefaultWeightedEdge>> checkIfGraphCanBeStratified(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph) throws NotStratifiedException {
+	static private List<Graph<Label, DefaultWeightedEdge>> checkIfGraphCanBeStratified(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph) throws NotStratifiedException {
 		// Compute strongly connected components
 		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
 		kscInspector = new KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge>(dependecesGraph);
@@ -522,29 +514,31 @@ public class ShexSchema {
 	}
 	
 	// TODO EXTENDS : the stratification graph should be re-defined
-	private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeGraphOfDependences() {
+	static private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeGraphOfDependences(
+			Map<Label, ShapeExpr> shapeExprsMap) {
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
 		
-		List<Label> shapes = this.shexprsMap.keySet().stream().filter(la -> (this.shexprsMap.get(la) instanceof Shape))
+		List<Label> shapes = shapeExprsMap.keySet().stream().filter(la -> (shapeExprsMap.get(la) instanceof Shape))
 															  .collect(Collectors.toList());
 		shapes.stream().forEach(la -> builder.addVertex(la));
 		
-		Map<Pair<Label,Label>,Boolean> edges = computeTheSetOfEdgesForTheGraphOfDependences(shapes);
+		Map<Pair<Label,Label>,Boolean> edges = computeTheSetOfEdgesForTheGraphOfDependences(shapes, shapeExprsMap);
 		edges.entrySet().stream().forEach(entry -> builder.addEdge(entry.getKey().one, entry.getKey().two, entry.getValue()?1:-1));
 		
 		return builder.build();
 	}
 	
 	
-	private Map<Pair<Label,Label>,Boolean> computeTheSetOfEdgesForTheGraphOfDependences(List<Label> shapes) {
+	static private Map<Pair<Label,Label>,Boolean> computeTheSetOfEdgesForTheGraphOfDependences(
+			List<Label> shapes, Map<Label, ShapeExpr> shapeExprsMap) {
 		Map<Pair<Label,Label>,Boolean> edges = new HashMap<>();
 		
 		ComputeReferenceSign signComputator = new ComputeReferenceSign();
 		for (Label sourceShape:shapes) {
-			Shape shape = ((Shape) this.shexprsMap.get(sourceShape));
+			Shape shape = ((Shape) shapeExprsMap.get(sourceShape));
 
-			for (TripleConstraint tc:getSetOfTripleConstraintOfAShape(shape)) {
+			for (TripleConstraint tc : getSetOfTripleConstraintOfAShape(shape)) {
 				signComputator.setRoot(tc.getShapeExpr().getId());
 				tc.getShapeExpr().accept(signComputator);
 				
@@ -566,20 +560,20 @@ public class ShexSchema {
 	}
 	
 	
-	private List<TripleConstraint> getSetOfTripleConstraintOfAShape(Shape shape) {
+	static private List<TripleConstraint> getSetOfTripleConstraintOfAShape(Shape shape) {
 		CollectTripleConstraintsTE tcCollector = new CollectTripleConstraintsTE();
 		shape.getTripleExpression().accept(tcCollector);
 		return tcCollector.getResult().one;
 	}
 	
 	
-	private Set<Label> getSetOfShapeInTheShapeExprOfATripleConstraint(TripleConstraint tc) {
+	static private Set<Label> getSetOfShapeInTheShapeExprOfATripleConstraint(TripleConstraint tc) {
 		ShapeCollectorOfAShapeExpr shapeCol = new ShapeCollectorOfAShapeExpr();
 		tc.getShapeExpr().accept(shapeCol);
 		return shapeCol.getResult();
 	}
 
-	class ComputeReferenceSign extends ShapeExpressionVisitor<Map<Pair<Label,Label>,Boolean>> {
+	static class ComputeReferenceSign extends ShapeExpressionVisitor<Map<Pair<Label,Label>,Boolean>> {
 		private Label root;
 		private boolean isPositive;
 
@@ -641,7 +635,7 @@ public class ShexSchema {
 	}
 	
 	
-	class ShapeCollectorOfAShapeExpr extends ShapeExpressionVisitor<Set<Label>> {
+	static class ShapeCollectorOfAShapeExpr extends ShapeExpressionVisitor<Set<Label>> {
 
 		public ShapeCollectorOfAShapeExpr () {
 			setResult(new HashSet<Label>());
