@@ -142,7 +142,7 @@ public class MyRefineValidation extends ValidationAlgorithmAbstract {
     }
 
     /** Allows to evaluate a node against a shape expression while using the typing given at construction time to evaluate the Shapes. */
-    class EvaluateShapeExprVistor extends MyShapeEvaluation.AbstractShapeExprEvaluator {
+    static class EvaluateShapeExprVistor extends MyShapeEvaluation.AbstractShapeExprEvaluator {
 
         private final Typing localTyping;
         EvaluateShapeExprVistor(Typing localTyping) {
