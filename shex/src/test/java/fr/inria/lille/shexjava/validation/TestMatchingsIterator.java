@@ -43,20 +43,20 @@ public class TestMatchingsIterator {
         preMatching.put(A, Arrays.asList(a1, a2, a3));
         preMatching.put(B,Arrays.asList(b1, b2));
 
-        MyMatchingsIterator<TripleConstraint> it = new MyMatchingsIterator(preMatching);
-        Set<MyMatching> allElements = new HashSet<>();
+        MatchingsIterator<TripleConstraint> it = new MatchingsIterator(preMatching);
+        Set<Matching> allElements = new HashSet<>();
         while (it.hasNext()) {
             allElements.add(it.next());
         }
 
         Set<Map<Triple, TripleConstraint>> expectedElements = new HashSet<>();
-        MyMatching m;
-        m = new MyMatching(); m.put(A, a1); m.put(B, b1); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a1); m.put(B, b2); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a2); m.put(B, b1); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a2); m.put(B, b2); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a3); m.put(B, b1); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a3); m.put(B, b2); expectedElements.add(m);
+        Matching m;
+        m = new Matching(); m.put(A, a1); m.put(B, b1); expectedElements.add(m);
+        m = new Matching(); m.put(A, a1); m.put(B, b2); expectedElements.add(m);
+        m = new Matching(); m.put(A, a2); m.put(B, b1); expectedElements.add(m);
+        m = new Matching(); m.put(A, a2); m.put(B, b2); expectedElements.add(m);
+        m = new Matching(); m.put(A, a3); m.put(B, b1); expectedElements.add(m);
+        m = new Matching(); m.put(A, a3); m.put(B, b2); expectedElements.add(m);
 
         assertEquals(expectedElements, allElements);
     }
@@ -65,7 +65,7 @@ public class TestMatchingsIterator {
     public void testNoTriples () {
 
         Map<Triple, List<TripleConstraint>> preMatching = new HashMap<>();
-        MyMatchingsIterator it = new MyMatchingsIterator(preMatching);
+        MatchingsIterator it = new MatchingsIterator(preMatching);
         assertEquals(Collections.emptyMap(), it.next());
         assertFalse(it.hasNext());
     }
@@ -81,7 +81,7 @@ public class TestMatchingsIterator {
         preMatching.put(A, Arrays.asList(a1, a2, a3));
         preMatching.put(B,Collections.emptyList());
 
-        MyMatchingsIterator it = new MyMatchingsIterator(preMatching);
+        MatchingsIterator it = new MatchingsIterator(preMatching);
         assertFalse(it.hasNext());
     }
 
@@ -103,20 +103,20 @@ public class TestMatchingsIterator {
         preMatching.put(B, Arrays.asList(b1, b2));
         preMatching.put(C, Arrays.asList(c1, c2));
 
-        MyMatchingsIterator it = new MyMatchingsIterator(preMatching, Arrays.asList(A,C));
-        Set<MyMatching> allElements = new HashSet<>();
+        MatchingsIterator it = new MatchingsIterator(preMatching, Arrays.asList(A,C));
+        Set<Matching> allElements = new HashSet<>();
         while (it.hasNext()) {
             allElements.add(it.next());
         }
 
         Set<Map<Triple, TripleConstraint>> expectedElements = new HashSet<>();
-        MyMatching m;
-        m = new MyMatching(); m.put(A, a1); m.put(C, c1); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a1); m.put(C, c2); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a2); m.put(C, c1); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a2); m.put(C, c2); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a3); m.put(C, c1); expectedElements.add(m);
-        m = new MyMatching(); m.put(A, a3); m.put(C, c2); expectedElements.add(m);
+        Matching m;
+        m = new Matching(); m.put(A, a1); m.put(C, c1); expectedElements.add(m);
+        m = new Matching(); m.put(A, a1); m.put(C, c2); expectedElements.add(m);
+        m = new Matching(); m.put(A, a2); m.put(C, c1); expectedElements.add(m);
+        m = new Matching(); m.put(A, a2); m.put(C, c2); expectedElements.add(m);
+        m = new Matching(); m.put(A, a3); m.put(C, c1); expectedElements.add(m);
+        m = new Matching(); m.put(A, a3); m.put(C, c2); expectedElements.add(m);
 
         assertEquals(expectedElements, allElements);
     }

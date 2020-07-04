@@ -21,17 +21,12 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.shexTest.AbstractValidationTest;
 import fr.inria.lille.shexjava.util.RDF;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
-import org.eclipse.rdf4j.rio.ParserConfig;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -54,7 +49,7 @@ public class TestMyRefineValidation {
 
         RDFTerm focus = RDF.buildIRI("n");
 
-        MyRefineValidation algo = new MyRefineValidation(schema, graph);
+        RefineValidation algo = new RefineValidation(schema, graph);
         Label label = new IRILabel(RDF.buildIRI("S"));
 
         assertTrue(algo.performValidation(focus, label));
@@ -73,7 +68,7 @@ public class TestMyRefineValidation {
 
         graph.add(RDF.buildTriple("n", "p", "m"));
 
-        MyRefineValidation algo = new MyRefineValidation(schema, graph);
+        RefineValidation algo = new RefineValidation(schema, graph);
         Label label = new IRILabel(RDF.buildIRI("S"));
 
         algo.validate();
@@ -93,7 +88,7 @@ public class TestMyRefineValidation {
         graph.add(RDF.buildTriple("n", "p", "m"));
         graph.add(RDF.buildTriple("n", "q", "k"));
 
-        MyRefineValidation algo = new MyRefineValidation(schema, graph);
+        RefineValidation algo = new RefineValidation(schema, graph);
         Label label = new IRILabel(RDF.buildIRI("S"));
 
         algo.validate();
@@ -113,7 +108,7 @@ public class TestMyRefineValidation {
         graph.add(RDF.buildTriple("n", "p", "m"));
         graph.add(RDF.buildTriple("n", "p", "k"));
 
-        MyRefineValidation algo = new MyRefineValidation(schema, graph);
+        RefineValidation algo = new RefineValidation(schema, graph);
         Label label = new IRILabel(RDF.buildIRI("S"));
 
         algo.validate();
@@ -133,7 +128,7 @@ public class TestMyRefineValidation {
         graph.add(RDF.buildTriple("n", "p", "m"));
         graph.add(RDF.buildTriple("n", "q", "k"));
 
-        MyRefineValidation algo = new MyRefineValidation(schema, graph);
+        RefineValidation algo = new RefineValidation(schema, graph);
         Label label = new IRILabel(RDF.buildIRI("S"));
 
         algo.validate();

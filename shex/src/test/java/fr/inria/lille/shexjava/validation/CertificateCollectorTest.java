@@ -33,7 +33,6 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.Test;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
@@ -83,7 +82,7 @@ public class CertificateCollectorTest {
 		Iterator<Triple> ite = graph.iterate().iterator();
 		
 		
-		MyRefineValidation validation = new MyRefineValidation(schema,graph);
+		RefineValidation validation = new RefineValidation(schema,graph);
 
 		validation.validate(bug1, new IRILabel(rdfFactory.createIRI("http://a.example/BugReport")));
 //		System.out.println();

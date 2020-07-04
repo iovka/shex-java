@@ -28,7 +28,7 @@ import java.util.function.BiPredicate;
 /** Allows to evaluate a shape against a node with w.r.t. a typing.
  * @author Iovka Boneva
  */
-public class MyShapeEvaluation {
+public class ShapeEvaluation {
 
     private Graph graph;
     private RDFTerm focusNode;
@@ -40,10 +40,10 @@ public class MyShapeEvaluation {
 
    	private PreMatching preMatching;
 
-    public MyShapeEvaluation(Graph graph, RDFTerm focusNode, Shape shape,
-                             Typing neighboursTyping,
-                             DynamicCollectorOfTripleConstraints collectorTC,
-                             SORBEGenerator sorbeGenerator) {
+    public ShapeEvaluation(Graph graph, RDFTerm focusNode, Shape shape,
+                           Typing neighboursTyping,
+                           DynamicCollectorOfTripleConstraints collectorTC,
+                           SORBEGenerator sorbeGenerator) {
         this.graph = graph;
         this.focusNode = focusNode;
         this.topShape = shape;
@@ -82,11 +82,11 @@ public class MyShapeEvaluation {
     private boolean evaluateShapeWithExtended (List<Triple> triples, Shape shape) {
         Map<Triple, List<Object>> matchingSubExpressionsOfShape =
                 contractPreMatchingToShapeSubExpressions(triples, shape);
-        MyMatchingsIterator<Object> it = new MyMatchingsIterator<>(matchingSubExpressionsOfShape, triples);
+        MatchingsIterator<Object> it = new MatchingsIterator<>(matchingSubExpressionsOfShape, triples);
 
         boolean valid = false;
         while (! valid && it.hasNext()) {
-            MyMatching<Object> m = it.next();
+            Matching<Object> m = it.next();
             Map<Object, List<Triple>> partition = ValidationUtils.invertMatching(m);
             valid = evaluatePartition(partition);
         }
@@ -150,10 +150,10 @@ public class MyShapeEvaluation {
                                ValidationUtils.getPredicateAndValueMatcher(), valueMatcherWithTyping);
         if (!sorbePreMatching.getUnmatched().isEmpty() || !sorbePreMatching.getMatchedToExtra().isEmpty())
             return false;
-        MyMatchingsIterator<TripleConstraint> mit = new MyMatchingsIterator<>(sorbePreMatching.getPreMatching());
-        MyMatching<TripleConstraint> result = null;
+        MatchingsIterator<TripleConstraint> mit = new MatchingsIterator<>(sorbePreMatching.getPreMatching());
+        Matching<TripleConstraint> result = null;
         while (result == null && mit.hasNext()) {
-            MyMatching<TripleConstraint> matching = mit.next();
+            Matching<TripleConstraint> matching = mit.next();
             if (isLocallyValid(matching, sorbeTripleExpr, tripleConstraints)) {
                 result = matching;
             }
@@ -164,7 +164,7 @@ public class MyShapeEvaluation {
 
 	/** Tests whether the matching satisfies the triple expression locally.
      * I.e. no checking whether the opposite node satisfies the value of the triple constraint. */
-	private boolean isLocallyValid (MyMatching<TripleConstraint> matching, TripleExpr sorbeTripleExpr, List<TripleConstraint> tripleConstraints) {
+	private boolean isLocallyValid (Matching<TripleConstraint> matching, TripleExpr sorbeTripleExpr, List<TripleConstraint> tripleConstraints) {
 		IntervalComputation intervalComputation = new IntervalComputation(collectorTC);
 		sorbeTripleExpr.accept(intervalComputation, Bag.fromMatching(matching, tripleConstraints));
 		return intervalComputation.getResult().contains(1);

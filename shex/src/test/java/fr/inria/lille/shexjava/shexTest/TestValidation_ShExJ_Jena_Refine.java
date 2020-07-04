@@ -26,15 +26,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.inria.lille.shexjava.validation.*;
-import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.Triple;
 import org.apache.commons.rdf.jena.JenaRDF;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -182,7 +179,7 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 	}
 
 	public ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
-		return new MyRefineValidation(schema, dataGraph);
+		return new RefineValidation(schema, dataGraph);
 	}
 
 

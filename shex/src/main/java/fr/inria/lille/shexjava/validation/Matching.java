@@ -26,6 +26,6 @@ import java.util.Map;
 /**
  * @author Iovka Boneva
  */
-public class MyMatching<T> extends HashMap<Triple,T> {
+public class Matching<T> extends HashMap<Triple,T> {
 
 }

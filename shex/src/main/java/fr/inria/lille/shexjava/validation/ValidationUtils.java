@@ -102,7 +102,7 @@ public class ValidationUtils {
 		return new PreMatching(matchingTriplesMap, matchedToExtraTriples, unmatchedTriples);
 	}
 
-	public static <T> Map<T, List<Triple>> invertMatching (MyMatching<T> matching) {
+	public static <T> Map<T, List<Triple>> invertMatching (Matching<T> matching) {
 		Map<T, List<Triple>> result = new HashMap<>();
 		for (Map.Entry<Triple, T> entry : matching.entrySet()) {
 			List<Triple> triples = result.computeIfAbsent(entry.getValue(), k -> new ArrayList<>());

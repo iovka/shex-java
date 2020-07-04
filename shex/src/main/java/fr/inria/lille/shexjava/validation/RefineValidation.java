@@ -1,97 +1,74 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (C) 2018 Université de Lille - Inria
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
-import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.RDFTerm;
-import org.apache.commons.rdf.api.Triple;
-
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
+import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
 import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
+import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.RDFTerm;
 
-/** Implements the Refinement validation algorithm.
- * 
- * Refine validation systematically constructs a complete typing for all nodes in the graph and for a set of selected shape in the schema. See in typing for the selected shape.
- * It is therefore suited for cases when a complete typing is needed. The typing is computed at the first call of validate.
- * 
- * @author Jérémie Dusart
- * @author Iovka Boneva
- * @author Antonin Durey
- * 
- */
+import java.util.Iterator;
+import java.util.Set;
+
 /**
- * @author jdusart
- *
+ * @author Iovka Boneva
  */
-public class RefineValidation extends SORBEBasedValidation {
-	private boolean computed = false;
-	private TypingForRefineValidation typing;
+public class RefineValidation extends ValidationAlgorithmAbstract {
 
-	
-	public RefineValidation(ShexSchema schema, Graph graph) {
+	private boolean computed = false;
+    private TypingForRefineValidation typing;
+    protected SORBEGenerator sorbeGenerator;
+
+    public RefineValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
+		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
 	}
 
-	@Override
+    @Override
+    protected boolean performValidation(RDFTerm focusNode, Label label) {
+        computeMaximalTyping();
+
+        Boolean valid = cornerCaseValidate(focusNode, label);
+        if (valid != null) {
+            typing.setNonShapeLabelStatus(focusNode, label, valid ? Status.CONFORMANT : Status.NONCONFORMANT);
+        }
+        return typing.isConformant(focusNode, label);
+    }
+
+    @Override
 	public Typing getTyping() {
 		return typing;
 	}
-	
+
 	@Override
 	public void resetTyping() {
-		this.typing = new TypingForRefineValidation(CommonGraph.getAllNodes(graph), schema);
+		this.typing = new TypingForRefineValidation(CommonGraph.getAllNonLiteralNodes(graph), schema);
 		computed = false;
 	}
 
-	/** (non-Javadoc)
-	 * @throws Exception 
-	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
-	 */
-	@Deprecated
 	public void validate() {
-		computeMaximalTyping(null);
+		computeMaximalTyping();
 	}
 
-	@Override
-	protected boolean performValidation(RDFTerm focusNode, Label label) {
-		computeMaximalTyping(focusNode);
-		return typing.isConformant(focusNode, label);
-	}
-
-	private void computeMaximalTyping(RDFTerm focusNode) {
+	private void computeMaximalTyping() {
 		if (computed)
 			return;
 		// Compute the maximal typing for the shapes only
@@ -102,8 +79,9 @@ public class RefineValidation extends SORBEBasedValidation {
 				changed = false;
 				Iterator<Pair<RDFTerm, Label>> typesIt = typing.currentStratumNodeShapeLabelPairsIterator();
 				while (typesIt.hasNext()) {
-					Pair<RDFTerm, Label> nl = typesIt.next();
-					if (! satisfies(nl,true)) {
+                    Pair<RDFTerm, Label> nl = typesIt.next();
+                    Shape shape = (Shape) schema.getShapeExprsMap().get(nl.two);
+				    if (! evaluateShape(nl.one, shape)) {
 						typesIt.remove();
 						changed = true;
 					}
@@ -111,129 +89,70 @@ public class RefineValidation extends SORBEBasedValidation {
 			} while (changed);
 			typing.endStratum();
 		}
-		// Populate the typing with all the labels from the schema
-		// TODO this could also be done in a stratified way
-		for (Label label:schema.getShapeExprsMap().keySet()) {
-			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {
-				typing.setNonShapeLabelStatus(node, label,
-						satisfies(new Pair<>(node, label),false)
-							? Status.CONFORMANT : Status.NONCONFORMANT
-				);
-			}
-		}
+        // Compute the typing for the non shape labels
+        // TODO to be optimized. Now it goes through all labels, should be limited to those that are on the current stratum
+        for (Label label : schema.getShapeExprsMap().keySet()) {
+            for (RDFTerm node : typing.allNodes()) {
+                typing.setNonShapeLabelStatus(node, label,
+                        satisfies(node, schema.getShapeExprsMap().get(label)) ? Status.CONFORMANT : Status.NONCONFORMANT);
+            }
+        }
 		computed = true;
 	}
 
-	/** Tests whether the node satisfies the shape expresion with specified label and with the current typing 
-	 *  If validateShape is set to true, then the typing will not be used
-	 *  */
-	private boolean satisfies(Pair<RDFTerm, Label> nl, boolean validateShape) {
-		EvaluateShapeExpressionVisitor shexprEvaluator = new EvaluateShapeExpressionVisitor(validateShape, nl.one);
-		schema.getShapeExprsMap().get(nl.two).accept(shexprEvaluator);
-		return shexprEvaluator.getResult();
-	}
+    private boolean satisfies (RDFTerm node, ShapeExpr shapeExpr) {
+        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(typing);
+        shapeExpr.accept(eval, node);
+        return eval.getResult();
+    }
 
-	/** Tests whether the node's neighbourhood matches the shape with the current typing */
-	private boolean matches (RDFTerm node, Shape shape) {
-		// Since the algorithm first computing the typing with the shape only, in the same fashion as for the recursive algorithm, a localtyping must be computed without any cal to compute shape.
-		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
-		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
-		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+    private boolean evaluateShape (RDFTerm node, Shape shape) {
+        ShapeEvaluation eval = new ShapeEvaluation(graph, node, shape, typing, collectorTC, sorbeGenerator);
+        return eval.evaluate();
+    }
 
-		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
-		TypingForValidation localTyping = new TypingForValidation();
-		
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), ValidationUtils.getPredicateOnlyMatcher(), null);
-		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
-			
-		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		
-			for (TripleConstraint tc:entry.getValue()) {
-				RDFTerm destNode = entry.getKey().getObject();
-				if (!tc.getProperty().isForward())
-					destNode = entry.getKey().getSubject();
-	
-				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
-					if (this.satisfies(new Pair(destNode, tc.getShapeExpr().getId()),false))
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
-					else
-						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.NONCONFORMANT);	
-				} else {
-					localTyping.setStatus(destNode, tc.getShapeExpr().getId(), typing.getStatus(destNode, tc.getShapeExpr().getId()));
-				}
-			}
-		}
-		return this.findMatching(node, shape, localTyping).getMatching() != null;
-	}	
+    // TODO the corner cases are probably simpler: if the node is in the graph then its satisfying shapes can be tested with the typing except if the node is a literal, in which case its neighbourhood is empty
+    /** Checks if this is a corner case and computes validity in this case.
+     * A corner case is when trying to validate {@param node} that is not part of the graph in which case the
+     * maximal typing does not contain the node, or when {@param label} refers to a shape expression without
+     * shapes (i.e. only node constraints), in which case the typing does not allow to test satisfiability
+     * of the shape expression.
+     * @return null if non corner case, a non null boolean with validity result otherwise
+     */
+	private Boolean cornerCaseValidate (RDFTerm node, Label label) {
+	    ShapeExpr expr = schema.getShapeExprsMap().get(label);
+	    Set<Shape> allShapes = SchemaCollectors.collectAllShapes(expr);
+        if (typing.allNodes().contains(node) && ! allShapes.isEmpty())
+            // not a corner case
+            return null;
 
-	class EvaluateShapeExpressionVisitor extends ShapeExpressionVisitor<Boolean> {
-		private RDFTerm node; 
-		private boolean validateShape;
+        if (allShapes.isEmpty())
+            return satisfies(node, expr);
 
-		public EvaluateShapeExpressionVisitor(boolean validateShape, RDFTerm node) {
-			this.node = node;
-			this.validateShape = validateShape;
-		}
+        // We must test wethether the empty neighbourhood satisfies the shape expr
+        // This can be done with satisfies and a typing that associates to the node only the shapes that contain the empty neighbourhood
+        DefaultTyping localTyping = new DefaultTyping();
+        for (Shape shape: allShapes) {
+            if (evaluateShape(node, shape))
+                localTyping.setStatus(node, shape.getId(), Status.CONFORMANT);
+        }
+        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(localTyping);
+        expr.accept(eval, node);
+        return eval.getResult();
+    }
 
-		@Override
-		public Boolean getResult() {
-			if (super.getResult() == null) return false;
-			return super.getResult();
-		}
+    /** Allows to evaluate a node against a shape expression while using the typing given at construction time to evaluate the Shapes. */
+    static class EvaluateShapeExprVistor extends ShapeEvaluation.AbstractShapeExprEvaluator {
 
-		@Override
-		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
-			for (ShapeExpr e : expr.getSubExpressions()) {
-				e.accept(this);
-				if (!getResult()) break;
-			}
-		}
+        private final Typing localTyping;
+        EvaluateShapeExprVistor(Typing localTyping) {
+            this.localTyping = localTyping;
+        }
 
-		@Override
-		public void visitShapeOr(ShapeOr expr, Object... arguments) {
-			for (ShapeExpr e : expr.getSubExpressions()) {
-				e.accept(this);
-				if (getResult()) break;
-			}
-		}
-
-		@Override
-		public void visitShapeNot(ShapeNot expr, Object... arguments) {
-			expr.getSubExpression().accept(this);
-			setResult(!getResult());
-		}
-
-		@Override
-		public void visitShape(Shape expr, Object... arguments) {
-			if (validateShape)
-				setResult(matches(node, expr));
-			else
-				setResult(typing.isConformant(node, expr.getId()));
-		}
-
-		@Override
-		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-			setResult(expr.contains(node));
-		}
-
-		@Override
-		public void visitShapeExprRef(ShapeExprRef ref, Object... arguments){
-			ref.getShapeDefinition().accept(this);
-		}
-	}
-
-
-	// Typing utils
-
-	private List<Pair<RDFTerm, Label>> addAllLabelsForStratum(int stratum) {
-		ArrayList<Pair<RDFTerm, Label>> result = new ArrayList<>();
-		Set<Label> labels = schema.getStratification().get(stratum);
-		typing.startStratum(labels);
-		for (Label label: labels) {
-			for (RDFTerm node : CommonGraph.getAllNodes(graph)) {
-				result.add(new Pair<>(node, label));
-				this.typing.setNonShapeLabelStatus(node, label, Status.CONFORMANT);
-			}
-		}
-		return result;
-	}
+        @Override
+        public void visitShape(Shape expr, Object... arguments) {
+            RDFTerm node = (RDFTerm) arguments[0];
+            setResult(localTyping.isConformant(node, expr.getId()));
+        }
+    }
 }

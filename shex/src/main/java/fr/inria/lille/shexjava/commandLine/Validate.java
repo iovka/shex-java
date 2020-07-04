@@ -113,7 +113,7 @@ public class Validate {
 		
 		ValidationAlgorithmAbstract val = null;
 		switch (parameters.get("-a")) {
-			case "refine" : val = new MyRefineValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
+			case "refine" : val = new RefineValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
 			case "recursive" : val = new RecursiveValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
 		}
 		

@@ -28,7 +28,7 @@ import java.util.*;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
+public class MatchingsIterator<T> implements Iterator<Matching<T>>{
 
 	/** The triples in the neighbourhood are used as index, their order in the list is important. */
 	private List<Triple> neighbourhood;
@@ -41,7 +41,7 @@ public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 	private int[] currentIndexes;
 
 	/** Constructs the iterable object starting from the {@param preMatching} map, by restricting it only to those triples in {@param domain}. */
-	public MyMatchingsIterator(Map<Triple, List<T>> preMatching, List<Triple> domain) {
+	public MatchingsIterator(Map<Triple, List<T>> preMatching, List<Triple> domain) {
 		neighbourhood = new ArrayList<>(domain.size());
 		allMatching = new ArrayList<>(domain.size());
 
@@ -60,7 +60,7 @@ public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 	}
 
 	/** Constructs the iterable object which domain is the whole key set of {@param preMatching}. */
-	public MyMatchingsIterator(Map<Triple, List<T>> preMatching) {
+	public MatchingsIterator(Map<Triple, List<T>> preMatching) {
 		this(preMatching, new ArrayList<>(preMatching.keySet()));
 	}
 
@@ -85,11 +85,11 @@ public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 	}
 
 	@Override
-	public MyMatching<T> next() {
+	public Matching<T> next() {
 		if (! hasNext())
 			throw new NoSuchElementException();
 		
-		MyMatching<T> next = new MyMatching<>();
+		Matching<T> next = new Matching<>();
 		for (int i = 1; i < currentIndexes.length; i++) {
 			next.put(neighbourhood.get(i-1), allMatching.get(i-1).get(currentIndexes[i]));
 		}
