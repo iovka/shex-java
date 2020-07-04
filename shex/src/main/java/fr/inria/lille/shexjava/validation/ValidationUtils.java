@@ -8,17 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import org.apache.commons.rdf.api.*;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.util.CommonGraph;
-
-import javax.xml.soap.Node;
 
 /** Contains static methods useful in the different validation alogorithms.
  * 
@@ -36,13 +32,11 @@ public class ValidationUtils {
 		return predicateAndValueMatcher;
 	}
 	
-	/** Select the neighborhood that must be matched for the given shape.
-	 * 
-	 * @param graph
-	 * @param node
-	 * @param tripleConstraints
-	 * @param shapeIsClosed
-	 * @return
+	/** Select the neighborhood that are relevant for matching a shape.
+	 * @param graph the graph in which the neighborhood is to be found
+	 * @param tripleConstraints all the triple constraints of the shape
+	 * @param shapeIsClosed whether the shape is closed
+	 * @return A list that contains all the forward neighborhood if the shape is closed, or otherwise only the forward neighborhood with predicates that appear in {@param tripleConstraints}. The incoming neighborhood is always restricted by the predicates of the inverse triple constraints.
 	 */
 	public static List<Triple> getMatchableNeighbourhood(
 			Graph graph, RDFTerm node, List<TripleConstraint> tripleConstraints, boolean shapeIsClosed) {
@@ -54,8 +48,8 @@ public class ValidationUtils {
 			else
 				inversePredicate.add(tc.getProperty().getIri());
 
-		ArrayList<Triple> neighbourhood = new ArrayList<>();
-		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
+		ArrayList<Triple> neighbourhood =
+				new ArrayList<>(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
 		if (shapeIsClosed)
 			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
 		else
@@ -63,26 +57,6 @@ public class ValidationUtils {
 		return neighbourhood;
 	}
 
-	/*
-	public static Map<Triple, List<TripleConstraint>> computePreMatching (
-			List<Triple> triples,
-			RDFTerm focusNode,
-			List<TripleConstraint> tripleConstraints,
-			Matcher matcher,
-			BiPredicate<RDFTerm, ShapeExpr> valueMatcher) {
-
-		LinkedHashMap<Triple,List<TripleConstraint>> matchingTriplesMap = new LinkedHashMap<>(triples.size());
-		for (Triple triple: triples) {
-			ArrayList<TripleConstraint> matching = new ArrayList<>();
-			matchingTriplesMap.put(triple, matching); // TODO should we add the empty lists as well ?
-			for (TripleConstraint tc: tripleConstraints) {
-				if (matcher.apply(focusNode, triple, tc, valueMatcher))
-					matching.add(tc);
-			}
-		}
-		return matchingTriplesMap;
-	}
-	 */
 	
 	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood,
 												 List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties,
@@ -114,23 +88,14 @@ public class ValidationUtils {
 	public static <T> Map<T, List<Triple>> invertMatching (MyMatching<T> matching) {
 		Map<T, List<Triple>> result = new HashMap<>();
 		for (Map.Entry<Triple, T> entry : matching.entrySet()) {
-			List<Triple> triples = result.get(entry.getValue());
-			if (triples == null) {
-				triples = new ArrayList<>();
-				result.put(entry.getValue(), triples);
-			}
+			List<Triple> triples = result.computeIfAbsent(entry.getValue(), k -> new ArrayList<>());
 			triples.add(entry.getKey());
 		}
 		return result;
 	}
 
 	// TODO never used
-	/** Produces a map that with every triple constraint in the given list of triple constarints associates all the triples matched with this triple constraint in the given pre-matching.
-	 * 
-	 * @param preMatching
-	 * @param tripleConstraints
-	 * @return
-	 */
+	/** Produces a map that with every triple constraint in the given list of triple constarints associates all the triples matched with this triple constraint in the given pre-matching. */
 	public static Map<TripleConstraint, List<Triple>> inversePreMatching (Map<Triple, List<TripleConstraint>> preMatching, List<TripleConstraint> tripleConstraints) {
 		Map<TripleConstraint, List<Triple>> result = new HashMap<>();
 		for (TripleConstraint tc : tripleConstraints)
@@ -142,11 +107,7 @@ public class ValidationUtils {
 	}
 	
 	// TODO never used
-	/** Produces a map that with every triple constraint from the given matching associates the list of triples that are matched with that triple constraint in the matching.
-	 * 
-	 * @param matching
-	 * @return
-	 */
+	/** Produces a map that with every triple constraint from the given matching associates the list of triples that are matched with that triple constraint in the matching.*/
 	public static Map<Label, List<Triple>> inverseMatching (Map<Triple, Label> matching, List<TripleConstraint> tripleConstraints) {
 		Map<Label, List<Triple>> result = new HashMap<>();
 		for (TripleConstraint tc : tripleConstraints)
@@ -156,43 +117,37 @@ public class ValidationUtils {
 		return result;
 	}
 
-	private static Matcher predicateOnlyMatcher = new Matcher() {
-		@Override
-		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, BiPredicate<RDFTerm,ShapeExpr> valueMatcher) {
+	private static Matcher predicateOnlyMatcher = (focusNode, triple, tc, valueMatcher) -> {
 
-			if (! tc.getProperty().getIri().equals(triple.getPredicate()))
-				return false;
+		if (! tc.getProperty().getIri().equals(triple.getPredicate()))
+			return false;
 
-			RDFTerm focus = null;
-			if (tc.getProperty().isForward()) {
-				focus = triple.getSubject();
-			} else {
-				focus = triple.getObject();
-			}
-			return focusNode instanceof IRI || focusNode.ntriplesString().equals(focus.ntriplesString());
+		RDFTerm focus;
+		if (tc.getProperty().isForward()) {
+			focus = triple.getSubject();
+		} else {
+			focus = triple.getObject();
 		}
+		return focusNode instanceof IRI || focusNode.ntriplesString().equals(focus.ntriplesString());
 	};
 
-	private static Matcher predicateAndValueMatcher = new Matcher () {
-		@Override
-		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, BiPredicate<RDFTerm,ShapeExpr> valueMatcher) {
+	private static Matcher predicateAndValueMatcher = (focusNode, triple, tc, valueMatcher) -> {
 
-			if (! tc.getProperty().getIri().equals(triple.getPredicate()))
-				return false;
+		if (! tc.getProperty().getIri().equals(triple.getPredicate()))
+			return false;
 
-			RDFTerm focus = null;
-			RDFTerm opposite = null;
-			if (tc.getProperty().isForward()) {
-				focus = triple.getSubject();
-				opposite = triple.getObject();
-			} else {
-				focus = triple.getObject();
-				opposite = triple.getSubject();
-			}
-			if (focusNode instanceof BlankNode && ! focusNode.ntriplesString().equals(focus.ntriplesString()))
-				return false;
-			return valueMatcher.test(opposite, tc.getShapeExpr());
+		RDFTerm focus;
+		RDFTerm opposite;
+		if (tc.getProperty().isForward()) {
+			focus = triple.getSubject();
+			opposite = triple.getObject();
+		} else {
+			focus = triple.getObject();
+			opposite = triple.getSubject();
 		}
+		if (focusNode instanceof BlankNode && ! focusNode.ntriplesString().equals(focus.ntriplesString()))
+			return false;
+		return valueMatcher.test(opposite, tc.getShapeExpr());
 	};
 
 	private ValidationUtils () {}
