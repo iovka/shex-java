@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (C) 2018 Université de Lille - Inria
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -21,9 +21,10 @@ import org.apache.commons.rdf.api.Triple;
 
 import java.util.*;
 
-/** Starting from a map that with every {@link Triple} associates a set of matching {@link TripleConstraint}s, allows to iterate over all possible ways to match every triple with a unique constraint.
- * For each such matching, the iterator returns the corresponding bag that with every triple constraint associates the number of matching triples. 
- * 
+/** Starting from a map that with every {@link Triple} associates a set (or list) of matching objects, allows to iterate over all possible ways to match every triple with a unique such object.
+ * This is equivalent to computing a Cartesian product of the sets associated with the triples.
+ * Typically used with {@param T} being a {@link TripleConstraint}, or also an expression that is extended by a shape.
+ *
  * @author Iovka Boneva
  * 10 oct. 2017
  */
@@ -39,13 +40,7 @@ public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 	/** Used for the iteration: 0 <= currentIndexes[i] < sizes[i] */
 	private int[] currentIndexes;
 
-
-
-
-	//	In the constructor, the following field will be initialize:
-	//	 - neighbourhood the set of triples over which all matchings will be enumerated
-	//	 - allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
-	//
+	/** Constructs the iterable object starting from the {@param preMatching} map, by restricting it only to those triples in {@param domain}. */
 	public MyMatchingsIterator(Map<Triple, List<T>> preMatching, List<Triple> domain) {
 		neighbourhood = new ArrayList<>(domain.size());
 		allMatching = new ArrayList<>(domain.size());
@@ -64,6 +59,7 @@ public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 		sizes[0] = 1;
 	}
 
+	/** Constructs the iterable object which domain is the whole key set of {@param preMatching}. */
 	public MyMatchingsIterator(Map<Triple, List<T>> preMatching) {
 		this(preMatching, new ArrayList<>(preMatching.keySet()));
 	}
@@ -89,11 +85,11 @@ public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 	}
 
 	@Override
-	public MyMatching next() {
+	public MyMatching<T> next() {
 		if (! hasNext())
 			throw new NoSuchElementException();
 		
-		MyMatching next = new MyMatching();
+		MyMatching<T> next = new MyMatching<>();
 		for (int i = 1; i < currentIndexes.length; i++) {
 			next.put(neighbourhood.get(i-1), allMatching.get(i-1).get(currentIndexes[i]));
 		}
@@ -102,5 +98,4 @@ public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 		
 		return next;
 	}
-
 }

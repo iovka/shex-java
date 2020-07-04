@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (C) 2018 Université de Lille - Inria
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -18,13 +18,11 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.*;
 
-import fr.inria.lille.shexjava.schema.Label;
+
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsSE;
 import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsTE;
-import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.Pair;
-import org.apache.commons.collections.map.HashedMap;
 
 /** Allows to collect the triple constraints that appear in a shape and the shape structure w.r.t. EXTENDS.
  * Memorizes already computed results. 
@@ -34,13 +32,21 @@ import org.apache.commons.collections.map.HashedMap;
  */
 public class DynamicCollectorOfTripleConstraints {
 
+	/** Memorizes the triple constraints for every expression after a call to {@link #getTCs}. */
 	private Map<Object, List<TripleConstraint>> collectedTCs = new HashMap<>();
-	private Map<Pair<TripleConstraint, Shape>, Object> parentsMap = new HashedMap();
+	/** With (tripleConstraint,shape) associates the sub-expression of shape to which tripleConstraint belongs.
+	 * Such sub-expression can be either the triple expression of the shape, or a shape reference that is extended by this shape.*/
+	private Map<Pair<TripleConstraint, Shape>, Object> parentsMap = new HashMap<>();
 
+	/** The sub-expression of {@param shape} to which {@param tc} belongs.
+	 * This sub-expression is either the triple expression of the shape, or a shape reference that is extended by this shape.
+	 * Is defined only in case {@param tc} was in the result of an earlier call to {@see #getTCs}.
+	 */
 	public Object getParentInShape (TripleConstraint tc, Shape shape) {
-		return parentsMap.get(new Pair(tc, shape));
+		return parentsMap.get(new Pair<>(tc, shape));
 	}
 
+	/** Collects the triple constraints of a triple expression. */
 	public List<TripleConstraint> getTCs (TripleExpr texpr) {
 		List<TripleConstraint> result = collectedTCs.get(texpr);
 		if (result == null) {
@@ -52,6 +58,8 @@ public class DynamicCollectorOfTripleConstraints {
 		return result;
 	}
 
+	/** Collects the triple constraints of a shape and determines the parent sub-expression in {@param shape} of all such sub-expressions.
+	 * The parent can be retrieved subsequently using {@see #getParentInShape}. */
 	public List<TripleConstraint> getTCs (Shape shape) {
 		List<TripleConstraint> tripleConstraints = collectedTCs.get(shape);
 
@@ -73,11 +81,13 @@ public class DynamicCollectorOfTripleConstraints {
 		return tripleConstraints;
 	}
 
+	/** Memorizes the unique {@param commonParent} of a all {@param tripleConstraint}s in a {@param shape} without extends. */
 	private void updateParentStructure (List<TripleConstraint> tripleConstraints, Shape shape, TripleExpr commonParent) {
 		for (TripleConstraint tc : tripleConstraints)
-			this.parentsMap.put(new Pair(tc,shape), commonParent);
+			this.parentsMap.put(new Pair<>(tc,shape), commonParent);
 	}
 
+	/** For every triple constraint in the input map, memorizes all its parents w.r.t. the different shapes under with it appears. */
 	private void updateParentStructure (Map<TripleConstraint, Deque<Object>> parentsMap) {
 		for (Map.Entry<TripleConstraint, Deque<Object>> e : parentsMap.entrySet()) {
 			TripleConstraint tc = e.getKey();
@@ -85,8 +95,8 @@ public class DynamicCollectorOfTripleConstraints {
 
 			while (! parents.isEmpty()) {
 				Object parent = parents.pop();
-				Object shape = (Shape) parents.pop();
-				this.parentsMap.put(new Pair(tc, shape), parent);
+				Shape shape = (Shape) parents.pop();
+				this.parentsMap.put(new Pair<>(tc, shape), parent);
 			}
 		}
 	}

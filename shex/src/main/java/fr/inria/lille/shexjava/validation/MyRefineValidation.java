@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (C) 2018 Université de Lille - Inria
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,14 +20,12 @@ import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
-import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,7 +43,7 @@ public class MyRefineValidation extends ValidationAlgorithmAbstract {
 	}
 
     @Override
-    protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
+    protected boolean performValidation(RDFTerm focusNode, Label label) {
         computeMaximalTyping();
 
         Boolean valid = cornerCaseValidate(focusNode, label);
@@ -103,8 +101,8 @@ public class MyRefineValidation extends ValidationAlgorithmAbstract {
 	}
 
     private boolean satisfies (RDFTerm node, ShapeExpr shapeExpr) {
-        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(node, typing);
-        shapeExpr.accept(eval);
+        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(typing);
+        shapeExpr.accept(eval, node);
         return eval.getResult();
     }
 
@@ -113,10 +111,12 @@ public class MyRefineValidation extends ValidationAlgorithmAbstract {
         return eval.evaluate();
     }
 
-    /** Checks if a corner case and computes validity in this case.
-     *
-     * @param node
-     * @param label
+    // TODO the corner cases are probably simpler: if the node is in the graph then its satisfying shapes can be tested with the typing except if the node is a literal, in which case its neighbourhood is empty
+    /** Checks if this is a corner case and computes validity in this case.
+     * A corner case is when trying to validate {@param node} that is not part of the graph in which case the
+     * maximal typing does not contain the node, or when {@param label} refers to a shape expression without
+     * shapes (i.e. only node constraints), in which case the typing does not allow to test satisfiability
+     * of the shape expression.
      * @return null if non corner case, a non null boolean with validity result otherwise
      */
 	private Boolean cornerCaseValidate (RDFTerm node, Label label) {
@@ -136,65 +136,23 @@ public class MyRefineValidation extends ValidationAlgorithmAbstract {
             if (evaluateShape(node, shape))
                 localTyping.setStatus(node, shape.getId(), Status.CONFORMANT);
         }
-        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(node, localTyping);
-        expr.accept(eval);
+        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(localTyping);
+        expr.accept(eval, node);
         return eval.getResult();
     }
 
+    /** Allows to evaluate a node against a shape expression while using the typing given at construction time to evaluate the Shapes. */
+    class EvaluateShapeExprVistor extends MyShapeEvaluation.AbstractShapeExprEvaluator {
 
-
-
-	// TODO COPY PASTE with MyShapeEvaluation
-    class EvaluateShapeExprVistor extends ShapeExpressionVisitor<Boolean> {
-
-        private final RDFTerm node;
-        private final Typing typing;
-        EvaluateShapeExprVistor(RDFTerm node, Typing shapesTyping) {
-            this.node = node;
-            this.typing = shapesTyping;
-        }
-
-        @Override
-        public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-            setResult(expr.contains(node));
+        private final Typing localTyping;
+        EvaluateShapeExprVistor(Typing localTyping) {
+            this.localTyping = localTyping;
         }
 
         @Override
         public void visitShape(Shape expr, Object... arguments) {
-            setResult(typing.isConformant(node, expr.getId()));
+            RDFTerm node = (RDFTerm) arguments[0];
+            setResult(localTyping.isConformant(node, expr.getId()));
         }
-
-        @Override
-        public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
-            shapeRef.getShapeDefinition().accept(this, arguments);
-        }
-
-        @Override
-        public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
-            for (ShapeExpr e : expr.getSubExpressions()) {
-                e.accept(this, arguments);
-                if (!getResult()) break;
-            }
-        }
-
-        @Override
-        public void visitShapeOr(ShapeOr expr, Object... arguments) {
-            for (ShapeExpr e : expr.getSubExpressions()) {
-                e.accept(this, arguments);
-                if (getResult()) break;
-            }
-        }
-
-        @Override
-        public void visitShapeNot(ShapeNot expr, Object... arguments) {
-            expr.getSubExpression().accept(this);
-            setResult(!getResult());
-        }
-
     }
-
-
-
-
-
 }

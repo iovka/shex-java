@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright (C) 2018 Université de Lille - Inria
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 
+// TODO to be deprecated and replaced by {@link MyMatchingIterator}
 /** Starting from a map that with every {@link Triple} associates a set of matching {@link TripleConstraint}s, allows to iterate over all possible ways to match every triple with a unique constraint.
  * For each such matching, the iterator returns the corresponding bag that with every triple constraint associates the number of matching triples. 
  * 
@@ -108,19 +109,6 @@ public class BagIterator implements Iterator<Bag>{
 		
 		return next;
 	}
-
-	// TODO better implementation of getCurrentBag, like this (to be debugged)
-	/*
-	public Map<Triple, Label> getCurrentMatch() {
-		Map<Triple, Label> currentMatch = new HashMap<>(neighbourhood.size()-1);
-
-		for (int i = 1; i < neighbourhood.size(); i++) {
-			currentMatch.put(neighbourhood.get(i), allMatches.get(i).get(currentIndexes[i]).getId());
-		}
-		return currentMatch;
-	}
-	*/
-
 
 	public Map<Triple, Label> getCurrentBag(){
 		Map<Triple, Label> currentMatch = new HashMap<>();
