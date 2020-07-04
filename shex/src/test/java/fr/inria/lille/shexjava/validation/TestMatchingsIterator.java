@@ -43,7 +43,7 @@ public class TestMatchingsIterator {
         preMatching.put(A, Arrays.asList(a1, a2, a3));
         preMatching.put(B,Arrays.asList(b1, b2));
 
-        MyMatchingsIterator it = new MyMatchingsIterator(preMatching);
+        MyMatchingsIterator<TripleConstraint> it = new MyMatchingsIterator(preMatching);
         Set<MyMatching> allElements = new HashSet<>();
         while (it.hasNext()) {
             allElements.add(it.next());

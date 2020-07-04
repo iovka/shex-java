@@ -14,18 +14,35 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.inria.lille.shexjava.validation;
+package fr.inria.lille.shexjava.util;
 
+import fr.inria.lille.shexjava.GlobalFactory;
+import fr.inria.lille.shexjava.schema.abstrsynt.EmptyShape;
+import fr.inria.lille.shexjava.schema.abstrsynt.TCProperty;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Triple;
-
-import java.awt.image.Kernel;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Iovka Boneva
  */
-public class MyMatching<T> extends HashMap<Triple,T> {
+public class RDF {
 
+    public static final String base = "http://x.x/";
+
+    public static TripleConstraint buildTripleConstraint(String predicate) {
+        return new TripleConstraint(TCProperty.createFwProperty(buildIRI(predicate)),
+                new EmptyShape());
+    }
+
+    public static Triple buildTriple(String subject, String predicate, String object) {
+        return GlobalFactory.RDFFactory.createTriple(
+                buildIRI(subject),
+                buildIRI(predicate),
+                buildIRI(object));
+    }
+
+    public static IRI buildIRI (String i) {
+        return GlobalFactory.RDFFactory.createIRI(base + i);
+    }
 }

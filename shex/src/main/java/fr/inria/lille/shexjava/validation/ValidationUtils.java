@@ -7,7 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
+import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
@@ -16,6 +20,8 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.util.CommonGraph;
+
+import javax.xml.soap.Node;
 
 /** Contains static methods useful in the different validation alogorithms.
  * 
@@ -29,8 +35,8 @@ public class ValidationUtils {
 		return predicateOnlyMatcher;
 	}
 	
-	public static Matcher getPredicateAndValueMatcher (Typing typing) {
-		return new MatcherPredicateAndValue(typing);
+	public static Matcher getPredicateAndValueMatcher () {
+		return predicateAndValueMatcher;
 	}
 	
 	/** Select the neighborhood that must be matched for the given shape.
@@ -41,7 +47,8 @@ public class ValidationUtils {
 	 * @param shapeIsClosed
 	 * @return
 	 */
-	public static List<Triple> getMatchableNeighbourhood(Graph graph, RDFTerm node, List<TripleConstraint> tripleConstraints, boolean shapeIsClosed) {		
+	public static List<Triple> getMatchableNeighbourhood(
+			Graph graph, RDFTerm node, List<TripleConstraint> tripleConstraints, boolean shapeIsClosed) {
 		Set<IRI> inversePredicate = new HashSet<>();
 		Set<IRI> forwardPredicate = new HashSet<>();
 		for (TripleConstraint tc : tripleConstraints)
@@ -63,24 +70,24 @@ public class ValidationUtils {
 			List<Triple> triples,
 			RDFTerm focusNode,
 			List<TripleConstraint> tripleConstraints,
-			Typing typing,
-			Matcher matcher) {
+			Matcher matcher,
+			BiPredicate<RDFTerm, ShapeExpr> valueMatcher) {
 
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTriplesMap = new LinkedHashMap<>(triples.size());
 		for (Triple triple: triples) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			matchingTriplesMap.put(triple, matching); // TODO should we add the empty lists as well ?
 			for (TripleConstraint tc: tripleConstraints) {
-				if (matcher.apply(focusNode, triple, tc, typing))
+				if (matcher.apply(focusNode, triple, tc, valueMatcher))
 					matching.add(tc);
 			}
 		}
 		return matchingTriplesMap;
 	}
 	
-	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood, 
-							List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties,
-							Typing typing, Matcher matcher) {
+	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood,
+												 List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties,
+												 Matcher matcher, BiPredicate<RDFTerm, ShapeExpr> valueMatcher) {
 		
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTriplesMap = new LinkedHashMap<>(neighbourhood.size());
 		ArrayList<Triple> matchedToExtraTriples = new ArrayList<>();
@@ -89,7 +96,7 @@ public class ValidationUtils {
 		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: tripleConstraints) {
-				if (matcher.apply(focusNode, triple, tc, typing)) {
+				if (matcher.apply(focusNode, triple, tc, valueMatcher)) {
 					matching.add(tc);
 				}
 			} 
@@ -103,6 +110,19 @@ public class ValidationUtils {
 		}
 		
 		return new PreMatching(matchingTriplesMap, matchedToExtraTriples, unmatchedTriples);
+	}
+
+	public static <T> Map<T, List<Triple>> invertMatching (MyMatching<T> matching) {
+		Map<T, List<Triple>> result = new HashMap<>();
+		for (Map.Entry<Triple, T> entry : matching.entrySet()) {
+			List<Triple> triples = result.get(entry.getValue());
+			if (triples == null) {
+				triples = new ArrayList<>();
+				result.put(entry.getValue(), triples);
+			}
+			triples.add(entry.getKey());
+		}
+		return result;
 	}
 
 	// TODO never used
@@ -139,7 +159,7 @@ public class ValidationUtils {
 
 	private static Matcher predicateOnlyMatcher = new Matcher() {
 		@Override
-		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing) {
+		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, BiPredicate<RDFTerm,ShapeExpr> valueMatcher) {
 			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString())) {
 				return tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString());
 			}
@@ -148,40 +168,23 @@ public class ValidationUtils {
 			return false;
 		}
 	};
-	
-	private static class MatcherPredicateAndValue extends Matcher {
-		private Typing shapeMap;
-		
-		public MatcherPredicateAndValue(Typing shapeMap) {
-			this.shapeMap = shapeMap;
-		}
-		
-		@Override
-		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing) {
-			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString()))
-				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString())) 
-					return shapeMap.isConformant(triple.getObject(), tc.getShapeExpr().getId());
-			if (!tc.getProperty().isForward() && triple.getObject().ntriplesString().equals(focusNode.ntriplesString()))
-				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString())) 
-					return shapeMap.isConformant(triple.getSubject(), tc.getShapeExpr().getId());
-			return false;
-		}
-	}
 
-	public static Matcher predicateAndValueMatcher = new Matcher () {
+	private static Matcher predicateAndValueMatcher = new Matcher () {
 		@Override
-		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing) {
+		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, BiPredicate<RDFTerm,ShapeExpr> valueMatcher) {
+			// TODO why comparison of IRIs is done with strings here ?
+			// TODO test the preficate first, this will factorize the tests
 			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString()))
 				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString()))
-					return typing.isConformant(triple.getObject(), tc.getShapeExpr().getId());
+					return valueMatcher.test(triple.getObject(), tc.getShapeExpr());
+
 			if (!tc.getProperty().isForward() && triple.getObject().ntriplesString().equals(focusNode.ntriplesString()))
 				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString()))
-					return typing.isConformant(triple.getSubject(), tc.getShapeExpr().getId());
+					return valueMatcher.test(triple.getSubject(), tc.getShapeExpr());
+
 			return false;
 		}
 	};
-
-
 
 	private ValidationUtils () {}
 }

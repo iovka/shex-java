@@ -56,7 +56,9 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);
 		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), null, ValidationUtils.getPredicateAndValueMatcher(typing));
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(),
+				ValidationUtils.getPredicateAndValueMatcher(),
+				(n, se) -> typing.isConformant(node, se.getId()));
 		
 		LocalMatching result = null;
 		// Look for correct matching within the pre-matching

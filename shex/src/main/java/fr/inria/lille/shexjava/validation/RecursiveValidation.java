@@ -155,7 +155,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
 		
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), null, ValidationUtils.getPredicateOnlyMatcher());
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), ValidationUtils.getPredicateOnlyMatcher(), null);
 		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
 			
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		

@@ -57,10 +57,11 @@ public class MyValidation {
 
 		TripleExpr sorbeTripleExpr = this.sorbeGenerator.getSORBETripleExpr(tripleExpr);
 		List<TripleConstraint> tripleConstraints = collectorTC.getTCs(sorbeTripleExpr);
+
 		Map<Triple, List<TripleConstraint>> matchingTriples =
-				ValidationUtils.computePreMatching(triples, focusNode, tripleConstraints, typing, ValidationUtils.predicateAndValueMatcher);
+				ValidationUtils.computePreMatching(triples, focusNode, tripleConstraints, ValidationUtils.getPredicateAndValueMatcher(), null );
 		MyMatchingsIterator mit = new MyMatchingsIterator(matchingTriples);
-		MyMatching result = null;
+		MyMatching<TripleConstraint> result = null;
 		while (result == null && mit.hasNext()) {
 			MyMatching matching = mit.next();
 			if (isLocallyValid(matching, sorbeTripleExpr)) {
@@ -121,7 +122,7 @@ public class MyValidation {
 	 * the value of the triple constraint. */
 	private boolean isLocallyValid (MyMatching matching, TripleExpr sorbeTripleExpr) {
 		IntervalComputation intervalComputation = new IntervalComputation(collectorTC);
-		sorbeTripleExpr.accept(intervalComputation, matching.toBag());
+		sorbeTripleExpr.accept(intervalComputation, Bag.fromMatching(matching));
 		return intervalComputation.getResult().contains(1);
 	}
 

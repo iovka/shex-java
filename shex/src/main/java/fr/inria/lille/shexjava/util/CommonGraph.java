@@ -78,4 +78,16 @@ public class CommonGraph {
 		return result;
 	}
 
+	public static Set<RDFTerm> getAllNonLiteralNodes (Graph g) {
+		HashSet<RDFTerm> result = new HashSet<>();
+		Iterator<Triple> iter = g.iterate().iterator();
+		while(iter.hasNext()) {
+			Triple next = iter.next();
+			RDFTerm object = next.getObject();
+			if (object instanceof BlankNodeOrIRI) result.add(object);
+			result.add(next.getSubject());
+		}
+		return result;
+	}
+
 }

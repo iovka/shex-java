@@ -23,8 +23,8 @@ import fr.inria.lille.shexjava.util.TestCase;
 import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 public abstract class AbstractValidationTest {
-	protected static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
-	protected static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();	
+	public static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
+	public static final String TEST_DIR = Paths.get("..","..","shexTest").toAbsolutePath().normalize().toString();
 	protected static String MANIFEST_FILE = Paths.get(TEST_DIR,"validation","manifest.ttl").toString();
 	protected static final String DATA_DIR = Paths.get(TEST_DIR,"validation").toString();
 	protected static final String SCHEMAS_DIR = Paths.get(TEST_DIR,"schemas").toString();

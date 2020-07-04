@@ -340,7 +340,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		// Match using only predicate 
 		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
 		Map<Triple,List<TripleConstraint>> matchingTC1 = 
-				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), null, matcher).getPreMatching();
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher, null).getPreMatching();
 		return matchingTC1;
 	}
 	

@@ -1,0 +1,3 @@
+PREFIX : <http://x.x/>
+
+:S { :p . } AND { :q . }

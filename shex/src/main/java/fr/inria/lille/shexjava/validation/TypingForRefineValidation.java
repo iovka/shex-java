@@ -100,4 +100,9 @@ public class TypingForRefineValidation implements Typing {
         throw new UnsupportedOperationException("not yet implemented");
     }
 
+    void ensureKnowsNode (RDFTerm node) {
+        if (! shapeLabels.containsKey(node))
+            shapeLabels.put(node, new HashSet<>());
+    }
+
 }

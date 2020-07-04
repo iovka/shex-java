@@ -27,12 +27,12 @@ import java.util.*;
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public class MyMatchingsIterator implements Iterator<MyMatching>{
+public class MyMatchingsIterator<T> implements Iterator<MyMatching<T>>{
 
 	/** The triples in the neighbourhood are used as index, their order in the list is important. */
 	private List<Triple> neighbourhood;
 	/** allMatches.get(i) contains all triple constraints matched with the triple neighbourhood.get(i) */
-	private List<List<TripleConstraint>> allMatching;
+	private List<List<T>> allMatching;
 
 	/** Used for the iteration: sizes[i] = allMatches.get(i).getSize() */
 	private int[] sizes;
@@ -46,7 +46,7 @@ public class MyMatchingsIterator implements Iterator<MyMatching>{
 	//	 - neighbourhood the set of triples over which all matchings will be enumerated
 	//	 - allMatches allMatches.get(i) contains the triple constraints matching with neighbourhood.get(i)
 	//
-	public MyMatchingsIterator(Map<Triple, List<TripleConstraint>> preMatching, List<Triple> domain) {
+	public MyMatchingsIterator(Map<Triple, List<T>> preMatching, List<Triple> domain) {
 		neighbourhood = new ArrayList<>(domain.size());
 		allMatching = new ArrayList<>(domain.size());
 
@@ -64,7 +64,7 @@ public class MyMatchingsIterator implements Iterator<MyMatching>{
 		sizes[0] = 1;
 	}
 
-	public MyMatchingsIterator(Map<Triple, List<TripleConstraint>> preMatching) {
+	public MyMatchingsIterator(Map<Triple, List<T>> preMatching) {
 		this(preMatching, new ArrayList<>(preMatching.keySet()));
 	}
 
@@ -102,33 +102,5 @@ public class MyMatchingsIterator implements Iterator<MyMatching>{
 		
 		return next;
 	}
-
-	// TODO better implementation of getCurrentBag, like this (to be debugged)
-	/*
-	public Map<Triple, Label> getCurrentMatch() {
-		Map<Triple, Label> currentMatch = new HashMap<>(neighbourhood.size()-1);
-
-		for (int i = 1; i < neighbourhood.size(); i++) {
-			currentMatch.put(neighbourhood.get(i), allMatches.get(i).get(currentIndexes[i]).getId());
-		}
-		return currentMatch;
-	}
-	*/
-
-/*
-	public Map<Triple, Label> getCurrentBag(){
-		Map<Triple, Label> currentMatch = new HashMap<>();
-
-		Iterator<List<TripleConstraint>> ite = valuesForEachKey.iterator();
-		Iterator<Triple> iteNeigh = keys.iterator();
-		for (int i = 1; i < currentIndexes.length; i++) {
-			List<TripleConstraint> tmp = ite.next();
-			Triple tmp2 = iteNeigh.next();
-			currentMatch.put(tmp2,tmp.get(currentIndexes[i]).getId());
-		}
-
-		return currentMatch;
-	}
- */
 
 }

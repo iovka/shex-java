@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
+import org.apache.commons.rdf.api.Triple;
 
 /**
  * 
@@ -29,6 +30,13 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  * 10 oct. 2017
  */
 public class Bag {
+
+	public static Bag fromMatching (Map<Triple, TripleConstraint> matching) {
+		Bag bag = new Bag();
+		for (TripleConstraint tc : matching.values())
+			bag.increment(tc);
+		return bag;
+	}
 
 	private Map<TripleConstraint, Integer> theMap;
 

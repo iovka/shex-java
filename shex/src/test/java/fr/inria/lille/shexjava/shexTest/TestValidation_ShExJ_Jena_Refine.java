@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.validation.*;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.Triple;
@@ -49,10 +50,6 @@ import org.junit.runners.Parameterized.Parameters;
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.util.TestCase;
-import fr.inria.lille.shexjava.validation.RefineValidation;
-import fr.inria.lille.shexjava.validation.Status;
-import fr.inria.lille.shexjava.validation.Typing;
-import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
  * @author Jérémie Dusart
@@ -82,10 +79,13 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 					.map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
 					.collect(Collectors.toList()));		
 
+			// Change here to run a unique test
 			String selectedTest = "";
-			if (!selectedTest.equals(""))
+			if (!selectedTest.equals("")) {
 				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
-						
+				TestCase tc = testCases.get(0);
+				System.out.println(String.format("schema: %s, data: %s", tc.schemaFileName, tc.dataFileName));
+			}
 			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
 		}
 		return Collections.emptyList();
@@ -143,8 +143,7 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 					|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && typing.getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
 				// do nothing, test succeed
 			} else {
-				System.out.println(testCase.testName);
-				fail("Validation exception do not compute the right result.");
+				fail("Validation did not compute the expected result: test " + testCase.testName);
 			}			
 		} catch (Exception e) {
 			fail("Exception during the validation: "+e.getMessage());
@@ -179,6 +178,9 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
 		model.read(getDataFileName(testCase.dataFileName));
 		Graph result = (new JenaRDF()).asGraph(model);
+
+		// FIXME These should not be added to the graph. Validation should succeed if the node is not in the graph
+		/*
 		if (!result.contains(null, null, testCase.focusNode)) {
 			if (!(testCase.focusNode instanceof BlankNodeOrIRI) || !result.contains((BlankNodeOrIRI) testCase.focusNode,null, null)) {
 				result.add(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
@@ -190,12 +192,13 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 					testCase.focusNode = iter.next().getObject();
 			}
 		}
+		 */
 
 		return result;
 	}
 
 	public ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
-		return new RefineValidation(schema, dataGraph);
+		return new MyRefineValidation(schema, dataGraph);
 	}
 
 

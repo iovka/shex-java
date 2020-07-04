@@ -19,7 +19,9 @@ package fr.inria.lille.shexjava.validation;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.BiPredicate;
 
+import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
@@ -33,8 +35,8 @@ import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
  *
  */
 
-
-public abstract class Matcher {
+@FunctionalInterface
+public interface Matcher {
 
 	/** With every triple, associates the triple constraints that the triple matches.
 	 * A triple matches a triple constraint if {@link #apply} returns true.
@@ -45,14 +47,14 @@ public abstract class Matcher {
 	 * @param constraints
 	 */
 	@Deprecated
-	public LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTCs (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints, Typing typing) {
+	public default LinkedHashMap<Triple,List<TripleConstraint>> collectMatchingTCs (RDFTerm focusNode, List<Triple> neighbourhood, List<TripleConstraint> constraints, Typing typing) {
 		
 		LinkedHashMap<Triple,List<TripleConstraint>> result = new LinkedHashMap<>(neighbourhood.size()); 
 		
 		for (Triple triple: neighbourhood) {
 			ArrayList<TripleConstraint> matching = new ArrayList<>();
 			for (TripleConstraint tc: constraints) {
-				if (apply(focusNode,triple, tc, typing)) {
+				if (apply(focusNode,triple, tc, null)) {
 					matching.add(tc);
 				}
 			}	
@@ -61,14 +63,12 @@ public abstract class Matcher {
 		return result;
 	}
 
-	/** Returns true iff the triple matches the triple constraint w.r.t. the given typing.
+	/** Returns true iff the triple matches the triple constraint w.r.t. the given value matcher
 	 * 
 	 * @param focusNode
 	 * @param triple
 	 * @param tc
 	 * @return
 	 */
-	public abstract boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, Typing typing);
-	
-	
+	public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, BiPredicate<RDFTerm, ShapeExpr> valueMatcher);
 }

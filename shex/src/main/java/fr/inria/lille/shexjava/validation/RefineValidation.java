@@ -75,16 +75,17 @@ public class RefineValidation extends SORBEBasedValidation {
 		this.typing = new TypingForRefineValidation(CommonGraph.getAllNodes(graph), schema);
 		computed = false;
 	}
-	
+
 	/** (non-Javadoc)
 	 * @throws Exception 
 	 * @see fr.inria.lille.shexjava.validation.ValidationAlgorithm#validate(org.apache.commons.rdf.api.RDFTerm, fr.inria.lille.shexjava.schema.Label)
 	 */
+	@Deprecated
 	public void validate() {
 		computeMaximalTyping(null);
 	}
-	
-	
+
+	@Override
 	protected boolean performValidation(RDFTerm focusNode, Label label) {
 		computeMaximalTyping(focusNode);
 		return typing.isConformant(focusNode, label);
@@ -142,7 +143,7 @@ public class RefineValidation extends SORBEBasedValidation {
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
 		
-		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), null, ValidationUtils.getPredicateOnlyMatcher());
+		PreMatching preMatching = ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), ValidationUtils.getPredicateOnlyMatcher(), null);
 		Map<Triple,List<TripleConstraint>> matchingTC1 = preMatching.getPreMatching();
 			
 		for(Entry<Triple,List<TripleConstraint>> entry:matchingTC1.entrySet()) {		

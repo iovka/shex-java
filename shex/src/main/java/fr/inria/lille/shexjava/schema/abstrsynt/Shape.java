@@ -50,9 +50,7 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	}
 	
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed, List<Annotation> annotations) {
-		this.tripleExpr = tripleExpression;
-		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
-		this.closed = closed;
+		this(tripleExpression, extraProps, closed);
 		this.annotations = annotations;
 	}
 	

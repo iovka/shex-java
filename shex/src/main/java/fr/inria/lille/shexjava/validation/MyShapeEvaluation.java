@@ -16,92 +16,231 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
+import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
-/** Allows to evaluate a shape againt a node.
+
+/** Allows to evaluate a shape againt a node with w.r.t. a typing.
  * @author Iovka Boneva
  */
 public class MyShapeEvaluation {
+
     private Graph graph;
-    private ShexSchema schema;
     private RDFTerm focusNode;
     private Shape topShape;
     private Typing neighboursTyping;
+
     private DynamicCollectorOfTripleConstraints collectorTC;
+   	protected SORBEGenerator sorbeGenerator;
 
-    private List<Triple> neighbourhood;
-    private PreMatching preMatching;
-    private Map<Object, List<TripleConstraint>> tcsOfExpressionMap;
+   	private PreMatching preMatching;
 
-    public MyShapeEvaluation(Graph graph, ShexSchema schema,
-                             RDFTerm focusNode, Shape shape, Typing neighboursTyping,
-                             DynamicCollectorOfTripleConstraints collectorTC) {
+    public MyShapeEvaluation(Graph graph, RDFTerm focusNode, Shape shape,
+                             Typing neighboursTyping,
+                             DynamicCollectorOfTripleConstraints collectorTC,
+                             SORBEGenerator sorbeGenerator) {
         this.graph = graph;
-        this.schema = schema;
         this.focusNode = focusNode;
         this.topShape = shape;
         this.neighboursTyping = neighboursTyping;
+
         this.collectorTC = collectorTC;
-
-
+        this.sorbeGenerator = sorbeGenerator;
     }
 
-    private void init () {
-        // Collect the triple constraints and store their parent structure
-        List<TripleConstraint> allTripleConstraints = collectorTC.getTCs(topShape);
-        neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, focusNode, allTripleConstraints, topShape.isClosed());
-
-        preMatching = ValidationUtils.computePreMatching(focusNode, neighbourhood, allTripleConstraints,
-                topShape.getExtraProperties(), neighboursTyping, ValidationUtils.predicateAndValueMatcher);
-    }
-
-
-
+    /** Evaluates the node given at construction time against the shape given at construction time. */
     public boolean evaluate () {
-        init();
+        List<TripleConstraint> allTripleConstraints = collectorTC.getTCs(topShape);
+        List<Triple> focusNodeNeighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, focusNode, allTripleConstraints, topShape.isClosed());
+        preMatching = ValidationUtils.computePreMatching(focusNode, focusNodeNeighbourhood, allTripleConstraints,
+                topShape.getExtraProperties(), ValidationUtils.getPredicateAndValueMatcher(), valueMatcherWithTyping);
 
-        if (! preMatching.getUnmatched().isEmpty() && topShape.isClosed())
+        if (! preMatching.getUnmatched().isEmpty())
             return false;
 
-        // TODO when do we check that those matched to extra are correct ? This can be done by the matcher (if it uses the typing), or should be done afterwards
+        return evaluateShape(focusNodeNeighbourhood, topShape);
+    }
 
-        return evaluate(neighbourhood, topShape);
+    /** Evaluates part of the neighbourhood against a shape. */
+    private boolean evaluateShape (List<Triple> triples, Shape shape) {
+        Map<Triple, List<Object>> matchingSubExpressionsOfShape =
+                matchingSubExpressionsOfShape(triples, shape);
+        MyMatchingsIterator<Object> it = new MyMatchingsIterator(matchingSubExpressionsOfShape, triples);
+
+        // TODO OPTIMISATION: no need to partition if the shape does not have extended. This can be passed on collectorTC as well when computing the parent
+        boolean valid = false;
+        while (! valid && it.hasNext()) {
+            MyMatching<Object> m = it.next();
+            Map<Object, List<Triple>> partition = ValidationUtils.invertMatching(m);
+            valid = valid || evaluatePartition(partition);
+        }
+        return valid;
+    }
+
+    /** Evaluates a partition of (part of) the neighbourhood against expressions.
+     * The expressions that are keys of the partition are sub-expressions of a Shape, that is, either one of {@link Shape#getExtended()} or {@link Shape#getTripleExpression()}.
+     */
+    private boolean evaluatePartition (Map<Object, List<Triple>> partition) {
+        boolean failed = false;
+        Iterator<Map.Entry<Object, List<Triple>>> partsIterator = partition.entrySet().iterator();
+        while (!failed && partsIterator.hasNext()) {
+            Map.Entry<Object, List<Triple>> entry = partsIterator.next();
+            Object expr = entry.getKey();
+            List<Triple> triples = entry.getValue();
+            if (expr instanceof TripleExpr) {
+                failed = failed || ! matches(triples, (TripleExpr) expr);
+            } else if (expr instanceof ShapeExprRef) {
+                EvaluateShapeExprOnNeighbourhoodVisitor shexprEval = new EvaluateShapeExprOnNeighbourhoodVisitor(triples);
+                ((ShapeExprRef) expr).accept(shexprEval);
+                failed = failed || ! shexprEval.getResult();
+            } else {
+                throw new IllegalStateException("should not happen");
+            }
+        }
+        return !failed;
     }
 
 
-    Map<Triple, Set<Object>> matchingSubExpressionsOfShape (
+    /** With every triple associates the set of sub-expressions of {@link #topShape} to which the triple can be matched.
+     *
+     * @param triples
+     * @param shape
+     * @return
+     */
+    Map<Triple, List<Object>> matchingSubExpressionsOfShape (
             List<Triple> triples,
-            Map<Triple, List<TripleConstraint>> matchingTripleConstraints,
             Shape shape) {
 
-        Map<Triple, Set<Object>> tripleToSubExpr = new HashMap<>(matchingTripleConstraints.size());
+        Map<Triple, List<Object>> tripleToSubExpr = new HashMap<>(preMatching.getPreMatching().size());
         for (Triple triple: triples) {
-            for (TripleConstraint tc : matchingTripleConstraints.get(triple)) {
-                Set<Object> set = tripleToSubExpr.get(triple);
-                if (set == null) {
-                    set = new HashSet<>();
-                    tripleToSubExpr.put(triple, set);
+            for (TripleConstraint tc : preMatching.getPreMatching().get(triple)) {
+                List<Object> list = tripleToSubExpr.get(triple);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    tripleToSubExpr.put(triple, list);
                 }
                 Object parent = collectorTC.getParentInShape(tc, shape);
-                if (parent != null) set.add(parent);
+                if (parent != null) list.add(parent);
             }
+        }
+        // Remove the repeated expressions
+        for (Map.Entry<Triple, List<Object>> e : tripleToSubExpr.entrySet()) {
+            e.setValue(new ArrayList(new HashSet(e.getValue())));
         }
         return tripleToSubExpr;
     }
 
-    private boolean evaluate (List<Triple> triples, Shape shape) {
-        // For every triple, collect the sub-expressions of shape to which it can be matched
-        throw new UnsupportedOperationException("not yet implemented");
+    /** Checks whether the set of triples satisfies a triple expression with a given typing.
+     * The typing must be complete for all opposite nodes of the triples and all shapes that are involved in the triple constraints.
+     *
+     * @param triples
+     * @param tripleExpr
+     * @return
+     */
+    private boolean matches (List<Triple> triples, TripleExpr tripleExpr) {
+
+        // Enumerate all possible matchings from the triples to the triple constraints and look for a valid matching among them
+        TripleExpr sorbeTripleExpr = this.sorbeGenerator.getSORBETripleExpr(tripleExpr);
+        List<TripleConstraint> tripleConstraints = collectorTC.getTCs(sorbeTripleExpr);
+        Map<Triple, List<TripleConstraint>> matchingTriples =
+                ValidationUtils.computePreMatching(triples, focusNode, tripleConstraints,
+                        ValidationUtils.getPredicateAndValueMatcher(), valueMatcherWithTyping);
+        MyMatchingsIterator mit = new MyMatchingsIterator(matchingTriples);
+        MyMatching result = null;
+        while (result == null && mit.hasNext()) {
+            MyMatching matching = mit.next();
+            if (isLocallyValid(matching, sorbeTripleExpr)) {
+                result = matching;
+            }
+        }
+        // TODO we might want to use the matching, in this case it should be translated to a matching on the non sorbe triple expression
+        return result != null;
     }
 
+	/** Tests whether the matching satisfies the triple expression locally, w/o inspecting whether each of the triple's opposite node satisfies
+	 * the value of the triple constraint. */
+	private boolean isLocallyValid (MyMatching matching, TripleExpr sorbeTripleExpr) {
+		IntervalComputation intervalComputation = new IntervalComputation(collectorTC);
+		sorbeTripleExpr.accept(intervalComputation, Bag.fromMatching(matching));
+		return intervalComputation.getResult().contains(1);
+	}
+
+	private BiPredicate<RDFTerm,ShapeExpr> valueMatcherWithTyping = new BiPredicate<RDFTerm, ShapeExpr>() {
+        @Override
+        public boolean test(RDFTerm node, ShapeExpr shapeExpr) {
+            shapeExpr.accept(evaluateValueConstraintWithTyping, node);
+            return evaluateValueConstraintWithTyping.getResult();
+        }
+    };
+
+
+	private ShapeExpressionVisitor<Boolean> evaluateValueConstraintWithTyping = new AbstractShapeExprEvaluator() {
+        @Override
+        public void visitShape(Shape expr, Object... arguments) {
+            RDFTerm value = (RDFTerm) arguments[0];
+            setResult(neighboursTyping.isConformant(value, expr.getId()));
+        }
+        @Override
+        public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+            setResult(expr.contains(focusNode));
+        }
+    };
+
+	abstract class AbstractShapeExprEvaluator extends ShapeExpressionVisitor<Boolean> {
+        @Override
+        public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
+            shapeRef.getShapeDefinition().accept(this, arguments);
+        }
+
+        @Override
+        public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
+            for (ShapeExpr e : expr.getSubExpressions()) {
+                e.accept(this, arguments);
+                if (!getResult()) break;
+            }
+        }
+
+        @Override
+        public void visitShapeOr(ShapeOr expr, Object... arguments) {
+            for (ShapeExpr e : expr.getSubExpressions()) {
+                e.accept(this, arguments);
+                if (getResult()) break;
+            }
+        }
+
+        @Override
+        public void visitShapeNot(ShapeNot expr, Object... arguments) {
+            expr.getSubExpression().accept(this);
+            setResult(!getResult());
+        }
+    }
+
+    class EvaluateShapeExprOnNeighbourhoodVisitor extends AbstractShapeExprEvaluator {
+
+        private List<Triple> neighbourhood;
+
+        public EvaluateShapeExprOnNeighbourhoodVisitor(List<Triple> neighbourhood) {
+            this.neighbourhood = neighbourhood;
+        }
+
+        @Override
+        public void visitShape(Shape expr, Object... arguments) {
+            // The closed and extra qualifiers are ignored here
+            setResult(evaluateShape(neighbourhood, expr));
+        }
+
+        @Override
+        public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+            setResult(expr.contains(focusNode));
+        }
+
+    }
 }
+

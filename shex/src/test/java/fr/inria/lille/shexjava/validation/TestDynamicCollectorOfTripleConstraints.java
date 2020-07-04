@@ -20,6 +20,7 @@ import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.IRILabel;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.TestCollectTripleConstraints;
+import fr.inria.lille.shexjava.util.RDF;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import java.util.Arrays;
@@ -32,17 +33,17 @@ public class TestDynamicCollectorOfTripleConstraints {
 
     @Test
     public void testParents () {
-        TripleConstraint tc_p1 = TestCollectTripleConstraints.buildTripleConstraint("p");
-        TripleConstraint tc_p2 = TestCollectTripleConstraints.buildTripleConstraint("p");
-        TripleConstraint tc_p3 = TestCollectTripleConstraints.buildTripleConstraint("p");
-        TripleConstraint tc_p4 = TestCollectTripleConstraints.buildTripleConstraint("p");
+        TripleConstraint tc_p1 = RDF.buildTripleConstraint("p");
+        TripleConstraint tc_p2 = RDF.buildTripleConstraint("p");
+        TripleConstraint tc_p3 = RDF.buildTripleConstraint("p");
+        TripleConstraint tc_p4 = RDF.buildTripleConstraint("p");
 
-        TripleConstraint tc_q1 = TestCollectTripleConstraints.buildTripleConstraint("q");
-        TripleConstraint tc_q3 = TestCollectTripleConstraints.buildTripleConstraint("q");
-        TripleConstraint tc_q4 = TestCollectTripleConstraints.buildTripleConstraint("q");
+        TripleConstraint tc_q1 = RDF.buildTripleConstraint("q");
+        TripleConstraint tc_q3 = RDF.buildTripleConstraint("q");
+        TripleConstraint tc_q4 = RDF.buildTripleConstraint("q");
 
-        TripleConstraint tc_r2 = TestCollectTripleConstraints.buildTripleConstraint("r");
-        TripleConstraint tc_r3 = TestCollectTripleConstraints.buildTripleConstraint("r");
+        TripleConstraint tc_r2 = RDF.buildTripleConstraint("r");
+        TripleConstraint tc_r3 = RDF.buildTripleConstraint("r");
 
         TripleExpr te1 = new EachOf(Arrays.asList(tc_p1, tc_q1));
         TripleExpr te2 = new EachOf(Arrays.asList(tc_p2, tc_r2));
@@ -52,11 +53,11 @@ public class TestDynamicCollectorOfTripleConstraints {
         Shape shape1 = new Shape(te1, Collections.emptyList(), Collections.emptySet(), false);
         Shape shape2 = new Shape(te2, Collections.emptyList(), Collections.emptySet(), false);
 
-        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new IRILabel(TestCollectTripleConstraints.buildIRI("Shape1AndShape2Ref")));
+        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("Shape1AndShape2Ref")));
         shape1AndShape2Ref.setShapeDefinition(new ShapeAnd(Arrays.asList( shape1, shape2)));
 
         Shape shape3 = new Shape(te3, Collections.emptyList(), Collections.emptySet(), false);
-        ShapeExprRef shape3Ref = new ShapeExprRef(new IRILabel(TestCollectTripleConstraints.buildIRI("shape2ref")));
+        ShapeExprRef shape3Ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("shape2ref")));
         shape3Ref.setShapeDefinition(shape3);
 
         Shape shape4 = new Shape(te4, Arrays.asList(shape1AndShape2Ref, shape3Ref), Collections.emptySet(),false) ;
