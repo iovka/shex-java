@@ -83,7 +83,33 @@ public class ShexSchema {
 	
 	/** The factory used for creating fresh {@link Label}s */
 	private RDF rdfFactory;
-	
+
+	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		this.start = start;
+		this.rdfFactory = rdfFactory;
+
+		Map<Label, ShapeExpr> rulesPlusStart = new HashMap<>(rules);
+		if (start!=null && !rulesPlusStart.containsKey(start.getId()))
+			rulesPlusStart.put(start.getId(),start);
+
+
+		Map<Label, ShapeExpr> shapeExprsMap = constructShexprMapAndCheckIdsAreUnique(rulesPlusStart);
+		checkThatAllShapeExprRefsAreDefined(shapeExprsMap);
+		Map<Label, TripleExpr> tripleExprsMap = constructTexprsMapAndCheckIdsAreUnique(rulesPlusStart, shapeExprsMap);
+		checkThatAllTripleExprRefsAreDefined(tripleExprsMap);
+
+		this.rules = rulesPlusStart;
+		this.shexprsMap = shapeExprsMap;
+		this.texprsMap = tripleExprsMap;
+		checkNoCyclicReferences(rulesPlusStart, shapeExprsMap, tripleExprsMap);
+
+		computeStratification();
+
+		this.rules = Collections.unmodifiableMap(rules);
+		this.texprsMap = Collections.unmodifiableMap(tripleExprsMap);
+		this.shexprsMap = Collections.unmodifiableMap(shapeExprsMap);
+	}
+
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
 	 * Otherwise, an exception is thrown.
 	 * Uses {@link GlobalFactory#RDFFactory} for creating the fresh labels.
@@ -126,31 +152,7 @@ public class ShexSchema {
 	}
 	
 		
-	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this.start = start;
-		this.rdfFactory = rdfFactory;
 
-		Map<Label, ShapeExpr> rulesPlusStart = new HashMap<>(rules);
-		if (start!=null && !rulesPlusStart.containsKey(start.getId()))
-			rulesPlusStart.put(start.getId(),start);
-
-		this.rules = rulesPlusStart;
-
-		Map<Label, ShapeExpr> shapeExprsMap = constructShexprMapAndCheckIdsAreUnique(rulesPlusStart);
-		checkThatAllShapeExprRefsAreDefined(shapeExprsMap);
-		Map<Label, TripleExpr> tripleExprsMap = constructTexprsMapAndCheckIdsAreUnique(rulesPlusStart, shapeExprsMap);
-		checkThatAllTripleExprRefsAreDefined(tripleExprsMap);
-
-		this.shexprsMap = shapeExprsMap;
-		this.texprsMap = tripleExprsMap;
-
-		checkNoCyclicReferences();
-		computeStratification();
-		
-		this.rules = Collections.unmodifiableMap(rules);
-		this.texprsMap = Collections.unmodifiableMap(tripleExprsMap);
-		this.shexprsMap = Collections.unmodifiableMap(shapeExprsMap);
-	}
 	
 	/** The rules of the schema.
 	 * @return the rules of the schema.
@@ -247,7 +249,7 @@ public class ShexSchema {
 	/** Computes and populates {@link #texprsMap} */
 	private Map<Label, TripleExpr> constructTexprsMapAndCheckIdsAreUnique(Map<Label, ShapeExpr> rulesMap, Map<Label, ShapeExpr> shapeExprsMap) {
 		Map<Label,TripleExpr> result = new HashMap<>();
-		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(this.rules);
+		Set<TripleExpr> allTriples = SchemaCollectors.collectAllTriples(rulesMap);
 		for (TripleExpr tcexp : allTriples) {
 			addIdIfNone(tcexp);
 			if (shapeExprsMap.containsKey(tcexp.getId()) || result.containsKey(tcexp.getId()))
@@ -283,8 +285,12 @@ public class ShexSchema {
 		}
 	}
 	
-	private void checkNoCyclicReferences() throws CyclicReferencesException {
-		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph();
+	private void checkNoCyclicReferences(
+		Map<Label, ShapeExpr> rulesMap, Map<Label, ShapeExpr> shapeExprsMap, Map<Label, TripleExpr> tripleExprMap)
+			throws CyclicReferencesException {
+
+		DefaultDirectedGraph<Label,DefaultEdge> referencesGraph = this.computeReferencesGraph(
+				rulesMap, shapeExprsMap, tripleExprMap);
 		CycleDetector<Label, DefaultEdge> detector = new CycleDetector<>(referencesGraph);
 		if (detector.detectCycles())
 			throw new CyclicReferencesException("Cyclic dependencies of refences found: "+detector.findCycles()+"." );
@@ -468,10 +474,11 @@ public class ShexSchema {
 	}
 	
 	
-	private DefaultDirectedGraph<Label,DefaultEdge> computeReferencesGraph () {
+	private DefaultDirectedGraph<Label,DefaultEdge> computeReferencesGraph (
+			Map<Label, ShapeExpr> rulesMap, Map<Label, ShapeExpr> shapeExprsMap, Map<Label, TripleExpr> tripleExprMap) {
 		// Visit the schema to collect the references
 		CollectGraphReferencesFromShape collector = new CollectGraphReferencesFromShape();
-		for (ShapeExpr expr: this.rules.values()) {
+		for (ShapeExpr expr: rulesMap.values()) {
 			//System.out.println("Rule: "+expr.getId().toString());
 			expr.accept(collector);
 		}
@@ -480,10 +487,10 @@ public class ShexSchema {
 		GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>> builder;
 		builder = new GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>>(new DefaultDirectedGraph<Label,DefaultEdge>(DefaultEdge.class));
 
-		for (Label label : this.shexprsMap.keySet()) {
+		for (Label label : shapeExprsMap.keySet()) {
 			builder.addVertex(label);
 		}
-		for (Label label : this.texprsMap.keySet()) {
+		for (Label label : tripleExprMap.keySet()) {
 			builder.addVertex(label);
 		}
 
