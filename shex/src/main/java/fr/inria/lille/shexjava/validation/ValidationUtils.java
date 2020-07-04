@@ -12,10 +12,7 @@ import java.util.function.Predicate;
 
 import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.RDFTerm;
-import org.apache.commons.rdf.api.Triple;
+import org.apache.commons.rdf.api.*;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
@@ -162,29 +159,39 @@ public class ValidationUtils {
 	private static Matcher predicateOnlyMatcher = new Matcher() {
 		@Override
 		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, BiPredicate<RDFTerm,ShapeExpr> valueMatcher) {
-			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString())) {
-				return tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString());
+
+			if (! tc.getProperty().getIri().equals(triple.getPredicate()))
+				return false;
+
+			RDFTerm focus = null;
+			if (tc.getProperty().isForward()) {
+				focus = triple.getSubject();
+			} else {
+				focus = triple.getObject();
 			}
-			if (!tc.getProperty().isForward() && triple.getObject().ntriplesString().equals(focusNode.ntriplesString()))
-				return tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString());
-			return false;
+			return focusNode instanceof IRI || focusNode.ntriplesString().equals(focus.ntriplesString());
 		}
 	};
 
 	private static Matcher predicateAndValueMatcher = new Matcher () {
 		@Override
 		public boolean apply(RDFTerm focusNode, Triple triple, TripleConstraint tc, BiPredicate<RDFTerm,ShapeExpr> valueMatcher) {
-			// TODO why comparison of IRIs is done with strings here ?
-			// TODO test the preficate first, this will factorize the tests
-			if (tc.getProperty().isForward() && triple.getSubject().ntriplesString().equals(focusNode.ntriplesString()))
-				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString()))
-					return valueMatcher.test(triple.getObject(), tc.getShapeExpr());
 
-			if (!tc.getProperty().isForward() && triple.getObject().ntriplesString().equals(focusNode.ntriplesString()))
-				if (tc.getProperty().getIri().ntriplesString().equals(triple.getPredicate().ntriplesString()))
-					return valueMatcher.test(triple.getSubject(), tc.getShapeExpr());
+			if (! tc.getProperty().getIri().equals(triple.getPredicate()))
+				return false;
 
-			return false;
+			RDFTerm focus = null;
+			RDFTerm opposite = null;
+			if (tc.getProperty().isForward()) {
+				focus = triple.getSubject();
+				opposite = triple.getObject();
+			} else {
+				focus = triple.getObject();
+				opposite = triple.getSubject();
+			}
+			if (focusNode instanceof BlankNode && ! focusNode.ntriplesString().equals(focus.ntriplesString()))
+				return false;
+			return valueMatcher.test(opposite, tc.getShapeExpr());
 		}
 	};
 
