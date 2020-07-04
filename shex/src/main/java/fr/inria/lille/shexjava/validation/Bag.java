@@ -16,10 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import org.apache.commons.rdf.api.Triple;
@@ -31,7 +28,7 @@ import org.apache.commons.rdf.api.Triple;
  */
 public class Bag {
 
-	public static Bag fromMatching (Map<Triple, TripleConstraint> matching) {
+	public static Bag fromMatching (Map<Triple, TripleConstraint> matching, List<TripleConstraint> domain) {
 		Bag bag = new Bag();
 		for (TripleConstraint tc : matching.values())
 			bag.increment(tc);

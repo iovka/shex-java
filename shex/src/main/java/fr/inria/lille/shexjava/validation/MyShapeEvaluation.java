@@ -19,6 +19,7 @@ package fr.inria.lille.shexjava.validation;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
@@ -65,16 +66,27 @@ public class MyShapeEvaluation {
         if (! preMatching.getUnmatched().isEmpty())
             return false;
 
+        focusNodeNeighbourhood.removeAll(preMatching.getMatchedToExtra());
         return evaluateShape(focusNodeNeighbourhood, topShape);
     }
 
     /** Evaluates part of the neighbourhood against a shape. */
     private boolean evaluateShape (List<Triple> triples, Shape shape) {
+        if (shape.getExtended().isEmpty())
+            return evaluateShapeWithoutExtended(triples, shape);
+        else
+            return evaluateShapeWithExtended(triples, shape);
+    }
+
+    private boolean evaluateShapeWithoutExtended(List<Triple> triples, Shape shape) {
+        return matches(triples, shape.getTripleExpression());
+    }
+
+    private boolean evaluateShapeWithExtended (List<Triple> triples, Shape shape) {
         Map<Triple, List<Object>> matchingSubExpressionsOfShape =
                 matchingSubExpressionsOfShape(triples, shape);
         MyMatchingsIterator<Object> it = new MyMatchingsIterator(matchingSubExpressionsOfShape, triples);
 
-        // TODO OPTIMISATION: no need to partition if the shape does not have extended. This can be passed on collectorTC as well when computing the parent
         boolean valid = false;
         while (! valid && it.hasNext()) {
             MyMatching<Object> m = it.next();
@@ -119,13 +131,11 @@ public class MyShapeEvaluation {
             Shape shape) {
 
         Map<Triple, List<Object>> tripleToSubExpr = new HashMap<>(preMatching.getPreMatching().size());
+        for (Triple triple: triples)
+            tripleToSubExpr.put(triple, new ArrayList<Object>());
         for (Triple triple: triples) {
             for (TripleConstraint tc : preMatching.getPreMatching().get(triple)) {
                 List<Object> list = tripleToSubExpr.get(triple);
-                if (list == null) {
-                    list = new ArrayList<>();
-                    tripleToSubExpr.put(triple, list);
-                }
                 Object parent = collectorTC.getParentInShape(tc, shape);
                 if (parent != null) list.add(parent);
             }
@@ -149,14 +159,16 @@ public class MyShapeEvaluation {
         // Enumerate all possible matchings from the triples to the triple constraints and look for a valid matching among them
         TripleExpr sorbeTripleExpr = this.sorbeGenerator.getSORBETripleExpr(tripleExpr);
         List<TripleConstraint> tripleConstraints = collectorTC.getTCs(sorbeTripleExpr);
-        Map<Triple, List<TripleConstraint>> matchingTriples =
-                ValidationUtils.computePreMatching(triples, focusNode, tripleConstraints,
-                        ValidationUtils.getPredicateAndValueMatcher(), valueMatcherWithTyping);
-        MyMatchingsIterator mit = new MyMatchingsIterator(matchingTriples);
+        PreMatching sorbePreMatching = ValidationUtils.computePreMatching(
+                focusNode, triples, tripleConstraints,  Collections.emptySet(),
+                               ValidationUtils.getPredicateAndValueMatcher(), valueMatcherWithTyping);
+        if (!sorbePreMatching.getUnmatched().isEmpty() || !sorbePreMatching.getMatchedToExtra().isEmpty())
+            return false;
+        MyMatchingsIterator mit = new MyMatchingsIterator(sorbePreMatching.getPreMatching());
         MyMatching result = null;
         while (result == null && mit.hasNext()) {
             MyMatching matching = mit.next();
-            if (isLocallyValid(matching, sorbeTripleExpr)) {
+            if (isLocallyValid(matching, sorbeTripleExpr, tripleConstraints)) {
                 result = matching;
             }
         }
@@ -166,9 +178,9 @@ public class MyShapeEvaluation {
 
 	/** Tests whether the matching satisfies the triple expression locally, w/o inspecting whether each of the triple's opposite node satisfies
 	 * the value of the triple constraint. */
-	private boolean isLocallyValid (MyMatching matching, TripleExpr sorbeTripleExpr) {
+	private boolean isLocallyValid (MyMatching matching, TripleExpr sorbeTripleExpr, List<TripleConstraint> tripleConstraints) {
 		IntervalComputation intervalComputation = new IntervalComputation(collectorTC);
-		sorbeTripleExpr.accept(intervalComputation, Bag.fromMatching(matching));
+		sorbeTripleExpr.accept(intervalComputation, Bag.fromMatching(matching, tripleConstraints));
 		return intervalComputation.getResult().contains(1);
 	}
 
@@ -218,7 +230,7 @@ public class MyShapeEvaluation {
 
         @Override
         public void visitShapeNot(ShapeNot expr, Object... arguments) {
-            expr.getSubExpression().accept(this);
+            expr.getSubExpression().accept(this, arguments);
             setResult(!getResult());
         }
     }

@@ -22,7 +22,7 @@ import java.util.Map;
 /** This class implements the singleton pattern.
  * @author Jérémie Dusart
  */
-public class EmptyShape extends NodeConstraint{
+public class EmptyShape extends NodeConstraint {
 
 	public EmptyShape() {
 		super(Collections.emptyList());

@@ -24,6 +24,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 import java.util.*;
 
+// TODO a typing should have a working version and a user version with only the user defined labels
 /** Implementation of typing that explicitly stores all conformant (node, label).
  * Suited for refine validation, where there are no non computed (node,label) pairs when label is a label for a shape.
  *
@@ -73,6 +74,7 @@ public class TypingForRefineValidation implements Typing {
         for (Pair<RDFTerm, Label> nl : currentStratumNodeShapeLabelPairs) {
             shapeLabels.get(nl.one).add(nl.two);
         }
+        currentStratumNodeShapeLabelPairs.clear();
     }
 
     /** Iterates over the node-label pairs of the current stratum. */
@@ -91,6 +93,9 @@ public class TypingForRefineValidation implements Typing {
 
     @Override
     public Status getStatus(RDFTerm node, Label label) {
+        Status status = otherLabelsTyping.getStatus(node, label);
+        if (status != null & status != Status.NOTCOMPUTED) return status;
+
         if (schema.getShapeExprsMap().get(label) instanceof Shape) {
             Set<Label> labels = shapeLabels.get(node);
             if (labels == null) return Status.NOTCOMPUTED;
@@ -98,7 +103,7 @@ public class TypingForRefineValidation implements Typing {
             else if (currentStratumNodeShapeLabelPairs.contains(new Pair(node, label))) return Status.CONFORMANT;
             else return Status.NONCONFORMANT;
         } else {
-            return otherLabelsTyping.getStatus(node, label);
+            return Status.NOTCOMPUTED;
         }
     }
 
@@ -107,10 +112,4 @@ public class TypingForRefineValidation implements Typing {
         // FIXME compute status map lazily. Maybe consider only the significant (node, label) pairs
         throw new UnsupportedOperationException("not yet implemented");
     }
-
-    void ensureKnowsNode (RDFTerm node) {
-        if (! shapeLabels.containsKey(node))
-            shapeLabels.put(node, new HashSet<>());
-    }
-
 }

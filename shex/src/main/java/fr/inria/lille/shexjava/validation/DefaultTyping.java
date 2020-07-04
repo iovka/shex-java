@@ -48,6 +48,6 @@ public class DefaultTyping implements Typing {
 
     @Override
     public boolean isConformant(RDFTerm node, Label label) {
-        return false;
+        return Status.CONFORMANT.equals(statusMap.get(new Pair(node,label)));
     }
 }

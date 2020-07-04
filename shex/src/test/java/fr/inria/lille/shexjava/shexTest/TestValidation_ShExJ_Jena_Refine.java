@@ -80,7 +80,7 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 					.collect(Collectors.toList()));		
 
 			// Change here to run a unique test
-			String selectedTest = "";
+			String selectedTest = "" ; //focusdatatype_pass";
 			if (!selectedTest.equals("")) {
 				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
 				TestCase tc = testCases.get(0);

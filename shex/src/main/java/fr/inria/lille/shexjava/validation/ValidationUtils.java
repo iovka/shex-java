@@ -66,6 +66,7 @@ public class ValidationUtils {
 		return neighbourhood;
 	}
 
+	/*
 	public static Map<Triple, List<TripleConstraint>> computePreMatching (
 			List<Triple> triples,
 			RDFTerm focusNode,
@@ -84,6 +85,7 @@ public class ValidationUtils {
 		}
 		return matchingTriplesMap;
 	}
+	 */
 	
 	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood,
 												 List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties,

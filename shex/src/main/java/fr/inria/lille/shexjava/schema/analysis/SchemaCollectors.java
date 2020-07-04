@@ -112,13 +112,20 @@ public class SchemaCollectors {
 		return set;
 	}
 
+	public static Set<Shape> collectAllShapes (ShapeExpr shapeExpr) {
+		Set<Shape> set = new HashSet<>();
+		CollectElementsFromShape<Shape> collector = new CollectElementsFromShape<>( x -> x instanceof Shape, set, false);
+		shapeExpr.accept(collector);
+		return set;
+	}
+
 }
 
 //---------------------------------------------------------------------------
 // Collectors
 //---------------------------------------------------------------------------
 
-
+// TODO these classes should be available for reuse elsewhere. Other visitors do more or less the same thing
 class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 
 	private Predicate<Object> filter;

@@ -26,7 +26,7 @@ import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.Pair;
 import org.apache.commons.collections.map.HashedMap;
 
-/** Allows to compute the triple constraints that appear in a shape.
+/** Allows to collect the triple constraints that appear in a shape and the shape structure w.r.t. EXTENDS.
  * Memorizes already computed results. 
  *
  * @author Iovka Boneva
@@ -55,15 +55,28 @@ public class DynamicCollectorOfTripleConstraints {
 
 	public List<TripleConstraint> getTCs (Shape shape) {
 		List<TripleConstraint> tripleConstraints = collectedTCs.get(shape.getId());
-		Deque<Object> parents = new ArrayDeque<>();
+
+		boolean parentIsTrivial = shape.getExtended().isEmpty();
+		Deque<Object> parents = null;
+		if (! parentIsTrivial) parents = new ArrayDeque<>();
+
 		if (tripleConstraints == null) {
 			CollectTripleConstraintsSE collector = new CollectTripleConstraintsSE();
-			shape.accept(collector, parents);
+			if (parentIsTrivial) shape.accept(collector);
+			else shape.accept(collector, parents);
 			tripleConstraints = collector.getResult().one;
 			collectedTCs.put(shape.getId(), tripleConstraints);
-			updateParentStructure(collector.getResult().two);
+			if (parentIsTrivial)
+				updateParentStructure(tripleConstraints, shape, shape.getTripleExpression());
+			else
+				updateParentStructure(collector.getResult().two);
 		}
 		return tripleConstraints;
+	}
+
+	private void updateParentStructure (List<TripleConstraint> tripleConstraints, Shape shape, TripleExpr commonParent) {
+		for (TripleConstraint tc : tripleConstraints)
+			this.parentsMap.put(new Pair(tc,shape), commonParent);
 	}
 
 	private void updateParentStructure (Map<TripleConstraint, Deque<Object>> parentsMap) {
