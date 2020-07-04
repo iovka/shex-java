@@ -88,7 +88,7 @@ public class MyRefineValidation extends ValidationAlgorithmAbstract {
 			// Compute the typing for the non shape labels
             // TODO to be optimized. Now it goes through all labels, should be limited to those that are on the current stratum
             for (Label label : schema.getShapeExprsMap().keySet()) {
-                for (RDFTerm node : CommonGraph.getAllNodes(graph)) {
+                for (RDFTerm node : typing.allNodes()) {
                     EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(node, typing);
                     schema.getShapeExprsMap().get(label).accept(eval);
                     typing.setNonShapeLabelStatus(node, label,
@@ -100,6 +100,7 @@ public class MyRefineValidation extends ValidationAlgorithmAbstract {
 	}
 
 
+	// TODO COPY PASTE with MyShapeEvaluation
     class EvaluateShapeExprVistor extends ShapeExpressionVisitor<Boolean> {
 
         private final RDFTerm focusNode;

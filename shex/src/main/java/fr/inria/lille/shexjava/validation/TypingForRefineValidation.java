@@ -50,6 +50,14 @@ public class TypingForRefineValidation implements Typing {
         }
     }
 
+    /** The set of nodes on which the typing is defined.
+     *
+     * @return
+     */
+    protected Set<RDFTerm> allNodes () {
+        return shapeLabels.keySet();
+    }
+
     /** To be called when validation of a stratum starts.
      * Adds the given stratum shape labels to the types of all nodes. */
      void startStratum (Set<Label> stratumShapeLabels) {

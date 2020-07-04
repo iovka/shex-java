@@ -189,7 +189,8 @@ public class MyShapeEvaluation {
         }
         @Override
         public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-            setResult(expr.contains(focusNode));
+            RDFTerm value = (RDFTerm) arguments[0];
+            setResult(expr.contains(value));
         }
     };
 
