@@ -99,9 +99,6 @@ public class ShexSchema {
 		checkThatAllTripleExprRefsAreDefined(tripleExprsMap);
 
 		checkNoCyclicReferences(rulesPlusStart, shapeExprsMap, tripleExprsMap);
-		this.rules = rulesPlusStart;
-		this.shexprsMap = shapeExprsMap;
-		this.texprsMap = tripleExprsMap;
 
 		this.stratification = Collections.unmodifiableMap(computeStratification(shapeExprsMap));
 
