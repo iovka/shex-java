@@ -48,7 +48,7 @@ public class Test0cardinality {
 		BlankNodeOrIRI s1 =  rdfFactory.createIRI("http://a.example/s1");
 		graph.add(s1,rdfFactory.createIRI("http://a.example/a"),rdfFactory.createLiteral("test"));
 				
-		RefineValidation validation = new RefineValidation(schema,graph);
+		MyRefineValidation validation = new MyRefineValidation(schema,graph);
 		validation.validate(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
 
 		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))));
@@ -66,7 +66,7 @@ public class Test0cardinality {
 		BlankNodeOrIRI s1 =  rdfFactory.createIRI("http://a.example/s1");
 		graph.add(s1,rdfFactory.createIRI("http://a.example/c"),rdfFactory.createLiteral("test"));
 		
-		RefineValidation validation = new RefineValidation(schema,graph);
+		MyRefineValidation validation = new MyRefineValidation(schema,graph);
 		validation.validate(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
 		
 		assertNotEquals(Status.CONFORMANT, validation.getTyping().getStatus(s1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))));

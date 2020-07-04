@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.validation.*;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.rdf4j.RDF4J;
@@ -39,10 +40,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
-import fr.inria.lille.shexjava.validation.RecursiveValidation;
-import fr.inria.lille.shexjava.validation.RefineValidation;
-import fr.inria.lille.shexjava.validation.Status;
-import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Command line tool for validation.
  * 
@@ -116,7 +113,7 @@ public class Validate {
 		
 		ValidationAlgorithmAbstract val = null;
 		switch (parameters.get("-a")) {
-			case "refine" : val = new RefineValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
+			case "refine" : val = new MyRefineValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
 			case "recursive" : val = new RecursiveValidation(schema, (new RDF4J()).asGraph(dataModel)); break;
 		}
 		

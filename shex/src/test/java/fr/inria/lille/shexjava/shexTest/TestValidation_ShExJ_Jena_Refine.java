@@ -178,22 +178,6 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 		org.apache.jena.rdf.model.Model model = ModelFactory.createDefaultModel() ;
 		model.read(getDataFileName(testCase.dataFileName));
 		Graph result = (new JenaRDF()).asGraph(model);
-
-		// FIXME These should not be added to the graph. Validation should succeed if the node is not in the graph
-		/*
-		if (!result.contains(null, null, testCase.focusNode)) {
-			if (!(testCase.focusNode instanceof BlankNodeOrIRI) || !result.contains((BlankNodeOrIRI) testCase.focusNode,null, null)) {
-				result.add(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
-						GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),
-						testCase.focusNode);
-				Iterator<? extends Triple> iter = result.stream(GlobalFactory.RDFFactory.createIRI("http://test.shex/dummySource"), 
-						GlobalFactory.RDFFactory.createIRI("http://test.shex/dummyPredicate"),null).iterator();
-				while (iter.hasNext())
-					testCase.focusNode = iter.next().getObject();
-			}
-		}
-		 */
-
 		return result;
 	}
 

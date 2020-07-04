@@ -83,7 +83,7 @@ public class CertificateCollectorTest {
 		Iterator<Triple> ite = graph.iterate().iterator();
 		
 		
-		RefineValidation validation = new RefineValidation(schema,graph);
+		MyRefineValidation validation = new MyRefineValidation(schema,graph);
 
 		validation.validate(bug1, new IRILabel(rdfFactory.createIRI("http://a.example/BugReport")));
 //		System.out.println();
