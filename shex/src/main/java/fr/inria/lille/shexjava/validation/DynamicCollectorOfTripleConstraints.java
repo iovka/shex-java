@@ -34,8 +34,7 @@ import org.apache.commons.collections.map.HashedMap;
  */
 public class DynamicCollectorOfTripleConstraints {
 
-	// TODO: use the expression as key instead of its label
-	private Map<Label, List<TripleConstraint>> collectedTCs = new HashMap<>();
+	private Map<Object, List<TripleConstraint>> collectedTCs = new HashMap<>();
 	private Map<Pair<TripleConstraint, Shape>, Object> parentsMap = new HashedMap();
 
 	public Object getParentInShape (TripleConstraint tc, Shape shape) {
@@ -43,18 +42,18 @@ public class DynamicCollectorOfTripleConstraints {
 	}
 
 	public List<TripleConstraint> getTCs (TripleExpr texpr) {
-		List<TripleConstraint> result = collectedTCs.get(texpr.getId());
+		List<TripleConstraint> result = collectedTCs.get(texpr);
 		if (result == null) {
 			CollectTripleConstraintsTE collector = new CollectTripleConstraintsTE();
 			texpr.accept(collector);
 			result = collector.getResult().one;
-			collectedTCs.put(texpr.getId(), result);
+			collectedTCs.put(texpr, result);
 		}
 		return result;
 	}
 
 	public List<TripleConstraint> getTCs (Shape shape) {
-		List<TripleConstraint> tripleConstraints = collectedTCs.get(shape.getId());
+		List<TripleConstraint> tripleConstraints = collectedTCs.get(shape);
 
 		boolean parentIsTrivial = shape.getExtended().isEmpty();
 		Deque<Object> parents = null;
@@ -65,7 +64,7 @@ public class DynamicCollectorOfTripleConstraints {
 			if (parentIsTrivial) shape.accept(collector);
 			else shape.accept(collector, parents);
 			tripleConstraints = collector.getResult().one;
-			collectedTCs.put(shape.getId(), tripleConstraints);
+			collectedTCs.put(shape, tripleConstraints);
 			if (parentIsTrivial)
 				updateParentStructure(tripleConstraints, shape, shape.getTripleExpression());
 			else
