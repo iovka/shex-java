@@ -59,6 +59,37 @@ public class ValidationUtils {
 		return neighbourhood;
 	}
 	
+	/** Select the neighborhood that must be matched for the given shape.
+	 * 
+	 * @param graph
+	 * @param node
+	 * @param tripleConstraints
+	 * @param shapeIsClosed
+	 * @return
+	 */
+	public static List<Triple> getMatchableNeighbourhood(List<Triple> baseNeighbourhood, RDFTerm node, List<TripleConstraint> tripleConstraints, boolean shapeIsClosed) {		
+		Set<IRI> inversePredicate = new HashSet<>();
+		Set<IRI> forwardPredicate = new HashSet<>();
+		for (TripleConstraint tc : tripleConstraints)
+			if (tc.getProperty().isForward())
+				forwardPredicate.add(tc.getProperty().getIri());
+			else
+				inversePredicate.add(tc.getProperty().getIri());
+
+		ArrayList<Triple> neighbourhood = new ArrayList<>();
+		baseNeighbourhood.stream().filter(tr->tr.getObject().equals(node))
+								  .filter(tr->inversePredicate.contains(tr.getPredicate())).forEach(tr->neighbourhood.add(tr));
+		//neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
+		if (shapeIsClosed)
+			baseNeighbourhood.stream().filter(tr->tr.getSubject().equals(node)).forEach(tr->neighbourhood.add(tr));
+		else
+			baseNeighbourhood.stream().filter(tr->tr.getSubject().equals(node))
+									  .filter(tr->forwardPredicate.contains(tr.getPredicate())).forEach(tr->neighbourhood.add(tr));
+		return neighbourhood;
+	}
+	
+
+	
 	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood, 
 							List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties, Matcher matcher) {
 		

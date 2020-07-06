@@ -21,6 +21,7 @@ import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
+import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 /**
  * 
@@ -41,6 +42,9 @@ public abstract class ShapeExpr{
 		return this.id;
 	}
 	
+	public void resolveReferences (Map<Label,ShapeExpr> shexprsMap) throws UndefinedReferenceException {
+	}
+
 	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
 	
 	@Override

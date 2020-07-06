@@ -20,6 +20,7 @@ import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
+import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 /**
  * 
@@ -39,17 +40,20 @@ public class ShapeExprRef extends ShapeExpr {
 		return this.label;
 	}
 
+	public void resolveReferences (Map<Label,ShapeExpr> shexprsMap) throws UndefinedReferenceException {
+		if (def != null)
+			throw new IllegalStateException("References can be resolved at most once in ShapeExprRef " + label);
+		if (shexprsMap.containsKey(label))
+			def = shexprsMap.get(label);
+		 else
+			throw new UndefinedReferenceException("Undefined shape label: " + label);
+	}
+
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShapeExprRef(this, arguments);
 	}
 
-	public void setShapeDefinition(ShapeExpr def) {
-		if (this.def != null)
-			throw new IllegalStateException("Shape definition can be set at most once");
-		this.def = def;
-	}
-	
 	public ShapeExpr getShapeDefinition () {
 		return this.def;
 	}

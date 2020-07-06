@@ -19,14 +19,17 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.IRI;
 
+import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
+import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 /**
  * 
@@ -38,12 +41,16 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	private Set<TCProperty> extra;
 	private TripleExpr tripleExpr;
 	private List<Annotation> annotations;
+	private List<Label> baseLabels;
+	private List<ShapeExpr> baseExprs;
 
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
 		this.tripleExpr = tripleExpression;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
 		this.closed = closed;
 		this.annotations = null;
+		this.baseLabels = null;
+		this.baseExprs = null;
 	}
 	
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed, List<Annotation> annotations) {
@@ -51,6 +58,8 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
 		this.closed = closed;
 		this.annotations = annotations;
+		this.baseLabels = null;
+		this.baseExprs = null;
 	}
 	
 	public void setAnnotations (List<Annotation> annotations) {
@@ -58,6 +67,25 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 			this.annotations = annotations;
 		else throw new IllegalStateException("Annotations already set");
 	}	
+
+	public void setBaseLabels (List<Label> baseLabels) {
+		if (this.baseLabels == null)
+			this.baseLabels = baseLabels;
+		else throw new IllegalStateException("BaseLabels already set");
+	}
+
+	public void resolveReferences (Map<Label,ShapeExpr> shexprsMap) throws UndefinedReferenceException {
+		if (baseExprs != null)
+			throw new IllegalStateException("References can be resolved at most once in Shape");
+		if (baseLabels != null) {
+			baseExprs = new ArrayList<ShapeExpr>();
+			for (Label label : baseLabels)
+				if (shexprsMap.containsKey(label))
+					baseExprs.add(shexprsMap.get(label));
+				else
+					throw new UndefinedReferenceException("Undefined shape label for base: " + label);
+		}
+	}
 
 	
 	public TripleExpr getTripleExpression () {
@@ -76,6 +104,10 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 		return annotations;
 	}
 
+	public List<Label> getBaseLabels() {
+		return baseLabels;
+	}
+
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
 		visitor.visitShape(this, arguments);
@@ -84,11 +116,14 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
 		String closedstr = isClosed() ? "CLOSED " : "";
+		String extendsStr = "";
+		for (Label baseLabel:baseLabels)
+			extendsStr += "EXTENDS " + baseLabel.toPrettyString(prefixes) + " ";
 		String extraP = extra.isEmpty() ? "" : "EXTRA " + extra.toString();
 		String annot = "";
 		if (this.annotations!=null && this.annotations.isEmpty())
 			annot = CollectionToString.collectionToString(annotations," ; ","// [", "]")+" ";
-		return String.format("{%s%s%s%s}", closedstr, extraP, tripleExpr.toPrettyString(prefixes),annot);	
+		return String.format("{%s%s%s%s%s}", closedstr, extendsStr, extraP, tripleExpr.toPrettyString(prefixes),annot);
 	}
 
 	

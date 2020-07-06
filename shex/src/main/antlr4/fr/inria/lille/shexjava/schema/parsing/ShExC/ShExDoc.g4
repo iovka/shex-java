@@ -24,7 +24,10 @@
 // Apr 09, 2017 - factor out shapeRef to match spec
 // Apr 09, 2017 - update repeatRange to allow differentiation of {INTEGER} and {INTEGER,}
 // Apr 09, 2017 - add STEM_MARK and UNBOUNDED tokens to eliminate lex token parsing
-// Jun 10, 2018 - add empty language stem
+// Apr 17, 2018 - add 2.1 rules -- extensions, restrictions and ABSTRACT
+// Aug 13, 2018 - Re-order rules to approximate Yacker BNF
+// Aug 13, 2018 - Remove '!' for NOT
+// Aug 13, 2018 - Add annotations and semanticActions to nodeconstraint
 
 
 grammar ShExDoc;
@@ -39,94 +42,28 @@ prefixDecl		: KW_PREFIX PNAME_NS IRIREF ;
 importDecl      : KW_IMPORT IRIREF ;
 notStartAction  : start | shapeExprDecl ;
 start           : KW_START '=' shapeExpression ;
-startActions	: codeDecl+ ;
+startActions	: semanticAction+ ;
 statement 		: directive | notStartAction ;
-shapeExprDecl   : shapeExprLabel (shapeExpression | KW_EXTERNAL) ;
+shapeExprDecl   : KW_ABSTRACT? shapeExprLabel restriction*  (shapeExpression | KW_EXTERNAL) ;
 shapeExpression : shapeOr ;
-shapeOr  		: shapeAnd (KW_OR shapeAnd)* ;
-shapeAnd		: shapeNot (KW_AND shapeNot)* ;
-shapeNot	    : negation? shapeAtom ;
-negation        : KW_NOT | '!' ;
 inlineShapeExpression : inlineShapeOr ;
+shapeOr  		: shapeAnd (KW_OR shapeAnd)* ;
 inlineShapeOr   : inlineShapeAnd (KW_OR inlineShapeAnd)* ;
+shapeAnd		: shapeNot (KW_AND shapeNot)* ;
 inlineShapeAnd  : inlineShapeNot (KW_AND inlineShapeNot)* ;
-inlineShapeNot  : negation? inlineShapeAtom ;
-inlineShapeDefinition : qualifier* '{' oneOfShape? '}' ;
-shapeDefinition : qualifier* '{' oneOfShape? '}' annotation* semanticActions ;
-qualifier       : includeSet | extraPropertySet | KW_CLOSED ;
-extraPropertySet : KW_EXTRA predicate+ ;
-oneOfShape      : groupShape
-				| multiElementOneOf
-				;
-multiElementOneOf : groupShape ( '|' groupShape)+ ;
-groupShape      : singleElementGroup
-				| multiElementGroup
-				;
-singleElementGroup : unaryShape ';'? ;
-multiElementGroup : unaryShape (';' unaryShape)+ ';'? ;
-unaryShape      : ('$' tripleExprLabel)? (tripleConstraint | encapsulatedShape)
-				| include
-				;
-encapsulatedShape  : '(' oneOfShape ')' cardinality? annotation* semanticActions ;
-shapeAtom		: nodeConstraint shapeOrRef?    # shapeAtomNodeConstraint
-				| shapeOrRef                    # shapeAtomShapeOrRef
+shapeNot	    : KW_NOT? shapeAtom ;
+inlineShapeNot  : KW_NOT? inlineShapeAtom ;
+shapeAtom		: nonLitNodeConstraint shapeOrRef?    # shapeAtomNonLitNodeConstraint
+                | litNodeConstraint             # shapeAtomLitNodeConstraint
+				| shapeOrRef nonLitNodeConstraint?    # shapeAtomShapeOrRef
 				| '(' shapeExpression ')'		# shapeAtomShapeExpression
 				| '.'							# shapeAtomAny			// no constraint
 				;
-inlineShapeAtom : nodeConstraint inlineShapeOrRef? # inlineShapeAtomNodeConstraint
-				| inlineShapeOrRef nodeConstraint? # inlineShapeAtomShapeOrRef
+inlineShapeAtom : inlineNonLitNodeConstraint inlineShapeOrRef? # inlineShapeAtomNonLitNodeConstraint
+                | inlineLitNodeConstraint             # inlineShapeAtomLitNodeConstraint
+				| inlineShapeOrRef inlineNonLitNodeConstraint? # inlineShapeAtomShapeOrRef
 				| '(' shapeExpression ')'		# inlineShapeAtomShapeExpression
 				| '.'							# inlineShapeAtomAny   // no constraint
-				;
-nodeConstraint  : KW_LITERAL xsFacet*			# nodeConstraintLiteral
-				| nonLiteralKind stringFacet*	# nodeConstraintNonLiteral
-				| datatype xsFacet*				# nodeConstraintDatatype
-				| valueSet xsFacet*				# nodeConstraintValueSet
-				| xsFacet+						# nodeConstraintFacet
-				;
-nonLiteralKind  : KW_IRI
-				| KW_BNODE
-				| KW_NONLITERAL
-				;
-xsFacet			: stringFacet
-				| numericFacet;
-stringFacet     : stringLength INTEGER
-				| REGEXP REGEXP_FLAGS?
-				;
-stringLength	: KW_LENGTH
-				| KW_MINLENGTH
-				| KW_MAXLENGTH;
-numericFacet	: numericRange numericLiteral
-				| numericLength INTEGER
-				;
-numericRange	: KW_MININCLUSIVE
-			    | KW_MINEXCLUSIVE
-			    | KW_MAXINCLUSIVE
-			    | KW_MAXEXCLUSIVE
-			    ;
-numericLength   : KW_TOTALDIGITS
-				| KW_FRACTIONDIGITS
-				;
-tripleConstraint : senseFlags? predicate inlineShapeExpression cardinality? annotation* semanticActions ;
-senseFlags      : '!' '^'?
-				| '^' '!'?		// inverse not
-				;
-valueSet		: '[' valueSetValue* ']' ;
-valueSetValue   : iriRange
-				| literalRange
-				| languageRange
-				| '.' (iriExclusion+ | literalExclusion+ | languageExclusion+)
-				;
-iriRange        : iri (STEM_MARK iriExclusion*)? ;
-iriExclusion    : '-' iri STEM_MARK? ;
-literalRange    : literal (STEM_MARK literalExclusion*)? ;
-literalExclusion : '-' literal STEM_MARK? ;
-languageRange   : LANGTAG (STEM_MARK languageExclusion*)?
-                | '@' '~' languageExclusion* ;
-languageExclusion : '-' LANGTAG STEM_MARK? ;
-literal         : rdfLiteral
-				| numericLiteral
-				| booleanLiteral
 				;
 shapeOrRef      : shapeDefinition
 				| shapeRef
@@ -138,15 +75,66 @@ shapeRef 		: ATPNAME_LN
 				| ATPNAME_NS
 				| '@' shapeExprLabel
 				;
-include			: '&' tripleExprLabel ;
-semanticActions	: codeDecl* ;
-annotation      : '//' predicate (iri | literal) ;
-// BNF: predicate ::= iri | RDF_TYPE
-predicate       : iri
-				| rdfType
+inlineLitNodeConstraint : KW_LITERAL xsFacet*	# nodeConstraintLiteral
+				| nonLiteralKind stringFacet*	# nodeConstraintNonLiteral
+				| datatype xsFacet*				# nodeConstraintDatatype
+				| valueSet xsFacet*				# nodeConstraintValueSet
+				| numericFacet+					# nodeConstraintNumericFacet
 				;
-rdfType			: RDF_TYPE ;
-datatype        : iri ;
+litNodeConstraint : inlineLitNodeConstraint  annotation* semanticAction* ;
+inlineNonLitNodeConstraint  : nonLiteralKind stringFacet*	# litNodeConstraintLiteral
+                | stringFacet+                  # litNodeConstraintStringFacet
+				;
+nonLitNodeConstraint : inlineNonLitNodeConstraint  annotation* semanticAction* ;
+nonLiteralKind  : KW_IRI
+				| KW_BNODE
+				| KW_NONLITERAL
+				;
+xsFacet			: stringFacet
+				| numericFacet
+				;
+stringFacet     : stringLength INTEGER
+				| REGEXP REGEXP_FLAGS?
+				;
+stringLength	: KW_LENGTH
+				| KW_MINLENGTH
+				| KW_MAXLENGTH
+				;
+numericFacet	: numericRange rawNumeric
+				| numericLength INTEGER
+				;
+numericRange	: KW_MININCLUSIVE
+			    | KW_MINEXCLUSIVE
+			    | KW_MAXINCLUSIVE
+			    | KW_MAXEXCLUSIVE
+			    ;
+numericLength   : KW_TOTALDIGITS
+				| KW_FRACTIONDIGITS
+				;
+// rawNumeric is like numericLiteral but returns a native integer or float
+rawNumeric		: INTEGER
+				| DECIMAL
+				| DOUBLE
+				;
+shapeDefinition : qualifier* '{' tripleExpression? '}' annotation* semanticAction* ;
+inlineShapeDefinition : qualifier* '{' tripleExpression? '}' ;
+qualifier       : extension | extraPropertySet | KW_CLOSED ;
+extraPropertySet : KW_EXTRA predicate+ ;
+tripleExpression : oneOfTripleExpr ;
+oneOfTripleExpr : groupTripleExpr
+				| multiElementOneOf
+				;
+multiElementOneOf : groupTripleExpr ( '|' groupTripleExpr )+ ;
+groupTripleExpr : singleElementGroup
+				| multiElementGroup
+				;
+singleElementGroup : unaryTripleExpr ';'? ;
+multiElementGroup : unaryTripleExpr (';' unaryTripleExpr)+ ';'? ;
+unaryTripleExpr : ('$' tripleExprLabel)? (tripleConstraint | bracketedTripleExpr)
+				| include
+				;
+bracketedTripleExpr : '(' tripleExpression ')' cardinality? annotation* semanticAction* ;
+tripleConstraint : senseFlags? predicate inlineShapeExpression cardinality? annotation* semanticAction* ;
 cardinality     :  '*'         # starCardinality
 				| '+'          # plusCardinality
 				| '?'          # optionalCardinality
@@ -156,6 +144,34 @@ cardinality     :  '*'         # starCardinality
 repeatRange     : '{' INTEGER '}'							  # exactRange
 				| '{' INTEGER ',' (INTEGER | UNBOUNDED)? '}'  # minMaxRange
 				;
+senseFlags      : '^' ;
+valueSet		: '[' valueSetValue* ']' ;
+valueSetValue   : iriRange
+				| literalRange
+				| languageRange
+				| '.' (iriExclusion+ | literalExclusion+ | languageExclusion+)
+				;
+iriRange        : iri (STEM_MARK iriExclusion*)? ;
+iriExclusion    : '-' iri STEM_MARK? ;
+literalRange    : literal (STEM_MARK literalExclusion*)? ;
+literalExclusion : '-' literal STEM_MARK? ;
+languageRange   : LANGTAG (STEM_MARK languageExclusion*)? # languageRangeFull
+                | '@' STEM_MARK languageExclusion*        # languageRangeAt
+                ;
+languageExclusion : '-' LANGTAG STEM_MARK? ;
+include			: '&' tripleExprLabel ;
+annotation      : '//' predicate (iri | literal) ;
+semanticAction	: '%' iri (CODE | '%') ;
+literal         : rdfLiteral
+				| numericLiteral
+				| booleanLiteral
+				;
+// BNF: predicate ::= iri | RDF_TYPE
+predicate       : iri
+				| rdfType
+				;
+rdfType			: RDF_TYPE ;
+datatype        : iri ;
 shapeExprLabel  : iri
 				| blankNode
 				;
@@ -166,11 +182,11 @@ numericLiteral  : INTEGER
 				| DECIMAL
 				| DOUBLE
 				;
-rdfLiteral      : string (LANGTAG | '^^' datatype)? ;
+rdfLiteral      : rdfString (LANGTAG | '^^' datatype)? ;
 booleanLiteral  : KW_TRUE
 				| KW_FALSE
 				;
-string          : STRING_LITERAL_LONG1
+rdfString       : STRING_LITERAL_LONG1
                 | STRING_LITERAL_LONG2
                 | STRING_LITERAL1
 				| STRING_LITERAL2
@@ -182,16 +198,22 @@ prefixedName    : PNAME_LN
 				| PNAME_NS
 				;
 blankNode       : BLANK_NODE_LABEL ;
-codeDecl		: '%' iri (CODE | '%') ;
+extension       : KW_EXTENDS '@' shapeExprLabel
+                | '&' shapeExprLabel
+                ;
 
-// Reserved for future use
-includeSet      : '&' tripleExprLabel+ ;
-
+/* Not implemented yet, but reserved for future enhancement */
+restriction    : KW_RESTRICTS shapeExprLabel
+                | '-' shapeExprLabel
+                ;
 
 // Keywords
+KW_ABSTRACT         : A B S T R A C T ;
 KW_BASE 			: B A S E ;
-KW_EXTERNAL			: E X T E R N A L ;
+KW_EXTENDS          : E X T E N D S ;
 KW_IMPORT           : I M P O R T ;
+KW_RESTRICTS        : R E S T R I C T S ;
+KW_EXTERNAL			: E X T E R N A L ;
 KW_PREFIX       	: P R E F I X ;
 KW_START        	: S T A R T ;
 KW_VIRTUAL      	: V I R T U A L ;
@@ -250,7 +272,8 @@ fragment ECHAR                 : '\\' [tbnrf\\"'] ;
 
 fragment PN_CHARS_BASE 		   : [A-Z] | [a-z] | [\u00C0-\u00D6] | [\u00D8-\u00F6] | [\u00F8-\u02FF] | [\u0370-\u037D]
 					   		   | [\u037F-\u1FFF] | [\u200C-\u200D] | [\u2070-\u218F] | [\u2C00-\u2FEF] | [\u3001-\uD7FF]
-					           | [\uF900-\uFDCF] | [\uFDF0-\uFFFD] | [\u{10000}-\u{EFFFD}]
+					           | [\uF900-\uFDCF] | [\uFDF0-\uFFFD]
+					           | [\u{10000}-\u{EFFFD}]
 					   		   ;
 fragment PN_CHARS_U            : PN_CHARS_BASE | '_' ;
 fragment PN_CHARS              : PN_CHARS_U | '-' | [0-9] | [\u00B7] | [\u0300-\u036F] | [\u203F-\u2040] ;
