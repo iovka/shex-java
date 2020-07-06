@@ -2,6 +2,7 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.Map.Entry;
 
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
@@ -9,15 +10,6 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
@@ -175,6 +167,10 @@ public class DataExtractorConformant{
 			// TODO Data extractor and extension??? Auto-generated method stub
 			
 		}
-		
+
+		@Override
+		public void visitAbstractShape(AbstractShapeExpr expr, Object... arguments) {
+
+		}
 	}
 }

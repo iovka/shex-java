@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.CycleDetector;
@@ -41,22 +42,6 @@ import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.exception.CyclicReferencesException;
 import fr.inria.lille.shexjava.exception.NotStratifiedException;
 import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
-import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
 import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
@@ -252,22 +237,8 @@ public class ShexSchema {
 
 		
 	private void checkThatAllShapeExprRefsAreDefined() throws UndefinedReferenceException {
-		for (ShapeExpr sexpr : shexprsMap.values()){
-			if (sexpr instanceof ShapeExprRef) {
-				ShapeExprRef ref = (ShapeExprRef) sexpr;
-				if (shexprsMap.containsKey(ref.getLabel())) 
-					ref.setShapeDefinition(shexprsMap.get(ref.getLabel()));
-				 else 
-					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
-			}
-			if (sexpr instanceof ExtendsShapeExpr) {
-				ExtendsShapeExpr extexpr = (ExtendsShapeExpr) sexpr;
-				if (shexprsMap.containsKey(extexpr.getBaseShapeExprLabel())) 
-					extexpr.setBaseShapeExpr(shexprsMap.get(extexpr.getBaseShapeExprLabel()));
-				 else 
-					throw new UndefinedReferenceException("Undefined shape label for extension: " + extexpr.getBaseShapeExprLabel());
-			}
-		}
+		for (ShapeExpr sexpr : shexprsMap.values())
+			sexpr.resolveReferences(shexprsMap);
 	}
 	
 	
@@ -424,6 +395,11 @@ public class ShexSchema {
 		
 		@Override
 		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
+		}
+
+		@Override
+		public void visitAbstractShape(AbstractShapeExpr expr, Object... arguments) {
+
 		}
 
 		@Override
@@ -683,7 +659,12 @@ public class ShexSchema {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) 
 				subExpr.accept(this, arguments);
 		}
-		
+
+		@Override
+		public void visitAbstractShape(AbstractShapeExpr expr, Object... arguments) {
+
+		}
+
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			isPositive = !isPositive;
@@ -741,7 +722,12 @@ public class ShexSchema {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) 
 				subExpr.accept(this, arguments);
 		}
-		
+
+		@Override
+		public void visitAbstractShape(AbstractShapeExpr expr, Object... arguments) {
+
+		}
+
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			expr.getSubExpression().accept(this, arguments);

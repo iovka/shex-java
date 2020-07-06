@@ -4,6 +4,7 @@ import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
+import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 public class ExtendsShapeExpr extends ShapeExpr {
 	protected Label baseShapeExprLabel;
@@ -31,8 +32,13 @@ public class ExtendsShapeExpr extends ShapeExpr {
 	}
 
 
-	public void setBaseShapeExpr(ShapeExpr baseShapeExpr) {
-		this.baseShapeExpr = baseShapeExpr;
+	public void resolveReferences (Map<Label,ShapeExpr> shexprsMap) throws UndefinedReferenceException {
+		if (baseShapeExpr != null)
+			throw new IllegalStateException("References can be resolved at most once in ExtendsShapeExpr " + baseShapeExprLabel);
+		if (shexprsMap.containsKey(baseShapeExprLabel))
+			baseShapeExpr = shexprsMap.get(getBaseShapeExprLabel());
+		 else
+			throw new UndefinedReferenceException("Undefined shape label for base: " + baseShapeExprLabel);
 	}
 
 

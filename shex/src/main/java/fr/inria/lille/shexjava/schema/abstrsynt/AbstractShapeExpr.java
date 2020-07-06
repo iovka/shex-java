@@ -14,8 +14,7 @@ public class AbstractShapeExpr extends ShapeExpr {
 
 	@Override
 	public <ResultType> void accept(ShapeExpressionVisitor<ResultType> visitor, Object... arguments) {
-		// TODO Auto-generated method stub
-		
+		visitor.visitAbstractShape(this, arguments);
 	}
 
 	@Override

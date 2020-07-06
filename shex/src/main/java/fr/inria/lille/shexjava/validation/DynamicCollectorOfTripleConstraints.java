@@ -23,21 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 
@@ -194,6 +180,10 @@ public class DynamicCollectorOfTripleConstraints {
 			tmp.addAll(this.getResult());
 			setResult(expr, tmp);
 		}
-		
+
+		@Override
+		public void visitAbstractShape(AbstractShapeExpr expr, Object... arguments) {
+			setResult(expr, Collections.emptyList());
+		}
 	};
 }
