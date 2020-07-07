@@ -74,11 +74,39 @@ public class ValidationUtils {
 		return neighbourhood;
 	}
 
-	
+
+	/** Select the neighborhood that must be matched for the given shape.
+	 *
+	 * @param node
+	 * @param tripleConstraints
+	 * @param shapeIsClosed
+	 * @return
+	 */
+	public static List<Triple> getMatchableNeighbourhood(List<Triple> baseNeighbourhood, RDFTerm node, List<TripleConstraint> tripleConstraints, boolean shapeIsClosed) {
+		Set<IRI> inversePredicate = new HashSet<>();
+		Set<IRI> forwardPredicate = new HashSet<>();
+		for (TripleConstraint tc : tripleConstraints)
+			if (tc.getProperty().isForward())
+				forwardPredicate.add(tc.getProperty().getIri());
+			else
+				inversePredicate.add(tc.getProperty().getIri());
+
+		ArrayList<Triple> neighbourhood = new ArrayList<>();
+		baseNeighbourhood.stream().filter(tr->tr.getObject().equals(node))
+				.filter(tr->inversePredicate.contains(tr.getPredicate())).forEach(tr->neighbourhood.add(tr));
+		//neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
+		if (shapeIsClosed)
+			baseNeighbourhood.stream().filter(tr->tr.getSubject().equals(node)).forEach(tr->neighbourhood.add(tr));
+		else
+			baseNeighbourhood.stream().filter(tr->tr.getSubject().equals(node))
+					.filter(tr->forwardPredicate.contains(tr.getPredicate())).forEach(tr->neighbourhood.add(tr));
+		return neighbourhood;
+	}
+
 	public static PreMatching computePreMatching(RDFTerm focusNode, List<Triple> neighbourhood,
 												 List<TripleConstraint> tripleConstraints, Set<IRI> extraProperties,
 												 Matcher matcher, BiPredicate<RDFTerm, ShapeExpr> valueMatcher) {
-		
+
 		LinkedHashMap<Triple,List<TripleConstraint>> matchingTriplesMap = new LinkedHashMap<>(neighbourhood.size());
 		ArrayList<Triple> matchedToExtraTriples = new ArrayList<>();
 		ArrayList<Triple> unmatchedTriples = new ArrayList<>();
@@ -89,20 +117,21 @@ public class ValidationUtils {
 				if (matcher.apply(focusNode, triple, tc, valueMatcher)) {
 					matching.add(tc);
 				}
-			} 
-			if (! matching.isEmpty()) 
+			}
+			if (! matching.isEmpty())
 				matchingTriplesMap.put(triple, matching);   // TODO why the empty list is not added ?
 			else
-				if (extraProperties.contains(triple.getPredicate())) 
-					matchedToExtraTriples.add(triple);
-				else
-					unmatchedTriples.add(triple);
+			if (extraProperties.contains(triple.getPredicate()))
+				matchedToExtraTriples.add(triple);
+			else
+				unmatchedTriples.add(triple);
 		}
-		
+
 		return new PreMatching(matchingTriplesMap, matchedToExtraTriples, unmatchedTriples);
 	}
 
-	public static <T> Map<T, List<Triple>> invertMatching (Matching<T> matching) {
+	// TODO never used
+	public static <T> Map<T, List<Triple>> invertMatching (Matching<T> matching, List<T> domain) {
 		Map<T, List<Triple>> result = new HashMap<>();
 		for (Map.Entry<Triple, T> entry : matching.entrySet()) {
 			List<Triple> triples = result.computeIfAbsent(entry.getValue(), k -> new ArrayList<>());

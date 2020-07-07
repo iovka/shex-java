@@ -2,6 +2,7 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.Map.Entry;
 
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
@@ -9,25 +10,17 @@ import org.apache.commons.rdf.api.Triple;
 import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
 
-public class DataExtractor{
+public class DataExtractorConformant{
 	protected ShexSchema schema;
 	protected Graph inputGraph;
 	protected RecursiveValidationWithMemorization validation;
 	protected MatchingCollector mColl;
 	
-	public DataExtractor(ShexSchema schema, Graph inputGraph) {
+	public DataExtractorConformant(ShexSchema schema, Graph inputGraph) {
 		super();
 		this.schema = schema;
 		this.inputGraph = inputGraph;
@@ -37,13 +30,13 @@ public class DataExtractor{
 	}
 	
 	
-	public DataView extractValidPart(BaseShapeMap shapeMap) {
+	public DataView extractConformantPart(BaseShapeMap shapeMap) {
 		Graph graph = GlobalFactory.RDFFactory.createGraph();
-		return extractValidPart(shapeMap,graph);
+		return extractConformantPart(shapeMap,graph);
 	}
 	
 
-	public DataView extractValidPart(BaseShapeMap shapeMap, Graph resultGraph) {
+	public DataView extractConformantPart(BaseShapeMap shapeMap, Graph resultGraph) {
 		validation.validate(shapeMap);
 		VisitorValidPart visitor = new VisitorValidPart(schema,validation.getTyping(),mColl,resultGraph);
 
@@ -125,7 +118,7 @@ public class DataExtractor{
 		
 		
 		public void visitShapeNot (ShapeNot expr, Object ...arguments) {
-			throw new UnsupportedOperationException("not yet implemented");
+			System.err.println("Negation "+expr.toPrettyString()+" found during the extraction of the conformant part.");
 		}
 		
 
@@ -159,13 +152,13 @@ public class DataExtractor{
 		
 
 		@Override
-		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
 			shapeRef.getShapeDefinition().accept(this);
 			if (validation.getTyping().getStatus(currentNode, shapeRef.getId()).equals(Status.CONFORMANT)) {
 				resTyping.setStatus(currentNode, shapeRef.getId(), Status.CONFORMANT);
 				shapeRef.getShapeDefinition().accept(this);
 			}
 		}
-		
+
 	}
 }

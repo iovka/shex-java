@@ -22,12 +22,8 @@ import static org.junit.Assume.assumeTrue;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import fr.inria.lille.shexjava.validation.*;
@@ -54,6 +50,44 @@ import fr.inria.lille.shexjava.util.TestCase;
  */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
+
+	@Parameters
+	public static Collection<Object[]> parameters() throws IOException {
+		if (Paths.get(MANIFEST_FILE).toFile().exists()) {
+			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
+			List<TestCase> testCases = new ArrayList<>();
+
+			for (Resource res : manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects()) {
+				TestCase testCase = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,res);
+				//if (testCase.isWellDefined())
+					testCases.add(testCase);
+			}
+
+			for (Resource res : manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects()) {
+				TestCase testCase = new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,res);
+				//if (testCase.isWellDefined())
+					testCases.add(testCase);
+			}
+
+			// Change here to restrict the test cases
+			// trait filter
+			Predicate<TestCase> selectedTestCases = null;
+			/*String traitIriString = "http://www.w3.org/ns/shacl/test-suite#Extends";
+			selectedTestCases = tc -> !tc.testName.contains("vitals") && tc.traits.stream()
+					.map( it -> it.stringValue())
+					.anyMatch( it -> it.equals(traitIriString));*/
+
+			// name filter
+			//selectedTestCases = tc -> tc.testName.equals("ExtendANDExtend3GAND3G-t23");
+
+			if (selectedTestCases != null) {
+				testCases = testCases.parallelStream().filter(selectedTestCases).collect(Collectors.toList());
+			}
+			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
+		}
+		return Collections.emptyList();
+	}
+
 	protected static final Set<IRI> skippedIris = new HashSet<>(Arrays.asList(new IRI[] {
 			//RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start"), // average number of test
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"SemanticAction"), // lot of test
@@ -64,30 +98,6 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Greedy"),
 			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"relativeIRI"),
 	}));
-
-	@Parameters
-	public static Collection<Object[]> parameters() throws IOException {
-		if (Paths.get(MANIFEST_FILE).toFile().exists()) {
-			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
-			List<TestCase> testCases = manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects().parallelStream()
-					.map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
-					.collect(Collectors.toList());
-			testCases.addAll(manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects().parallelStream()
-					.map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
-					.collect(Collectors.toList()));		
-
-			// Change here to run a unique test
-			String selectedTest = "" ; //focusdatatype_pass";
-			if (!selectedTest.equals("")) {
-				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
-				TestCase tc = testCases.get(0);
-				System.out.println(String.format("schema: %s, data: %s", tc.schemaFileName, tc.dataFileName));
-			}
-			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
-		}
-		return Collections.emptyList();
-	}
-
 
 	//A list of tests to ignore because they contain a test on the name of a bnode and jena do not give stable bnode name
 	protected static final Set<String> ignoredTests = new HashSet<>(Arrays.asList(new String[] {
@@ -127,12 +137,11 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 		assumeTrue(schemaFile.toFile().exists());
 	}
 
-
 	@Test
 	public void runTest() {
-		if (! testCase.isWellDefined()) 
-			fail("Incorrect test definition.");
-		
+		if (! testCase.isWellDefined())
+			fail("Incorrect test definition of test " + testCase.testName);
+
 		try {
 			fixTest();
 			Typing typing = performValidation().getTyping();
@@ -141,15 +150,12 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 				// do nothing, test succeed
 			} else {
 				fail("Validation did not compute the expected result: test " + testCase.testName);
-			}			
+			}
 		} catch (Exception e) {
-			fail("Exception during the validation: "+e.getMessage());
+			e.printStackTrace();
+			fail("Exception during the validation for testCase :" + testCase.testName);
 		}
-	}
-
-	
-	// Fix for dealing with the absence of namespace specification in jena.
-	private void fixTest() {
+	}	private void fixTest() {
 		if (testCase.focusNode instanceof org.apache.commons.rdf.api.IRI) {
 			org.apache.commons.rdf.api.IRI focus = (org.apache.commons.rdf.api.IRI) testCase.focusNode;
 			if (focus.getIRIString().startsWith(GITHUB_URL)) {
@@ -167,7 +173,8 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 
 	public String getSchemaFileName (Resource res) {
 		String fp = res.toString().substring(GITHUB_URL.length());
-		fp = fp.substring(0,fp.length()-4)+"json";
+		//fp = fp.substring(0,fp.length()-4)+"json";
+		fp = fp.substring(0,fp.length()-4)+"shex";
 		return Paths.get(TEST_DIR,Paths.get(fp).toString()).toString();
 	}
 

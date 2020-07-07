@@ -87,10 +87,21 @@ public class ShapeEvaluation {
         boolean valid = false;
         while (! valid && it.hasNext()) {
             Matching<Object> m = it.next();
-            Map<Object, List<Triple>> partition = ValidationUtils.invertMatching(m);
+            Map<Object, List<Triple>> partition = matchingToPartition(m, shape);
             valid = evaluatePartition(partition);
         }
         return valid;
+    }
+
+    private static Map<Object, List<Triple>> matchingToPartition(Matching<Object> matching, Shape shape) {
+        Map<Object, List<Triple>> result = new HashMap<>(shape.getExtended().size()+1);
+        for (ShapeExprRef ext : shape.getExtended())
+            result.put(ext, new ArrayList<>());
+        result.put(shape.getTripleExpression(), new ArrayList<>());
+		for (Map.Entry<Triple, Object> entry : matching.entrySet()) {
+		    result.get(entry.getValue()).add(entry.getKey());
+		}
+		return result;
     }
 
     /** Evaluates a partition of (part of) the neighbourhood against expressions.

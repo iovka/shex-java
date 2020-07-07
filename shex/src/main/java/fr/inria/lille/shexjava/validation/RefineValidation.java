@@ -34,26 +34,26 @@ import java.util.Set;
 public class RefineValidation extends ValidationAlgorithmAbstract {
 
 	private boolean computed = false;
-    private TypingForRefineValidation typing;
-    protected SORBEGenerator sorbeGenerator;
+	private TypingForRefineValidation typing;
+	protected SORBEGenerator sorbeGenerator;
 
-    public RefineValidation(ShexSchema schema, Graph graph) {
+	public RefineValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
 		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
 	}
 
-    @Override
-    protected boolean performValidation(RDFTerm focusNode, Label label) {
-        computeMaximalTyping();
+	@Override
+	protected boolean performValidation(RDFTerm focusNode, Label label) {
+		computeMaximalTyping();
 
-        Boolean valid = cornerCaseValidate(focusNode, label);
-        if (valid != null) {
-            typing.setNonShapeLabelStatus(focusNode, label, valid ? Status.CONFORMANT : Status.NONCONFORMANT);
-        }
-        return typing.isConformant(focusNode, label);
-    }
+		Boolean valid = cornerCaseValidate(focusNode, label);
+		if (valid != null) {
+			typing.setNonShapeLabelStatus(focusNode, label, valid ? Status.CONFORMANT : Status.NONCONFORMANT);
+		}
+		return typing.isConformant(focusNode, label);
+	}
 
-    @Override
+	@Override
 	public Typing getTyping() {
 		return typing;
 	}
@@ -79,9 +79,9 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 				changed = false;
 				Iterator<Pair<RDFTerm, Label>> typesIt = typing.currentStratumNodeShapeLabelPairsIterator();
 				while (typesIt.hasNext()) {
-                    Pair<RDFTerm, Label> nl = typesIt.next();
-                    Shape shape = (Shape) schema.getShapeExprsMap().get(nl.two);
-				    if (! evaluateShape(nl.one, shape)) {
+					Pair<RDFTerm, Label> nl = typesIt.next();
+					Shape shape = (Shape) schema.getShapeExprsMap().get(nl.two);
+					if (! evaluateShape(nl.one, shape)) {
 						typesIt.remove();
 						changed = true;
 					}
@@ -89,70 +89,70 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 			} while (changed);
 			typing.endStratum();
 		}
-        // Compute the typing for the non shape labels
-        // TODO to be optimized. Now it goes through all labels, should be limited to those that are on the current stratum
-        for (Label label : schema.getShapeExprsMap().keySet()) {
-            for (RDFTerm node : typing.allNodes()) {
-                typing.setNonShapeLabelStatus(node, label,
-                        satisfies(node, schema.getShapeExprsMap().get(label)) ? Status.CONFORMANT : Status.NONCONFORMANT);
-            }
-        }
+		// Compute the typing for the non shape labels
+		// TODO to be optimized. Now it goes through all labels, should be limited to those that are on the current stratum
+		for (Label label : schema.getShapeExprsMap().keySet()) {
+			for (RDFTerm node : typing.allNodes()) { // TODO here, the Shape labels are also added as "other" labels; only the "public" labels should be added
+				typing.setNonShapeLabelStatus(node, label,
+						satisfies(node, schema.getShapeExprsMap().get(label)) ? Status.CONFORMANT : Status.NONCONFORMANT);
+			}
+		}
 		computed = true;
 	}
 
-    private boolean satisfies (RDFTerm node, ShapeExpr shapeExpr) {
-        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(typing);
-        shapeExpr.accept(eval, node);
-        return eval.getResult();
-    }
+	private boolean satisfies (RDFTerm node, ShapeExpr shapeExpr) {
+		EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(typing);
+		shapeExpr.accept(eval, node);
+		return eval.getResult();
+	}
 
-    private boolean evaluateShape (RDFTerm node, Shape shape) {
-        ShapeEvaluation eval = new ShapeEvaluation(graph, node, shape, typing, collectorTC, sorbeGenerator);
-        return eval.evaluate();
-    }
+	private boolean evaluateShape (RDFTerm node, Shape shape) {
+		ShapeEvaluation eval = new ShapeEvaluation(graph, node, shape, typing, collectorTC, sorbeGenerator);
+		return eval.evaluate();
+	}
 
-    // TODO the corner cases are probably simpler: if the node is in the graph then its satisfying shapes can be tested with the typing except if the node is a literal, in which case its neighbourhood is empty
-    /** Checks if this is a corner case and computes validity in this case.
-     * A corner case is when trying to validate {@param node} that is not part of the graph in which case the
-     * maximal typing does not contain the node, or when {@param label} refers to a shape expression without
-     * shapes (i.e. only node constraints), in which case the typing does not allow to test satisfiability
-     * of the shape expression.
-     * @return null if non corner case, a non null boolean with validity result otherwise
-     */
+	// TODO the corner cases are probably simpler: if the node is in the graph then its satisfying shapes can be tested with the typing except if the node is a literal, in which case its neighbourhood is empty
+	/** Checks if this is a corner case and computes validity in this case.
+	 * A corner case is when trying to validate {@param node} that is not part of the graph in which case the
+	 * maximal typing does not contain the node, or when {@param label} refers to a shape expression without
+	 * shapes (i.e. only node constraints), in which case the typing does not allow to test satisfiability
+	 * of the shape expression.
+	 * @return null if non corner case, a non null boolean with validity result otherwise
+	 */
 	private Boolean cornerCaseValidate (RDFTerm node, Label label) {
-	    ShapeExpr expr = schema.getShapeExprsMap().get(label);
-	    Set<Shape> allShapes = SchemaCollectors.collectAllShapes(expr);
-        if (typing.allNodes().contains(node) && ! allShapes.isEmpty())
-            // not a corner case
-            return null;
+		ShapeExpr expr = schema.getShapeExprsMap().get(label);
+		Set<Shape> allShapes = SchemaCollectors.collectAllShapes(expr);
+		if (typing.allNodes().contains(node) && ! allShapes.isEmpty())
+			// not a corner case
+			return null;
 
-        if (allShapes.isEmpty())
-            return satisfies(node, expr);
+		if (allShapes.isEmpty())
+			return satisfies(node, expr);
 
-        // We must test wethether the empty neighbourhood satisfies the shape expr
-        // This can be done with satisfies and a typing that associates to the node only the shapes that contain the empty neighbourhood
-        DefaultTyping localTyping = new DefaultTyping();
-        for (Shape shape: allShapes) {
-            if (evaluateShape(node, shape))
-                localTyping.setStatus(node, shape.getId(), Status.CONFORMANT);
-        }
-        EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(localTyping);
-        expr.accept(eval, node);
-        return eval.getResult();
-    }
+		// We must test wethether the empty neighbourhood satisfies the shape expr
+		// This can be done with satisfies and a typing that associates to the node only the shapes that contain the empty neighbourhood
+		DefaultTyping localTyping = new DefaultTyping();
+		for (Shape shape: allShapes) {
+			if (evaluateShape(node, shape))
+				localTyping.setStatus(node, shape.getId(), Status.CONFORMANT);
+		}
+		EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(localTyping);
+		expr.accept(eval, node);
+		return eval.getResult();
+	}
 
-    /** Allows to evaluate a node against a shape expression while using the typing given at construction time to evaluate the Shapes. */
-    static class EvaluateShapeExprVistor extends ShapeEvaluation.AbstractShapeExprEvaluator {
+	/** Allows to evaluate a node against a shape expression while using the typing given at construction time to evaluate the Shapes. */
+	static class EvaluateShapeExprVistor extends ShapeEvaluation.AbstractShapeExprEvaluator {
 
-        private final Typing localTyping;
-        EvaluateShapeExprVistor(Typing localTyping) {
-            this.localTyping = localTyping;
-        }
+		private final Typing localTyping;
+		EvaluateShapeExprVistor(Typing localTyping) {
+			this.localTyping = localTyping;
+		}
 
-        @Override
-        public void visitShape(Shape expr, Object... arguments) {
-            RDFTerm node = (RDFTerm) arguments[0];
-            setResult(localTyping.isConformant(node, expr.getId()));
-        }
-    }
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			RDFTerm node = (RDFTerm) arguments[0];
+			setResult(localTyping.isConformant(node, expr.getId()));
+		}
+	}
 }

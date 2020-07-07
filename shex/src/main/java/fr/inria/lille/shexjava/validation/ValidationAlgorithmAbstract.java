@@ -75,6 +75,7 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		if (focusNode==null || label==null)
 			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
 		if (!schema.getShapeExprsMap().containsKey(label))
+			// TODO is this exception a good idea ?
 			throw new IllegalArgumentException("Unknown label: "+label);
 //		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
 //		throw new IllegalArgumentException("Node do not belong to the graph.");
@@ -82,7 +83,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 			return validate(focusNode, label, null);
 		} catch (Exception e) {
 			// we should never be here
-			System.err.println("Exception during the validation");
 			e.printStackTrace();
 			return false;
 		}	

@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.util;
 
+import java.util.Optional;
 import java.util.Set;
 
 import fr.inria.lille.shexjava.schema.BNodeLabel;
@@ -43,17 +44,19 @@ public 	class TestCase {
 	private static final IRI FOCUS_PROPERTY = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#focus");
 	private static final IRI TEST_TRAIT_IRI = RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#trait");
 
-	public final Resource testKind;
-	public final String testName;
-	public final Resource schemaFileName;
-	public final Resource dataFileName;
+	public Resource testKind;
+	public String testName;
+	public Resource schemaFileName;
+	public Resource dataFileName;
 	public Label shapeLabel;
 	public RDFTerm focusNode;
-	public final String testComment;
-	public final Set<Value> traits;
+	public String testComment;
+	public Set<Value> traits;
+	private boolean wellDefined;
 
 	public TestCase(RDF4J rdfFactory, Model manifest, Resource testNode) {
 		try {
+			testName = Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();
 			Resource actionNode = Models.getPropertyResource(manifest, testNode, ACTION_PROPERTY).get();
 			traits = manifest.filter(testNode, TEST_TRAIT_IRI, null).objects();
 			schemaFileName = Models.getPropertyIRI(manifest, actionNode, SCHEMA_PROPERTY).get();  
@@ -72,12 +75,14 @@ public 	class TestCase {
 				Value focus = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
 				focusNode = rdfFactory.asRDFTerm(focus);
 			}
-			
-			testComment = Models.getPropertyString(manifest, testNode, RDFS.COMMENT).get();
-			testName = Models.getPropertyString(manifest, testNode, TEST_NAME_IRI).get();
+
+			Optional<String> commentString =  Models.getPropertyString(manifest, testNode, RDFS.COMMENT);
+			if (commentString.isPresent()) testComment = Models.getPropertyString(manifest, testNode, RDFS.COMMENT).get();
+			else testComment = "";
 			testKind = Models.getPropertyIRI(manifest, testNode, RDF_TYPE).get();
+			wellDefined = true;
 		} catch (Exception e) {
-			System.out.println(" Error on test case " + testNode);
+			System.err.println("Error constructing test case " + testNode);
 			throw e;
 		}
 	}
@@ -96,6 +101,6 @@ public 	class TestCase {
 	}		
 
 	public boolean isWellDefined () {
-		return schemaFileName != null && dataFileName != null && focusNode != null;
+		return wellDefined && schemaFileName != null && dataFileName != null && focusNode != null;
 	}
 }

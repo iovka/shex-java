@@ -16,10 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.analysis;
 
-import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.IRILabel;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
-import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsSE;
 
 
 import org.junit.Test;

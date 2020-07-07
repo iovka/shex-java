@@ -21,15 +21,17 @@ import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
+import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public abstract class ShapeExpr{
+public abstract class ShapeExpr {
 	
 	protected Label id = null;
+	private Boolean isAbstract = null;
 	
 	public void setId(Label id) {
 		if (this.id != null)
@@ -40,7 +42,15 @@ public abstract class ShapeExpr{
 	public Label getId () {
 		return this.id;
 	}
-	
+
+	public boolean isAbstract () {
+		return this.isAbstract == true;
+	}
+	public void setAbstract (boolean isAbstract) {
+		if (this.isAbstract != null)
+			throw new IllegalStateException("Abstract can be set only once.");
+		this.isAbstract = isAbstract;
+	}
 	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
 	
 	@Override

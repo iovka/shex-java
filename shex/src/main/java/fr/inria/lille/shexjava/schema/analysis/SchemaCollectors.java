@@ -22,21 +22,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 
 
 /** This class provide a set of functions to collect element from a set of rules. 
@@ -141,6 +127,8 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 	public void visitShape(Shape expr, Object... arguments) {
 		if (filter.test(expr))
 			getResult().add((C)expr);
+		for (ShapeExprRef ext : expr.getExtended())
+			ext.accept(this, arguments);
 		if (traverseTripleExpressions) {
 			CollectElementsFromTriple<C> c = new CollectElementsFromTriple<C>(filter,getResult(), traverseTripleExpressions);
 			expr.getTripleExpression().accept(c, arguments);
@@ -157,12 +145,6 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 	public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 		if (filter.test(shapeRef))
 			getResult().add((C)shapeRef);
-	}
-
-	@Override
-	public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
-		if (filter.test(shapeExt))
-			getResult().add((C)shapeExt);
 	}
 
 	@Override
@@ -185,7 +167,6 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 			getResult().add((C)expr);
 		super.visitShapeNot(expr, arguments);
 	}
-
 }
 
 class CollectElementsFromTriple<C> extends TripleExpressionVisitor<Set<C>>{

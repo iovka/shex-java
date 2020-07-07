@@ -21,34 +21,42 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.rdf.api.IRI;
 
+import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
+import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 /**
- * 
  * @author Iovka Boneva
  * @author Jérémie Dusart
  */
-public class Shape extends ShapeExpr implements AnnotedObject {
+public class  Shape extends ShapeExpr implements AnnotedObject {
 	private boolean closed;
 	private Set<TCProperty> extra;
-	private List<ShapeExprRef> extended;
 	private TripleExpr tripleExpr;
 	private List<Annotation> annotations;
+	private List<ShapeExprRef> extended;
 
-	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps, boolean closed) {
+	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps,
+				 boolean closed, List<Annotation> annotations) {
 		this.tripleExpr = tripleExpr;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
 		this.extended = Collections.unmodifiableList(new ArrayList(extended));
 		this.closed = closed;
 		this.annotations = null;
+		this.annotations = annotations;
 	}
 
-	// TODO to be removed
+	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps, boolean closed) {
+		this(tripleExpr, extended, extraProps, closed, null);
+	}
+
+	// TODO does not handle extra
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
 		this(tripleExpression, Collections.emptyList(), extraProps, closed);
 	}
-	
+
+	// TODO does not handle extra
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed, List<Annotation> annotations) {
 		this(tripleExpression, extraProps, closed);
 		this.annotations = annotations;
@@ -59,6 +67,11 @@ public class Shape extends ShapeExpr implements AnnotedObject {
 			this.annotations = annotations;
 		else throw new IllegalStateException("Annotations already set");
 	}	
+
+	// TODO not needed, the references will be resolved at the same time as the other shape references
+	public void resolveReferences (Map<Label,ShapeExpr> shexprsMap) throws UndefinedReferenceException {
+		throw new UnsupportedOperationException();
+	}
 
 	
 	public TripleExpr getTripleExpression () {

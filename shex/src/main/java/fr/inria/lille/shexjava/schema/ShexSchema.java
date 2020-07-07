@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fr.inria.lille.shexjava.schema.abstrsynt.visitors.CollectTripleConstraintsTE;
+import fr.inria.lille.shexjava.schema.analysis.CollectTripleConstraintsTE;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.CycleDetector;
@@ -42,21 +43,6 @@ import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.exception.CyclicReferencesException;
 import fr.inria.lille.shexjava.exception.NotStratifiedException;
 import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
-import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.EmptyTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.OneOf;
-import fr.inria.lille.shexjava.schema.abstrsynt.RepeatedTripleExpression;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExternal;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExprRef;
 import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
@@ -229,15 +215,15 @@ public class ShexSchema {
 	}
 	
 
-	/** Computes and populates {@link #shexprsMap} */
+	/** Populates {@link #shexprsMap} */
 	private Map<Label, ShapeExpr> constructShexprMapAndCheckIdsAreUnique(Map<Label, ShapeExpr> rulesMap) {
 		Map<Label, ShapeExpr> result = new HashMap<>();
 		Set<ShapeExpr> allShapes = SchemaCollectors.collectAllShapeExprs(rulesMap);
 		for(ShapeExpr shexpr : allShapes) {
 			addIdIfNone(shexpr);
-			if (result.containsKey(shexpr .getId()))
+			if (result.containsKey(shexpr.getId()))
 				throw new IllegalArgumentException("Label "+shexpr.getId()+" already used.");
-			result.put(shexpr .getId(),shexpr );
+			result.put(shexpr.getId(),shexpr );
 		}
 		return result;
 	}
@@ -258,18 +244,17 @@ public class ShexSchema {
 
 		
 	private void checkThatAllShapeExprRefsAreDefined(Map<Label, ShapeExpr> shapeExprsMap) throws UndefinedReferenceException {
-		for (ShapeExpr sexpr : shapeExprsMap.values()){
+		for (ShapeExpr sexpr : shapeExprsMap.values()) {
 			if (sexpr instanceof ShapeExprRef) {
 				ShapeExprRef ref = (ShapeExprRef) sexpr;
 				if (shapeExprsMap.containsKey(ref.getLabel()))
 					ref.setShapeDefinition(shapeExprsMap.get(ref.getLabel()));
-				 else 
+				else
 					throw new UndefinedReferenceException("Undefined shape label: " + ref.getLabel());
 			}
 		}
 	}
-	
-	
+
 	private void checkThatAllTripleExprRefsAreDefined(Map<Label, TripleExpr> tripleExprsMap) throws UndefinedReferenceException {
 		for (TripleExpr texpr : tripleExprsMap.values()){
 			if (texpr instanceof TripleExprRef) {
@@ -411,10 +396,7 @@ public class ShexSchema {
 			getResult().add(new Pair<Label,Label>(expr.getId(),expr.getSubExpression().getId()));
 			super.visitShapeNot(expr, arguments);
 		}
-		
-		@Override
-		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
-		}
+
 	}
 	
 	
@@ -605,11 +587,7 @@ public class ShexSchema {
 		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			shapeRef.getShapeDefinition().accept(this, arguments);			
 		}
-		
-		@Override
-		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
-		}
-		
+
 		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {		
 			for (ShapeExpr subExpr: expr.getSubExpressions()) 
@@ -621,14 +599,14 @@ public class ShexSchema {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) 
 				subExpr.accept(this, arguments);
 		}
-		
+
+
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			isPositive = !isPositive;
 			expr.getSubExpression().accept(this, arguments);
 			isPositive = !isPositive;
 		}
-		
 	}
 	
 	
@@ -651,11 +629,7 @@ public class ShexSchema {
 		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
 			shapeRef.getShapeDefinition().accept(this, arguments);			
 		}
-		
-		@Override
-		public void visitShapeExternal(ShapeExternal shapeExt, Object[] arguments) {
-		}
-		
+
 		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {		
 			for (ShapeExpr subExpr: expr.getSubExpressions()) 
@@ -667,7 +641,7 @@ public class ShexSchema {
 			for (ShapeExpr subExpr: expr.getSubExpressions()) 
 				subExpr.accept(this, arguments);
 		}
-		
+
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
 			expr.getSubExpression().accept(this, arguments);

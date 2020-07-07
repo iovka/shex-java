@@ -14,10 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package fr.inria.lille.shexjava.schema.abstrsynt.visitors;
+package fr.inria.lille.shexjava.schema.analysis;
 
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
-import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.Pair;
 
 import java.util.*;

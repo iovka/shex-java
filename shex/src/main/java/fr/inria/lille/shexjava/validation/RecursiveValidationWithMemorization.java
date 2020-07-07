@@ -205,10 +205,17 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	
 	private boolean recursiveValidationShape (RDFTerm node, Label label) throws Exception {	
 		Shape shape = (Shape) schema.getShapeExprsMap().get(label);
+		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
+		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
+		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
 
-		TypingForValidation localTyping = new TypingForValidation();
+		// Match using only predicate 
+		Matcher matcher = ValidationUtils.getPredicateOnlyMatcher();
+		Map<Triple,List<TripleConstraint>> matchingTC1 = 
+				ValidationUtils.computePreMatching(node, neighbourhood, constraints, shape.getExtraProperties(), matcher, null).getPreMatching();
+
 		
-		Map<Triple, List<TripleConstraint>> matchingTC1 = computePreMatchingWithPredicateOnly(node, shape);
+		TypingForValidation localTyping = new TypingForValidation();
 		List<Triple> extraNeighbours = new ArrayList<>();
 
 		// the recursive call are performed in the next function and the localTyping is populated
@@ -332,6 +339,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	// Utils
 	// ----------------------------------------------------------
 	
+
 	private Map<Triple, List<TripleConstraint>> computePreMatchingWithPredicateOnly(RDFTerm node, Shape shape) {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape.getTripleExpression());
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);		
@@ -349,10 +357,10 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 			Map<Triple, List<TripleConstraint>> matchingTC1,
 			TypingForValidation resLocalTyping,
 			List<Triple> resTripleMatchedToExtra) throws Exception {
-		
+
 		for(Triple curTr:matchingTC1.keySet()) {	
 			List<TripleConstraint> curLTCs = matchingTC1.get(curTr);
-			
+
 			boolean tripleCanBeMatched=false;
 			RDFTerm destNode=curLTCs.size()>0&&curLTCs.get(0).getProperty().isForward()? curTr.getObject():curTr.getSubject();
 
@@ -367,7 +375,7 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 
 				tripleCanBeMatched = tripleCanBeMatched || resLocalTyping.isConformant(destNode, tc.getShapeExpr().getId());
 			}
-			
+
 			if (!tripleCanBeMatched) {
 				if (shape.getExtraProperties().contains(curTr.getPredicate())) {
 					resTripleMatchedToExtra.add(curTr);
@@ -384,8 +392,8 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 		return true;
 
 	}
-	
-	
+
+
 	private  RDFTerm getOther(Triple t, RDFTerm n){
 		if (t.getObject().equals(n))
 			return t.getSubject();
@@ -396,12 +404,12 @@ public class RecursiveValidationWithMemorization extends SORBEBasedValidation {
 	private Label getShapeExprLabel(Label tcLabel) {
 		return ((TripleConstraint) schema.getTripleExprsMap().get(tcLabel)).getShapeExpr().getId();
 	}
-	
-	
+
+
 	private Status getStatus(boolean res) {
 		return res?Status.CONFORMANT:Status.NONCONFORMANT;
 	}
-	
+
 	private boolean isNotComputed(Pair<RDFTerm,Label> key) {
 		return this.typing.getStatus(key.one, key.two).equals(Status.NOTCOMPUTED);
 	}
