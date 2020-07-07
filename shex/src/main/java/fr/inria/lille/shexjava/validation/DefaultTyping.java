@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class DefaultTyping implements Typing {
 
-    private Map<Pair<RDFTerm,Label>,Status> statusMap = new HashMap<>();
+    private Map<Pair<RDFTerm, Label>,Status> statusMap = new HashMap<>();
 
     @Override
     public Status getStatus(RDFTerm node, Label label) {

@@ -19,9 +19,9 @@ package fr.inria.lille.shexjava.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.RDFTerm;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
 import fr.inria.lille.shexjava.schema.abstrsynt.EmptyShape;
@@ -70,8 +70,8 @@ public class SchemaEquality {
 	//-------------------------------------------------
 	
 	private static boolean areEqualsShapeExpr(ShapeExpr shape1,ShapeExpr shape2) {
-		if ((!shape1.getId().isGenerated()) | (!shape2.getId().isGenerated())) {
-			if (shape1.getId().isGenerated() != shape2.getId().isGenerated())
+		if ((shape1.getId().isUserDefined()) | (shape2.getId().isUserDefined())) {
+			if (shape1.getId().isUserDefined() != shape2.getId().isUserDefined())
 				return false;
 			if (!shape1.getId().equals(shape2.getId()))
 				return false;
@@ -241,8 +241,8 @@ public class SchemaEquality {
 	//-------------------------------------------------
 
 	private static boolean areEqualsTripleExpr(TripleExpr triple1,TripleExpr triple2) {
-		if ((!triple1.getId().isGenerated()) | (!triple2.getId().isGenerated())) {
-			if (triple1.getId().isGenerated() != triple2.getId().isGenerated())
+		if ((triple1.getId().isUserDefined()) || (triple2.getId().isUserDefined())) {
+			if (triple1.getId().isUserDefined() != triple2.getId().isUserDefined())
 				return false;
 			if (!triple1.getId().equals(triple2.getId()))
 				return false;

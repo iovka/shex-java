@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.RDFTerm;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
 
 
@@ -33,7 +33,7 @@ import fr.inria.lille.shexjava.util.Pair;
  *
  */
 public class TypingForValidation implements Typing {
-	private Map<Pair<RDFTerm,Label>,Status> status;
+	private Map<Pair<RDFTerm, Label>,Status> status;
 	
 	private Map<Label,Set<RDFTerm>> nodes;
 	private Map<RDFTerm,Set<Label>> labels;

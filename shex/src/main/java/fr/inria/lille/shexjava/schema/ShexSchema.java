@@ -324,23 +324,16 @@ public class ShexSchema {
 		return true;
 	}
 
-	private Label createLabel (String string) {
-		if (isIriString(string))
-			return new IRILabel(rdfFactory.createIRI(string),true);
-		else 
-			return new BNodeLabel(rdfFactory.createBlankNode(string),true);
-	}
-	
 	private void addIdIfNone(ShapeExpr shape) {
 		if (shape.getId() == null) {
-			shape.setId(createLabel(String.format("%s_%04d", SHAPE_LABEL_PREFIX,shapeLabelNb)));
+			shape.setId(LabelGenerated.getNew());
 			shapeLabelNb++;
 		}
 	}
 
 	private void addIdIfNone (TripleExpr triple) {
 		if (triple.getId() == null) {
-			triple.setId(createLabel(String.format("%s_%04d", TRIPLE_LABEL_PREFIX,tripleLabelNb)));
+			triple.setId(LabelGenerated.getNew());
 			tripleLabelNb++;
 		}
 	}

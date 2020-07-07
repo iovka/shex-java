@@ -21,9 +21,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.RDF;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 
 public interface Parser {

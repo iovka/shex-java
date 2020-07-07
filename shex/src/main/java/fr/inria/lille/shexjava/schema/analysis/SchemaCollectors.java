@@ -42,7 +42,7 @@ public class SchemaCollectors {
 	// Work on shape
 	// -------------------------------------------------------------------------
 
-	public static Set<ShapeExpr> collectAllShapeExprs (Map<Label, ShapeExpr> rules) { 
+	public static Set<ShapeExpr> collectAllShapeExprs (Map<Label, ShapeExpr> rules) {
 		Set<ShapeExpr> set = new HashSet<>();
 		CollectElementsFromShape<ShapeExpr> collector = 
 				new CollectElementsFromShape<ShapeExpr>((Object ast) -> (ast instanceof ShapeExpr), 

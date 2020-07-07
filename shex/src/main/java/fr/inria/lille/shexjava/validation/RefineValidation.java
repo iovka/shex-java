@@ -39,7 +39,7 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 
 	public RefineValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
-		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
+		this.sorbeGenerator = new SORBEGenerator();
 	}
 
 	@Override

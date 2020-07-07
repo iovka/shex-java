@@ -28,7 +28,7 @@ import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
  * @author Jérémie Dusart
  */
 public class ShapeExprRef extends ShapeExpr {
-	
+
 	private final Label label;
 	private ShapeExpr def;
 	

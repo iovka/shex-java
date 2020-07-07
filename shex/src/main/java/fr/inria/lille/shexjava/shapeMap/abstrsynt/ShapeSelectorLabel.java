@@ -3,6 +3,8 @@ package fr.inria.lille.shexjava.shapeMap.abstrsynt;
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 
+import java.util.Collections;
+
 public class ShapeSelectorLabel extends ShapeSelector {
 	protected Label label;
 		
@@ -18,7 +20,7 @@ public class ShapeSelectorLabel extends ShapeSelector {
 
 	@Override
 	public String toString() {
-		return label.toPrettyString();
+		return label.toPrettyString(Collections.emptyMap());
 	}
 
 	

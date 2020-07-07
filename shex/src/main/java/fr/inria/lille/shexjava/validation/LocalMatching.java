@@ -1,11 +1,14 @@
 package fr.inria.lille.shexjava.validation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.rdf.api.Triple;
+import java.util.stream.Collectors;
 
 import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
+import org.apache.commons.rdf.api.Triple;
+
 import fr.inria.lille.shexjava.util.Pair;
 
 /** Data structure. 
@@ -23,8 +26,8 @@ public class LocalMatching {
 	private List<Triple> unmatched;
 	private List<Triple> matchedToExtra;	
 	
-	public LocalMatching (Map<Triple, Label> matching, List<Triple> matchedToExtra, List<Triple> unmatched) {
-		this.matching = matching;
+	public LocalMatching (Map<Triple, TripleConstraint> matching, List<Triple> matchedToExtra, List<Triple> unmatched) {
+		this.matching = new HashMap<>(matching.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getId())));
 		this.matchedToExtra = matchedToExtra;
 		this.unmatched = unmatched;
 	}

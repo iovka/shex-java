@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fr.inria.lille.shexjava.schema.BNodeLabel;
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import org.apache.commons.rdf.api.BlankNode;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
@@ -50,7 +50,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.ParseErrorLogger;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
@@ -825,9 +824,9 @@ public class ShExRParser implements Parser {
 	
 	private Label createLabel(RDFTerm value) {
 		if (value instanceof IRI)
-			return new IRILabel((IRI) value);
+			return new LabelUserDefined((IRI) value);
 		if (value instanceof BlankNode)
-			return new BNodeLabel(rdfFactory.createBlankNode(((BlankNode) value).ntriplesString().substring(2)));
+			return new LabelUserDefined(rdfFactory.createBlankNode(((BlankNode) value).ntriplesString().substring(2)));
 		
 		return null;
 	}
@@ -844,9 +843,9 @@ public class ShExRParser implements Parser {
 	
 	private void setLabel(TripleExpr triple,RDFTerm value) {
 		if (value instanceof IRI)
-			triple.setId(new IRILabel((IRI) value));
+			triple.setId(new LabelUserDefined((IRI) value));
 		if (value instanceof BlankNode & !value.ntriplesString().startsWith("gen-id"))
-			triple.setId(new  BNodeLabel((BlankNode) value));
+			triple.setId(new LabelUserDefined((BlankNode) value));
 	}
 	
 	private boolean testTriples(RDFTerm node, IRI prop) {

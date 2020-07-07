@@ -9,8 +9,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.*;
 
-import fr.inria.lille.shexjava.schema.BNodeLabel;
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -18,16 +18,11 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
-import org.apache.commons.rdf.api.BlankNode;
-import org.apache.commons.rdf.api.IRI;
-import org.apache.commons.rdf.api.Literal;
-import org.apache.commons.rdf.api.RDF;
-import org.apache.commons.rdf.api.RDFTerm;
+import org.apache.commons.rdf.api.*;
 import org.apache.commons.rdf.simple.Types;
 import org.apache.commons.text.StringEscapeUtils;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
 import fr.inria.lille.shexjava.schema.abstrsynt.AnnotedObject;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
@@ -382,11 +377,11 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
             String ref = ctx.getText().substring(1);
             String prefix = ref.split(":")[0]+":";
             String name = ref.split(":")[1];
-            return new ShapeExprRef(new IRILabel(rdfFactory.createIRI(prefixes.get(prefix)+name)));
+            return new ShapeExprRef(new LabelUserDefined(rdfFactory.createIRI(prefixes.get(prefix)+name)));
         }
         if (ctx.ATPNAME_NS()!=null) {
             String prefix = ctx.getText().substring(1);
-            return new ShapeExprRef(new IRILabel(rdfFactory.createIRI(prefixes.get(prefix))));
+            return new ShapeExprRef(new LabelUserDefined(rdfFactory.createIRI(prefixes.get(prefix))));
         }
         return new ShapeExprRef((Label) ctx.shapeExprLabel().accept(this));
     }
@@ -1013,19 +1008,13 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
     @Override
     public Label visitShapeExprLabel(ShExDocParser.ShapeExprLabelContext ctx) {
         Object result = visitChildren(ctx);
-        if (result instanceof IRI)
-            return new IRILabel((IRI) result);
-        else
-            return new BNodeLabel((BlankNode) result);
+        return new LabelUserDefined((BlankNodeOrIRI)result);
     }
 
     @Override
     public Label visitTripleExprLabel(ShExDocParser.TripleExprLabelContext ctx) {
         Object result = visitChildren(ctx);
-        if (result instanceof IRI)
-            return new IRILabel((IRI) result);
-        else
-            return new BNodeLabel((BlankNode) result);
+        return new LabelUserDefined((BlankNodeOrIRI)result);
     }
 
     @Override

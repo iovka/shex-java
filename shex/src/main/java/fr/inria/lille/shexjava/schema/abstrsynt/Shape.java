@@ -19,9 +19,9 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.IRI;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
 import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
@@ -68,12 +68,6 @@ public class  Shape extends ShapeExpr implements AnnotedObject {
 		else throw new IllegalStateException("Annotations already set");
 	}	
 
-	// TODO not needed, the references will be resolved at the same time as the other shape references
-	public void resolveReferences (Map<Label,ShapeExpr> shexprsMap) throws UndefinedReferenceException {
-		throw new UnsupportedOperationException();
-	}
-
-	
 	public TripleExpr getTripleExpression () {
 		return tripleExpr;
 	}

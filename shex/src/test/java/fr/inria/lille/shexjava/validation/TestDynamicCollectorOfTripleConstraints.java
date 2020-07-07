@@ -16,10 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
-import fr.inria.lille.shexjava.schema.analysis.TestCollectTripleConstraints;
 import fr.inria.lille.shexjava.util.RDF;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -53,11 +51,11 @@ public class TestDynamicCollectorOfTripleConstraints {
         Shape shape1 = new Shape(te1, Collections.emptyList(), Collections.emptySet(), false);
         Shape shape2 = new Shape(te2, Collections.emptyList(), Collections.emptySet(), false);
 
-        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("Shape1AndShape2Ref")));
+        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("Shape1AndShape2Ref")));
         shape1AndShape2Ref.setShapeDefinition(new ShapeAnd(Arrays.asList( shape1, shape2)));
 
         Shape shape3 = new Shape(te3, Collections.emptyList(), Collections.emptySet(), false);
-        ShapeExprRef shape3Ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("shape2ref")));
+        ShapeExprRef shape3Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape2ref")));
         shape3Ref.setShapeDefinition(shape3);
 
         Shape shape4 = new Shape(te4, Arrays.asList(shape1AndShape2Ref, shape3Ref), Collections.emptySet(),false) ;

@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fr.inria.lille.shexjava.schema.BNodeLabel;
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
@@ -39,7 +39,6 @@ import org.apache.commons.rdf.api.RDFTerm;
 import com.github.jsonldjava.utils.JsonUtils;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
@@ -183,7 +182,7 @@ public class ShExJParser implements Parser{
 		// TODO this method should evolve when the abstract syntax of shape expressions is adapted so that it can be a reference
 		ShapeExpr resultExpr = null;
 		if (exprObj instanceof String) {
-			resultExpr = new ShapeExprRef(createShapeLabel(((String)exprObj),false));
+			resultExpr = new ShapeExprRef(createShapeLabel((String)exprObj));
 			setShapeId(resultExpr, Collections.EMPTY_MAP);
 			return resultExpr;
 		}
@@ -607,7 +606,7 @@ public class ShExJParser implements Parser{
 		TripleExpr resultExpr = null;
 
 		if (obj instanceof String) {
-			resultExpr = new TripleExprRef(createTripleLabel((String) obj,false));
+			resultExpr = new TripleExprRef(createTripleLabel((String) obj));
 			setTripleId(resultExpr, Collections.EMPTY_MAP);
 			return resultExpr;
 		}
@@ -765,23 +764,23 @@ public class ShExJParser implements Parser{
 	// ----------------------------------------------------------------------
 
 	// FIXME why is this repeated twice ?
-	private Label createShapeLabel (String string,boolean generated) {
+	private Label createShapeLabel (String string) {
 		if (isIriString(string))
-			return new IRILabel(rdfFactory.createIRI(string),generated);
+			return new LabelUserDefined(rdfFactory.createIRI(string));
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
+			return new LabelUserDefined(rdfFactory.createBlankNode(string));
 		}
 	}
 
-	private Label createTripleLabel (String string,boolean generated) {
+	private Label createTripleLabel (String string) {
 		if (isIriString(string))
-			return new IRILabel(rdfFactory.createIRI(string),generated);
+			return new LabelUserDefined(rdfFactory.createIRI(string));
 		else {
 			if (string.startsWith("_:"))
 				string = string.substring(2);
-			return new BNodeLabel(rdfFactory.createBlankNode(string),generated);
+			return new LabelUserDefined(rdfFactory.createBlankNode(string));
 		}
 	}
 
@@ -806,13 +805,13 @@ public class ShExJParser implements Parser{
 
 	private void setShapeId (ShapeExpr shape, Map map) {
 		if (map.containsKey("id")) {
-			shape.setId(createShapeLabel(getId(map),false));
+			shape.setId(createShapeLabel(getId(map)));
 		}
 	}
 
 	private void setTripleId (TripleExpr triple, Map map) {
 		if (map.containsKey("id")) {
-			triple.setId(createTripleLabel(getId(map),false));
+			triple.setId(createTripleLabel(getId(map)));
 		}
 	}
 

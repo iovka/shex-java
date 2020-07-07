@@ -16,11 +16,11 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.abstrsynt;
 
+import fr.inria.lille.shexjava.schema.Label;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import fr.inria.lille.shexjava.schema.Label;
 
 /**
  * @author Iovka Boneva

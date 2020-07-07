@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.*;
 import fr.inria.lille.shexjava.validation.*;
 import org.apache.commons.rdf.api.RDF;
 import org.apache.commons.rdf.api.RDFTerm;
@@ -37,8 +37,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
 
-import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
 
 /** Command line tool for validation.
@@ -109,7 +107,7 @@ public class Validate {
 		
 		Label shapeLabel = null;
 		if (parameters.get("-l") != null)
-			shapeLabel = new IRILabel(rdfFactory.createIRI(parameters.get("-l")));
+			shapeLabel = new LabelUserDefined(rdfFactory.createIRI(parameters.get("-l")));
 		
 		ValidationAlgorithmAbstract val = null;
 		switch (parameters.get("-a")) {

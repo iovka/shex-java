@@ -27,11 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.RDF;
 import org.eclipse.rdf4j.rio.RDFFormat;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 

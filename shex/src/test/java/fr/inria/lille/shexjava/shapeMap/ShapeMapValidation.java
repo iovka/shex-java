@@ -4,14 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Triple;
 import org.junit.Test;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.parsing.ShExCParser;
 import fr.inria.lille.shexjava.shapeMap.abstrsynt.ShapeAssociation;
@@ -74,7 +73,7 @@ public class ShapeMapValidation {
 			ResultShapeMap result = algo.validate(shapeMap);
 			assertEquals(result.getAssociations().size(), 3);
 			for (ShapeAssociation sa1:result.getAssociations()) {
-				assertEquals(sa1.getShapeSelector().apply(schema), new IRILabel(GlobalFactory.RDFFactory.createIRI("http://inria.fr/Person")));
+				assertEquals(sa1.getShapeSelector().apply(schema), new LabelUserDefined(GlobalFactory.RDFFactory.createIRI("http://inria.fr/Person")));
 				if (sa1.getNodeSelector().apply(graph).iterator().next().equals(n1))
 					assertEquals(sa1.getStatus().get(), Status.CONFORMANT);
 				if (sa1.getNodeSelector().apply(graph).iterator().next().equals(n2))

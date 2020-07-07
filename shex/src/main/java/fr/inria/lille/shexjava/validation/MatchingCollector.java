@@ -19,9 +19,9 @@ package fr.inria.lille.shexjava.validation;
 import java.util.HashMap;
 import java.util.Map;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.RDFTerm;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
 
 public class MatchingCollector {

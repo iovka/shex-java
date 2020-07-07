@@ -58,7 +58,7 @@ public class EachOf extends AbstractNaryTripleExpr implements AnnotedObject{
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
 		String result ="";
-		if (id!=null && !id.isGenerated())
+		if (id!=null && id.isUserDefined())
 			result += getId().toString()+"=";
 		result += CollectionToString.collectionToPrettyString(getSubExpressions(), " ; ", "EachOf(", ")", prefixes);
 		if (this.annotations!=null && this.annotations.size()>0)

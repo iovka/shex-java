@@ -16,8 +16,8 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import fr.inria.lille.shexjava.schema.IRILabel;
 import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
@@ -50,7 +50,7 @@ public class TestMyRefineValidation {
         RDFTerm focus = RDF.buildIRI("n");
 
         RefineValidation algo = new RefineValidation(schema, graph);
-        Label label = new IRILabel(RDF.buildIRI("S"));
+        Label label = new LabelUserDefined(RDF.buildIRI("S"));
 
         assertTrue(algo.performValidation(focus, label));
         assertTrue(algo.getTyping().isConformant(focus, label));
@@ -69,7 +69,7 @@ public class TestMyRefineValidation {
         graph.add(RDF.buildTriple("n", "p", "m"));
 
         RefineValidation algo = new RefineValidation(schema, graph);
-        Label label = new IRILabel(RDF.buildIRI("S"));
+        Label label = new LabelUserDefined(RDF.buildIRI("S"));
 
         algo.validate();
         assertTrue(algo.getTyping().isConformant(focus, label));
@@ -89,7 +89,7 @@ public class TestMyRefineValidation {
         graph.add(RDF.buildTriple("n", "q", "k"));
 
         RefineValidation algo = new RefineValidation(schema, graph);
-        Label label = new IRILabel(RDF.buildIRI("S"));
+        Label label = new LabelUserDefined(RDF.buildIRI("S"));
 
         algo.validate();
         assertTrue(algo.getTyping().isConformant(focus, label));
@@ -109,7 +109,7 @@ public class TestMyRefineValidation {
         graph.add(RDF.buildTriple("n", "p", "k"));
 
         RefineValidation algo = new RefineValidation(schema, graph);
-        Label label = new IRILabel(RDF.buildIRI("S"));
+        Label label = new LabelUserDefined(RDF.buildIRI("S"));
 
         algo.validate();
         assertFalse(algo.getTyping().isConformant(focus, label));
@@ -129,7 +129,7 @@ public class TestMyRefineValidation {
         graph.add(RDF.buildTriple("n", "q", "k"));
 
         RefineValidation algo = new RefineValidation(schema, graph);
-        Label label = new IRILabel(RDF.buildIRI("S"));
+        Label label = new LabelUserDefined(RDF.buildIRI("S"));
 
         algo.validate();
         assertTrue(algo.getTyping().isConformant(focus, label));

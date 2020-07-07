@@ -1,11 +1,11 @@
 package fr.inria.lille.shexjava.validation;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 
 import com.moz.kiji.annotations.ApiStability.Stable;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.shapeMap.BaseShapeMap;
 import fr.inria.lille.shexjava.shapeMap.ResultShapeMap;

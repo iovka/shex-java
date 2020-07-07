@@ -16,48 +16,48 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema;
 
-import fr.inria.lille.shexjava.util.RDFPrintUtils;
-import org.apache.commons.rdf.api.IRI;
-
+import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 
-/**
+/** A generated label. Acts also as factory for such labels.
+ *
  * @author Iovka Boneva
  */
-public class IRILabel extends Label {
+public class LabelGenerated implements Label {
 
-	private final IRI iri;
-	private final boolean generated;
-
-	public IRILabel (IRI iri, boolean generated) {
-	    this.iri = iri;
-	    this.generated = generated;
+    public static LabelGenerated getNew () {
+        return new LabelGenerated(next++);
     }
 
-    public IRILabel (IRI iri) {
-	    this(iri, false);
+    private final int id;
+    private static int next = 0;
+
+    private LabelGenerated (int id) {
+        this.id = id;
     }
 
-    public boolean isGenerated() { return generated; }
+    @Override
+    public boolean isUserDefined() {
+        return false;
+    }
 
-    public String stringValue () { return iri.getIRIString(); }
-
+    @Override
     public String toPrettyString(Map<String,String> prefixes) {
-        return RDFPrintUtils.toPrettyString(iri, prefixes);
+        return "Label:"+id;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        IRILabel iriLabel = (IRILabel) o;
-        return generated == iriLabel.generated &&
-                iri.equals(iriLabel.iri);
+    public String toString() {
+        return toPrettyString(Collections.emptyMap());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(iri, generated);
+    public final boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
     }
 }

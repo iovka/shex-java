@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.rdf4j.RDF4J;
@@ -29,7 +29,6 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.impl.LinkedHashModel;
 import org.junit.Test;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.analysis.Configuration;
 import fr.inria.lille.shexjava.schema.parsing.GenParser;
@@ -54,9 +53,9 @@ public class TestMemorizationAlgorithm {
 		
 		
 		ValidationAlgorithmAbstract validation = new RecursiveValidationWithMemorization(schema,graph);
-		validation.validate(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
+		validation.validate(n1, new LabelUserDefined(rdfFactory.createIRI("http://a.example/S")));
 
-		if (validation.getTyping().getStatus(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))) == Status.CONFORMANT)
+		if (validation.getTyping().getStatus(n1, new LabelUserDefined(rdfFactory.createIRI("http://a.example/S"))) == Status.CONFORMANT)
 			fail();
 	}
 	
@@ -78,12 +77,12 @@ public class TestMemorizationAlgorithm {
 		
 		
 		ValidationAlgorithmAbstract validation = new RecursiveValidationWithMemorization(schema,graph);
-		validation.validate(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S")));
+		validation.validate(n1, new LabelUserDefined(rdfFactory.createIRI("http://a.example/S")));
  
 		//for (Pair<RDFTerm, Label> key:validation.getTyping().getAllStatus().keySet())
 		//	System.out.println(key+":"+validation.getTyping().getStatus(key.one, key.two));
 		
-		if (validation.getTyping().getStatus(n1, new IRILabel(rdfFactory.createIRI("http://a.example/S"))) == Status.NONCONFORMANT)
+		if (validation.getTyping().getStatus(n1, new LabelUserDefined(rdfFactory.createIRI("http://a.example/S"))) == Status.NONCONFORMANT)
 			fail();
 	}
 	

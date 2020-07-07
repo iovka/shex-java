@@ -21,28 +21,16 @@ import java.util.Map;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
-import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 /**
  * 
  * @author Iovka Boneva
  * 10 oct. 2017
  */
-public abstract class ShapeExpr {
+public abstract class ShapeExpr extends Expression {
 	
-	protected Label id = null;
 	private Boolean isAbstract = null;
 	
-	public void setId(Label id) {
-		if (this.id != null)
-			throw new IllegalStateException("ID can be set only once ( is:"+this.id+", to:"+id+").");
-		this.id = id;
-	}
-	
-	public Label getId () {
-		return this.id;
-	}
-
 	public boolean isAbstract () {
 		return this.isAbstract == true;
 	}
@@ -51,16 +39,6 @@ public abstract class ShapeExpr {
 			throw new IllegalStateException("Abstract can be set only once.");
 		this.isAbstract = isAbstract;
 	}
+
 	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);
-	
-	@Override
-	public String toString() {
-		return toPrettyString(Collections.emptyMap());
-	}
-	
-	public String toPrettyString() {
-		return toPrettyString(Collections.emptyMap());
-	}
-	
-	public abstract String toPrettyString(Map<String,String> prefixes);
 }

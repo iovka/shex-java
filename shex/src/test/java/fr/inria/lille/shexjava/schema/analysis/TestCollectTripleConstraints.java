@@ -16,7 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema.analysis;
 
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 
 
@@ -41,7 +41,7 @@ public class TestCollectTripleConstraints {
         ShapeExpr extended = new ShapeAnd (Arrays.asList(
                 new Shape(tc1, Collections.emptyList(), Collections.emptySet(), false),
                 new Shape(tc2, Collections.emptyList(), Collections.emptySet(), false)));
-        ShapeExprRef ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("i")));
+        ShapeExprRef ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("i")));
         ref.setShapeDefinition(extended);
         Shape shape = new Shape(tc3, Arrays.asList(ref), Collections.emptySet(), false);
 
@@ -64,15 +64,15 @@ public class TestCollectTripleConstraints {
         Shape shape3 = new Shape(tc3, Collections.emptyList(), Collections.emptySet(), false);
 
         ShapeAnd andS1S2 = new ShapeAnd(Arrays.asList(shape1, shape2));
-        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("shape1AndShape2Ref")));
+        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape1AndShape2Ref")));
         shape1AndShape2Ref.setShapeDefinition(andS1S2);
-        ShapeExprRef shape3ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("shape3ref")));
+        ShapeExprRef shape3ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape3ref")));
         shape3ref.setShapeDefinition(shape3);
 
         List<ShapeExprRef> shape4extended = Arrays.asList(shape1AndShape2Ref, shape3ref);
         Shape shape4 = new Shape(tc4, shape4extended, Collections.emptySet(), false);
 
-        ShapeExprRef shape4ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("shape4ref")));
+        ShapeExprRef shape4ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape4ref")));
         shape4ref.setShapeDefinition(shape4);
         List<ShapeExprRef> shape5extended = Arrays.asList(shape4ref);
         TripleExpr tripleExpr5 = new EachOf(Arrays.asList(tc5, tc5bis));

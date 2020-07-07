@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.Triple;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 
 // TODO to be deprecated and replaced by {@link MyMatchingIterator}
@@ -110,15 +110,15 @@ public class BagIterator implements Iterator<Bag>{
 		return next;
 	}
 
-	public Map<Triple, Label> getCurrentBag(){
-		Map<Triple, Label> currentMatch = new HashMap<>();
+	public Map<Triple, TripleConstraint> getCurrentBag(){
+		Map<Triple, TripleConstraint> currentMatch = new HashMap<>();
 
 		Iterator<List<TripleConstraint>> ite = allMatches.iterator();
 		Iterator<Triple> iteNeigh = neighbourhood.iterator();
 		for (int i = 1; i < currentIndexes.length; i++) {
 			List<TripleConstraint> tmp = ite.next();
 			Triple tmp2 = iteNeigh.next();
-			currentMatch.put(tmp2,tmp.get(currentIndexes[i]).getId());
+			currentMatch.put(tmp2,tmp.get(currentIndexes[i]));
 		}
 
 		return currentMatch;

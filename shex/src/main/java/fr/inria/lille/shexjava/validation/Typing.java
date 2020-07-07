@@ -2,11 +2,11 @@ package fr.inria.lille.shexjava.validation;
 
 import java.util.Map;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.RDFTerm;
 
 import com.moz.kiji.annotations.ApiStability.Stable;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.util.Pair;
 
 /** A simpler version of a shape map that associates a {@link Status} to pairs of a node and a label.

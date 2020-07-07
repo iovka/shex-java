@@ -17,47 +17,49 @@
 package fr.inria.lille.shexjava.schema;
 
 import fr.inria.lille.shexjava.util.RDFPrintUtils;
-import org.apache.commons.rdf.api.BlankNode;
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-/**
+/** A user defined label is a blank node or IRI.
  * @author Iovka Boneva
  */
-public class BNodeLabel extends Label {
+public class LabelUserDefined implements Label {
+    private final BlankNodeOrIRI ib;
 
-    private final BlankNode bnode;
-    private final boolean generated;
-
-    public BNodeLabel (BlankNode bnode, boolean generated) {
-        this.bnode = bnode;
-        this.generated = generated;
+    public LabelUserDefined(BlankNodeOrIRI ib) {
+        this.ib = ib;
+    }
+    public BlankNodeOrIRI getLabel () {
+        return ib;
     }
 
-    public BNodeLabel (BlankNode bnode) {
-        this(bnode, false);
+    @Override
+    public boolean isUserDefined() {
+        return true;
     }
 
-    public boolean isGenerated() { return generated; }
-
-    public String stringValue() { return bnode.ntriplesString(); }
-
-    public String toPrettyString(Map<String,String> prefixes) {
-        return RDFPrintUtils.toPrettyString(bnode, prefixes);
+    @Override
+    public String toPrettyString(Map<String, String> prefixes) {
+        return RDFPrintUtils.toPrettyString(ib, prefixes);
+    }
+    @Override
+    public String toString() {
+        return toPrettyString(Collections.emptyMap());
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BNodeLabel that = (BNodeLabel) o;
-        return generated == that.generated &&
-                bnode.equals(that.bnode);
+        LabelUserDefined that = (LabelUserDefined) o;
+        return ib.equals(that.ib);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(bnode, generated);
+        return Objects.hash(ib);
     }
 }

@@ -17,19 +17,14 @@
 package fr.inria.lille.shexjava.validation;
 
 import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.IRILabel;
 import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
-import fr.inria.lille.shexjava.schema.analysis.TestCollectTripleConstraints;
 import fr.inria.lille.shexjava.util.Pair;
 import fr.inria.lille.shexjava.util.RDF;
-import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
-import org.eclipse.rdf4j.model.Model;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import java.util.*;
 
@@ -60,15 +55,15 @@ public class TestShapeEvaluation {
         Shape shape1 = new Shape(te1, Collections.emptyList(), Collections.emptySet(), false);
         Shape shape2 = new Shape(te2, Collections.emptyList(), Collections.emptySet(), false);
 
-        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("Shape1AndShape2Ref")));
+        ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("Shape1AndShape2Ref")));
         shape1AndShape2Ref.setShapeDefinition(new ShapeAnd(Arrays.asList( shape1, shape2)));
 
         Shape shape3 = new Shape(te3, Collections.emptyList(), Collections.emptySet(), false);
-        ShapeExprRef shape3Ref = new ShapeExprRef(new IRILabel(RDF.buildIRI("shape2ref")));
+        ShapeExprRef shape3Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape2ref")));
         shape3Ref.setShapeDefinition(shape3);
 
         Shape shape4 = new Shape(te4, Arrays.asList(shape1AndShape2Ref, shape3Ref), Collections.emptySet(),false) ;
-        shape4.setId(new IRILabel(RDF.buildIRI("shape4")));
+        shape4.setId(new LabelUserDefined(RDF.buildIRI("shape4")));
 
         Triple tp = RDF.buildTriple("n1", "p", "n2");
         Triple tq = RDF.buildTriple("n1", "q", "n2");
@@ -84,7 +79,7 @@ public class TestShapeEvaluation {
         DynamicCollectorOfTripleConstraints collectorTC = new DynamicCollectorOfTripleConstraints();
         Map<Label, ShapeExpr> rules = new HashMap<>();
         rules.put(shape4.getId(), shape4);
-        SORBEGenerator sorbeGenerator = new SORBEGenerator(GlobalFactory.RDFFactory);
+        SORBEGenerator sorbeGenerator = new SORBEGenerator();
 
         Typing allConformantTyping = new Typing() {
             @Override

@@ -19,8 +19,8 @@ package fr.inria.lille.shexjava.util;
 import java.util.Optional;
 import java.util.Set;
 
-import fr.inria.lille.shexjava.schema.BNodeLabel;
-import fr.inria.lille.shexjava.schema.IRILabel;
+import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.rdf4j.RDF4J;
 import org.eclipse.rdf4j.model.BNode;
@@ -30,8 +30,6 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Models;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
-
-import fr.inria.lille.shexjava.schema.Label;
 
 public 	class TestCase {
 	private static final RDF4JFactory RDF_FACTORY = RDF4JFactory.getInstance();
@@ -64,9 +62,9 @@ public 	class TestCase {
 			if (Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).isPresent()) {
 				Resource labelRes = Models.getPropertyResource(manifest, actionNode, SHAPE_PROPERTY).get();
 				if (labelRes instanceof BNode) {
-					shapeLabel = new BNodeLabel(rdfFactory.createBlankNode(labelRes.stringValue()));
+					shapeLabel = new LabelUserDefined(rdfFactory.createBlankNode(labelRes.stringValue()));
 				}else
-					shapeLabel = new IRILabel((org.apache.commons.rdf.api.IRI) rdfFactory.asRDFTerm(labelRes));
+					shapeLabel = new LabelUserDefined((org.apache.commons.rdf.api.IRI) rdfFactory.asRDFTerm(labelRes));
 				Value focus = Models.getProperty(manifest, actionNode, FOCUS_PROPERTY).get();
 				focusNode = rdfFactory.asRDFTerm(focus);
 			}

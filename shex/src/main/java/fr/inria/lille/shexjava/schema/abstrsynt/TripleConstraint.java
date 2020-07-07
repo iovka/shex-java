@@ -75,7 +75,7 @@ public class TripleConstraint extends TripleExpr implements AnnotedObject {
 	@Override
 	public String toPrettyString(Map<String,String> prefixes) {
 		String result ="";
-		if (id!=null && !id.isGenerated())
+		if (id!=null && id.isUserDefined())
 			result += getId().toString()+"=";
 		result += String.format("%s %s",property.toPrettyString(prefixes),shapeExpr.toPrettyString(prefixes));
 		if (this.annotations!=null && this.annotations.size()>0)

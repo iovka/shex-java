@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
@@ -39,7 +39,7 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 	
 	public SORBEBasedValidation(ShexSchema schema, Graph graph) {
 		super(schema,graph);
-		this.sorbeGenerator = new SORBEGenerator(schema.getRdfFactory());
+		this.sorbeGenerator = new SORBEGenerator();
 	}
 	
 	/** Try to find a matching for the shape on the node using the typing. See also the MatchingCollector or FailureReportsCollecto.
@@ -73,9 +73,9 @@ public abstract class SORBEBasedValidation extends ValidationAlgorithmAbstract {
 				Bag bag = bagIt.next();
 				tripleExpression.accept(intervalComputation, bag, this);
 				if (intervalComputation.getResult().contains(1)) {
-					Map<Triple, Label> matching = bagIt.getCurrentBag();
+					Map<Triple, TripleConstraint> matching = bagIt.getCurrentBag();
 					matching = matching.entrySet().stream()
-							.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalNonsorbeVersion(x.getValue())));
+							.collect(Collectors.toMap(x -> x.getKey(), x -> sorbeGenerator.getOriginalTripleConstraint(x.getValue())));
 					result = new LocalMatching(matching, preMatching.getMatchedToExtra(), preMatching.getUnmatched());
 					notifyMatchingFound(node, shape.getId(), result);
 				}

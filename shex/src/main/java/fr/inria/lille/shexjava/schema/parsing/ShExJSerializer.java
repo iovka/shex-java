@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.Literal;
 import org.apache.commons.rdf.api.RDFTerm;
@@ -33,7 +34,6 @@ import org.apache.jena.ext.com.google.common.io.Files;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.github.jsonldjava.utils.JsonUtils;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.Annotation;
 import fr.inria.lille.shexjava.schema.abstrsynt.EachOf;
@@ -113,11 +113,12 @@ public class ShExJSerializer {
 			return convertNodeConstraint((NodeConstraint) shape);
 		return null;
 	}
-	
+
+	// TODO : a LOT of code repetition
 	protected static Object convertShapeAnd(ShapeAnd shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
-		if (! shape.getId().isGenerated())
-			result.put("id", shape.getId().stringValue());
+		if (shape.getId().isUserDefined())
+			result.put("id", shape.getId().toString());
 		result.put("type", "ShapeAnd");
 		List<Object> subExprs = new ArrayList<Object>();
 		for (ShapeExpr sub:shape.getSubExpressions())
@@ -128,8 +129,8 @@ public class ShExJSerializer {
 	
 	protected static Object convertShapeOr(ShapeOr shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
-		if (! shape.getId().isGenerated())
-			result.put("id", shape.getId().stringValue());
+		if (shape.getId().isUserDefined())
+			result.put("id", shape.getId().toString());
 		result.put("type", "ShapeOr");
 		List<Object> subExprs = new ArrayList<Object>();
 		for (ShapeExpr sub:shape.getSubExpressions())
@@ -140,21 +141,21 @@ public class ShExJSerializer {
 	
 	protected static Object convertShapeNot(ShapeNot shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
-		if (! shape.getId().isGenerated())
-			result.put("id", shape.getId().stringValue());
+		if (shape.getId().isUserDefined())
+			result.put("id", shape.getId().toString());
 		result.put("type", "ShapeNot");
 		result.put("shapeExpr", convertShapeExpr(shape.getSubExpression()));	
 		return result;
 	}
 	
 	protected static Object convertShapeExprRef(ShapeExprRef shape) {
-		return shape.getLabel().stringValue();
+		return shape.getLabel().toString();
 	}
 	
 	protected static Object convertShape(Shape shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
-		if (! shape.getId().isGenerated())
-			result.put("id", shape.getId().stringValue());
+		if (shape.getId().isUserDefined())
+			result.put("id", shape.getId().toString());
 		result.put("type", "Shape");
 		if (shape.isClosed())
 			result.put("closed", true);
@@ -175,8 +176,8 @@ public class ShExJSerializer {
 
 	protected static Object convertNodeConstraint(NodeConstraint shape) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
-		if (! shape.getId().isGenerated())
-			result.put("id", shape.getId().stringValue());
+		if (shape.getId().isUserDefined())
+			result.put("id", shape.getId().toString());
 		result.put("type", "NodeConstraint");
 		
 		List<Constraint> constraints = shape.getConstraints();
@@ -360,8 +361,8 @@ public class ShExJSerializer {
 	
 	protected static Object convertEachOf(EachOf triple) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
-		if (! triple.getId().isGenerated())
-			result.put("id", triple.getId().stringValue());
+		if (triple.getId().isUserDefined())
+			result.put("id", triple.getId().toString());
 		result.put("type", "EachOf");
 		List<Object> subExprs = new ArrayList<>();
 		for (TripleExpr sub:triple.getSubExpressions()) {
@@ -376,8 +377,8 @@ public class ShExJSerializer {
 
 	protected static Object convertOneOf(OneOf triple) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
-		if (! triple.getId().isGenerated())
-			result.put("id", triple.getId().stringValue());
+		if (triple.getId().isUserDefined())
+			result.put("id", triple.getId().toString());
 		result.put("type", "OneOf");
 		List<Object> subExprs = new ArrayList<>();
 		for (TripleExpr sub:triple.getSubExpressions()) {
@@ -391,7 +392,7 @@ public class ShExJSerializer {
 	}
 
 	protected static Object convertTripleExprRef(TripleExprRef triple) {
-		return triple.getLabel().stringValue();
+		return triple.getLabel().toString();
 	}
 	
 	protected static Object convertRepeatedTripleExpression(RepeatedTripleExpression triple) {
@@ -408,8 +409,8 @@ public class ShExJSerializer {
 	protected static Object convertTripleConstraint(TripleConstraint triple) {
 		Map<String,Object> result = new LinkedHashMap<String, Object>();
 		
-		if (! triple.getId().isGenerated())
-			result.put("id", triple.getId().stringValue());
+		if (triple.getId().isUserDefined())
+			result.put("id", triple.getId().toString());
 		
 		result.put("type", "TripleConstraint");
 		

@@ -26,10 +26,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
+import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 import org.apache.commons.rdf.api.*;
 
-import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
 import fr.inria.lille.shexjava.util.CommonGraph;
 
