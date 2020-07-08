@@ -17,6 +17,7 @@
 package fr.inria.lille.shexjava.validation;
 
 import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
@@ -88,6 +89,8 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 		// Compute the typing for the non shape labels
 		// TODO to be optimized. Now it goes through all labels, should be limited to those that are on the current stratum
 		for (Label label : schema.getShapeExprsMap().keySet()) {
+			if (! (label instanceof LabelUserDefined))
+				continue;
 			for (RDFTerm node : typing.allNodes()) { // TODO here, the Shape labels are also added as "other" labels; only the "public" labels should be added
 				typing.setStatus(node, label,
 						satisfies(node, schema.getShapeExprsMap().get(label)) ? Status.CONFORMANT : Status.NONCONFORMANT);

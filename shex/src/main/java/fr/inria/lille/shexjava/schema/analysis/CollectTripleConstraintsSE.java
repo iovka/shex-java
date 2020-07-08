@@ -25,7 +25,7 @@ import java.util.*;
  * @author Iovka Boneva
  */
 public class CollectTripleConstraintsSE extends
-        ShapeExpressionVisitor<Pair<List<TripleConstraint>, Map<TripleConstraint, Deque<Object>>>> {
+        ShapeExpressionVisitor<Pair<List<TripleConstraint>, Map<TripleConstraint, Deque<Expression>>>> {
 
     public CollectTripleConstraintsSE(){
         setResult(new Pair<>(new ArrayList<>(), new HashMap<>()));
@@ -33,7 +33,7 @@ public class CollectTripleConstraintsSE extends
 
     @Override
     public void visitShape(Shape expr, Object... arguments) {
-        Deque<Object> parents = null;
+        Deque<Expression> parents = null;
         if (arguments.length > 0) parents = (Deque) arguments[0];
 
         if (parents != null) parents.push(expr);

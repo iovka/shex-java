@@ -80,25 +80,25 @@ public class ShapeEvaluation {
     }
 
     private boolean evaluateShapeWithExtended (List<Triple> triples, Shape shape) {
-        Map<Triple, List<Object>> matchingSubExpressionsOfShape =
+        Map<Triple, List<Expression>> matchingSubExpressionsOfShape =
                 contractPreMatchingToShapeSubExpressions(triples, shape);
-        MatchingsIterator<Object> it = new MatchingsIterator<>(matchingSubExpressionsOfShape, triples);
+        MatchingsIterator<Expression> it = new MatchingsIterator<>(matchingSubExpressionsOfShape, triples);
 
         boolean valid = false;
         while (! valid && it.hasNext()) {
-            Matching<Object> m = it.next();
-            Map<Object, List<Triple>> partition = matchingToPartition(m, shape);
+            Matching<Expression> m = it.next();
+            Map<Expression, List<Triple>> partition = matchingToPartition(m, shape);
             valid = evaluatePartition(partition);
         }
         return valid;
     }
 
-    private static Map<Object, List<Triple>> matchingToPartition(Matching<Object> matching, Shape shape) {
-        Map<Object, List<Triple>> result = new HashMap<>(shape.getExtended().size()+1);
+    private static Map<Expression, List<Triple>> matchingToPartition(Matching<Expression> matching, Shape shape) {
+        Map<Expression, List<Triple>> result = new HashMap<>(shape.getExtended().size()+1);
         for (ShapeExprRef ext : shape.getExtended())
             result.put(ext, new ArrayList<>());
         result.put(shape.getTripleExpression(), new ArrayList<>());
-		for (Map.Entry<Triple, Object> entry : matching.entrySet()) {
+		for (Map.Entry<Triple, Expression> entry : matching.entrySet()) {
 		    result.get(entry.getValue()).add(entry.getKey());
 		}
 		return result;
@@ -107,11 +107,11 @@ public class ShapeEvaluation {
     /** Evaluates a partition of (part of) the neighbourhood against expressions.
      * The expressions that are keys of the partition are sub-expressions of a Shape, that is, either one of {@link Shape#getExtended()} or {@link Shape#getTripleExpression()}.
      */
-    private boolean evaluatePartition (Map<Object, List<Triple>> partition) {
+    private boolean evaluatePartition (Map<Expression, List<Triple>> partition) {
         boolean failed = false;
-        Iterator<Map.Entry<Object, List<Triple>>> partsIterator = partition.entrySet().iterator();
+        Iterator<Map.Entry<Expression, List<Triple>>> partsIterator = partition.entrySet().iterator();
         while (!failed && partsIterator.hasNext()) {
-            Map.Entry<Object, List<Triple>> entry = partsIterator.next();
+            Map.Entry<Expression, List<Triple>> entry = partsIterator.next();
             Object expr = entry.getKey();
             List<Triple> triples = entry.getValue();
             if (expr instanceof TripleExpr) {
@@ -129,22 +129,22 @@ public class ShapeEvaluation {
 
 
     /** With every triple from {@param triples} associates the set of sub-expressions of {@param shape} to which the triple can be matched.*/
-    private Map<Triple, List<Object>> contractPreMatchingToShapeSubExpressions(
+    private Map<Triple, List<Expression>> contractPreMatchingToShapeSubExpressions(
             List<Triple> triples,
             Shape shape) {
 
-        Map<Triple, List<Object>> tripleToSubExpr = new HashMap<>(preMatching.getPreMatching().size());
+        Map<Triple, List<Expression>> tripleToSubExpr = new HashMap<>(preMatching.getPreMatching().size());
         for (Triple triple: triples)
             tripleToSubExpr.put(triple, new ArrayList<>());
         for (Triple triple: triples) {
             for (TripleConstraint tc : preMatching.getPreMatching().get(triple)) {
-                List<Object> list = tripleToSubExpr.get(triple);
-                Object parent = collectorTC.getParentInShape(tc, shape);
+                List<Expression> list = tripleToSubExpr.get(triple);
+                Expression parent = collectorTC.getParentInShape(tc, shape);
                 if (parent != null) list.add(parent);
             }
         }
         // Remove the repeated expressions
-        for (Map.Entry<Triple, List<Object>> e : tripleToSubExpr.entrySet()) {
+        for (Map.Entry<Triple, List<Expression>> e : tripleToSubExpr.entrySet()) {
             e.setValue(new ArrayList<>(new HashSet<>(e.getValue())));
         }
         return tripleToSubExpr;

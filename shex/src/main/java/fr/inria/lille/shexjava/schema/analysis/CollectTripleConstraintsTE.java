@@ -26,7 +26,7 @@ import java.util.*;
  * @author Iovka Boneva
  */
 public class CollectTripleConstraintsTE
-        extends TripleExpressionVisitor<Pair<List<TripleConstraint>, Map<TripleConstraint, Deque<Object>>>> {
+        extends TripleExpressionVisitor<Pair<List<TripleConstraint>, Map<TripleConstraint, Deque<Expression>>>> {
 
     public CollectTripleConstraintsTE(){
         setResult(new Pair<>(new ArrayList<>(), new HashMap<>()));
@@ -38,7 +38,7 @@ public class CollectTripleConstraintsTE
 
     @Override
     public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-        Deque<Object> parents = null;
+        Deque<Expression> parents = null;
         if (arguments.length > 0) parents = (Deque) arguments[0];
         getResult().one.add(tc);
         if (parents != null) getResult().two.put(tc, new ArrayDeque<>(parents));

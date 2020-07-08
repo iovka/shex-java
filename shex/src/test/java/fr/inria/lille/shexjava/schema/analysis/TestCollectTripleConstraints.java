@@ -100,7 +100,7 @@ public class TestCollectTripleConstraints {
         Deque tc5parents = new ArrayDeque();
         tc5parents.push(shape5); tc5parents.push(tripleExpr5);
 
-        Map<TripleConstraint, Deque<Object>> expectedParentsMap = new HashMap<>();
+        Map<TripleConstraint, Deque<Expression>> expectedParentsMap = new HashMap<>();
         expectedParentsMap.put(tc1, tc1parents);
         expectedParentsMap.put(tc2, tc2parents);
         expectedParentsMap.put(tc3, tc3parents);
@@ -110,7 +110,7 @@ public class TestCollectTripleConstraints {
 
         CollectTripleConstraintsSE collector = new CollectTripleConstraintsSE();
         shape5.accept(collector, new ArrayDeque<>());
-        Map<TripleConstraint, Deque<Object>> computedParentsMap = collector.getResult().two;
+        Map<TripleConstraint, Deque<Expression>> computedParentsMap = collector.getResult().two;
 
         assertEquals(expectedParentsMap.keySet(), computedParentsMap.keySet());
         for (TripleConstraint tc : expectedParentsMap.keySet())

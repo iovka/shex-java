@@ -36,13 +36,13 @@ public class DynamicCollectorOfTripleConstraints {
 	private Map<Object, List<TripleConstraint>> collectedTCs = new HashMap<>();
 	/** With (tripleConstraint,shape) associates the sub-expression of shape to which tripleConstraint belongs.
 	 * Such sub-expression can be either the triple expression of the shape, or a shape reference that is extended by this shape.*/
-	private Map<Pair<TripleConstraint, Shape>, Object> parentsMap = new HashMap<>();
+	private Map<Pair<TripleConstraint, Shape>, Expression> parentsMap = new HashMap<>();
 
 	/** The sub-expression of {@param shape} to which {@param tc} belongs.
 	 * This sub-expression is either the triple expression of the shape, or a shape reference that is extended by this shape.
 	 * Is defined only in case {@param tc} was in the result of an earlier call to {@see #getTCs}.
 	 */
-	public Object getParentInShape (TripleConstraint tc, Shape shape) {
+	public Expression getParentInShape (TripleConstraint tc, Shape shape) {
 		return parentsMap.get(new Pair<>(tc, shape));
 	}
 
@@ -64,7 +64,7 @@ public class DynamicCollectorOfTripleConstraints {
 		List<TripleConstraint> tripleConstraints = collectedTCs.get(shape);
 
 		boolean parentIsTrivial = shape.getExtended().isEmpty();
-		Deque<Object> parents = null;
+		Deque<Expression> parents = null;
 		if (! parentIsTrivial) parents = new ArrayDeque<>();
 
 		if (tripleConstraints == null) {
@@ -88,13 +88,13 @@ public class DynamicCollectorOfTripleConstraints {
 	}
 
 	/** For every triple constraint in the input map, memorizes all its parents w.r.t. the different shapes under with it appears. */
-	private void updateParentStructure (Map<TripleConstraint, Deque<Object>> parentsMap) {
-		for (Map.Entry<TripleConstraint, Deque<Object>> e : parentsMap.entrySet()) {
+	private void updateParentStructure (Map<TripleConstraint, Deque<Expression>> parentsMap) {
+		for (Map.Entry<TripleConstraint, Deque<Expression>> e : parentsMap.entrySet()) {
 			TripleConstraint tc = e.getKey();
-			Deque<Object> parents = e.getValue();
+			Deque<Expression> parents = e.getValue();
 
 			while (! parents.isEmpty()) {
-				Object parent = parents.pop();
+				Expression parent = parents.pop();
 				Shape shape = (Shape) parents.pop();
 				this.parentsMap.put(new Pair<>(tc, shape), parent);
 			}
