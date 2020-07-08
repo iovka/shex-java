@@ -71,10 +71,8 @@ public class TestStratification {
 				fail("Error: schema not stratified for test: "+schemaFile+".");
 			}
 		}catch(Exception e){
-//			System.out.println(schemaFile);
-//			System.out.println(e.getClass().getName()+':'+e.getMessage());
-//			e.printStackTrace();
-			fail(schemaFile+" create error "+e.getClass().getName()+": "+e.getMessage());
+			e.printStackTrace();
+			fail("Error creating the test case for schema : " + schemaFile);
 		}
 	}
 

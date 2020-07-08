@@ -25,44 +25,44 @@ import fr.inria.lille.shexjava.shapeMap.ResultShapeMap;
 @Stable
 public interface ValidationAlgorithm {
 
-	/** Constructs a shape map that allows to validate a focus node against a type.
-	 * Returns true if the focus node is conformant with the expression which label is given, and returns false otherwise.
-	 * 
+	/** Validates a node against a shape expression.
+	 * Enriches {@link #getTyping()} with the node-label associations that were discovered during validation.
+	 * Returns true iff the subsequent call to {@link #getTyping()}.{@link Typing#getStatus(RDFTerm, Label)} returns {@link Status#CONFORMANT}.
+ 	 *
 	 * @param focusNode The focus node for which the shape map is to be complete. The node must belong to the graph.
-	 * @param label The label against which the node is being tested.  
-	 * @return true iff the subsequent call to {@link #getTyping() Typing#getStatus} returns {@link Status#CONFORMANT}
+	 * @param shapeExpressionLabel The label of the shape expression against which the node is validated.
+	 * @return true the focus node is conformant with the shape expression
 	 * @exception IllegalArgumentException if the label does not belong to the schema
 	 */ 
 	@Stable
-	public boolean validate (RDFTerm focusNode, Label label) ;
-	
-	/** Constructs a shape map that allows to validate a focus node against a type.
-	 * Returns true if the focus node is conformant with the expression which label is given, and returns false otherwise.
-	 * 
+	public boolean validate (RDFTerm focusNode, Label shapeExpressionLabel) ;
+
+	/** Validates a node against a shape expression.
+	 * Enriches {@link #getTyping()} with the node-label associations that were discovered during validation.
+	 * Returns true iff the subsequent call to {@link #getTyping()}.{@link Typing#getStatus(RDFTerm, Label)} returns {@link Status#CONFORMANT}.
+	 *
 	 * @param focusNode The focus node for which the shape map is to be complete. The node must belong to the graph.
-	 * @param label The label against which the node is being tested. 
-	 * @return true iff the subsequent call to {@link #getTyping() Typing#getStatus} returns {@link Status#CONFORMANT}
+	 * @param shapeExpressionLabel The label of the shape expression against which the node is validated.
+	 * @return true the focus node is conformant with the shape expression
 	 * @exception IllegalArgumentException if the label does not belong to the schema
-	 */ 
-	public boolean validate (RDFTerm focusNode, Label label, ComputationController compController) throws Exception;
+	 */
+	public boolean validate (RDFTerm focusNode, Label shapeExpressionLabel, ComputationController compController) throws Exception;
+
+	/** Validates an input shape map.
+	 *
+	 * @param inputShapeMap The associations to be checked.
+	 * @return The result shape map with the result of the validation
+	 * @exception IllegalArgumentException if the label does not belong to the schema
+	 */
+	public ResultShapeMap validate (BaseShapeMap inputShapeMap) ;
 	
-	/** Constructs a shape map that allows to validate a focus node against a type.
-	 * Returns a shape map with the results of the associations found in the shapeMap passed to the function.
+	/** Validates an input shape map.
 	 * 
-	 * @param shapeMap The shapeMap with the asociations requested.
-	 * @return a shape map with the result
+	 * @param inputShapeMap The associations to be checked.
+	 * @return The result shape map with the result of the validation
 	 * @exception IllegalArgumentException if the label does not belong to the schema
 	 */ 
-	public ResultShapeMap validate (BaseShapeMap shapeMap) ;
-	
-	/** Constructs a shape map that allows to validate a focus node against a type.
-	 * Returns a shape map with the results of the associations found in the shapeMap passed to the function.
-	 * 
-	 * @param shapeMap The shapeMap with the asociations requested.
-	 * @return a shape map with the result
-	 * @exception IllegalArgumentException if the label does not belong to the schema
-	 */ 
-	public ResultShapeMap validate(BaseShapeMap shapeMap, ComputationController compController) throws Exception ;
+	public ResultShapeMap validate(BaseShapeMap inputShapeMap, ComputationController compController) throws Exception ;
 		
 	/** The typing that proves the result returned by previous validations.  */
 	@Stable

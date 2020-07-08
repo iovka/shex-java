@@ -33,7 +33,7 @@ public class ShapeEvaluation {
     private Graph graph;
     private RDFTerm focusNode;
     private Shape topShape;
-    private Typing neighboursTyping;
+    private TypingForRefineValidation neighboursTyping;
 
     private DynamicCollectorOfTripleConstraints collectorTC;
    	protected SORBEGenerator sorbeGenerator;
@@ -41,7 +41,7 @@ public class ShapeEvaluation {
    	private PreMatching preMatching;
 
     public ShapeEvaluation(Graph graph, RDFTerm focusNode, Shape shape,
-                           Typing neighboursTyping,
+                           TypingForRefineValidation neighboursTyping,
                            DynamicCollectorOfTripleConstraints collectorTC,
                            SORBEGenerator sorbeGenerator) {
         this.graph = graph;
@@ -195,7 +195,7 @@ public class ShapeEvaluation {
         @Override
         public void visitShape(Shape expr, Object... arguments) {
             RDFTerm value = (RDFTerm) arguments[0];
-            setResult(neighboursTyping.isConformant(value, expr.getId()));
+            setResult(neighboursTyping.containsShape(value, expr));
         }
     };
 

@@ -44,6 +44,7 @@ import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.util.TestCase;
 
+
 /** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
  * @author Jérémie Dusart
  *
@@ -72,13 +73,13 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 			// Change here to restrict the test cases
 			// trait filter
 			Predicate<TestCase> selectedTestCases = null;
-			/*String traitIriString = "http://www.w3.org/ns/shacl/test-suite#Extends";
-			selectedTestCases = tc -> !tc.testName.contains("vitals") && tc.traits.stream()
-					.map( it -> it.stringValue())
-					.anyMatch( it -> it.equals(traitIriString));*/
+//			String traitIriString = "http://www.w3.org/ns/shacl/test-suite#Extends";
+//			selectedTestCases = tc -> /* !tc.testName.contains("vitals") && */ tc.traits.stream()
+//					.map( it -> it.stringValue())
+//					.anyMatch( it -> it.equals(traitIriString));
 
 			// name filter
-			//selectedTestCases = tc -> tc.testName.equals("0_empty");
+			//selectedTestCases = tc -> tc.testName.equals("3circRefS123");
 
 			if (selectedTestCases != null) {
 				testCases = testCases.parallelStream().filter(selectedTestCases).collect(Collectors.toList());

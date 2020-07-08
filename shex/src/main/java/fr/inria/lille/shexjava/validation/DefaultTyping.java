@@ -25,29 +25,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** A default implementation of a typing that stores explicitly the status for all node-label pairs.
+ * Missing status is considered @link {@link Status#NOTCOMPUTED}.
  * @author Iovka Boneva
  */
 public class DefaultTyping implements Typing {
 
-    private Map<Pair<RDFTerm, Label>,Status> statusMap = new HashMap<>();
+    private Map<Pair<RDFTerm, Label>, Status> statusMap = new HashMap<>();
 
     @Override
     public Status getStatus(RDFTerm node, Label label) {
-        Status result = statusMap.get(new Pair(node, label));
-        return result == null ? Status.NOTCOMPUTED : result;
+        return statusMap.computeIfAbsent(new Pair<>(node, label), k -> Status.NOTCOMPUTED);
     }
 
-    protected void setStatus (RDFTerm node, Label label,Status status) {
+    protected void setStatus (RDFTerm node, Label label, Status status) {
         statusMap.put(new Pair(node, label), status);
     }
 
     @Override
     public Map<Pair<RDFTerm, Label>, Status> getStatusMap() {
         return Collections.unmodifiableMap(statusMap);
-    }
-
-    @Override
-    public boolean isConformant(RDFTerm node, Label label) {
-        return Status.CONFORMANT.equals(statusMap.get(new Pair(node,label)));
     }
 }

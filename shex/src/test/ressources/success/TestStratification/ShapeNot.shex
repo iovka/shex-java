@@ -1,0 +1,2 @@
+BASE <http://a.example/>
+<S> NOT {<p1> [<s3s>]}

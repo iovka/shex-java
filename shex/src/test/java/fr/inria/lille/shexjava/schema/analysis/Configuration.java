@@ -38,7 +38,7 @@ public class Configuration {
 
 		DirectoryStream<Path> directoryStream = Files.newDirectoryStream(testDirectory);
 		for (Path path : directoryStream) {
-			if (path.toString().endsWith(".json")) {
+			if (path.toString().endsWith(".shex")) {
 				Object [] parameters = new Object[2]; 
 				parameters[0] = path;
 				parameters[1] = result;

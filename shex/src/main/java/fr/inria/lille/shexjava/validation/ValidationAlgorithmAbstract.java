@@ -75,10 +75,7 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		if (focusNode==null || label==null)
 			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
 		if (!schema.getShapeExprsMap().containsKey(label))
-			// TODO is this exception a good idea ?
 			throw new IllegalArgumentException("Unknown label: "+label);
-//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
-//		throw new IllegalArgumentException("Node do not belong to the graph.");
 		try {
 			return validate(focusNode, label, null);
 		} catch (Exception e) {
@@ -93,8 +90,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
-//		if (focusNode != null && ! CommonGraph.getAllNodes(graph).contains(focusNode))
-//			throw new IllegalArgumentException("Node do not belong to the graph.");
 		this.compController = compController;
 		if (this.compController!=null) this.compController.start();
 		boolean res = performValidation(focusNode,label);
@@ -115,11 +110,11 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		}
 	}
 
-
-	public ResultShapeMap validate(BaseShapeMap shapeMap, ComputationController compController) throws Exception {
+	@Override
+	public ResultShapeMap validate(BaseShapeMap inputShapeMap, ComputationController compController) throws Exception {
 		List<ShapeAssociation> results = new ArrayList<>();
 		
-		for (ShapeAssociation sa:shapeMap.getAssociations()) {
+		for (ShapeAssociation sa: inputShapeMap.getAssociations()) {
 			Label seLabel = sa.getShapeSelector().apply(schema);
 			for(RDFTerm node:sa.getNodeSelector().apply(graph)) {
 				ShapeAssociation saRes = new ShapeAssociation(new NodeSeletorRDFTerm(node), new ShapeSelectorLabel(seLabel));
