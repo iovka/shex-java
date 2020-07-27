@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelStart;
 import org.apache.commons.rdf.api.Graph;
 import org.apache.commons.rdf.api.RDFTerm;
 
@@ -72,8 +73,10 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	 */
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label){
-		if (focusNode==null || label==null)
-			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
+		if (focusNode == null)
+			throw new IllegalArgumentException("Invalid argument value: focusNode cannot be null.");
+		if (label==null)
+			label = LabelStart.instance;
 		if (!schema.getShapeExprsMap().containsKey(label))
 			throw new IllegalArgumentException("Unknown label: "+label);
 		try {

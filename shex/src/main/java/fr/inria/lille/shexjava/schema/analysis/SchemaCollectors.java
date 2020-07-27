@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
+import fr.inria.lille.shexjava.util.Pair;
 
 
 /** This class provide a set of functions to collect element from a set of rules. 
@@ -111,6 +112,9 @@ public class SchemaCollectors {
 // Collectors
 //---------------------------------------------------------------------------
 
+
+
+
 // TODO these classes should be available for reuse elsewhere. Other visitors do more or less the same thing
 class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 
@@ -127,7 +131,7 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 	public void visitShape(Shape expr, Object... arguments) {
 		if (filter.test(expr))
 			getResult().add((C)expr);
-		for (ShapeExprRef ext : expr.getExtended())
+		for (ShapeExprRef ext : expr.getBases())
 			ext.accept(this, arguments);
 		if (traverseTripleExpressions) {
 			CollectElementsFromTriple<C> c = new CollectElementsFromTriple<C>(filter,getResult(), traverseTripleExpressions);
@@ -169,59 +173,3 @@ class CollectElementsFromShape<C> extends ShapeExpressionVisitor<Set<C>> {
 	}
 }
 
-class CollectElementsFromTriple<C> extends TripleExpressionVisitor<Set<C>>{
-
-	private Set<C> set;
-	private Predicate<Object> filter;
-	private boolean traverseShapeExpressions;
-
-	public CollectElementsFromTriple(Predicate<Object> filter, Set<C> collectionSet, boolean traverseShapeExpressions) {
-		this.set = collectionSet;
-		this.filter = filter;
-		this.traverseShapeExpressions = traverseShapeExpressions;
-	}
-
-	@Override
-	public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
-		if (filter.test(tc))
-			set.add((C)tc);
-		if (traverseShapeExpressions) {
-			CollectElementsFromShape<C> c = new CollectElementsFromShape<C>(filter, set, traverseShapeExpressions);
-			tc.getShapeExpr().accept(c, arguments);
-		}
-	}
-
-	@Override
-	public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {
-		if (filter.test(expr))
-			set.add((C)expr);
-	}
-
-	@Override
-	public void visitEachOf(EachOf expr, Object... arguments) {
-		if (filter.test(expr))
-			set.add((C)expr);
-		super.visitEachOf(expr, arguments);
-	}
-
-	@Override
-	public void visitOneOf(OneOf expr, Object... arguments) {
-		if (filter.test(expr))
-			set.add((C)expr);
-		super.visitOneOf(expr, arguments);
-	}
-
-
-	@Override
-	public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
-		if (filter.test(expr))
-			set.add((C)expr);
-		super.visitRepeated(expr, arguments);
-	}
-
-	@Override
-	public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
-		if (filter.test(expr))
-			set.add((C)expr);
-	}
-}

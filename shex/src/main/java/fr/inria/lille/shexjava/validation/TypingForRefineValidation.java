@@ -82,7 +82,7 @@ public class TypingForRefineValidation implements MyTypingForValidation {
      * @throws UnsupportedOperationException
      */
     @Override
-    public boolean removeShape(RDFTerm node, Shape shape) {
+    public void removeShape(RDFTerm node, Shape shape) {
         throw new UnsupportedOperationException("Not supported.");
     }
 
@@ -128,10 +128,11 @@ public class TypingForRefineValidation implements MyTypingForValidation {
     /** To be called when validation of a stratum starts.
      * Adds the given stratum shape labels to the types of all nodes. */
      void startStratum (int stratum) {
-         currentStratumShapeLabels.addAll(schema.getStratification().get(stratum));
+         currentStratumShapeLabels.addAll(schema.getStratification().get(stratum).stream()
+                 .filter(l -> !schema.getShapeExprsMap().get(l).isAbstract()).collect(Collectors.toSet()));
 
-         Set<Shape> stratumShapes = schema.getStratification().get(stratum).stream()
-                 .map(l -> (Shape) (schema.getShapeExprsMap().get(l))).collect(Collectors.toSet());
+         Set<Shape> stratumShapes = currentStratumShapeLabels.stream()
+                 .map(l -> (Shape) schema.getShapeExprsMap().get(l)).collect(Collectors.toSet());
          for (RDFTerm node : validShapesMap.keySet())
              for (Shape shape : stratumShapes)
                 currentStratumNodeShapeLabelPairs.add(new Pair(node, shape));

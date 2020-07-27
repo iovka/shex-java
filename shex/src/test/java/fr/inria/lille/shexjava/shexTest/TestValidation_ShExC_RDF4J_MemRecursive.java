@@ -84,7 +84,6 @@ public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationT
 									 .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
 									 .collect(Collectors.toList()));		
 			
-			//testCases = testCases.subList(500,501);
 			String selectedTest = "";
 			if (!selectedTest.equals(""))
 				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
@@ -117,9 +116,9 @@ public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationT
 			fail("Incorrect test definition.");
 		}
 		try {
-			Typing typing = performValidation().getTyping();
-			if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && typing.isConformant(testCase.focusNode, testCase.shapeLabel))
-					|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && typing.getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
+			Status status = performValidation();
+			if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && Status.CONFORMANT.equals(status))
+					|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && Status.NONCONFORMANT.equals(status))){
 				passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
 			} else {
 				failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));

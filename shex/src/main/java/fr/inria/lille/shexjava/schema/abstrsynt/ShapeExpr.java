@@ -29,15 +29,13 @@ import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
  */
 public abstract class ShapeExpr extends Expression {
 	
-	private Boolean isAbstract = null;
+	private boolean isAbstract = false;
 	
 	public boolean isAbstract () {
-		return this.isAbstract == true;
+		return this.isAbstract;
 	}
-	public void setAbstract (boolean isAbstract) {
-		if (this.isAbstract != null)
-			throw new IllegalStateException("Abstract can be set only once.");
-		this.isAbstract = isAbstract;
+	public void setAbstract () {
+		this.isAbstract = true;
 	}
 
 	public abstract <ResultType> void accept (ShapeExpressionVisitor<ResultType> visitor, Object ... arguments);

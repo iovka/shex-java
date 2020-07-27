@@ -38,7 +38,7 @@ public class CollectTripleConstraintsSE extends
 
         if (parents != null) parents.push(expr);
 
-        for (ShapeExpr se : expr.getExtended()) {
+        for (ShapeExpr se : expr.getBases()) {
             if (parents != null) parents.push(se);
             se.accept(this, arguments);
             if (parents != null) parents.pop();

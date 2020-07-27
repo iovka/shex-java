@@ -17,7 +17,6 @@
 package fr.inria.lille.shexjava.validation;
 
 import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
@@ -28,6 +27,7 @@ import org.apache.commons.rdf.api.RDFTerm;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,8 +47,12 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 	@Override
 	protected boolean performValidation(RDFTerm focusNode, Label label) {
 		computeMaximalTyping();
-		cornerCaseValidate(focusNode, label);
-		return typing.asTyping().isConformant(focusNode, label);
+		Status status = typing.asTyping().getStatus(focusNode, label);
+		if (Status.NOTCOMPUTED.equals(status)) {
+			status = cornerCaseValidate(focusNode, label);
+			typing.setStatus(focusNode, label, status);
+		}
+		return Status.CONFORMANT.equals(status);
 	}
 
 	@Override
@@ -86,27 +90,26 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 			} while (changed);
 			typing.endStratum();
 		}
-		// Compute the typing for the non shape labels
-		// TODO to be optimized. Now it goes through all labels, should be limited to those that are on the current stratum
+		// Compute the typing for the user defined shape expressions
 		for (Label label : schema.getShapeExprsMap().keySet()) {
-			if (! (label instanceof LabelUserDefined))
-				continue;
-			for (RDFTerm node : typing.allNodes()) { // TODO here, the Shape labels are also added as "other" labels; only the "public" labels should be added
+			if (! label.isUserDefined()) continue;
+			ShapeExpr expr = schema.getShapeExprsMap().get(label);
+			for (RDFTerm node : typing.allNodes()) {
 				typing.setStatus(node, label,
-						satisfies(node, schema.getShapeExprsMap().get(label)) ? Status.CONFORMANT : Status.NONCONFORMANT);
+						satisfies(node, expr) ? Status.CONFORMANT : Status.NONCONFORMANT);
 			}
 		}
 		computed = true;
 	}
 
 	private boolean satisfies (RDFTerm node, ShapeExpr shapeExpr) {
-		EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(typing);
+		EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(typing, schema.getConcreteSubShapesMap());
 		shapeExpr.accept(eval, node);
 		return eval.getResult();
 	}
 
 	private boolean evaluateShape (RDFTerm node, Shape shape) {
-		ShapeEvaluation eval = new ShapeEvaluation(graph, node, shape, typing, collectorTC, sorbeGenerator);
+		ShapeEvaluation eval = new ShapeEvaluation(graph, schema, node, shape, typing, collectorTC, sorbeGenerator);
 		return eval.evaluate();
 	}
 
@@ -115,34 +118,32 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 	 * One corner case is when {@param node} is not part of the graph in which case the maximal typing does not contain the node.
 	 * The other corner case is when {@param label} refers to a shape expression without shapes (i.e. only node constraints), in which case the maximal typing does not allow to test validity.
 	 */
-	private void cornerCaseValidate (RDFTerm node, Label label) {
+	private Status cornerCaseValidate (RDFTerm node, Label label) {
+		if (! schema.getShapeExprsMap().containsKey(label))
+			return Status.NOTCOMPUTED; // Nothing to do
+
+		if (typing.allNodes().contains(node))
+			throw new IllegalStateException("should not happen");
+
+		// Associate with the node the sub-shapes of label's expression that match the node
 		ShapeExpr expr = schema.getShapeExprsMap().get(label);
 		Set<Shape> allShapes = SchemaCollectors.collectAllShapes(expr);
-		if (typing.allNodes().contains(node) && ! allShapes.isEmpty())
-			// not a corner case
-			return;
-
-		if (allShapes.isEmpty())
-			this.typing.setStatus(node, label,
-					satisfies(node, schema.getShapeExprsMap().get(label)) ? Status.CONFORMANT : Status.NONCONFORMANT);
-
-		// We must test wethether the empty neighbourhood satisfies the shape expr
-		// This can be done with satisfies and a typing that associates to the node only the shapes that are valid for the empty neighbourhood
 		SimpleTypingForValidation localTyping = new SimpleTypingForValidation();
 		for (Shape shape: allShapes) {
 			if (evaluateShape(node, shape))
 				localTyping.addShape(node, shape);
 		}
-		EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(localTyping);
+		EvaluateShapeExprVistor eval = new EvaluateShapeExprVistor(localTyping, schema.getConcreteSubShapesMap());
 		expr.accept(eval, node);
-		this.typing.setStatus(node, label, eval.getResult() ? Status.CONFORMANT : Status.NONCONFORMANT);
+		return eval.getResult() ? Status.CONFORMANT : Status.NONCONFORMANT;
 	}
 
 	/** Allows to evaluate a node against a shape expression while using the typing given at construction time to evaluate the Shapes. */
 	static class EvaluateShapeExprVistor extends ShapeEvaluation.AbstractShapeExprEvaluator {
 
 		private final MyTypingForValidation localTyping;
-		EvaluateShapeExprVistor(MyTypingForValidation localTyping) {
+		EvaluateShapeExprVistor(MyTypingForValidation localTyping, Map<ShapeExpr, Set<Shape>> subShapesMap) {
+			super(subShapesMap);
 			this.localTyping = localTyping;
 		}
 
@@ -178,7 +179,7 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 		}
 
 		@Override
-		public boolean removeShape(RDFTerm node, Shape shape) {
+		public void removeShape(RDFTerm node, Shape shape) {
 			throw new UnsupportedOperationException("Not supported");
 		}
 
@@ -187,5 +188,37 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 			throw new UnsupportedOperationException("Not supported");
 		}
 	}
+
+	private static MyTypingForValidation emptyTyping = new MyTypingForValidation() {
+		@Override
+		public Typing asTyping() {
+			throw new UnsupportedOperationException("Not supported");
+		}
+
+		@Override
+		public boolean containsShape(RDFTerm node, Shape shape) {
+			return false;
+		}
+
+		@Override
+		public boolean containsShapeExpr(RDFTerm node, ShapeExpr shapeExpr) {
+			return false;
+		}
+
+		@Override
+		public void addShape(RDFTerm node, Shape shape) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+
+		@Override
+		public void removeShape(RDFTerm node, Shape shape) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+
+		@Override
+		public void setStatus(RDFTerm node, Label shapeExprLabel, Status status) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+	};
 
 }

@@ -16,6 +16,7 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import org.apache.commons.rdf.api.Graph;
@@ -31,6 +32,7 @@ import java.util.function.BiPredicate;
 public class ShapeEvaluation {
 
     private Graph graph;
+    private ShexSchema schema;
     private RDFTerm focusNode;
     private Shape topShape;
     private TypingForRefineValidation neighboursTyping;
@@ -40,17 +42,20 @@ public class ShapeEvaluation {
 
    	private PreMatching preMatching;
 
-    public ShapeEvaluation(Graph graph, RDFTerm focusNode, Shape shape,
+    public ShapeEvaluation(Graph graph, ShexSchema schema,
+                           RDFTerm focusNode, Shape shape,
                            TypingForRefineValidation neighboursTyping,
                            DynamicCollectorOfTripleConstraints collectorTC,
                            SORBEGenerator sorbeGenerator) {
         this.graph = graph;
+        this.schema = schema;
         this.focusNode = focusNode;
         this.topShape = shape;
         this.neighboursTyping = neighboursTyping;
 
         this.collectorTC = collectorTC;
         this.sorbeGenerator = sorbeGenerator;
+        initEvaluators();
     }
 
     /** Evaluates the node given at construction time against the shape given at construction time. */
@@ -69,7 +74,7 @@ public class ShapeEvaluation {
 
     /** Evaluates part of the neighbourhood against a shape. */
     private boolean evaluateShape (List<Triple> triples, Shape shape) {
-        if (shape.getExtended().isEmpty())
+        if (shape.getBases().isEmpty())
             return evaluateShapeWithoutExtended(triples, shape);
         else
             return evaluateShapeWithExtended(triples, shape);
@@ -94,8 +99,8 @@ public class ShapeEvaluation {
     }
 
     private static Map<Expression, List<Triple>> matchingToPartition(Matching<Expression> matching, Shape shape) {
-        Map<Expression, List<Triple>> result = new HashMap<>(shape.getExtended().size()+1);
-        for (ShapeExprRef ext : shape.getExtended())
+        Map<Expression, List<Triple>> result = new HashMap<>(shape.getBases().size()+1);
+        for (ShapeExprRef ext : shape.getBases())
             result.put(ext, new ArrayList<>());
         result.put(shape.getTripleExpression(), new ArrayList<>());
 		for (Map.Entry<Triple, Expression> entry : matching.entrySet()) {
@@ -105,7 +110,7 @@ public class ShapeEvaluation {
     }
 
     /** Evaluates a partition of (part of) the neighbourhood against expressions.
-     * The expressions that are keys of the partition are sub-expressions of a Shape, that is, either one of {@link Shape#getExtended()} or {@link Shape#getTripleExpression()}.
+     * The expressions that are keys of the partition are sub-expressions of a Shape, that is, either one of {@link Shape#getBases()} or {@link Shape#getTripleExpression()}.
      */
     private boolean evaluatePartition (Map<Expression, List<Triple>> partition) {
         boolean failed = false;
@@ -117,7 +122,7 @@ public class ShapeEvaluation {
             if (expr instanceof TripleExpr) {
                 failed = ! matches(triples, (TripleExpr) expr);
             } else if (expr instanceof ShapeExprRef) {
-                EvaluateShapeExprOnNeighbourhoodVisitor shexprEval = new EvaluateShapeExprOnNeighbourhoodVisitor(triples);
+                EvaluateShapeExprOnNeighbourhoodVisitor shexprEval = new EvaluateShapeExprOnNeighbourhoodVisitor(triples, schema.getConcreteSubShapesMap());
                 ((ShapeExprRef) expr).accept(shexprEval, focusNode);
                 failed = ! shexprEval.getResult();
             } else {
@@ -158,7 +163,7 @@ public class ShapeEvaluation {
         List<TripleConstraint> tripleConstraints = collectorTC.getTCs(sorbeTripleExpr);
         PreMatching sorbePreMatching = ValidationUtils.computePreMatching(
                 focusNode, triples, tripleConstraints,  Collections.emptySet(),
-                               ValidationUtils.getPredicateAndValueMatcher(), valueMatcherWithTyping);
+                ValidationUtils.getPredicateAndValueMatcher(), valueMatcherWithTyping);
         if (!sorbePreMatching.getUnmatched().isEmpty() || !sorbePreMatching.getMatchedToExtra().isEmpty())
             return false;
         MatchingsIterator<TripleConstraint> mit = new MatchingsIterator<>(sorbePreMatching.getPreMatching());
@@ -181,21 +186,23 @@ public class ShapeEvaluation {
 		return intervalComputation.getResult().contains(1);
 	}
 
+    /** Allows to evaluate a node w.r.t. a shape expression, while using the {@link #neighboursTyping} to determine whether a shape is satisfied (no recursive evaluation of Shapes). */
+    private ShapeExpressionVisitor<Boolean> evaluateValueConstraintWithTyping;
+    private void initEvaluators () {
+        evaluateValueConstraintWithTyping = new AbstractShapeExprEvaluator(schema.getConcreteSubShapesMap()) {
+            @Override
+            public void visitShape(Shape expr, Object... arguments) {
+                RDFTerm value = (RDFTerm) arguments[0];
+                setResult(neighboursTyping.containsShape(value, expr));
+            }
+        };
+    }
+
 	private BiPredicate<RDFTerm,ShapeExpr> valueMatcherWithTyping = new BiPredicate<RDFTerm, ShapeExpr>() {
         @Override
         public boolean test(RDFTerm node, ShapeExpr shapeExpr) {
             shapeExpr.accept(evaluateValueConstraintWithTyping, node);
             return evaluateValueConstraintWithTyping.getResult();
-        }
-    };
-
-
-	/** Allows to evaluate a node w.r.t. a shape expression, while using the {@link #neighboursTyping} to determine whether a shape is satisfied (no recursive evaluation of Shapes). */
-	private ShapeExpressionVisitor<Boolean> evaluateValueConstraintWithTyping = new AbstractShapeExprEvaluator() {
-        @Override
-        public void visitShape(Shape expr, Object... arguments) {
-            RDFTerm value = (RDFTerm) arguments[0];
-            setResult(neighboursTyping.containsShape(value, expr));
         }
     };
 
@@ -205,7 +212,8 @@ public class ShapeEvaluation {
 
         private List<Triple> neighbourhood;
 
-        public EvaluateShapeExprOnNeighbourhoodVisitor(List<Triple> neighbourhood) {
+        public EvaluateShapeExprOnNeighbourhoodVisitor(List<Triple> neighbourhood, Map<ShapeExpr, Set<Shape>> subShapesMap) {
+            super(subShapesMap);
             this.neighbourhood = neighbourhood;
         }
 
@@ -218,6 +226,12 @@ public class ShapeEvaluation {
 
     /** Allows to evaluate a node against a shape expression, leaving the way Shapes are evaluated to the implementers. */
     public abstract static class AbstractShapeExprEvaluator extends ShapeExpressionVisitor<Boolean> {
+
+        private final Map<ShapeExpr, Set<Shape>> subShapesMap;
+        public AbstractShapeExprEvaluator (Map<ShapeExpr, Set<Shape>> subShapesMap) {
+            this.subShapesMap = subShapesMap;
+        }
+
         @Override
         public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
             RDFTerm value = (RDFTerm) arguments[0];
@@ -226,7 +240,16 @@ public class ShapeEvaluation {
 
         @Override
         public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
-            shapeRef.getShapeDefinition().accept(this, arguments);
+            ShapeExpr expr = shapeRef.getShapeDefinition();
+            if (! expr.isAbstract())
+                shapeRef.getShapeDefinition().accept(this, arguments);
+            else {
+                boolean valid = false;
+                for (Shape subShape : subShapesMap.get(expr)) {
+                    subShape.accept(this, arguments);
+                    if (getResult()) break;
+                }
+            }
         }
 
         @Override

@@ -38,7 +38,7 @@ public interface MyTypingForValidation {
     /** Adds the association. */
     void addShape (RDFTerm node, Shape shape);
     /** Removes the association. */
-    boolean removeShape (RDFTerm node, Shape shape);
+    void removeShape (RDFTerm node, Shape shape);
 
     /** Sets a permanent status for a node and a shape expression label. */
     void setStatus (RDFTerm node, Label shapeExprLabel, Status status);

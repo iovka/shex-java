@@ -45,7 +45,7 @@ public abstract class Expression {
 
     @Override
 	public String toString() {
-		return toPrettyString(Collections.emptyMap());
+		return String.format("%s=⟨%s⟩", this.getId(), ""); //toPrettyString(Collections.emptyMap()));
 	}
 
 	@Override

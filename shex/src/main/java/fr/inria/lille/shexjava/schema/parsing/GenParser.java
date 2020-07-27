@@ -76,14 +76,14 @@ public class GenParser {
 		if (!filepath.toFile().exists())
 			throw new FileNotFoundException("File "+filepath+" not found.");
 		
-		Set<Path> loaded = new HashSet<Path>();
+		Set<Path> loaded = new HashSet<>();
 		Map<Label,ShapeExpr> allRules = new HashMap<Label,ShapeExpr>();
 		
-		List<Path> toload = new ArrayList<Path>();
+		List<Path> toload = new ArrayList<>();
 		toload.add(filepath);
 		
 		ShapeExpr start = null;
-		boolean init = true;
+		boolean isTopLevelSchema = true;
 		
 		while(toload.size()>0) {
 			Path selectedPath = toload.get(0);
@@ -99,9 +99,9 @@ public class GenParser {
 				parser = new ShExRParser();
 			}
 			allRules.putAll(parser.getRules(rdfFactory,selectedPath));
-			if (init) {
+			if (isTopLevelSchema) {
 				start = parser.getStart();
-				init = false;
+				isTopLevelSchema = false;
 			}
 			List<String> imports = parser.getImports();
 
@@ -131,6 +131,7 @@ public class GenParser {
 					toload.add(res);					
 			}
 		}
+		if (start != null) allRules.put(start.getId(), start);
 		ShexSchema schema = new ShexSchema(rdfFactory,allRules,start);
 		return schema;
 	}

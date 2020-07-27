@@ -16,48 +16,37 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema;
 
-import java.util.Collections;
 import java.util.Map;
 
-/** A generated label. Acts also as factory for such labels.
- *
+/**
  * @author Iovka Boneva
  */
-public class LabelGenerated implements Label {
+public class LabelStart implements Label {
 
-    public static LabelGenerated getNew () {
-        return new LabelGenerated(next++);
-    }
+    public static final LabelStart instance = new LabelStart();
 
-    private final int id;
-    private static int next = 0;
-
-    private LabelGenerated (int id) {
-        this.id = id;
-    }
+    private LabelStart () {}
 
     @Override
     public boolean isUserDefined() {
-        return false;
+        return true;
     }
-
     @Override
-    public String toPrettyString(Map<String,String> prefixes) {
-        return "Label:"+id;
+    public String toPrettyString(Map<String, String> prefixes) {
+        return "start";
     }
-
     @Override
     public String toString() {
-        return toPrettyString(Collections.emptyMap());
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        return super.equals(o);
+        return "start";
     }
 
     @Override
     public final int hashCode() {
         return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
     }
 }

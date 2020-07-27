@@ -19,12 +19,10 @@ package fr.inria.lille.shexjava.schema.abstrsynt;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import fr.inria.lille.shexjava.schema.Label;
 import org.apache.commons.rdf.api.IRI;
 
 import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
 import fr.inria.lille.shexjava.util.CollectionToString;
-import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
 
 /**
  * @author Iovka Boneva
@@ -35,20 +33,20 @@ public class  Shape extends ShapeExpr implements AnnotedObject {
 	private Set<TCProperty> extra;
 	private TripleExpr tripleExpr;
 	private List<Annotation> annotations;
-	private List<ShapeExprRef> extended;
+	private List<ShapeExprRef> bases;
 
-	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps,
+	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> bases, Set<TCProperty> extraProps,
 				 boolean closed, List<Annotation> annotations) {
 		this.tripleExpr = tripleExpr;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
-		this.extended = Collections.unmodifiableList(new ArrayList(extended));
+		this.bases = Collections.unmodifiableList(new ArrayList(bases));
 		this.closed = closed;
 		this.annotations = null;
 		this.annotations = annotations;
 	}
 
-	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps, boolean closed) {
-		this(tripleExpr, extended, extraProps, closed, null);
+	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> bases, Set<TCProperty> extraProps, boolean closed) {
+		this(tripleExpr, bases, extraProps, closed, null);
 	}
 
 	// TODO does not handle extra
@@ -71,7 +69,7 @@ public class  Shape extends ShapeExpr implements AnnotedObject {
 	public TripleExpr getTripleExpression () {
 		return tripleExpr;
 	}
-	public List<ShapeExprRef> getExtended () { return extended; }
+	public List<ShapeExprRef> getBases() { return bases; }
 	
 	public boolean isClosed () {
 		return this.closed;
@@ -98,8 +96,8 @@ public class  Shape extends ShapeExpr implements AnnotedObject {
 		if (this.annotations!=null && ! this.annotations.isEmpty())
 			annot = CollectionToString.collectionToString(annotations," ; ","// [", "]")+" ";
 		String extendedstr = "";
-		if (! this.extended.isEmpty())
-			extendedstr = CollectionToString.collectionToString(getExtended(), " ; ", " EXTENDS ", "") + " ";
+		if (! this.bases.isEmpty())
+			extendedstr = CollectionToString.collectionToString(getBases(), " EXTENDS ", "EXTENDS ", "") + " ";
 		return String.format("%s%s%s{%s}%s", closedstr, extraP, extendedstr, tripleExpr.toPrettyString(prefixes),annot);
 	}
 

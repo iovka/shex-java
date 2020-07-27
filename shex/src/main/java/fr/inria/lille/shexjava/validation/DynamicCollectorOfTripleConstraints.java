@@ -63,7 +63,7 @@ public class DynamicCollectorOfTripleConstraints {
 	public List<TripleConstraint> getTCs (Shape shape) {
 		List<TripleConstraint> tripleConstraints = collectedTCs.get(shape);
 
-		boolean parentIsTrivial = shape.getExtended().isEmpty();
+		boolean parentIsTrivial = shape.getBases().isEmpty();
 		Deque<Expression> parents = null;
 		if (! parentIsTrivial) parents = new ArrayDeque<>();
 

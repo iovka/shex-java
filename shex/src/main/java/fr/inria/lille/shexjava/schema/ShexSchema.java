@@ -16,20 +16,16 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.schema;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import fr.inria.lille.shexjava.schema.analysis.CollectTripleConstraintsTE;
+import fr.inria.lille.shexjava.schema.analysis.*;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import org.apache.commons.rdf.api.RDF;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.alg.KosarajuStrongConnectivityInspector;
+import org.jgrapht.alg.TransitiveClosure;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -43,9 +39,6 @@ import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.exception.CyclicReferencesException;
 import fr.inria.lille.shexjava.exception.NotStratifiedException;
 import fr.inria.lille.shexjava.exception.UndefinedReferenceException;
-import fr.inria.lille.shexjava.schema.analysis.SchemaCollectors;
-import fr.inria.lille.shexjava.schema.analysis.ShapeExpressionVisitor;
-import fr.inria.lille.shexjava.schema.analysis.TripleExpressionVisitor;
 import fr.inria.lille.shexjava.util.Pair;
 
 /** A ShEx schema.
@@ -61,11 +54,12 @@ import fr.inria.lille.shexjava.util.Pair;
  */
 @Stable
 public class ShexSchema {
-	private ShapeExpr start;
-	private Map<Label, ShapeExpr> rules;
-	private Map<Label,ShapeExpr> shexprsMap;
-	private Map<Label,TripleExpr> texprsMap;
-	private Map<Integer,Set<Label>> stratification;
+	private final ShapeExpr start;
+	private final Map<Label, ShapeExpr> rules;
+	private final Map<Label,ShapeExpr> shexprsMap;
+	private final Map<Label,TripleExpr> texprsMap;
+	private final Map<Integer,Set<Label>> stratification;
+	private final Map<ShapeExpr, Set<Shape>> concreteSubShapesMap;
 	
 	/** The factory used for creating fresh {@link Label}s */
 	private RDF rdfFactory;
@@ -74,24 +68,34 @@ public class ShexSchema {
 		this.start = start;
 		this.rdfFactory = rdfFactory;
 
-		Map<Label, ShapeExpr> rulesPlusStart = new HashMap<>(rules);
-		if (start!=null && !rulesPlusStart.containsKey(start.getId()))
-			rulesPlusStart.put(start.getId(),start);
-
-
-		Map<Label, ShapeExpr> shapeExprsMap = constructShexprMapAndCheckIdsAreUnique(rulesPlusStart);
-		checkThatAllShapeExprRefsAreDefined(shapeExprsMap);
-		Map<Label, TripleExpr> tripleExprsMap = constructTexprsMapAndCheckIdsAreUnique(rulesPlusStart, shapeExprsMap);
-		checkThatAllTripleExprRefsAreDefined(tripleExprsMap);
-
-		checkNoCyclicReferences(rulesPlusStart, shapeExprsMap, tripleExprsMap);
-
-		this.stratification = Collections.unmodifiableMap(computeStratification(shapeExprsMap));
-
 		this.rules = Collections.unmodifiableMap(rules);
-		this.texprsMap = Collections.unmodifiableMap(tripleExprsMap);
-		this.shexprsMap = Collections.unmodifiableMap(shapeExprsMap);
+		this.shexprsMap = Collections.unmodifiableMap(constructShexprMapAndCheckIdsAreUnique(this.rules));
+		checkThatAllShapeExprRefsAreDefined(this.shexprsMap);
+		this.texprsMap = Collections.unmodifiableMap(constructTexprsMapAndCheckIdsAreUnique(this.rules, this.shexprsMap));
+		checkThatAllTripleExprRefsAreDefined(this.texprsMap);
+
+		// TODO integrate circularity in EXTENDS
+		checkNoCyclicReferences(this.rules, this.shexprsMap, this.texprsMap);
+
+		this.concreteSubShapesMap = Collections.unmodifiableMap(collectSubShapes(this.shexprsMap));
+		this.stratification = Collections.unmodifiableMap(computeStratification(this.shexprsMap, this.concreteSubShapesMap));
+
+		/*
+		DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> depGraph = ShexSchema.computeGraphOfDependences(schema.getShapeExprsMap(), schema.getConcreteSubShapesMap());
+
+        for (Map.Entry<Label, ShapeExpr> e : schema.getShapeExprsMap().entrySet()) {
+            System.out.println(e.getKey() + "->" + e.getValue() +
+                    ((e.getValue() instanceof Shape) ? " (Shape)" : ""));
+        }
+
+        System.out.println("");
+        for (DefaultWeightedEdge e : depGraph.edgeSet()) {
+            System.out.println(depGraph.getEdgeSource(e) + " -> " + depGraph.getEdgeTarget(e));
+        }
+		*/
 	}
+
+
 
 	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
 	 * Otherwise, an exception is thrown.
@@ -160,12 +164,20 @@ public class ShexSchema {
 		return texprsMap;
 	}
 	
-	/** Return the start shapeExpr. */
+	/** Return the start shape expression, or null if there is no start shape expression. */
 	public ShapeExpr getStart() {
 		return start;
 	}
-	
-	
+
+	/** Returns the concrete shape expressions that extend a given abstract shape, or null if the argument is not an abstract shape. */
+	public Set<Shape> getConcreteSubShapes(ShapeExpr base) {
+		return concreteSubShapesMap.get(base);
+	}
+
+	public Map<ShapeExpr, Set<Shape>> getConcreteSubShapesMap() {
+		return concreteSubShapesMap;
+	}
+
 	/** The set of shape labels that are on a given stratum.
 	 * 
 	 * @param i
@@ -255,6 +267,34 @@ public class ShexSchema {
 		}
 	}
 
+	static Map<ShapeExpr, Set<Shape>> collectSubShapes(Map<Label, ShapeExpr> shapeExprsMap) throws CyclicReferencesException {
+		DirectedAcyclicGraph<ShapeExpr, DefaultEdge> extendsRelationGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
+		Set<Shape> allShapes = shapeExprsMap.values().stream().filter(it -> it instanceof Shape).map(it -> (Shape) it).collect(Collectors.toSet());
+		for (Shape superShape: allShapes) {
+			extendsRelationGraph.addVertex(superShape);
+			for (ShapeExprRef base : superShape.getBases()) {
+				extendsRelationGraph.addVertex(base.getShapeDefinition());
+				try {
+					extendsRelationGraph.addEdge(base.getShapeDefinition(), superShape);
+				} catch (IllegalArgumentException x) {
+					throw new CyclicReferencesException("Cyclic EXTENDS in Shape " + superShape.getId() + " caused by EXTENDS " + base.getShapeDefinition().getId());
+				}
+			}
+		}
+		TransitiveClosure.INSTANCE.closeDirectedAcyclicGraph(extendsRelationGraph);
+		Map<ShapeExpr, Set<Shape>> result = new HashMap<>(allShapes.size());
+		for (Shape shape : allShapes) {
+			Set<Shape> set = new HashSet<>();
+			result.put(shape, set);
+			for (DefaultEdge outEdge : extendsRelationGraph.outgoingEdgesOf(shape)) {
+				Shape subShape = (Shape) extendsRelationGraph.getEdgeTarget(outEdge);
+				if (! subShape.isAbstract())
+					set.add(subShape);
+			}
+		}
+		return result;
+	}
+
 	private void checkThatAllTripleExprRefsAreDefined(Map<Label, TripleExpr> tripleExprsMap) throws UndefinedReferenceException {
 		for (TripleExpr texpr : tripleExprsMap.values()){
 			if (texpr instanceof TripleExprRef) {
@@ -275,14 +315,14 @@ public class ShexSchema {
 				rulesMap, shapeExprsMap, tripleExprMap);
 		CycleDetector<Label, DefaultEdge> detector = new CycleDetector<>(referencesGraph);
 		if (detector.detectCycles())
-			throw new CyclicReferencesException("Cyclic dependencies of refences found: "+detector.findCycles()+"." );
+			throw new CyclicReferencesException("Cyclic dependencies of references found: "+detector.findCycles()+"." );
 	}
 	
 	
 	static private Map<Integer, Set<Label>> computeStratification (
-			Map<Label, ShapeExpr> shapeExprMap) throws NotStratifiedException {
+			Map<Label, ShapeExpr> shapeExprMap, Map<ShapeExpr, Set<Shape>> subShapesMap) throws NotStratifiedException {
 
-		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> depG = computeGraphOfDependences(shapeExprMap);
+		DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> depG = computeGraphOfDependences(shapeExprMap, subShapesMap);
 		List<Graph<Label, DefaultWeightedEdge>> strConComp = checkIfGraphCanBeStratified(depG);
 
 		// Shrink the strongly connected component and memorize how the shrink was performed.
@@ -324,29 +364,21 @@ public class ShexSchema {
 		return true;
 	}
 
-	private void addIdIfNone(ShapeExpr shape) {
-		if (shape.getId() == null) {
-			shape.setId(LabelGenerated.getNew());
-			shapeLabelNb++;
+	private void addIdIfNone(Expression expr) {
+		if (expr.getId() == null) {
+			expr.setId(LabelGenerated.getNew());
 		}
 	}
 
-	private void addIdIfNone (TripleExpr triple) {
-		if (triple.getId() == null) {
-			triple.setId(LabelGenerated.getNew());
-			tripleLabelNb++;
-		}
-	}
-	
 	
 	//--------------------------------------------------------------------------------
 	// Graph References computation
 	//--------------------------------------------------------------------------------
 
-	class CollectGraphReferencesFromShape extends ShapeExpressionVisitor<Set<Pair<Label,Label>>> {
+	static class CollectGraphReferencesFromShape extends ShapeExpressionVisitor<Set<Pair<Label,Label>>> {
 
 		public CollectGraphReferencesFromShape () {	
-			setResult(new HashSet<Pair<Label,Label>>());
+			setResult(new HashSet<>());
 		}
 		
 		public CollectGraphReferencesFromShape (Set<Pair<Label,Label>> set) {	
@@ -360,40 +392,38 @@ public class ShexSchema {
 		}
 		
 		@Override
-		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
-		}
+		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) { /* Do nothing */ }
 		
 		@Override
 		public void visitShapeExprRef(ShapeExprRef shapeRef, Object[] arguments) {
-			getResult().add(new Pair<Label,Label>(shapeRef.getId(),shapeRef.getLabel()));
+			getResult().add(new Pair<>(shapeRef.getId(),shapeRef.getLabel()));
 		}
 		
 		@Override
 		public void visitShapeAnd(ShapeAnd expr, Object... arguments) {
-			for (ShapeExpr subExpr: expr.getSubExpressions()) {
-				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
-			}
 			super.visitShapeAnd(expr, arguments);
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				getResult().add(new Pair<>(expr.getId(),subExpr.getId()));
+			}
 		}
 		
 		@Override
 		public void visitShapeOr(ShapeOr expr, Object... arguments) {
-			for (ShapeExpr subExpr: expr.getSubExpressions()) {
-				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
-			}
 			super.visitShapeOr(expr, arguments);
+			for (ShapeExpr subExpr: expr.getSubExpressions()) {
+				getResult().add(new Pair<>(expr.getId(),subExpr.getId()));
+			}
 		}
 		
 		@Override
 		public void visitShapeNot(ShapeNot expr, Object... arguments) {
-			getResult().add(new Pair<Label,Label>(expr.getId(),expr.getSubExpression().getId()));
 			super.visitShapeNot(expr, arguments);
+			getResult().add(new Pair<>(expr.getId(),expr.getSubExpression().getId()));
 		}
-
 	}
 	
 	
-	class CollectGraphReferencesFromTriple extends TripleExpressionVisitor<Set<Pair<Label,Label>>> {
+	static class CollectGraphReferencesFromTriple extends TripleExpressionVisitor<Set<Pair<Label,Label>>> {
 
 		public CollectGraphReferencesFromTriple(Set<Pair<Label,Label>> set){
 			setResult(set);
@@ -401,25 +431,20 @@ public class ShexSchema {
 
 		@Override		
 		public void visitEachOf (EachOf expr, Object ... arguments) {
-			for (TripleExpr subExpr: expr.getSubExpressions()) {
-				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
-			}
 			super.visitEachOf(expr, arguments);
+			for (TripleExpr subExpr: expr.getSubExpressions()) {
+				getResult().add(new Pair<>(expr.getId(),subExpr.getId()));
+			}
 		}
 		
 		@Override		
 		public void visitOneOf (OneOf expr, Object ... arguments) {
-			for (TripleExpr subExpr: expr.getSubExpressions()) {
-				getResult().add(new Pair<Label,Label>(expr.getId(),subExpr.getId()));
-			}
 			super.visitOneOf(expr, arguments);
+			for (TripleExpr subExpr: expr.getSubExpressions()) {
+				getResult().add(new Pair<>(expr.getId(),subExpr.getId()));
+			}
 		}
-		
-		@Override		
-		public void visitRepeated(RepeatedTripleExpression expr, Object[] arguments) {
-			expr.getSubExpression().accept(this, arguments);
-		}
-		
+
 		@Override
 		public void visitTripleConstraint(TripleConstraint tc, Object... arguments) {
 			CollectGraphReferencesFromShape visitor = new CollectGraphReferencesFromShape(getResult());
@@ -428,11 +453,11 @@ public class ShexSchema {
 
 		@Override
 		public void visitTripleExprReference(TripleExprRef expr, Object... arguments) {
-			getResult().add(new Pair<Label,Label>(expr.getId(),expr.getLabel()));
+			getResult().add(new Pair<>(expr.getId(),expr.getLabel()));
 		}
 
 		@Override
-		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) {}
+		public void visitEmpty(EmptyTripleExpression expr, Object[] arguments) { /* Do nothing */ }
 		
 	
 	}
@@ -443,13 +468,12 @@ public class ShexSchema {
 		// Visit the schema to collect the references
 		CollectGraphReferencesFromShape collector = new CollectGraphReferencesFromShape();
 		for (ShapeExpr expr: rulesMap.values()) {
-			//System.out.println("Rule: "+expr.getId().toString());
 			expr.accept(collector);
 		}
 		
 		// build the graph
 		GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>> builder;
-		builder = new GraphBuilder<Label,DefaultEdge,DefaultDirectedGraph<Label,DefaultEdge>>(new DefaultDirectedGraph<Label,DefaultEdge>(DefaultEdge.class));
+		builder = new GraphBuilder<>(new DefaultDirectedGraph<>(DefaultEdge.class));
 
 		for (Label label : shapeExprsMap.keySet()) {
 			builder.addVertex(label);
@@ -457,10 +481,8 @@ public class ShexSchema {
 		for (Label label : tripleExprMap.keySet()) {
 			builder.addVertex(label);
 		}
-
 		for (Pair<Label,Label> edge : collector.getResult()) {
 			builder.addEdge(edge.one, edge.two);
-			//System.out.println(edge.one +" -> "+edge.two);
 		}
 		return builder.build();
 	}
@@ -473,7 +495,7 @@ public class ShexSchema {
 	static private List<Graph<Label, DefaultWeightedEdge>> checkIfGraphCanBeStratified(DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge> dependecesGraph) throws NotStratifiedException {
 		// Compute strongly connected components
 		KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge> kscInspector;
-		kscInspector = new KosarajuStrongConnectivityInspector<Label,DefaultWeightedEdge>(dependecesGraph);
+		kscInspector = new KosarajuStrongConnectivityInspector<>(dependecesGraph);
 		List<Graph<Label,DefaultWeightedEdge>> strConComp = kscInspector.getStronglyConnectedComponents();
 
 		// Check that there is no negative edge in a strongly connected component
@@ -484,20 +506,56 @@ public class ShexSchema {
 
 		return strConComp;
 	}
-	
-	// TODO EXTENDS : the stratification graph should be re-defined
-	static private DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeGraphOfDependences(
-			Map<Label, ShapeExpr> shapeExprsMap) {
+
+
+	public static DefaultDirectedWeightedGraph<Label, DefaultWeightedEdge> computeGraphOfDependences(
+			Map<Label, ShapeExpr> shapeExprsMap, Map<ShapeExpr, Set<Shape>> subShapesMap) {
+
+		Set<ShapeExpr> extendedNonShapes =
+				subShapesMap.keySet().stream()
+					.filter(se -> !(se instanceof Shape))
+						.collect(Collectors.toSet());
+
 		GraphBuilder<Label,DefaultWeightedEdge,DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>> builder;
 		builder = new GraphBuilder(new DefaultDirectedWeightedGraph<Label,DefaultWeightedEdge>(DefaultWeightedEdge.class));
-		
-		List<Label> shapes = shapeExprsMap.keySet().stream().filter(la -> (shapeExprsMap.get(la) instanceof Shape))
-															  .collect(Collectors.toList());
-		shapes.stream().forEach(la -> builder.addVertex(la));
-		
-		Map<Pair<Label,Label>,Boolean> edges = computeTheSetOfEdgesForTheGraphOfDependences(shapes, shapeExprsMap);
-		edges.entrySet().stream().forEach(entry -> builder.addEdge(entry.getKey().one, entry.getKey().two, entry.getValue()?1:-1));
-		
+
+		// There is an edge from 'shape1' to 'shape2' in the dependency graph if
+		for (ShapeExpr shapeExpr : shapeExprsMap.values()) {
+			if (! (shapeExpr instanceof Shape)) continue;
+			Shape shape1 = (Shape) shapeExpr;
+			builder.addVertex(shape1.getId());
+
+			for (Shape shape2 : subShapesMap.get(shape1)) {
+				// - 'shape2' is sub-shape of 'shape1'
+				builder.addVertex(shape2.getId());
+				builder.addEdge(shape1.getId(), shape2.getId(), 1);
+			}
+
+			for (TripleConstraint tc : collectTripleConstraintsOfShape(shape1)) {
+				Pair<Set<Pair<Shape, Boolean>>, Set<ShapeExpr>> collected =
+						collectAllShapesAndTheirSignsAndTraversedShapeRefs(tc.getShapeExpr(), extendedNonShapes);
+
+				Set<Pair<Shape,Boolean>> shapesAndTheirSigns = collected.one;
+				for (Pair<Shape, Boolean> shapeAndSign : shapesAndTheirSigns) {
+					Shape shape2 = shapeAndSign.one;
+					// - there is triple constraint 'tc' in the triple expression of 'shape1'
+					//   s.t. 'shape2' appears as atomic shape in 'tc'.getShapeExpr()
+					//   The label of the edge is +1 (positive) if 'shape2' appears positively in the shape expression of 'tc',
+					//   and is -1 otherwise
+					builder.addEdge(shape1.getId(), shape2.getId(), shapeAndSign.two ? 1 : -1);
+				}
+
+				// - there is a triple constraint 'tc' in the triple expression of 'shape1',
+				//   there is a shape expression 'se' referenced in 'tc'.getShapeExpr(),
+				//   'shape2' is sub-shape of 'se'
+				Set<ShapeExpr> traversedExtendedNonShapes = collected.two;
+				for (ShapeExpr se : traversedExtendedNonShapes)
+					for (Shape shape2 : subShapesMap.get(se)) {
+						builder.addVertex(shape2.getId());
+						builder.addEdge(shape1.getId(), shape2.getId(), 1);
+					}
+			}
+		}
 		return builder.build();
 	}
 	
@@ -515,8 +573,8 @@ public class ShexSchema {
 				tc.getShapeExpr().accept(signComputator);
 				
 				for (Label destination:getSetOfShapeInTheShapeExprOfATripleConstraint(tc)) {
-					Pair<Label,Label> key = new Pair<Label,Label>(sourceShape,destination);
-					Pair<Label,Label> subKey = new Pair<Label,Label>(tc.getShapeExpr().getId(), destination);
+					Pair<Label,Label> key = new Pair<>(sourceShape,destination);
+					Pair<Label,Label> subKey = new Pair<>(tc.getShapeExpr().getId(), destination);
 
 					if (shape.getExtraProperties().contains(tc.getProperty().getIri())) {
 						if (!edges.containsKey(key) || signComputator.getResult().get(subKey))
@@ -545,12 +603,18 @@ public class ShexSchema {
 		return shapeCol.getResult();
 	}
 
+	static private Set<TripleConstraint> collectTripleConstraintsOfShape (Shape shape) {
+		CollectElementsFromTriple<TripleConstraint> collector = new CollectElementsFromTriple(e -> e instanceof TripleConstraint, new HashSet<>(), false);
+		shape.getTripleExpression().accept(collector);
+		return collector.getResult();
+	}
+
 	static class ComputeReferenceSign extends ShapeExpressionVisitor<Map<Pair<Label,Label>,Boolean>> {
 		private Label root;
 		private boolean isPositive;
 
 		public ComputeReferenceSign () {	
-			setResult(new HashMap<Pair<Label,Label>,Boolean>());
+			setResult(new HashMap<>());
 			isPositive = true;
 		}
 
@@ -559,7 +623,7 @@ public class ShexSchema {
 		}
 		
 		private void updateSign(Label shapeExpr) {
-			Pair<Label, Label> key = new Pair<Label,Label>(root, shapeExpr);
+			Pair<Label, Label> key = new Pair<>(root, shapeExpr);
 			if (!getResult().containsKey(key))
 				getResult().put(key, isPositive);
 			else 
@@ -601,12 +665,12 @@ public class ShexSchema {
 			isPositive = !isPositive;
 		}
 	}
-	
+
 	
 	static class ShapeCollectorOfAShapeExpr extends ShapeExpressionVisitor<Set<Label>> {
 
 		public ShapeCollectorOfAShapeExpr () {
-			setResult(new HashSet<Label>());
+			setResult(new HashSet<>());
 		}
 
 		@Override
@@ -642,5 +706,50 @@ public class ShexSchema {
 		
 	}
 
+	public static Pair<Set<Pair<Shape, Boolean>>, Set<ShapeExpr>> collectAllShapesAndTheirSignsAndTraversedShapeRefs
+			(ShapeExpr shapeExpr, Set<ShapeExpr> detectIfTraversedAsReference) {
+		Set<ShapeExpr> traversedAsReferenceResult = new HashSet<>();
+		CollectShapesOfShapeExprAndTheirSigns collector = new CollectShapesOfShapeExprAndTheirSigns();
+		shapeExpr.accept(collector, true, detectIfTraversedAsReference, traversedAsReferenceResult);
+		return new Pair<>(collector.getResult(), traversedAsReferenceResult);
+	}
+
+	/** For a shape expression, collects all its leaf shapes and their sign, i.e. whether they appear negated (sign false) or non negated.
+	 * Additionally, monitors which of a given set of shape expression labels are referenced in the shape expression.
+	 * To simplify the data structures, the referenced labels of interest are collected in a set passed as parameter, not in the result. */
+	static class CollectShapesOfShapeExprAndTheirSigns
+			extends ShapeExpressionVisitor<Set<Pair<Shape, Boolean>>>{
+
+		public CollectShapesOfShapeExprAndTheirSigns() {
+			setResult(new HashSet<>());
+		}
+
+		@Override
+		public void visitShape(Shape expr, Object... arguments) {
+			boolean sign = (Boolean) arguments[0];
+			getResult().add(new Pair<>(expr, sign));
+		}
+
+		@Override
+		public void visitNodeConstraint(NodeConstraint expr, Object... arguments) {
+			/* Do nothing */
+		}
+
+		@Override
+		public void visitShapeExprRef(ShapeExprRef shapeRef, Object... arguments) {
+			Set<Label> detectIfTraversedAsReference = (Set) arguments[1];
+			Set<Label> detectIfTraversedAsReferencResult = (Set) arguments[2];
+			shapeRef.getShapeDefinition().accept(this, arguments);
+			if (detectIfTraversedAsReference.contains(shapeRef.getLabel()))
+				detectIfTraversedAsReferencResult.add(shapeRef.getLabel());
+		}
+
+		@Override
+		public void visitShapeNot(ShapeNot expr, Object... arguments) {
+			boolean sign = (Boolean) arguments[0];
+			arguments[0] = sign;
+			expr.getSubExpression().accept(this, arguments);
+		}
+	}
 }
 

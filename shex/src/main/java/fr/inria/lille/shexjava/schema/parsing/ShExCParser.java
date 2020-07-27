@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 import fr.inria.lille.shexjava.schema.Label;
+import fr.inria.lille.shexjava.schema.LabelStart;
 import fr.inria.lille.shexjava.schema.LabelUserDefined;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -65,7 +66,7 @@ import fr.inria.lille.shexjava.schema.parsing.ShExC.ShExDocParser;
 import fr.inria.lille.shexjava.util.Interval;
 import fr.inria.lille.shexjava.util.XPath;
 
-public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
+public class ShExCParser extends ShExDocBaseVisitor<Object> implements Parser{
 
 
     // -------------------------------------------------------------------------
@@ -91,10 +92,9 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
 
     public Map<Label,ShapeExpr> getRules(RDF rdfFactory, InputStream is) throws Exception{
         this.rdfFactory = rdfFactory;
-        this.start = null;
-        rules = new HashMap<Label,ShapeExpr>();
-        prefixes = new HashMap<String,String>();
-        imports = new ArrayList<String>();
+        rules = new HashMap<>();
+        prefixes = new HashMap<>();
+        imports = new ArrayList<>();
         base = "http://shexjava.fr/DefaultBase#";
 
         Reader isr = new InputStreamReader(is, Charset.defaultCharset().name());
@@ -112,8 +112,6 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
         ShExDocParser.ShExDocContext context = ShExDocParser.shExDoc();
 
         this.visit(context);
-        if (start!=null)
-            rules.put(start.getId(),start);
         return rules;
     }
 
@@ -175,8 +173,10 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
 
     @Override
     public Object visitStart(ShExDocParser.StartContext ctx) {
-        if (ctx.shapeExpression()!=null)
+        if (ctx.shapeExpression()!=null) {
             start = visitShapeExpression(ctx.shapeExpression());
+            start.setId(LabelStart.instance);
+        }
         return null;
     }
 
@@ -208,7 +208,7 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
             throw new IllegalArgumentException("Label "+label+" already used.");
 
         expr.setId(label);
-        expr.setAbstract(isAbstract);
+        if (isAbstract) expr.setAbstract();
         rules.put(label,expr);
         return expr;
     }
@@ -1108,9 +1108,9 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
 	// TODO should be changed : base resolution
     private String base = "http://shexjava.fr/DefaultBase#";
 	private List<String> imports;
-    private ShapeExpr start;
     private Map<Label,ShapeExpr> rules;
     private Path filename;
+    private ShapeExpr start;
 
 
 
