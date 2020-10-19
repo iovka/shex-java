@@ -32,14 +32,19 @@ import java.util.stream.Collectors;
 public class TypingForRefineValidation implements MyTypingForValidation {
 
     private ShexSchema schema;
-    private Map<RDFTerm, Set<Shape>> validShapesMap;
-    private Set<Pair<RDFTerm, Shape>> currentStratumNodeShapeLabelPairs;
-    /** The shape labels for which validShapesMap constitutes a complete typing. */
-    private Set<Label> computedStratumsShapeLabels = new HashSet<>();
-    private Set<Label> currentStratumShapeLabels = new HashSet<>();
 
-    /* Used for the Typing view. */
-    private DefaultTyping otherLabelsTyping = new DefaultTyping();
+    /** The labels of the already validated stratums. */
+    private Set<Label> validatedShapeLabels = new HashSet<>();
+    /** The (node, shape) associations for the already validated stratums */
+    private Map<RDFTerm, Set<Shape>> validShapesMap;
+
+    /** The labels on the currently computed stratum. */
+    private Set<Label> currentStratumShapeLabels = new HashSet<>();
+    /** (node, shape) pairs on the current stratum. */
+    private DefaultTypingForValidation currentStratumNodeShapePairs;
+
+    /* Status for the user defined labels. */
+    private DefaultTyping shapeExpressionsTyping = new DefaultTyping();
 
     /** Creates a typing for storing the types for the given nodes for labels of the given schema.
      *
@@ -49,7 +54,7 @@ public class TypingForRefineValidation implements MyTypingForValidation {
     public TypingForRefineValidation (Set<RDFTerm> nodes, ShexSchema schema) {
         this.schema = schema;
         validShapesMap = new HashMap<>(nodes.size());
-        currentStratumNodeShapeLabelPairs = new LinkedHashSet<>(nodes.size() * 2); // This is a guess for the maximal size of the set
+        currentStratumNodeShapePairs = new DefaultTypingForValidation();
         for (RDFTerm node : nodes) {
             validShapesMap.put(node, new HashSet<>());
         }
@@ -57,50 +62,43 @@ public class TypingForRefineValidation implements MyTypingForValidation {
 
     /** Tests whether the shape is currently associated with the given node. */
     @Override
-    public boolean containsShape (RDFTerm node, Shape shape) {
+    public boolean contains(RDFTerm node, ShapeExpr shapeExpr) {
         Set<Shape> nodeShapes = validShapesMap.get(node);
-        if (nodeShapes != null && nodeShapes.contains(shape))
+        if (nodeShapes != null && nodeShapes.contains(shapeExpr))
             return true;
-        if (currentStratumNodeShapeLabelPairs.contains(new Pair<>(node, shape)))
+        if (currentStratumNodeShapePairs.contains(node, shapeExpr))
             return true;
         return false;
-    }
-
-    @Override
-    public boolean containsShapeExpr(RDFTerm node, ShapeExpr shapeExpr) {
-        throw new UnsupportedOperationException("not yet implemented");
     }
 
     /** Not supported for refine validation, use {@link #startStratum(int)} for adding node-shape associations.
      * @throws UnsupportedOperationException
      */
     @Override
-    public void addShape(RDFTerm node, Shape shape) {
+    public void add (RDFTerm node, ShapeExpr shapeExpr) {
         throw new UnsupportedOperationException("Not supported.");
     }
-    /** Not supported for refine validation, use {@link #currentStratumNodeShapeLabelPairsIterator()} for removing node-shape associations.
+    /** Not supported for refine validation, use {@link #currentStratumNodeShapePairsIterator()} for removing node-shape associations.
      * @throws UnsupportedOperationException
      */
     @Override
-    public boolean removeShape(RDFTerm node, Shape shape) {
+    public void remove(RDFTerm node, ShapeExpr shapeExpr) {
         throw new UnsupportedOperationException("Not supported.");
     }
 
-
-    @Override
-    public void setStatus(RDFTerm node, Label shapeExprLabel, Status status) {
-        otherLabelsTyping.setStatus(node, shapeExprLabel, status);
+    public void setStatusOfUserDefined(RDFTerm node, Label shapeExprLabel, Status status) {
+        shapeExpressionsTyping.setStatus(node, shapeExprLabel, status);
     }
 
     private Typing typingView = new Typing() {
         @Override
         public Status getStatus(RDFTerm node, Label label) {
-            if (computedStratumsShapeLabels.contains(label) && allNodes().contains(node))
+            if (validatedShapeLabels.contains(label) && allNodes().contains(node))
                 return validShapesMap.get(node).contains(schema.getShapeExprsMap().get(label))
                         ? Status.CONFORMANT
                         : Status.NONCONFORMANT;
             else
-                return otherLabelsTyping.getStatus(node,label);
+                return shapeExpressionsTyping.getStatus(node,label);
         }
 
         @Override
@@ -110,7 +108,6 @@ public class TypingForRefineValidation implements MyTypingForValidation {
         }
     };
 
-    @Override
     public Typing asTyping() {
         return typingView;
     }
@@ -134,21 +131,21 @@ public class TypingForRefineValidation implements MyTypingForValidation {
                  .map(l -> (Shape) (schema.getShapeExprsMap().get(l))).collect(Collectors.toSet());
          for (RDFTerm node : validShapesMap.keySet())
              for (Shape shape : stratumShapes)
-                currentStratumNodeShapeLabelPairs.add(new Pair(node, shape));
+                currentStratumNodeShapePairs.add(node, shape);
     }
 
     /** To be called when a validation of a stratum ends. */
     void endStratum () {
-        computedStratumsShapeLabels.addAll(currentStratumShapeLabels);
+        validatedShapeLabels.addAll(currentStratumShapeLabels);
         currentStratumShapeLabels.clear();
-        for (Pair<RDFTerm, Shape> nl : currentStratumNodeShapeLabelPairs) {
-            validShapesMap.get(nl.one).add(nl.two);
+        for (Pair<RDFTerm, ShapeExpr> nl : currentStratumNodeShapePairs) {
+            validShapesMap.get(nl.one).add((Shape)nl.two);
         }
-        currentStratumNodeShapeLabelPairs.clear();
+        currentStratumNodeShapePairs.clear();
     }
 
-    /** Iterates over the node-label pairs of the current stratum. */
-    Iterator<Pair<RDFTerm, Shape>> currentStratumNodeShapeLabelPairsIterator() {
-        return currentStratumNodeShapeLabelPairs.iterator();
+    /** Iterates over the node-shape pairs of the current stratum. */
+    Iterator<Pair<RDFTerm, ShapeExpr>> currentStratumNodeShapePairsIterator() {
+        return currentStratumNodeShapePairs.iterator();
     }
 }

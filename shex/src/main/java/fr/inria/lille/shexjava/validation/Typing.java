@@ -9,7 +9,7 @@ import com.moz.kiji.annotations.ApiStability.Stable;
 
 import fr.inria.lille.shexjava.util.Pair;
 
-/** A simpler version of a shape map that associates a {@link Status} to pairs of a node and a label.
+/** A shape map that associates a {@link Status} to pairs of a node and a label.
  * 
  * @author Iovka Boneva
  * @author Jérémie Dusart

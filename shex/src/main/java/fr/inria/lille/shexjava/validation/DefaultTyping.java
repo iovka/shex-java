@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/** A default implementation of a typing that stores explicitly the status for all node-label pairs.
- * Missing status is considered @link {@link Status#NOTCOMPUTED}.
+/** A default implementation of a typing that stores explicitly the status for node-label pairs.
+ * Missing status is considered {@link Status#NOTCOMPUTED}.
  * @author Iovka Boneva
  */
 public class DefaultTyping implements Typing {
@@ -38,7 +38,7 @@ public class DefaultTyping implements Typing {
     }
 
     protected void setStatus (RDFTerm node, Label label, Status status) {
-        statusMap.put(new Pair(node, label), status);
+        statusMap.put(new Pair<>(node, label), status);
     }
 
     @Override

@@ -50,7 +50,7 @@ import fr.inria.lille.shexjava.util.Pair;
 
 /** A ShEx schema.
  * 
- * An instance of this class represents a well-defined schema, that is, all shape labels are defined, there are no circular dependences between {@link ShapeExprRef} or {@link TripleExprRef}, and the set of rules is stratified.
+ * An instance of this class represents a well-defined schema, that is, all shape labels are defined, there are no circular dependencies between {@link ShapeExprRef} or {@link TripleExprRef}, and the set of rules is stratified.
  * The set of rules is not modifiable after construction.
  * All {@link ShapeExpr} and {@link TripleExpr} in the constructed schema have a {@link Label}, allowing to refer to the corresponding expression.
  * The stratification is a most refined stratification.

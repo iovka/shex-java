@@ -16,23 +16,30 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
-import fr.inria.lille.shexjava.schema.Label;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
+import fr.inria.lille.shexjava.util.Pair;
 import org.apache.commons.rdf.api.RDFTerm;
 
-/** Represents a set of (node, shapeExpression) associations.
- * Is mutable, i.e. associations can be added and removed.
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+
+/** A default implementation of {@see MyTypingForValidation} as a set of pairs.
  * @author Iovka Boneva
  */
-public interface MyTypingForValidation {
+public class DefaultTypingForValidation extends LinkedHashSet<Pair<RDFTerm, ShapeExpr>> implements MyTypingForValidation {
 
-    /** Tests whether the {@param node} is currently associated with the given {@param shape}. */
-    boolean contains (RDFTerm node, ShapeExpr shapeExpr);
+    @Override
+    public boolean contains(RDFTerm node, ShapeExpr shapeExpr) {
+        return super.contains(new Pair<>(node, shapeExpr));
+    }
 
-    /** Adds the association. */
-    void add (RDFTerm node, ShapeExpr shapeExpr);
-    /** Removes the association. */
-    void remove (RDFTerm node, ShapeExpr shapeExpr);
+    @Override
+    public void add(RDFTerm node, ShapeExpr shapeExpr) {
+        super.add(new Pair<>(node, shapeExpr));
+    }
 
+    @Override
+    public void remove(RDFTerm node, ShapeExpr shapeExpr) {
+        super.remove(new Pair<>(node, shapeExpr));
+    }
 }
