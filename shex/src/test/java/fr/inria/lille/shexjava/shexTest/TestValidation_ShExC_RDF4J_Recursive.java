@@ -85,9 +85,11 @@ public class TestValidation_ShExC_RDF4J_Recursive extends AbstractValidationTest
 									 .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
 									 .collect(Collectors.toList()));		
 
-			String selectedTest = "";
-			if (!selectedTest.equals(""))
-				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
+			// Set the environment variable TESTS to match test names, e.g.
+			//   TESTS=startRefIRIREF_pass-noOthers|start2RefS1-IstartS2
+			String selectedTest = System.getenv().get("TESTS");
+			if (selectedTest != null)
+				testCases = testCases.parallelStream().filter(tc -> tc.testName.matches(selectedTest)).collect(Collectors.toList());
 			
 			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
 		}
