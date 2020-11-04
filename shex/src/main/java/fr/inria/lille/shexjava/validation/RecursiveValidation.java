@@ -16,17 +16,25 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.validation;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.rdf.api.BlankNodeOrIRI;
 import org.apache.commons.rdf.api.Graph;
+import org.apache.commons.rdf.api.IRI;
 import org.apache.commons.rdf.api.RDFTerm;
 import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.*;
+import fr.inria.lille.shexjava.util.CommonGraph;
+import fr.inria.lille.shexjava.util.Pair;
 
 
 /** Implements the Recursive validation algorithm.
@@ -44,7 +52,6 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	
 	
 	protected boolean performValidation(RDFTerm focusNode, Label label) throws Exception {
-		this.resetTyping();
 		boolean result = recursiveValidation(focusNode,label);
 		if (result) {
 			this.typing.setStatus(focusNode, label, Status.CONFORMANT);
@@ -78,6 +85,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 	class EvaluateShapeExpressionVisitor  {
 		private RDFTerm node; 
 		private Boolean result;
+		private List<Triple> neighbourhood = null;
 		
 		public EvaluateShapeExpressionVisitor(RDFTerm one) {
 			this.node = one;
@@ -104,6 +112,8 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				this.visitShapeExprRef((ShapeExprRef) expr);
 			else if (expr instanceof EmptyShape)
 				this.visitEmptyShape((EmptyShape) expr);
+			else if (expr instanceof ExtendsShapeExpr)
+				this.visitExtendsShapeExpr((ExtendsShapeExpr) expr);
 			else
 				throw new IllegalArgumentException("EvaluateShapeExpressionVisitor.accept does not recognize " + expr.getClass().toString());
 		}
@@ -128,7 +138,7 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		}
 		
 		public void visitShape(Shape expr) throws Exception {
-			result = isLocallyValid(node, expr);
+			result = isLocallyValid(node, expr,neighbourhood);
 		}
 
 		public void visitNodeConstraint(NodeConstraint expr) {
@@ -142,15 +152,64 @@ public class RecursiveValidation extends SORBEBasedValidation {
 
 		public void visitEmptyShape(EmptyShape expr) throws Exception {
 			result = true;
+    }
+		
+		public void visitExtendsShapeExpr(ExtendsShapeExpr expr) throws Exception {
+			List<Triple> oldNeigh = neighbourhood;
+			BagExtendsIterator iter = getIteratorOfTheNeighbourhoodSplit(expr,neighbourhood,node);			
+			while (iter.hasNext()) {
+				Pair<List<Triple>, List<Triple>> nextSplit = iter.next();
+				neighbourhood = nextSplit.one;
+				this.accept(expr.getBaseShapeExpr());
+				if (result) {
+					neighbourhood = nextSplit.two;
+					this.accept(expr.getExtension());
+					if (result) {
+						neighbourhood=oldNeigh;
+						return;
+					}
+				}
+			}			
+			neighbourhood=oldNeigh;
 		}
 	}
 	
+	private BagExtendsIterator getIteratorOfTheNeighbourhoodSplit(ExtendsShapeExpr esexpr, List<Triple> neighbourhood,RDFTerm node) {
+		List<Triple> baseNeigh = selectNeighbourhoodForExtendsValidation(neighbourhood,node);
+
+		List<TripleConstraint> constraints = collectorTC.getTCs(esexpr.getBaseShapeExpr());
+		List<Triple> neighBase = ValidationUtils.getMatchableNeighbourhood(baseNeigh,node, constraints, false);
+		
+		constraints = collectorTC.getTCs(esexpr.getExtension());
+		List<Triple> neighExtension =  ValidationUtils.getMatchableNeighbourhood(baseNeigh, node, constraints, false);
+		
+		List<Triple> unmatchNeigh = baseNeigh.stream().filter(tr->!neighBase.contains(tr) && !neighExtension.contains(tr))
+														  .collect(Collectors.toList());
+		
+		return new BagExtendsIterator(esexpr,unmatchNeigh,neighBase,neighExtension);			
+
+	}
 	
-	private boolean isLocallyValid (RDFTerm node, Shape shape) throws Exception {
+	private List<Triple> selectNeighbourhoodForExtendsValidation(List<Triple> neighbourhood,RDFTerm node){
+		if (neighbourhood == null) {
+			List<Triple> baseNeigh = graph.stream((BlankNodeOrIRI) node,null,null).collect(Collectors.toList());
+			graph.stream(null,null,node).forEach(tr -> baseNeigh.add(tr));
+			return baseNeigh ;
+		} 
+		return new ArrayList<>(neighbourhood);
+	}
+		
+	
+	private boolean isLocallyValid (RDFTerm node, Shape shape, List<Triple> baseNeighbourhood) throws Exception {
 		TripleExpr tripleExpression = this.sorbeGenerator.getSORBETripleExpr(shape);
 
 		List<TripleConstraint> constraints = collectorTC.getTCs(tripleExpression);	
-		List<Triple> neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+
+		List<Triple> neighbourhood;
+		if (baseNeighbourhood == null)
+			neighbourhood = ValidationUtils.getMatchableNeighbourhood(graph, node, constraints, shape.isClosed());
+		else
+			neighbourhood = ValidationUtils.getMatchableNeighbourhood(baseNeighbourhood,  node, constraints, shape.isClosed());
 
 		// Match using only predicate and recursive test. The following lines is the only big difference with refine validation. 
 		TypingForValidation localTyping = new TypingForValidation();
@@ -163,7 +222,6 @@ public class RecursiveValidation extends SORBEBasedValidation {
 				RDFTerm destNode = entry.getKey().getObject();
 				if (!tc.getProperty().isForward())
 					destNode = entry.getKey().getSubject();
-
 				if (this.typing.getStatus(destNode, tc.getShapeExpr().getId()).equals(Status.NOTCOMPUTED)) {
 					if (this.recursiveValidation(destNode, tc.getShapeExpr().getId())) 
 						localTyping.setStatus(destNode, tc.getShapeExpr().getId(),Status.CONFORMANT);	
@@ -175,9 +233,31 @@ public class RecursiveValidation extends SORBEBasedValidation {
 
 			}			
 		}
-				
-		return this.findMatching(node, shape, localTyping).getMatching() != null;
+					
+		return this.findMatching(node, shape, localTyping, baseNeighbourhood).getMatching() != null;
 	}	
 
+	
+	//----------------------------
+	// Extends Util
+	//----------------------------
+	public static List<Triple> getMatchableNeighbourhood(Graph graph, RDFTerm node, List<TripleConstraint> tripleConstraints, boolean shapeIsClosed) {		
+		Set<IRI> inversePredicate = new HashSet<>();
+		Set<IRI> forwardPredicate = new HashSet<>();
+		for (TripleConstraint tc : tripleConstraints)
+			if (tc.getProperty().isForward())
+				forwardPredicate.add(tc.getProperty().getIri());
+			else
+				inversePredicate.add(tc.getProperty().getIri());
+
+		ArrayList<Triple> neighbourhood = new ArrayList<>();
+		neighbourhood.addAll(CommonGraph.getInNeighboursWithPredicate(graph, node, inversePredicate));
+		if (shapeIsClosed)
+			neighbourhood.addAll(CommonGraph.getOutNeighbours(graph, node));
+		else
+			neighbourhood.addAll(CommonGraph.getOutNeighboursWithPredicate(graph, node,forwardPredicate));
+		return neighbourhood;
+	}
+	
 	
 }

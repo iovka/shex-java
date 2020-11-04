@@ -82,6 +82,10 @@ public class ComputationControllerTest {
 		public void canContinue() throws Exception {
 			throw new CompControllerException();			
 		}
+
+		@Override
+		public void stop() {			
+		}
 		
 	}
 
@@ -126,6 +130,11 @@ public class ComputationControllerTest {
 			i++;
 			if (i>2)
 				throw new CompControllerException();			
+		}
+
+		@Override
+		public void stop() {
+			
 		}
 		
 	}
