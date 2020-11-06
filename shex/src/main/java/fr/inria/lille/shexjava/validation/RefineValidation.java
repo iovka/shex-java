@@ -103,9 +103,7 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 	}
 
 	private boolean satisfies (RDFTerm node, ShapeExpr shapeExpr) {
-		ShapeEvaluation.EvaluateShapeExprVistor eval = new ShapeEvaluation.EvaluateShapeExprVistor(typing);
-		shapeExpr.accept(eval, node);
-		return eval.getResult();
+		return ShapeEvaluation.evaluateWithNeighboursTyping(node, shapeExpr, typing);
 	}
 
 	private boolean evaluateShape (RDFTerm node, Shape shape) {
@@ -135,9 +133,10 @@ public class RefineValidation extends ValidationAlgorithmAbstract {
 			if (evaluateShape(node, shape))
 				localTyping.add(node, shape);
 		}
-		ShapeEvaluation.EvaluateShapeExprVistor eval = new ShapeEvaluation.EvaluateShapeExprVistor(localTyping);
-		expr.accept(eval, node);
-		this.typing.setStatusOfUserDefined(node, label, eval.getResult() ? Status.CONFORMANT : Status.NONCONFORMANT);
+		this.typing.setStatusOfUserDefined(node, label,
+				ShapeEvaluation.evaluateWithNeighboursTyping(node, expr, localTyping)
+						? Status.CONFORMANT
+						: Status.NONCONFORMANT);
 	}
 
 }

@@ -79,7 +79,7 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 //					.anyMatch( it -> it.equals(traitIriString));
 
 			// name filter
-			//selectedTestCases = tc -> tc.testName.equals("3circRefS123");
+			//selectedTestCases = tc -> tc.testName.equals("startRefIRIREF_pass-noOthers");
 
 			if (selectedTestCases != null) {
 				testCases = testCases.parallelStream().filter(selectedTestCases).collect(Collectors.toList());
