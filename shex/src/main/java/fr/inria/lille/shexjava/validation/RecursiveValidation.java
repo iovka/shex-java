@@ -32,16 +32,7 @@ import org.apache.commons.rdf.api.Triple;
 
 import fr.inria.lille.shexjava.schema.Label;
 import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.schema.abstrsynt.ExtendsShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.NodeConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.Shape;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeAnd;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExprRef;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeNot;
-import fr.inria.lille.shexjava.schema.abstrsynt.ShapeOr;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleConstraint;
-import fr.inria.lille.shexjava.schema.abstrsynt.TripleExpr;
+import fr.inria.lille.shexjava.schema.abstrsynt.*;
 import fr.inria.lille.shexjava.util.CommonGraph;
 import fr.inria.lille.shexjava.util.Pair;
 
@@ -109,19 +100,22 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		public void accept(ShapeExpr expr) throws Exception {
 			if (expr instanceof ShapeAnd)
 				this.visitShapeAnd((ShapeAnd) expr);
-			if (expr instanceof ShapeOr)
+			else if (expr instanceof ShapeOr)
 				this.visitShapeOr((ShapeOr) expr);
-			if (expr instanceof ShapeNot)
+			else if (expr instanceof ShapeNot)
 				this.visitShapeNot((ShapeNot) expr);
-			if (expr instanceof Shape)
+			else if (expr instanceof Shape)
 				this.visitShape((Shape) expr);
-			if (expr instanceof NodeConstraint)
+			else if (expr instanceof NodeConstraint)
 				this.visitNodeConstraint((NodeConstraint) expr);
-			if (expr instanceof ShapeExprRef)
+			else if (expr instanceof ShapeExprRef)
 				this.visitShapeExprRef((ShapeExprRef) expr);
-			if (expr instanceof ExtendsShapeExpr)
+			else if (expr instanceof EmptyShape)
+				this.visitEmptyShape((EmptyShape) expr);
+			else if (expr instanceof ExtendsShapeExpr)
 				this.visitExtendsShapeExpr((ExtendsShapeExpr) expr);
-				
+			else
+				throw new IllegalArgumentException("EvaluateShapeExpressionVisitor.accept does not recognize " + expr.getClass().toString());
 		}
 		
 		public void visitShapeAnd(ShapeAnd expr) throws Exception {
@@ -155,6 +149,10 @@ public class RecursiveValidation extends SORBEBasedValidation {
 		public void visitShapeExprRef(ShapeExprRef ref) throws Exception {
 			this.accept(ref.getShapeDefinition());
 		}
+
+		public void visitEmptyShape(EmptyShape expr) throws Exception {
+			result = true;
+    }
 		
 		public void visitExtendsShapeExpr(ExtendsShapeExpr expr) throws Exception {
 			List<Triple> oldNeigh = neighbourhood;
