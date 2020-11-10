@@ -102,7 +102,7 @@ public class TestRepresentation {
     		passed.add(new TestResultForTestReport(testName, true, null, "schemas"));
     	}catch (Exception e) {
     		failed.add(new TestResultForTestReport(testName, false, e.getMessage(), "schemas"));
-			fail("Exception during the test: "+e.getMessage());
+			fail("Exception during the test: "+ testName + "\n" + e.getMessage());
     	}
     }
 	
