@@ -5,4 +5,7 @@
 .classpath
 .project
 /bin/
-
+src/main/java/fr/inria/lille/shexjava/schema/parsing/ShExC/ShExDocLexer.java
+src/main/java/fr/inria/lille/shexjava/schema/parsing/ShExC/ShExDocParser.java
+tmp_fromjson.json
+shexjava-core.iml
