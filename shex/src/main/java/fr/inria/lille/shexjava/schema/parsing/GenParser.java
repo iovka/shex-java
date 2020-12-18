@@ -78,7 +78,7 @@ public class GenParser {
 		
 		Set<Path> loaded = new HashSet<Path>();
 		Map<Label,ShapeExpr> allRules = new HashMap<Label,ShapeExpr>();
-		
+
 		List<Path> toload = new ArrayList<Path>();
 		toload.add(filepath);
 		
@@ -98,11 +98,16 @@ public class GenParser {
 			}else {
 				parser = new ShExRParser();
 			}
-			allRules.putAll(parser.getRules(rdfFactory,selectedPath));
+			Map<Label,ShapeExpr> newRules = parser.getRules(rdfFactory,selectedPath);
 			if (init) {
 				start = parser.getStart();
 				init = false;
+			} else {
+				// The start rule has a null key. We don't want IMPORTS
+				// to evict the start rule from the first schema.
+				newRules.remove(null);
 			}
+			allRules.putAll(newRules);
 			List<String> imports = parser.getImports();
 
 			for (String imp:imports) {
