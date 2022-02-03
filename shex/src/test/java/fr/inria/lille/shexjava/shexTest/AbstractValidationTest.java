@@ -45,7 +45,7 @@ public abstract class AbstractValidationTest {
 		Graph dataGraph = getRDFGraph();    		
 		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
 		
-		if (testCase.traits.contains(RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start")))
+		if (testCase.shapeLabel == null)
 			testCase.shapeLabel = schema.getStart().getId();
 			
 		validation.validate(testCase.focusNode, testCase.shapeLabel);
