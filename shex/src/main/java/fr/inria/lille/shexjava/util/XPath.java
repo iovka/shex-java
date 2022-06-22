@@ -21,6 +21,8 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.functions.Matches;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.XdmAtomicValue;
+import net.sf.saxon.str.BMPString;
+import net.sf.saxon.str.StringView;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.AtomicValue;
 
@@ -44,7 +46,7 @@ public class XPath {
 		AtomicValue regexAV = new XdmAtomicValue(tmpregex).getUnderlyingValue();
 		if (flags == null) flags = "";
 		try {
-			return matcher.evalMatches(inputAV, regexAV, flags, context);
+			return matcher.evalMatches(inputAV, regexAV, StringView.of(flags), context);
 		} catch (XPathException e) {
 			e.printStackTrace();
 			return false;

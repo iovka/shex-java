@@ -38,14 +38,15 @@ public abstract class Expression {
 	}
     public abstract String toPrettyString(Map<String,String> prefixes);
 
-    // TODO: used ? Can be removed ?
+    // TODO: used ? Can be removed ? -> replace by toStrnig with map argument
     public String toPrettyString() {
         return toPrettyString(Collections.emptyMap());
     }
 
+	// TODO: implement toString for sub-classes
     @Override
 	public String toString() {
-		return String.format("%s=⟨%s⟩", this.getId(), ""); //toPrettyString(Collections.emptyMap()));
+		return String.format("%s=⟨%s⟩", this.getId(), toPrettyString(Collections.emptyMap()));
 	}
 
 	@Override

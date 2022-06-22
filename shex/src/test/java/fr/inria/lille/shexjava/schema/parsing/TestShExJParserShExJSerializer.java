@@ -161,7 +161,7 @@ public class TestShExJParserShExJSerializer {
 			}
     	}catch (Exception e) {
     		errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
-			fail("Exception: "+testCase.testName);
+			fail("Test failed: "+testCase.testName);
     	}
     }
 	

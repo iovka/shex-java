@@ -82,7 +82,7 @@ public class TestNegativeStruct {
 			List<Resource> testNodes = manifest.filter(null,RDF_TYPE,NEGATIVE_STRUCT).subjects()
 											   .parallelStream().collect(Collectors.toList());
 
-			String selectedTest = "";
+			String selectedTest = "Cycle1Negation1";
 			if (!selectedTest.equals(""))
 				testNodes = testNodes.parallelStream().filter(node -> getTestName(manifest, node).equals(selectedTest)).collect(Collectors.toList());
 			
