@@ -16,16 +16,20 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.shexTest;
 
+import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.validation.RecursiveValidation;
 import fr.inria.lille.shexjava.validation.RecursiveValidationWithMemorization;
 import fr.inria.lille.shexjava.validation.RefineValidation;
 import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 import org.apache.commons.rdf.api.Graph;
+import org.eclipse.rdf4j.model.IRI;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -49,11 +53,9 @@ public class TestUniqueTestCaseForDebugging extends AbstractValidationTest {
 	}
 
 	@Override
-    protected String getSchemaFileName () {
-		// Choose here the schema format
-		//return getSchemaFileName_ShExJ(testCase.schemaFileName);
-		//return getSchemaFileName_ShExR(testCase.schemaFileName);
-		return getSchemaFileName_ShExC(testCase.schemaFileName);
+    protected Path getSchemaFile() {
+		// Choose here the schema format : extension can be json, shex, ttl
+		return getSchemaFile(testCase.schemaFileName, "shex");
 	}
 
 	@Override

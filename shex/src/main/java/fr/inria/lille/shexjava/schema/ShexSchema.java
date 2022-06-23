@@ -52,6 +52,7 @@ import fr.inria.lille.shexjava.util.Pair;
  * 
  * An instance of this class represents a well-defined schema, that is, all shape labels are defined, there are no circular dependencies between {@link ShapeExprRef} or {@link TripleExprRef}, and the set of rules is stratified.
  * The set of rules is not modifiable after construction.
+ * TODO : remove all non user defined labels
  * All {@link ShapeExpr} and {@link TripleExpr} in the constructed schema have a {@link Label}, allowing to refer to the corresponding expression.
  * The stratification is a most refined stratification.
  * 
@@ -70,7 +71,16 @@ public class ShexSchema {
 	/** The factory used for creating fresh {@link Label}s */
 	private RDF rdfFactory;
 
-	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+	/** Construct a ShEx schema from a list of shape declarations whenever the declarations are well defined.
+	 *
+	 * @param rules The set of shape declarations.
+	 * @param start An optional start symbol, can be null.
+	 * @param rdfFactory An optional rdf factory, can be null.
+	 * @throws UndefinedReferenceException when the schema refers to a label that was not defined
+	 * @throws CyclicReferencesException when some shape definition refers to itself
+	 * @throws NotStratifiedException when the shape declarations contain recursion through negation
+	 */
+	public ShexSchema(Map<Label, ShapeExpr> rules, ShapeExpr start, RDF rdfFactory) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
 		this.start = start;
 		this.rdfFactory = rdfFactory;
 
@@ -93,50 +103,30 @@ public class ShexSchema {
 		this.shexprsMap = Collections.unmodifiableMap(shapeExprsMap);
 	}
 
-	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
-	 * Otherwise, an exception is thrown.
-	 * Uses {@link GlobalFactory#RDFFactory} for creating the fresh labels.
-	 * 
-	 * @param rules
-	 * @throws UndefinedReferenceException
-	 * @throws CyclicReferencesException
-	 * @throws NotStratifiedException
+	/** Utility constructor with default rdf factory and no start rule.
+	 * @see #ShexSchema(Map, ShapeExpr, RDF) 
 	 */
 	@Stable
 	public ShexSchema(Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this(GlobalFactory.RDFFactory, rules, null);
+		this(rules, null, GlobalFactory.RDFFactory);
 	}
 	
-	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
-	 * Otherwise, an exception is thrown.
-	 * Uses {@link GlobalFactory#RDFFactory} for creating the fresh labels.
-	 * 
-	 * @param rules
-	 * @param start
-	 * @throws UndefinedReferenceException
-	 * @throws CyclicReferencesException
-	 * @throws NotStratifiedException
+	/** 
+	 * @deprecated Use {@link #ShexSchema(Map, ShapeExpr, RDF) instead}
 	 */
+	@Deprecated
 	public ShexSchema(Map<Label, ShapeExpr> rules, ShapeExpr start) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this(GlobalFactory.RDFFactory, rules, start);
+		this(rules, start, GlobalFactory.RDFFactory);
 	}
-	
-	/** Constructs a ShEx schema whenever the set of rules defines a well-defined schema.
-	 * Otherwise, an exception is thrown.
-	 * Allows to specify the factory to be used for creating the fresh labels.  
-	 * @param rules
-	 * @param rdfFactory
-	 * @throws UndefinedReferenceException
-	 * @throws CyclicReferencesException
-	 * @throws NotStratifiedException
-	 */
-	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
-		this(rdfFactory,rules,null);
-	}
-	
-		
 
-	
+	/**
+	 * @deprecated Use {@link #ShexSchema(Map, ShapeExpr, RDF) instead}
+	 */
+	@Deprecated
+	public ShexSchema(RDF rdfFactory, Map<Label, ShapeExpr> rules) throws UndefinedReferenceException, CyclicReferencesException, NotStratifiedException {
+		this(rules, null, rdfFactory);
+	}
+
 	/** The rules of the schema.
 	 * @return the rules of the schema.
 	 */
@@ -203,17 +193,14 @@ public class ShexSchema {
 		throw new IllegalArgumentException("Unknown shape label: " + label);
 	}
 
-
 	public RDF getRdfFactory() {
 		return rdfFactory;
 	}
 
-	
 	@Override
 	public String toString() {
 		return rules.toString();
 	}
-	
 
 	/** Populates {@link #shexprsMap} */
 	private Map<Label, ShapeExpr> constructShexprMapAndCheckIdsAreUnique(Map<Label, ShapeExpr> rulesMap) {

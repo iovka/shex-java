@@ -96,7 +96,7 @@ import fr.inria.lille.shexjava.util.RDF4JFactory;
  * @author Jérémie Dusart
  */
 public class ShExRParser implements Parser {
-	public static final List<RDFFormat> RDFFormats = Arrays.asList(new RDFFormat[] {
+	public static final List<RDFFormat> RDFFormats = Arrays.asList(
 			RDFFormat.BINARY,
 			RDFFormat.JSONLD,
 			RDFFormat.N3,
@@ -107,8 +107,11 @@ public class ShExRParser implements Parser {
 			RDFFormat.RDFXML,
 			RDFFormat.TRIG,
 			RDFFormat.TRIX,
-			RDFFormat.TURTLE
-	});
+			RDFFormat.TURTLE);
+
+	public static final Set<String> FILE_EXTENSIONS = RDFFormats.stream()
+			.flatMap(it -> it.getFileExtensions().stream())
+			.collect(Collectors.toSet());
 
 	private RDF rdfFactory;
 	private Graph graph;

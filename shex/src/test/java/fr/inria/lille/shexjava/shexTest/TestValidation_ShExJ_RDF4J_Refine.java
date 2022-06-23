@@ -16,52 +16,33 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.shexTest;
 
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
+import fr.inria.lille.shexjava.GlobalFactory;
+import fr.inria.lille.shexjava.schema.ShexSchema;
+import fr.inria.lille.shexjava.validation.RefineValidation;
+import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
+import org.apache.commons.rdf.api.Graph;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.rdf.api.Graph;
-import org.apache.commons.rdf.rdf4j.RDF4J;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Resource;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-
-import fr.inria.lille.shexjava.GlobalFactory;
-import fr.inria.lille.shexjava.schema.ShexSchema;
-import fr.inria.lille.shexjava.util.TestCase;
-import fr.inria.lille.shexjava.util.TestResultForTestReport;
-import fr.inria.lille.shexjava.validation.RecursiveValidationWithMemorization;
-import fr.inria.lille.shexjava.validation.Status;
-import fr.inria.lille.shexjava.validation.Typing;
-import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 
-/** Run the validation tests of the shexTest suite using ShExC parser, RDF4JGraph and recursive validation.
+/** Run the validation tests of the shexTest suite using ShExJ parser, JenaGraph and refine validation.
  * @author Jérémie Dusart
  * @author Iovka Boneva
  *
  */
 @RunWith(Parameterized.class)
-public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationTest {
+public class TestValidation_ShExJ_RDF4J_Refine extends AbstractValidationTest {
 
 	@Override
-    protected Path getSchemaFile() {
-		return getSchemaFile(testCase.schemaFileName, "shex");
+	protected Path getSchemaFile() {
+		return getSchemaFile(testCase.schemaFileName, "json");
 	}
 
 	@Override
@@ -71,8 +52,8 @@ public class TestValidation_ShExC_RDF4J_MemRecursive extends AbstractValidationT
 
 	@Override
 	protected ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
-		return new RecursiveValidationWithMemorization(schema, dataGraph);
+		return new RefineValidation(schema, dataGraph);
 	}
 
-	
+
 }

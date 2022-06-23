@@ -16,9 +16,6 @@
  ******************************************************************************/
 package fr.inria.lille.shexjava.shexTest;
 
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +23,6 @@ import java.util.*;
 
 import fr.inria.lille.shexjava.validation.*;
 import org.apache.commons.rdf.api.Graph;
-import org.eclipse.rdf4j.model.Resource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -43,8 +39,8 @@ import fr.inria.lille.shexjava.schema.ShexSchema;
 public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 
 	@Override
-	protected String skipTestCaseReason () {
-		String reason = super.skipTestCaseReason();
+	protected String skipTestReason () {
+		String reason = super.skipTestReason();
 		if (reason != null)
 			return reason;
 		if (ignoredTests.contains(testCase.testName)) {
@@ -85,12 +81,12 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 		if (testCase.focusNode instanceof org.apache.commons.rdf.api.IRI) {
 			org.apache.commons.rdf.api.IRI focus = (org.apache.commons.rdf.api.IRI) testCase.focusNode;
 			if (focus.getIRIString().startsWith(BASE_IRI)) {
-				if (TEST_DIR.contains(":")) {
-					String newURI = TEST_DIR.substring(0,TEST_DIR.indexOf(":")+1);
+				if (TEST_DIR.toString().contains(":")) {
+					String newURI = TEST_DIR.toString().substring(0,TEST_DIR.toString().indexOf(":")+1);
 					newURI += focus.getIRIString().substring(BASE_IRI.length()+11);
 					testCase.focusNode = GlobalFactory.RDFFactory.createIRI(newURI);
 				}else {
-					Path fullpath = Paths.get(TEST_DIR,focus.getIRIString().substring(BASE_IRI.length()));
+					Path fullpath = TEST_DIR.resolve(focus.getIRIString().substring(BASE_IRI.length()));
 					testCase.focusNode = GlobalFactory.RDFFactory.createIRI("file://"+fullpath.toString());
 				}
 			}
@@ -98,8 +94,8 @@ public class TestValidation_ShExJ_Jena_Refine extends AbstractValidationTest {
 	}
 
 	@Override
-	protected String getSchemaFileName () {
-		return getSchemaFileName_ShExJ(testCase.schemaFileName);
+	protected Path getSchemaFile() {
+		return getSchemaFile(testCase.schemaFileName, "json");
 	}
 
 	@Override

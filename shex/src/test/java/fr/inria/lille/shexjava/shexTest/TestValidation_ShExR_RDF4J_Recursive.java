@@ -59,8 +59,8 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 public class TestValidation_ShExR_RDF4J_Recursive extends AbstractValidationTest {
 
 	@Override
-    protected String getSchemaFileName () {
-		return getSchemaFileName_ShExR(testCase.schemaFileName);
+    protected Path getSchemaFile() {
+		return getSchemaFile(testCase.schemaFileName, "ttl");
 	}
 
 	@Override

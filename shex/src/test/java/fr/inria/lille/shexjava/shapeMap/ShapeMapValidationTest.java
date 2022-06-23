@@ -102,7 +102,7 @@ public class ShapeMapValidationTest {
 		String schemaSt = "start = @<http://inria.fr/Person> <http://inria.fr/Person> { a IRI; <http://a.b/first> IRI; <http://a.b/last> IRI }";
 		String shMap = "{ FOCUS a _ } @START";
 		try {
-			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())),shexParser.getStart());
+			ShexSchema schema = new ShexSchema(shexParser.getRules(new ByteArrayInputStream(schemaSt.getBytes())),shexParser.getStart(), null);
 			BaseShapeMap shapeMap = parser.parse(new ByteArrayInputStream(shMap.getBytes()));
 			assertEquals(shapeMap.getAssociations().size(), 1);
 			
