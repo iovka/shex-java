@@ -52,85 +52,24 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Run the validation tests of the shexTest suite using ShExC parser, RDF4JGraph and recursive validation.
  * @author Jérémie Dusart
+ * @author Iovka Boneva
  *
  */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExR_RDF4J_Recursive extends AbstractValidationTest {
-	protected static final Set<IRI> skippedIris = new HashSet<>(Arrays.asList(new IRI[] {
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Start"), // average number of test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"SemanticAction"), // lot of test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ExternalShape"),  // 4 tests
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"LiteralFocus"), //no test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ShapeMap"), // few test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"IncorrectSyntax"), //no test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Greedy"),
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"relativeIRI")
-	}));
-	
 
-	@Parameters
-	public static Collection<Object[]> parameters() throws IOException {
-    	if (Paths.get(MANIFEST_FILE).toFile().exists()) {
-			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
-			List<TestCase> testCases = manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects().parallelStream()
-											   .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
-											   .collect(Collectors.toList());
-			testCases.addAll(manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects().parallelStream()
-									 .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
-									 .collect(Collectors.toList()));		
-
-			String selectedTest = "";
-			if (!selectedTest.equals(""))
-				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
-			
-			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
-
-    	}
-    	return Collections.emptyList();
+	@Override
+    protected String getSchemaFileName () {
+		return getSchemaFileName_ShExR(testCase.schemaFileName);
 	}
 
-    
-    @Before
-	public void beforeMethod() {
-		List<Object> reasons = testCase.traits.stream().filter(trait -> skippedIris.contains(trait)).collect(Collectors.toList());
-		assumeTrue(reasons.size()==0);
-
-		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
-		assumeTrue(schemaFile.toFile().exists());	
-		
-		Path dataFile = Paths.get(getDataFileName(testCase.dataFileName));
-		assumeTrue(!schemaFile.toString().equals(dataFile.toString()));
+	@Override
+	protected Graph getRDFGraph() throws IOException {
+		return getRDFGraph_RDF4J(testCase.dataFileName);
 	}
 
-    
-	@Test
-    public void runTest() {
-		if (! testCase.isWellDefined()) {
-			fail("Incorrect test definition.");
-		}
-    	try {
-    		Typing typing = performValidation().getTyping();
-			if (! ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && typing.isConformant(testCase.focusNode, testCase.shapeLabel))
-					|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && typing.getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT))){
-				fail("Validation did not compute the expected result: test " + testCase.testName);
-			}			
-    	} catch (Exception e) {
-			fail("Exception during the validation: "+e.getMessage());
-		}
-    }
-	
-    public String getSchemaFileName (Resource res) {
-    	String fp = res.toString().substring(GITHUB_URL.length());
-    	fp = fp.substring(0,fp.length()-4)+"ttl";
-		return Paths.get(TEST_DIR,Paths.get(fp).toString()).toString();
-	}
-	
-	public Graph getRDFGraph() throws IOException {
-		Model data = parseTurtleFile(getDataFileName(testCase.dataFileName),GITHUB_URL+"validation/");
-		return (new RDF4J()).asGraph(data);
-	}
-	
-	public ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
+	@Override
+	protected ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
 		return new RecursiveValidation(schema, dataGraph);
 	}
 

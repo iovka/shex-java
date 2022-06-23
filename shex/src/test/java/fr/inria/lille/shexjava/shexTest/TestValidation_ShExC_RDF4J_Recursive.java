@@ -53,95 +53,24 @@ import fr.inria.lille.shexjava.validation.ValidationAlgorithmAbstract;
 
 /** Run the validation tests of the shexTest suite using ShExC parser, RDF4JGraph and recursive validation.
  * @author Jérémie Dusart
+ * @author Iovka Boneva
  *
  */
 @RunWith(Parameterized.class)
 public class TestValidation_ShExC_RDF4J_Recursive extends AbstractValidationTest {
-	// the following collections are used for the test report
-	public static final Set<TestResultForTestReport> failed = new HashSet<TestResultForTestReport>();
-	public static final Set<TestResultForTestReport> passed = new HashSet<TestResultForTestReport>();
-	public static final Set<TestResultForTestReport> skiped = new HashSet<TestResultForTestReport>();
-	public static final Set<TestResultForTestReport> errors = new HashSet<TestResultForTestReport>();
 
-	protected static final Set<IRI> skippedIris = new HashSet<>(Arrays.asList(new IRI[] {
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"SemanticAction"), // lot of test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ExternalShape"),  // 4 tests
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"LiteralFocus"), //no test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"ShapeMap"), // few test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"IncorrectSyntax"), //no test
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"Greedy"),
-			RDF_FACTORY.createIRI("http://www.w3.org/ns/shacl/test-suite#"+"relativeIRI")
-	}));
-
-
-	@Parameters
-	public static Collection<Object[]> parameters() throws IOException {
-		if (Paths.get(MANIFEST_FILE).toFile().exists()) {
-			Model manifest = parseTurtleFile(MANIFEST_FILE,MANIFEST_FILE);
-			List<TestCase> testCases = manifest.filter(null,RDF_TYPE,VALIDATION_TEST_CLASS).subjects().parallelStream()
-											   .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
-											   .collect(Collectors.toList());
-			testCases.addAll(manifest.filter(null,RDF_TYPE,VALIDATION_FAILURE_CLASS).subjects().parallelStream()
-									 .map(node -> new TestCase((RDF4J) GlobalFactory.RDFFactory,manifest,node))
-									 .collect(Collectors.toList()));		
-
-			String selectedTest = "1dot_pass-noOthers";
-			if (!selectedTest.equals(""))
-				testCases = testCases.parallelStream().filter(tc -> tc.testName.equals(selectedTest)).collect(Collectors.toList());
-			
-			return testCases.parallelStream().map(tc -> {Object[] params =  {tc}; return params;}).collect(Collectors.toList());
-		}
-		return Collections.emptyList();
+	@Override
+	protected String getSchemaFileName () {
+		return getSchemaFileName_ShExC(testCase.schemaFileName);
 	}
 
-
-	@Before
-	public void beforeMethod() {
-		List<Object> reasons = testCase.traits.stream().filter(trait -> skippedIris.contains(trait)).collect(Collectors.toList());
-		if (reasons.size()>0) 
-			skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because some trait is not supported.", "validation"));
-		assumeTrue(reasons.size()==0);
-
-		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
-		if(! schemaFile.toFile().exists())
-			skiped.add(new TestResultForTestReport(testCase.testName, false, "Skipping test because schema file does not exists.", "validation"));
-		assumeTrue(schemaFile.toFile().exists());
+	@Override
+	protected Graph getRDFGraph() throws IOException {
+		return getRDFGraph_RDF4J(testCase.dataFileName);
 	}
 
-
-	@Test
-	public void runTest() {
-		if (! testCase.isWellDefined()) {
-			failed.add(new TestResultForTestReport(testCase.testName, false, "Incorrect test definition.", "validation"));
-			fail("Incorrect test definition.");
-		}
-		try {
-			Typing typing = performValidation().getTyping();
-			if ((testCase.testKind.equals(VALIDATION_TEST_CLASS) && typing.isConformant(testCase.focusNode, testCase.shapeLabel))
-					|| (testCase.testKind.equals(VALIDATION_FAILURE_CLASS) && typing.getStatus(testCase.focusNode, testCase.shapeLabel) == Status.NONCONFORMANT)){
-				passed.add(new TestResultForTestReport(testCase.testName, true, null, "validation"));
-			} else {
-				failed.add(new TestResultForTestReport(testCase.testName, false, null, "validation"));
-				fail("Validation did not compute the expected result: test " + testCase.testName);
-			}			
-		}catch (Exception e) {
-			errors.add(new TestResultForTestReport(testCase.testName, false, e.getMessage(), "validation"));
-			fail("Exception during the validation: "+e.getMessage());
-		}
-	}
-
-
-	public String getSchemaFileName (Resource res) {
-		String fp = res.toString().substring(GITHUB_URL.length());
-		return Paths.get(TEST_DIR,Paths.get(fp).toString()).toString();
-	}
-
-	public Graph getRDFGraph() throws IOException {
-		Model data = parseTurtleFile(getDataFileName(testCase.dataFileName),GITHUB_URL+"validation/");
-		return (new RDF4J()).asGraph(data);
-	}
-
-	public ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
+	@Override
+	protected ValidationAlgorithmAbstract getValidationAlgorithm(ShexSchema schema, Graph dataGraph ) {
 		return new RecursiveValidation(schema, dataGraph);
 	}
 }

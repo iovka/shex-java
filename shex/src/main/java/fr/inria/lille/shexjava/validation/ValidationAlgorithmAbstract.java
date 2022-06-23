@@ -72,10 +72,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 	 */
 	@Override
 	public boolean validate(RDFTerm focusNode, Label label){
-		if (focusNode==null || label==null)
-			throw new IllegalArgumentException("Invalid argument value: focusNode or label cannot be null.");
-		if (!schema.getShapeExprsMap().containsKey(label))
-			throw new IllegalArgumentException("Unknown label: "+label);
 		try {
 			return validate(focusNode, label, null);
 		} catch (Exception e) {
@@ -96,8 +92,6 @@ public abstract class ValidationAlgorithmAbstract implements ValidationAlgorithm
 		this.compController = null;
 		return res;
 	}
-
-
 
 	public ResultShapeMap validate(BaseShapeMap shapeMap) {
 		try {
