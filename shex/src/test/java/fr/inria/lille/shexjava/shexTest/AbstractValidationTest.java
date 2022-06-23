@@ -128,7 +128,7 @@ public abstract class AbstractValidationTest {
 	public ValidationAlgorithmAbstract performValidation() throws Exception {
 		Path schemaFile = Paths.get(getSchemaFileName());
 		
-		ShexSchema schema = GenParser.parseSchema(schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+		ShexSchema schema = GenParser.parseSchema(schemaFile, Collections.singletonList(Paths.get(SCHEMAS_DIR)), null); // exception possible
 		Graph dataGraph = getRDFGraph();
 		ValidationAlgorithmAbstract validation = getValidationAlgorithm(schema, dataGraph);   
 		

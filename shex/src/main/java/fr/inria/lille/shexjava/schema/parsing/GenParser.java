@@ -35,69 +35,52 @@ import fr.inria.lille.shexjava.GlobalFactory;
 import fr.inria.lille.shexjava.schema.ShexSchema;
 import fr.inria.lille.shexjava.schema.abstrsynt.ShapeExpr;
 
-/** For all the functions, the parser used depend of the file extension.
+/** Parses a ShEx schema.
+ * The schema format is determined by the file extension. Can be .shex for ShExC or .json for ShExJ or .ttl for ShExR.
  * @author Jérémie Dusart
+ * @author Iovka Boneva
  *
  */
 public class GenParser {
-	
-	public static ShexSchema parseSchema(Path filepath) throws Exception{
-		return parseSchema(GlobalFactory.RDFFactory,filepath,Collections.emptyList());
-	}
-	
-	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath) throws Exception{
-		return parseSchema(rdfFactory,filepath,Collections.emptyList());
-	}
-	
-	public static ShexSchema parseSchema(Path filepath, Path importDir) throws Exception{
-		List<Path> importDirs = new ArrayList<>();
-		importDirs.add(importDir);
-		return parseSchema(GlobalFactory.RDFFactory,filepath,importDirs);
-	}
-	
-	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath, Path importDir) throws Exception{
-		List<Path> importDirs = new ArrayList<>();
-		importDirs.add(importDir);
-		return parseSchema(rdfFactory,filepath,importDirs);
-	}
-	
-	
-	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{
-		return parseSchema(GlobalFactory.RDFFactory,filepath,importDirectories);
-	}
-	
-	/** The function try to find the imports, if any, in the list of directories provided. The format of the schema is infer from the file extension.
-	 * @param filepath
-	 * @param importDirectories
+
+	/** Parses a schema. If import directories are provided, tries to resolve imports in these directories.
+	 * @param filepath the schema file path
+	 * @param importDirectories can be null or empty
+	 * @param rdfFactory if null, a default factory is used
 	 * @return the parsed ShexSchema
 	 * @throws Exception
 	 */
-	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath, List<Path> importDirectories) throws Exception{
+	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories, RDF rdfFactory) throws Exception {
 		if (!filepath.toFile().exists())
 			throw new FileNotFoundException("File "+filepath+" not found.");
-		
+
+		if (importDirectories == null)
+			importDirectories=Collections.emptyList();
+
 		Set<Path> loaded = new HashSet<Path>();
 		Map<Label,ShapeExpr> allRules = new HashMap<Label,ShapeExpr>();
-		
+
 		List<Path> toload = new ArrayList<Path>();
 		toload.add(filepath);
-		
+
 		ShapeExpr start = null;
 		boolean init = true;
-		
+
 		while(toload.size()>0) {
 			Path selectedPath = toload.get(0);
 			loaded.add(selectedPath);
 			toload.remove(0);
 
-			Parser parser;			
+			Parser parser;
 			if (selectedPath.toString().endsWith(".json")) {
 				parser = new ShExJParser();
 			} else if (selectedPath.toString().endsWith(".shex")) {
 				parser = new ShExCParser();
-			}else {
+			}else if (selectedPath.toString().endsWith(".ttl")){
 				parser = new ShExRParser();
-			}
+			} else
+				throw new IllegalArgumentException("File format not recognized. Files with extension .json or .shex or .ttl are allowed");
+
 			allRules.putAll(parser.getRules(rdfFactory,selectedPath));
 			if (init) {
 				start = parser.getStart();
@@ -123,17 +106,69 @@ public class GenParser {
 							}
 						}
 					}
-				}	
+				}
 				if (res == null){
-					throw new FileNotFoundException("Faild to resolved import "+imp+" from "+selectedPath+".");
+					throw new FileNotFoundException("Failed to resolved import "+imp+" from "+selectedPath+".");
 				}
 				if (! loaded.contains(res))
-					toload.add(res);					
+					toload.add(res);
 			}
 		}
-		ShexSchema schema = new ShexSchema(rdfFactory,allRules,start);
-		return schema;
+		return new ShexSchema(rdfFactory,allRules,start);
 	}
+
+	/**
+	 * @deprecated Use {@link #parseSchema(Path, List, RDF)}  instead}
+	 */
+	@Deprecated
+	public static ShexSchema parseSchema(Path filepath) throws Exception{
+		return parseSchema(filepath,Collections.emptyList(),GlobalFactory.RDFFactory);
+	}
+
+	/**
+	 * @deprecated Use {@link #parseSchema(Path, List, RDF) instead}
+	 */
+	@Deprecated
+	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath) throws Exception{
+		if (rdfFactory == null)
+			rdfFactory = GlobalFactory.RDFFactory;
+		return parseSchema(filepath,Collections.emptyList(),rdfFactory);
+	}
+
+	/**
+	 * @deprecated Use {@link #parseSchema(Path, List, RDF) instead}
+	 */
+	@Deprecated
+	public static ShexSchema parseSchema(Path filepath, Path importDir) throws Exception{
+		return parseSchema(filepath,Collections.singletonList(importDir),GlobalFactory.RDFFactory);
+	}
+
+	/**
+	 * @deprecated Use {@link #parseSchema(Path, List, RDF) instead}
+	 */
+	@Deprecated
+	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath, Path importDir) throws Exception{
+		if (rdfFactory == null)
+			rdfFactory = GlobalFactory.RDFFactory;
+		return parseSchema(filepath,Collections.singletonList(importDir),rdfFactory);
+	}
+
+	/**
+	 * @deprecated Use {@link #parseSchema(Path, List, RDF) instead}
+	 */
+	@Deprecated
+	public static ShexSchema parseSchema(Path filepath, List<Path> importDirectories) throws Exception{
+		return parseSchema(filepath,importDirectories,GlobalFactory.RDFFactory);
+	}
+
+	/**
+	 * @deprecated Use {@link #parseSchema(Path, List, RDF) instead}
+	 */
+	@Deprecated
+	public static ShexSchema parseSchema(RDF rdfFactory, Path filepath, List<Path> importDirectories) throws Exception {
+		return parseSchema(filepath, importDirectories, rdfFactory);
+	}
+
 
 
 }

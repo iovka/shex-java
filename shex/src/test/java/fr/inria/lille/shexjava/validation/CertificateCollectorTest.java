@@ -44,7 +44,7 @@ public class CertificateCollectorTest {
 	@Test
 	public void CertificateCollectorTest1() throws Exception {
 		Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"other","bugreport.json");
-		ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+		ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 		
 		Model model = new LinkedHashModel();
 		Graph graph = (new RDF4J()).asGraph(model);

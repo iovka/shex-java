@@ -65,7 +65,7 @@ public class TestStratification {
 	@Test
 	public void parse (){
 		try {
-			GenParser.parseSchema(new SimpleRDF(),schemaFile);
+			GenParser.parseSchema(schemaFile, null, new SimpleRDF());
 		}catch(NotStratifiedException e) {
 			if (status!=1) {
 				fail("Error: schema not stratified for test: "+schemaFile+".");

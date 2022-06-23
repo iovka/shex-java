@@ -142,7 +142,7 @@ public class Validate {
 	private static ShexSchema getSchema (String schemaFileName) {
 		ShexSchema schema;
 		try {
-			schema = GenParser.parseSchema(rdfFactory,Paths.get(schemaFileName));
+			schema = GenParser.parseSchema(Paths.get(schemaFileName), null, rdfFactory);
 		} catch (IOException e) {
 			System.err.println("Error reading the schema file.");
 			System.err.println("Caused by: ");

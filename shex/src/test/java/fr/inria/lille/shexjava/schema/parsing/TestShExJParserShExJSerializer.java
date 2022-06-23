@@ -147,10 +147,10 @@ public class TestShExJParserShExJSerializer {
     	try {
     		Path schemaFile = Paths.get(getSchemaFileName(testCase.schemaFileName));
     		RDF factory = new CommonFactory();		
-			fromJson = GenParser.parseSchema(factory,schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			fromJson = GenParser.parseSchema(schemaFile,Collections.singletonList(Paths.get(SCHEMAS_DIR)),factory); // exception possible
 			Path tmp = Paths.get("tmp_fromjson.json");
 			ShExJSerializer.ToJson(fromJson, tmp);
-			toJson = GenParser.parseSchema(factory,tmp);
+			toJson = GenParser.parseSchema(tmp, null, factory);
 			tmp.toFile().delete();
 	
     		if (SchemaEquality.areEquals(fromJson, toJson)){

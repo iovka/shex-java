@@ -18,7 +18,7 @@ import fr.inria.lille.shexjava.shapeMap.parsing.ShapeMapParsing;
 import fr.inria.lille.shexjava.validation.RecursiveValidationWithMemorization;
 import fr.inria.lille.shexjava.validation.Status;
 
-public class ShapeMapValidation {
+public class ShapeMapValidationTest {
 	protected ShapeMapParsing parser;
 	protected ShExCParser shexParser;
 
@@ -45,7 +45,7 @@ public class ShapeMapValidation {
 	static Triple n3_first_alien = GlobalFactory.RDFFactory.createTriple(n3, first, alien);
 
 	
-	public ShapeMapValidation() {
+	public ShapeMapValidationTest() {
 		parser = new ShapeMapParsing();
 		shexParser = new ShExCParser();
 	}

@@ -42,7 +42,7 @@ public class TestMyRefineValidation {
     @Test
     public void testEmptyGraphEmptyShape () throws Exception {
         Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"validation","S_empty.shex");
-        ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+        ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 
         Model model = new LinkedHashModel();
         Graph graph = (new RDF4J()).asGraph(model);
@@ -59,7 +59,7 @@ public class TestMyRefineValidation {
     @Test
     public void testOneTripleOneTripleConstraint () throws Exception {
         Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"validation","S_p_dot.shex");
-		ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+		ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 
 		Model model = new LinkedHashModel();
 		Graph graph = (new RDF4J()).asGraph(model);
@@ -78,7 +78,7 @@ public class TestMyRefineValidation {
     @Test
     public void testTwoTriplesOneTripleConstraintSatisfied () throws Exception {
         Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"validation","S_p_dot.shex");
-		ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+		ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 
 		Model model = new LinkedHashModel();
 		Graph graph = (new RDF4J()).asGraph(model);
@@ -98,7 +98,7 @@ public class TestMyRefineValidation {
     @Test
     public void testTwoTriplesOneTripleConstraintNotSatisfied () throws Exception {
         Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"validation","S_p_dot.shex");
-        ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+        ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 
         Model model = new LinkedHashModel();
         Graph graph = (new RDF4J()).asGraph(model);
@@ -118,7 +118,7 @@ public class TestMyRefineValidation {
     @Test
     public void testTwoTriplesTwoTripleConstraintsSatisfied () throws Exception {
         Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"validation","S_p_dot_and_q_dot.shex");
-        ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+        ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 
         Model model = new LinkedHashModel();
         Graph graph = (new RDF4J()).asGraph(model);

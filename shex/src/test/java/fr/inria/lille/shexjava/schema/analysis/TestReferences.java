@@ -67,7 +67,7 @@ public class TestReferences {
 	@Test
 	public void parse (){
 		try {
-			GenParser.parseSchema(new SimpleRDF(),schemaFile);
+			GenParser.parseSchema(schemaFile,null, new SimpleRDF());
 		}catch(UndefinedReferenceException e) {
 			if (status!=1) {
 				fail("Error: undefined reference catch on test ("+schemaFile+")");

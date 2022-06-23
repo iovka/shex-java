@@ -39,7 +39,7 @@ public class Test0cardinality {
 	@Test
 	public void test0Cardinality1() throws Exception {
 		Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"other","0cardinality.shex");
-		ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+		ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 		
 		Model model = new LinkedHashModel();
 		Graph graph = (new RDF4J()).asGraph(model);
@@ -56,7 +56,7 @@ public class Test0cardinality {
 	@Test
 	public void test0Cardinality2() throws Exception {
 		Path schema_file = Paths.get(Configuration.shexTestPath.toString(),"other","0cardinality2.shex");
-		ShexSchema schema = GenParser.parseSchema(rdfFactory,schema_file);
+		ShexSchema schema = GenParser.parseSchema(schema_file, null, rdfFactory);
 		
 		Model model = new LinkedHashModel();
 		Graph graph = (new RDF4J()).asGraph(model);

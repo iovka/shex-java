@@ -122,7 +122,7 @@ public class TestNegativeSyntax {
     public void runTest() {
 		ShexSchema schema = null;
 		try {
-			schema = GenParser.parseSchema(new SimpleRDF(),schemaFile,Paths.get(SCHEMAS_DIR)); // exception possible
+			schema = GenParser.parseSchema(schemaFile,Collections.singletonList(Paths.get(SCHEMAS_DIR)),new SimpleRDF()); // exception possible
 			failed.add(new TestResultForTestReport(testName, false, null, "negativeSyntax"));
 		}catch (Exception e) {
 			errors.add(new TestResultForTestReport(testName, true, e.getMessage(), "negativeSyntax"));
