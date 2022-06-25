@@ -63,7 +63,8 @@ import fr.inria.lille.shexjava.util.TestResultForTestReport;
  * @author Jérémie Dusart
  * @author Iovka Boneva
  */
-public class TestShExJParserShExJSerializer extends AbstractShexTestRunner {
+public class TestShExJParserShExJSerializer extends AbstractParserTest {
+
 	@Override
 	public void executeTest () throws Exception {
 		ShexSchema fromJson = null;

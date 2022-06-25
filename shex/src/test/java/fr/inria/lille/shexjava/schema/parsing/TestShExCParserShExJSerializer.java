@@ -52,7 +52,7 @@ import fr.inria.lille.shexjava.util.TestResultForTestReport;
  * @author Iovka Boneva
  *
  */
-public class TestShExCParserShExJSerializer extends AbstractShexTestRunner {
+public class TestShExCParserShExJSerializer extends AbstractParserTest {
 
 	@Override
 	public void executeTest () throws Exception {
