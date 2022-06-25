@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-/** The parent class of all expressions from the abstract syntax)
+/** The parent class of all expressions from the abstract syntax.
  * @author Iovka Boneva
  */
 public abstract class Expression {

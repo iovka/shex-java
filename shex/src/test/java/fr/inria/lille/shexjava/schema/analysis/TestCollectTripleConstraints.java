@@ -39,11 +39,11 @@ public class TestCollectTripleConstraints {
         TripleConstraint tc3 = RDF.buildTripleConstraint("c");
 
         ShapeExpr extended = new ShapeAnd (Arrays.asList(
-                new Shape(tc1, Collections.emptyList(), Collections.emptySet(), false),
-                new Shape(tc2, Collections.emptyList(), Collections.emptySet(), false)));
+                new Shape(tc1, Collections.emptyList(), Collections.emptySet(), false, null),
+                new Shape(tc2, Collections.emptyList(), Collections.emptySet(), false, null)));
         ShapeExprRef ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("i")));
         ref.setShapeDefinition(extended);
-        Shape shape = new Shape(tc3, Arrays.asList(ref), Collections.emptySet(), false);
+        Shape shape = new Shape(tc3, Arrays.asList(ref), Collections.emptySet(), false, null);
 
         CollectTripleConstraintsSE tcCollector = new CollectTripleConstraintsSE();
         shape.accept(tcCollector);
@@ -59,9 +59,9 @@ public class TestCollectTripleConstraints {
         TripleConstraint tc5 = RDF.buildTripleConstraint("e");
         TripleConstraint tc5bis = RDF.buildTripleConstraint("f");
 
-        Shape shape1 = new Shape(tc1, Collections.emptyList(), Collections.emptySet(), false);
-        Shape shape2 = new Shape(tc2, Collections.emptyList(), Collections.emptySet(), false);
-        Shape shape3 = new Shape(tc3, Collections.emptyList(), Collections.emptySet(), false);
+        Shape shape1 = new Shape(tc1, Collections.emptyList(), Collections.emptySet(), false, null);
+        Shape shape2 = new Shape(tc2, Collections.emptyList(), Collections.emptySet(), false, null);
+        Shape shape3 = new Shape(tc3, Collections.emptyList(), Collections.emptySet(), false, null);
 
         ShapeAnd andS1S2 = new ShapeAnd(Arrays.asList(shape1, shape2));
         ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape1AndShape2Ref")));
@@ -69,14 +69,14 @@ public class TestCollectTripleConstraints {
         ShapeExprRef shape3ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape3ref")));
         shape3ref.setShapeDefinition(shape3);
 
-        List<ShapeExprRef> shape4extended = Arrays.asList(shape1AndShape2Ref, shape3ref);
-        Shape shape4 = new Shape(tc4, shape4extended, Collections.emptySet(), false);
+        List<ShapeExpr> shape4extended = Arrays.asList(shape1AndShape2Ref, shape3ref);
+        Shape shape4 = new Shape(tc4, shape4extended, Collections.emptySet(), false, null);
 
         ShapeExprRef shape4ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape4ref")));
         shape4ref.setShapeDefinition(shape4);
-        List<ShapeExprRef> shape5extended = Arrays.asList(shape4ref);
+        List<ShapeExpr> shape5extended = Arrays.asList(shape4ref);
         TripleExpr tripleExpr5 = new EachOf(Arrays.asList(tc5, tc5bis));
-        Shape shape5 = new Shape(tripleExpr5, shape5extended, Collections.emptySet(), false);
+        Shape shape5 = new Shape(tripleExpr5, shape5extended, Collections.emptySet(), false, null);
 
         Deque tc1parents = new ArrayDeque();
         tc1parents.push(shape5); tc1parents.push(shape4ref);

@@ -166,6 +166,14 @@ public class ShExJSerializer {
 			}
 			result.put("extra", extra);
 		}
+		if (!shape.getExtended().isEmpty()) {
+			List<Object> extended = new ArrayList();
+			for (ShapeExpr e : shape.getExtended()) {
+				extended.add(convertShapeExpr(e));
+			}
+			result.put("extends", extended);
+		}
+
 		if (!(shape.getTripleExpression() instanceof EmptyTripleExpression))
 			result.put("expression", convertTripleExpr(shape.getTripleExpression()));
 		if (shape.getAnnotations()!=null && shape.getAnnotations().size()>0) {

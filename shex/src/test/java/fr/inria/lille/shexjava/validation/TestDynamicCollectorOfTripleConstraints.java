@@ -48,17 +48,17 @@ public class TestDynamicCollectorOfTripleConstraints {
         TripleExpr te3 = new EachOf(Arrays.asList(tc_p3, tc_q3, tc_r3));
         TripleExpr te4 = new EachOf(Arrays.asList(tc_p4, tc_q4));
 
-        Shape shape1 = new Shape(te1, Collections.emptyList(), Collections.emptySet(), false);
-        Shape shape2 = new Shape(te2, Collections.emptyList(), Collections.emptySet(), false);
+        Shape shape1 = new Shape(te1, Collections.emptyList(), Collections.emptySet(), false, null);
+        Shape shape2 = new Shape(te2, Collections.emptyList(), Collections.emptySet(), false, null);
 
         ShapeExprRef shape1AndShape2Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("Shape1AndShape2Ref")));
         shape1AndShape2Ref.setShapeDefinition(new ShapeAnd(Arrays.asList( shape1, shape2)));
 
-        Shape shape3 = new Shape(te3, Collections.emptyList(), Collections.emptySet(), false);
+        Shape shape3 = new Shape(te3, Collections.emptyList(), Collections.emptySet(), false, null);
         ShapeExprRef shape3Ref = new ShapeExprRef(new LabelUserDefined(RDF.buildIRI("shape2ref")));
         shape3Ref.setShapeDefinition(shape3);
 
-        Shape shape4 = new Shape(te4, Arrays.asList(shape1AndShape2Ref, shape3Ref), Collections.emptySet(),false) ;
+        Shape shape4 = new Shape(te4, Arrays.asList(shape1AndShape2Ref, shape3Ref), Collections.emptySet(),false, null) ;
 
         DynamicCollectorOfTripleConstraints collectorTC = new DynamicCollectorOfTripleConstraints();
         collectorTC.getTCs(shape4);

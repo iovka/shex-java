@@ -77,7 +77,8 @@ import fr.inria.lille.shexjava.util.Interval;
 /** Parses a {@link ShexSchema} from its jsonld representation. 
  * 
  * This implementation does not support: external definitions, semantic actions and anonymous "start" shapes.
- * 
+ *
+ *
  * @author Iovka Boneva
  * @author Jérémie Dusart
  */
@@ -87,6 +88,58 @@ public class ShExJParser implements Parser{
 	private List<String> imports;
 	private Path path;
 	private ShapeExpr start;
+
+	// Version of the parser : commit https://github.com/shexSpec/spec/commit/a49a425135fb43e50b97e54e2fc5b3b130c7101e
+
+	/*
+	Schema	{	"@context":"http://www.w3.org/ns/shex.jsonld"?
+	imports:[IRIREF+]? startActs:[SemAct+]? start:shapeExpr? shapes:[shapeExpr+]? }
+	ObjectLiteral	{	value:STRING language:STRING? type:STRING? }
+		//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
+
+	LanguageStem	{	stem:(LANGTAG | EMPTY) }
+	Wildcard 	{	/empty/  }
+	tripleExpr 	=	EachOf | OneOf | TripleConstraint | tripleExprRef ;
+	EachOf 	{	id:tripleExprLabel? expressions:[tripleExpr{2,}] min:INTEGER? max:INTEGER? semActs:[SemAct+]? annotations:[Annotation+]? }
+	OneOf 	{	id:tripleExprLabel? expressions:[tripleExpr{2,}] min:INTEGER? max:INTEGER? semActs:[SemAct+]? annotations:[Annotation+]? }
+	TripleConstraint 	{	id:tripleExprLabel? inverse:BOOL? predicate:IRIREF valueExpr:shapeExpr? min:INTEGER? max:INTEGER? semActs:[SemAct+]? annotations:[Annotation+]? }
+	tripleExprRef 	=	tripleExprLabel ;
+	tripleExprLabel 	=	IRIREF | BNODE ;
+	SemAct	{	name:IRIREF code:STRING? }
+	Annotation	{	predicate:IRIREF object:objectValue }
+	# Terminals		These follow the rules for terminals in the XML 1.0 5th Edition
+	#	Turtle IRIREF without enclosing "<>"s
+	IRIREF 	:	(PN_CHARS | '.' | ':' | '/' | '\\' | '#' | '@' | '%' | '&' | UCHAR)* ;
+	#	Turtle BLANK_NODE_LABEL
+	BNODE 	:	'_:' (PN_CHARS_U | [0-9]) ((PN_CHARS | '.')* PN_CHARS)? ;
+	#	JSON boolean values
+	BOOL 	:	"true" | "false" ;
+	#	Turtle INTEGER
+	INTEGER 	:	[+-]? [0-9] + ;
+	#	Turtle DECIMAL
+	DECIMAL 	:	[+-]? [0-9]* '.' [0-9] + ;
+	#	Turtle DOUBLE
+	DOUBLE 	:	[+-]? ([0-9] + '.' [0-9]* EXPONENT | '.' [0-9]+ EXPONENT | [0-9]+ EXPONENT) ;
+	#	BCP47 Language-Tag
+	LANGTAG 	:	[a-zA-Z]+ ('-' [a-zA-Z0-9]+)* ;
+	#	any JSON string
+	STRING 	:	.* ;
+	#	empty string
+	EMPTY 	:	^$ ;
+	# Components		These terminals are referenced by other terminals but not by external productions.
+	PN_CHARS_BASE 	:	  [A-Z] | [a-z] | [\u00C0-\u00D6] | [\u00D8-\u00F6]
+		| [\u00F8-\u02FF] | [\u0370-\u037D] | [\u037F-\u1FFF]
+		| [\u200C-\u200D] | [\u2070-\u218F] | [\u2C00-\u2FEF]
+		| [\u3001-\uD7FF] | [\uF900-\uFDCF] | [\uFDF0-\uFFFD]
+		| [\u10000-\uEFFFF] ;
+		PN_CHARS 	:	PN_CHARS_U | '-' | [0-9] | '\u00B7' | [\u0300-\u036F] | [\u203F-\u2040] ;
+		PN_CHARS_U 	:	PN_CHARS_BASE | '_' ;
+		UCHAR 	:	  '\\u' HEX HEX HEX HEX
+		| '\\U' HEX HEX HEX HEX HEX HEX HEX HEX ;
+		HEX 	:	[0-9] | [A-F] | [a-f] ;
+		EXPONENT 	:	[eE] [+-]? [0-9]+ ;
+	 */
+
 
 	// --------------------------------------------------------------------
 	// 	PARSING
@@ -169,27 +222,21 @@ public class ShExJParser implements Parser{
 	// Parsing shape
 	//-------------------------------------------
 
-	// shapeExpr 	= 	ShapeOr | ShapeAnd | ShapeNot | NodeConstraint | Shape | ShapeExternal | shapeExprRef
-	// shapeExprRef = Label
-	// Label = IRI | BNode
+	// shapeExpr 	= 	ShapeOr | ShapeAnd | ShapeNot | NodeConstraint | Shape | ShapeExternal | shapeExprRef ;
+	// ShapeExternal 	{ 	id:shapeExprLabel? }
+	// shapeExprRef 	= 	shapeExprLabel ;
+	// shapeExprLabel 	= 	IRIREF | BNODE ;
 	protected ShapeExpr parseShapeExpression(Object exprObj) {
 
-		// TODO does not support shapeExprRef
-		// It is only supported when the shape expression comes from a triple constraint
-		// Then it is supported within the triple constraint
-		// TODO this method should evolve when the abstract syntax of shape expressions is adapted so that it can be a reference
 		ShapeExpr resultExpr = null;
 		if (exprObj instanceof String) {
 			resultExpr = new ShapeExprRef(createShapeLabel((String)exprObj));
-			setShapeId(resultExpr, Collections.EMPTY_MAP);
+			// setShapeId(resultExpr, Collections.EMPTY_MAP);
 			return resultExpr;
 		}
 
 		Map exprMap = (Map) exprObj;
-
-		String type = getType(exprMap);		
-
-		switch(type){
+		switch(getType(exprMap)){
 		case "ShapeOr":
 			resultExpr = parseShapeOr(exprMap);
 			break;
@@ -212,25 +259,26 @@ public class ShExJParser implements Parser{
 		return resultExpr;
 	}
 
-	// ShapeOr 	{ 	id:Label? shapeExprs:[shapeExpr] }
+	private  List<ShapeExpr> parseSubexpressions (Map map) {
+		List shapeExprs = (List) (map.get("shapeExprs"));
+		return parseListOfShapeExprs(shapeExprs);
+	}
+
+	// ShapeOr 	{ 	id:shapeExprLabel? shapeExprs:[shapeExpr{2,}] }
 	protected ShapeExpr parseShapeOr (Map map) {
-		List shapeExprs = (List) (map.get("shapeExprs"));
-		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
-		ShapeExpr res = new ShapeOr(subExpressions);
+		ShapeExpr res = new ShapeOr(parseSubexpressions(map));
 		setShapeId(res, map);
 		return res;
 	}
 
-	// ShapeAnd 	{ 	id:Label? shapeExprs:[shapeExpr] }
+	// ShapeAnd 	{ 	id:shapeExprLabel? shapeExprs:[shapeExpr{2,}] }
 	protected ShapeExpr parseShapeAnd (Map map) {
-		List shapeExprs = (List) (map.get("shapeExprs"));
-		List<ShapeExpr> subExpressions = parseListOfShapeExprs(shapeExprs);
-		ShapeExpr res = new ShapeAnd(subExpressions);
+		ShapeExpr res = new ShapeAnd(parseSubexpressions(map));
 		setShapeId(res, map);
 		return res;
 	}
 
-	// ShapeNot 	{ 	id:Label? shapeExpr:shapeExpr }
+	// ShapeNot 	{ 	id:shapeExprLabel? shapeExpr:shapeExpr }
 	protected ShapeExpr parseShapeNot (Map map) {
 		ShapeExpr subExpr = parseShapeExpression(map.get("shapeExpr"));
 		ShapeExpr res = new ShapeNot(subExpr);
@@ -248,8 +296,9 @@ public class ShExJParser implements Parser{
 	}
 
 	// Shape 	{ 	id:Label? closed:BOOL? extra:[IRI]? expression:tripleExpr? semActs:[SemAct]? }
+
+	// Shape 	{	id:shapeExprLabel? closed:BOOL? extra:[IRIREF+]? extends:[shapeExpr+]? expression:tripleExpr? semActs:[SemAct+]? annotations:[Annotation+]? }
 	protected ShapeExpr parseShape(Map map) {
-		// TODO not used and not supported
 		Object semActs = getSemActs(map);
 			
 		Boolean closed = (Boolean) (map.get("closed"));
@@ -268,6 +317,12 @@ public class ShExJParser implements Parser{
 			extraProps.add(TCProperty.createFwProperty(iri));
 		}
 
+		List<ShapeExpr> extended = new ArrayList<>();
+		if (map.get("extends")!=null)
+			for (Object e: (List) map.get("extends")) {
+				extended.add(parseShapeExpression(e));
+			}
+
 		TripleExpr texpr;
 		Object texprObj = map.get("expression");
 		if (texprObj == null) {
@@ -278,14 +333,12 @@ public class ShExJParser implements Parser{
 		}
 		
 		List<Annotation> annotations = getAnnotations(map);
-		
-		Shape res = new Shape(texpr, extraProps, closed, annotations);
-
+		Shape res = new Shape(texpr, extended, extraProps, closed, annotations);
 		setShapeId(res, map);
-
 		return res;
 	}
-	
+
+
 	
 	
 	//-------------------------------------------
@@ -322,19 +375,14 @@ public class ShExJParser implements Parser{
 		if (values != null) {
 			constraints.add(parseValueSetValue(values));
 		}
-
-		NodeConstraint res = new NodeConstraint(constraints); 
-
+		NodeConstraint res = new NodeConstraint(constraints);
 		setShapeId(res, map);
-
 		return res;
 	}
 
 	// List of
-	// valueSetValue 	= 	objectValue | IriStem | IriStemRange | LiteralStem | LiteralStemRange | Language | LanguageStem | LanguageStemRange ;
-	// objectValue 	= 	IRI | ObjectLiteral ;
-	// Language 	{ 	langTag:ObjectLiteral }
-	// _Stem_ contains stem as key
+	// valueSetValue	=	objectValue | IriStem | IriStemRange | LiteralStem | LiteralStemRange | Language | LanguageStem | LanguageStemRange ;
+	// objectValue	=	IRIREF | ObjectLiteral ;
 	private Constraint parseValueSetValue (List values) {
 		Set<RDFTerm> explicitValues = new HashSet<>();
 		Set<ValueConstraint> nodeConstraints = new HashSet<>();
@@ -372,7 +420,7 @@ public class ShExJParser implements Parser{
 						if (m.containsKey("value")) {
 							explicitValues.add(parseObjectLiteral(m));
 						}else {
-							System.err.println("Node constraint not recognize:"+m);
+							System.err.println("Node constraint not recognized:"+m);
 						}
 					}
 				} else {
@@ -403,16 +451,22 @@ public class ShExJParser implements Parser{
 		return rdfFactory.createLiteral(value,type);
 	}
 
-	//IriStem { stem:IRI }
+	// IriStem	{	stem:IRIREF }
 	protected ValueConstraint parseIRIStem (Map m) {
-		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new IRIStemConstraint(stem);
 	}
 
-	//IriStemRange 	{ 	stem:(IRI | Wildcard) exclusions:[ objectValue|IriStem +]? }
+	// IriStemRange	{	stem:(IRIREF | Wildcard) exclusions:[IRIREF|IriStem+]? }
 	protected ValueConstraint parseIRIStemRange (Map m) {
-		//TODO: error if stem not present
+
+		ValueConstraint stem;
+		if (m.get("stem") instanceof String) {
+			stem = parseIRIStem(m);
+		} else {
+			stem = new WildcardConstraint();
+		}
+
 		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
@@ -430,27 +484,18 @@ public class ShExJParser implements Parser{
 			}
 		}
 
-		ValueConstraint stem;
-		if (m.get("stem") instanceof String) {
-			stem = parseIRIStem(m);
-		} else {
-			stem = new WildcardConstraint();
-		}
-
 		return new IRIStemRangeConstraint(stem,forbidenValue,exclusions);
 	}
 
 
-	//LiteralStem 	{ 	stem:ObjectLiteral }
+	// LiteralStem	{	stem:STRING }
 	protected ValueConstraint parseLiteralStem (Map m) {
-		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new LiteralStemConstraint(stem);
 	}
 
-	//LiteralStemRange 	{ 	stem:(Literal | Wildcard) exclusions:[ objectValue|LiteralStem +]? }
+	// LiteralStemRange	{	stem:(STRING | Wildcard) exclusions:[STRING|LiteralStem+]? }
 	protected ValueConstraint parseLiteralStemRange (Map m) {
-		//TODO: error if stem not present
 		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
@@ -478,7 +523,7 @@ public class ShExJParser implements Parser{
 		return new LiteralStemRangeConstraint(stem,forbidenValue,exclusions);
 	}
 
-	//Language 	{ 	langTag:ObjectLiteral }
+	// Language	{	languageTag:LANGTAG }
 	protected ValueConstraint parseLanguage (Map m) {
 		if (m.containsKey("languageTag"))
 			return new LanguageConstraint((String) m.get("languageTag"));
@@ -488,13 +533,12 @@ public class ShExJParser implements Parser{
 	}
 
 	protected ValueConstraint parseLanguageStem (Map m) {
-		//TODO: error if stem not present
 		String stem = (String) m.get("stem");
 		return new LanguageStemConstraint(stem);
 	}
 
+	//	LanguageStemRange	{	stem:(LANGTAG | EMPTY) exclusions:[LANGTAG|LanguageStem+]? }
 	protected ValueConstraint parseLanguageStemRange (Map m) {
-		//TODO: error if stem not present
 		Set<ValueConstraint> exclusions = new HashSet<ValueConstraint>();
 		Set<RDFTerm> forbidenValue = new HashSet<RDFTerm>();
 		if (m.containsKey("exclusions")) {
@@ -529,7 +573,10 @@ public class ShExJParser implements Parser{
 		return new LanguageStemRangeConstraint(stem,forbidenValue,exclusions);
 	}
 
-	// numericFacet = (mininclusive|minexclusive|maxinclusive|maxeclusive):numericLiteral | (totaldigits|fractiondigits):INTEGER
+
+	// numericFacet 	=	(mininclusive|minexclusive|maxinclusive|maxexclusive):numericLiteral
+	//					|	(totaldigits|fractiondigits):INTEGER ;
+	// numericLiteral 	=	INTEGER | DECIMAL | DOUBLE ;
 	private static Constraint getNumericFacet (Map map) {
 		BigDecimal minincl = null, minexcl = null, maxincl = null, maxexcl = null;
 		Number n;
@@ -563,8 +610,7 @@ public class ShExJParser implements Parser{
 		return null;
 	}
 
-
-	// stringFacet = (length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING?
+	// stringFacet 	=	(length|minlength|maxlength):INTEGER | pattern:STRING flags:STRING? ;
 	private static Constraint getStringFacet (Map map) {		
 		Integer length = (Integer) (map.get("length"));
 		Integer minlength = (Integer) (map.get("minlength"));
@@ -733,7 +779,7 @@ public class ShExJParser implements Parser{
 	private Object getSemActs (Map map) {
 		Object semActs = map.get("semActs");
 		if (semActs != null)
-			System.err.println("Semantic actions not supported.");
+			throw new UnsupportedOperationException("Semantic actions not supported.");
 		return semActs;
 	}
 
@@ -793,6 +839,8 @@ public class ShExJParser implements Parser{
 	// ----------------------------------------------------------------------
 	// UTILITY METHODS
 	// ----------------------------------------------------------------------
+
+
 	private String getType (Map map) {
 		return (String) (map.get("type"));
 	}

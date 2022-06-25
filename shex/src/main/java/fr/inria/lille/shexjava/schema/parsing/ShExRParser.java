@@ -309,7 +309,7 @@ public class ShExRParser implements Parser {
 		List<Triple> triples = getTriples(value,TRIPLE_EXPRESSION);
 		
 		if (triples.size()==0) {
-			ShapeExpr shtmp = new Shape(new EmptyTripleExpression(),Collections.emptySet(),false);
+			ShapeExpr shtmp = new Shape(new EmptyTripleExpression(),Collections.emptyList(), Collections.emptySet(),false, null);
 			setLabel(shtmp,value);
 			return shtmp;
 		}
@@ -328,7 +328,7 @@ public class ShExRParser implements Parser {
 		}	
 		RDFTerm val = (RDFTerm) getObjects(value,TRIPLE_EXPRESSION).get(0);
 		
-		Shape res = new Shape(parseTripleExpr(val),extras,closed,annotations);
+		Shape res = new Shape(parseTripleExpr(val),Collections.emptyList(), extras,closed,annotations);
 		setLabel(res,value);
 		return res;
 	}

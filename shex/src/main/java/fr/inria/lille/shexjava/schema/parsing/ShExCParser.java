@@ -575,7 +575,7 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
     public ShapeExpr visitShapeDefinition(ShExDocParser.ShapeDefinitionContext ctx) {
 
         TripleExpr triple;
-        List<ShapeExprRef> extended = new ArrayList<>();
+        List<ShapeExpr> extended = new ArrayList<>();
         Set<TCProperty> extra = new HashSet<TCProperty>();
         boolean closed = false;
         List<Annotation> annotations = null;
@@ -584,6 +584,7 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
             if (qua.KW_CLOSED()!=null){
                 closed= true;
             } else if (qua.extension()!=null){
+                // FIXME here, only shape expression references are supported for extension
                 extended.add(new ShapeExprRef((Label) qua.extension().accept(this)));
             } else if (qua.extraPropertySet()!=null){
                 extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));
@@ -612,7 +613,7 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
     @Override
     public ShapeExpr visitInlineShapeDefinition(ShExDocParser.InlineShapeDefinitionContext ctx) {
         TripleExpr triple;
-        List<ShapeExprRef> extended = new ArrayList<>();
+        List<ShapeExpr> extended = new ArrayList<>();
         Set<TCProperty> extra = new HashSet<TCProperty>();
         boolean closed = false;
         List<Annotation> annotations = null;
@@ -621,6 +622,7 @@ public class ShExCParser  extends ShExDocBaseVisitor<Object> implements Parser{
             if (qua.KW_CLOSED()!=null){
                 closed= true;
             } else if (qua.extension()!=null){
+                // FIXME here, only shape expression references are supported for extension
                 extended.add(new ShapeExprRef((Label) qua.extension().accept(this)));
             } else if (qua.extraPropertySet()!=null){
                 extra.addAll((Set<TCProperty>) qua.extraPropertySet().accept(this));

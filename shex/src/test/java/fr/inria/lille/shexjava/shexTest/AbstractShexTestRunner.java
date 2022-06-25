@@ -62,7 +62,7 @@ public abstract class AbstractShexTestRunner {
 
     @Test
     public void runTest() {
-        // TODO testType in reporting test results should be parametrized
+        // TODO testType in reporting test results should be parametrized, as this is also used for parser testing
         String skipTestCaseReason = skipTestReason();
         if(skipTestCaseReason != null) {
             skiped.add(new TestResultForTestReport(testCase.testName, false, skipTestCaseReason, "validation"));

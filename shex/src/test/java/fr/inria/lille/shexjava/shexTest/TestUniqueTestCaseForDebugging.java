@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @RunWith(Parameterized.class)
 public class TestUniqueTestCaseForDebugging extends AbstractValidationTest {
 
-	private static String uniqueTestName = "0_empty";
+	private static String uniqueTestName = "ExtendsRepeatedP-pass";
 
 	@Parameterized.Parameters
 	public static Collection<Object[]> parameters() throws IOException {

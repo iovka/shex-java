@@ -37,8 +37,11 @@ public class  Shape extends ShapeExpr implements AnnotedObject {
 	private List<Annotation> annotations;
 	private List<ShapeExprRef> extended;
 
-	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps,
-				 boolean closed, List<Annotation> annotations) {
+	public Shape(TripleExpr tripleExpr,
+				 List<ShapeExpr> extended,
+				 Set<TCProperty> extraProps,
+				 boolean closed,
+				 List<Annotation> annotations) {
 		this.tripleExpr = tripleExpr;
 		this.extra = Collections.unmodifiableSet(new HashSet<>(extraProps));
 		this.extended = Collections.unmodifiableList(new ArrayList(extended));
@@ -47,19 +50,28 @@ public class  Shape extends ShapeExpr implements AnnotedObject {
 		this.annotations = annotations;
 	}
 
-	public Shape(TripleExpr tripleExpr, List<ShapeExprRef> extended, Set<TCProperty> extraProps, boolean closed) {
+	/**
+	 * @deprecated Use {@link #Shape(TripleExpr, List, Set, boolean, List) instead}
+	 */
+	@Deprecated
+	public Shape(TripleExpr tripleExpr, List<ShapeExpr> extended, Set<TCProperty> extraProps, boolean closed) {
 		this(tripleExpr, extended, extraProps, closed, null);
 	}
 
-	// TODO does not handle extra
+	/**
+	 * @deprecated Use {@link #Shape(TripleExpr, List, Set, boolean, List) instead}
+	 */
+	@Deprecated
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed) {
-		this(tripleExpression, Collections.emptyList(), extraProps, closed);
+		this(tripleExpression, Collections.emptyList(), extraProps, closed, null);
 	}
 
-	// TODO does not handle extra
+	/**
+	 * @deprecated Use {@link #Shape(TripleExpr, List, Set, boolean, List) instead}
+	 */
+	@Deprecated
 	public Shape(TripleExpr tripleExpression, Set<TCProperty> extraProps, boolean closed, List<Annotation> annotations) {
-		this(tripleExpression, extraProps, closed);
-		this.annotations = annotations;
+		this(tripleExpression, Collections.emptyList(), extraProps, closed, annotations);
 	}
 	
 	public void setAnnotations (List<Annotation> annotations) {
@@ -78,7 +90,7 @@ public class  Shape extends ShapeExpr implements AnnotedObject {
 	}
 	 
 	public Set<IRI> getExtraProperties () {
-		return this.extra.stream().map(tcp -> tcp.getIri()).collect(Collectors.toSet());
+		return this.extra.stream().map(TCProperty::getIri).collect(Collectors.toSet());
 	}
 		
 	public List<Annotation> getAnnotations() {
