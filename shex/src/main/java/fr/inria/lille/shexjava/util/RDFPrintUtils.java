@@ -25,7 +25,7 @@ public class RDFPrintUtils {
 			if (bestPrefix!=null)
 				return bestPrefix+(iri.getIRIString().substring(prefixes.get(bestPrefix).length()));
 
-			return iri.ntriplesString();
+			return iri.getIRIString();
 		}
 		Literal lit = (Literal) node;
 		if (lit.getLanguageTag().isPresent())

@@ -55,7 +55,9 @@ public abstract class AbstractShexTestRunner {
 
     @Parameterized.Parameters
     public static Collection<Object[]> parameters() throws IOException {
-        return allValidationTestsInManifestFile().parallelStream().map(tc -> new Object[]{tc}).collect(Collectors.toList());
+        return allValidationTestsInManifestFile().parallelStream()
+                .map(tc -> new Object[]{tc})
+                .collect(Collectors.toList());
     }
 
     @Test

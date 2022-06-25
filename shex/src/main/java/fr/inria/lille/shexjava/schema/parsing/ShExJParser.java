@@ -118,15 +118,13 @@ public class ShExJParser implements Parser{
 		Map map = (Map) schemaObject;
 
 		if (! "Schema".equals(getType(map))) {
-			throw new ParseException("The type of a schema should be a schema.",-1);	
+			throw new ParseException("The type of a schema should be a \"Schema\".",-1);
 		}
 
 		if (map.containsKey("startActs")) {
 			System.err.println("startActs not supported.");
 		}
 
-		
-		
 		if (map.containsKey("imports")){
 			if (map.get("imports") instanceof String) {
 				imports.add((String) map.get("imports"));
